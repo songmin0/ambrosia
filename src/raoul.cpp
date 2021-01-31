@@ -10,7 +10,7 @@ ECS::Entity Raoul::createRaoul(vec2 position)
 	ShadedMesh& resource = cache_resource(key);
 	if (resource.effect.program.resource == 0)
 	{
-		RenderSystem::createSprite(resource, sprite_path("players/raoul/raoul_static.png"), "textured");
+		RenderSystem::createSprite(resource, sprite_path("players/raoul/raoul_static.png"), "animated_sprite");
 	}
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
