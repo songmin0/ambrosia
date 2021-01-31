@@ -285,6 +285,42 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		// key is of 'type' GLFW_KEY_
 		// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		
+		auto& salmon_motion = ECS::registry<Motion>.get(player_salmon);
+		float speed = 200.f;
+
+		 //motion is vec2 { x, y }
+		 //updating one direction at a time allows for diagonal movement
+		if (action == GLFW_PRESS)
+		{
+			if (key == GLFW_KEY_RIGHT)
+			{
+				salmon_motion.velocity[0] = speed;
+			}
+			else if (key == GLFW_KEY_LEFT)
+			{
+				salmon_motion.velocity[0] = -speed;
+			}
+			else if (key == GLFW_KEY_UP)
+			{
+				salmon_motion.velocity[1] = -speed;
+			}
+			else if (key == GLFW_KEY_DOWN)
+			{
+				salmon_motion.velocity[1] = speed;
+			}
+		}
+		else if (action == GLFW_RELEASE)
+		{
+			if (key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT)
+			{
+				salmon_motion.velocity[0] = 0;
+			}
+			else if (key == GLFW_KEY_DOWN || key == GLFW_KEY_UP)
+			{
+				salmon_motion.velocity[1] = 0;
+			}
+		}
 	}
 
 	// Resetting game
@@ -324,6 +360,11 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 		// default facing direction is (1, 0)
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-		(void)mouse_pos;
+		// this points the salmon towards the mouse
+		auto& salmon_motion = ECS::registry<Motion>.get(player_salmon);
+
+		float delta_y = mouse_pos[1] - salmon_motion.position[1];
+		float delta_x = abs(mouse_pos[0] - salmon_motion.position[0]); // pretend mouse is always in front of salmon
+		salmon_motion.angle = atan2(delta_y, delta_x); // angle in radians
 	}
 }
