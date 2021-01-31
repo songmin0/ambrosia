@@ -6,6 +6,7 @@
 #include "fish.hpp"
 #include "pebbles.hpp"
 #include "render_components.hpp"
+# include "raoul.hpp"
 
 // stlib
 #include <string.h>
@@ -204,6 +205,9 @@ void WorldSystem::restart()
 
 	// Create a new salmon
 	player_salmon = Salmon::createSalmon({ 100, 200 });
+
+	// Create a new Raoul
+	player_raoul = Raoul::createRaoul({ 200, 200 });
 
 	// !! TODO A3: Enable static pebbles on the ground
 	/*
