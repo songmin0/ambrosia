@@ -2,7 +2,7 @@
 #include "raoul.hpp"
 #include "render.hpp"
 
-ECS::Entity Raoul::createRaoul(vec2 position)
+ECS::Entity Raoul::CreateRaoul(vec2 position)
 {
 	auto entity = ECS::Entity();
 
