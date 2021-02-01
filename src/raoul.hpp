@@ -6,5 +6,5 @@
 struct Raoul
 {
 	// Creates all the associated render resources and default transform
-	static ECS::Entity createRaoul(vec2 pos);
+	static ECS::Entity CreateRaoul(vec2 pos);
 };
