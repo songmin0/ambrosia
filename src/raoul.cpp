@@ -6,7 +6,7 @@ ECS::Entity Raoul::createRaoul(vec2 position)
 {
 	auto entity = ECS::Entity();
 
-	std::string key = "raoul";
+	std::string key = "raoul_static";
 	ShadedMesh& resource = cache_resource(key);
 	if (resource.effect.program.resource == 0)
 	{
