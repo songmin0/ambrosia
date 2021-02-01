@@ -207,7 +207,7 @@ void WorldSystem::restart()
 	player_salmon = Salmon::createSalmon({ 100, 200 });
 
 	// Create a new Raoul
-	player_raoul = Raoul::createRaoul({ 200, 200 });
+	player_raoul = Raoul::CreateRaoul({ 200, 200 });
 
 	// !! TODO A3: Enable static pebbles on the ground
 	/*
