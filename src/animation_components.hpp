@@ -34,9 +34,3 @@ struct AnimationsComponent
 	void AddAnimation(AnimationType type, AnimationData anim);
 	void ChangeAnimation(AnimationType newAnim);
 };
-
-class AnimationSystem
-{
-public:
-	void step();
-};

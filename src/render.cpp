@@ -3,6 +3,7 @@
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
 #include "animation_components.hpp"
+#include "animation_system.hpp"
 
 #include <iostream>
 

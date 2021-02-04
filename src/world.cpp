@@ -6,8 +6,9 @@
 #include "fish.hpp"
 #include "pebbles.hpp"
 #include "render_components.hpp"
-# include "raoul.hpp"
-# include "animation_components.hpp"
+#include "raoul.hpp"
+#include "animation_components.hpp"
+#include "animation_system.hpp"
 
 // stlib
 #include <string.h>

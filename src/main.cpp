@@ -15,6 +15,7 @@
 #include "ai.hpp"
 #include "debug.hpp"
 #include "animation_components.hpp"
+#include "animation_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
