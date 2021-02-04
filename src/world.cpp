@@ -52,7 +52,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 
 	// Create the main window (for rendering, keyboard, and mouse input)
-	window = glfwCreateWindow(window_size_px.x, window_size_px.y, "Salmon Game Assignment", nullptr, nullptr);
+	window = glfwCreateWindow(window_size_px.x, window_size_px.y, "Ambrosia", nullptr, nullptr);
 	if (window == nullptr)
 		throw std::runtime_error("Failed to glfwCreateWindow");
 
@@ -161,7 +161,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	// Processing the salmon state
+	// Check for player defeat
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
 	auto& screen = ECS::registry<ScreenState>.components[0];
 
@@ -232,8 +232,8 @@ void WorldSystem::restart()
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
 
-	// Create a new salmon
-	player_salmon = Salmon::createSalmon({ 100, 200 });
+	//// Create a new salmon
+	//player_salmon = Salmon::createSalmon({ 100, 200 });
 
 	// Create a new Raoul
 	player_raoul = Raoul::CreateRaoul({ 200, 200 });
@@ -262,16 +262,14 @@ void WorldSystem::handle_collisions()
 		auto entity = registry.entities[i];
 		auto entity_other = registry.components[i].other;
 
-		// For now, we are only interested in collisions that involve the salmon
-		if (ECS::registry<Salmon>.has(entity))
+		if (ECS::registry<Raoul>.has(entity))
 		{
-			// Checking Salmon - Turtle collisions
 			if (ECS::registry<Turtle>.has(entity_other))
 			{
 				// initiate death unless already dying
 				if (!ECS::registry<DeathTimer>.has(entity))
 				{
-					// Scream, reset timer, and make the salmon sink
+					// Scream, reset timer, and make the player sink
 					ECS::registry<DeathTimer>.emplace(entity);
 					Mix_PlayChannel(-1, salmon_dead_sound, 0);
 
@@ -280,7 +278,7 @@ void WorldSystem::handle_collisions()
 					// !!! TODO A1: change the salmon color
 				}
 			}
-			// Checking Salmon - Fish collisions
+			// Checking player - Fish collisions
 			else if (ECS::registry<Fish>.has(entity_other))
 			{
 				if (!ECS::registry<DeathTimer>.has(entity))
@@ -310,8 +308,8 @@ bool WorldSystem::is_over() const
 // TODO A1: check out https://www.glfw.org/docs/3.3/input_guide.html
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
-	// Move salmon if alive
-	if (!ECS::registry<DeathTimer>.has(player_salmon))
+	// Move player if alive
+	if (!ECS::registry<DeathTimer>.has(player_raoul))
 	{
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		// TODO A1: HANDLE SALMON MOVEMENT HERE
@@ -389,7 +387,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
 void WorldSystem::on_mouse_move(vec2 mouse_pos)
 {
-	if (!ECS::registry<DeathTimer>.has(player_salmon))
+	if (!ECS::registry<DeathTimer>.has(player_raoul))
 	{
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		// TODO A1: HANDLE SALMON ROTATION HERE
@@ -397,11 +395,11 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 		// default facing direction is (1, 0)
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-		// this points the salmon towards the mouse
-		auto& salmon_motion = ECS::registry<Motion>.get(player_salmon);
+		//// this points the salmon towards the mouse
+		//auto& motion = ECS::registry<Motion>.get(player_salmon);
 
-		float delta_y = mouse_pos[1] - salmon_motion.position[1];
-		float delta_x = abs(mouse_pos[0] - salmon_motion.position[0]); // pretend mouse is always in front of salmon
-		salmon_motion.angle = atan2(delta_y, delta_x); // angle in radians
+		//float delta_y = mouse_pos[1] - salmon_motion.position[1];
+		//float delta_x = abs(mouse_pos[0] - salmon_motion.position[0]); // pretend mouse is always in front of salmon
+		//salmon_motion.angle = atan2(delta_y, delta_x); // angle in radians
 	}
 }
