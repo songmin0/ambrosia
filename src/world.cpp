@@ -9,6 +9,7 @@
 #include "raoul.hpp"
 #include "animation_components.hpp"
 #include "animation_system.hpp"
+#include "egg.hpp"
 
 // stlib
 #include <string.h>
@@ -140,9 +141,9 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		// Reset timer
 		next_turtle_spawn = (TURTLE_DELAY_MS / 2) + uniform_dist(rng) * (TURTLE_DELAY_MS / 2);
 		// Create turtle
-		ECS::Entity entity = Turtle::createTurtle({0, 0});
+		ECS::Entity entity = Egg::CreateEgg({0, 0});
 		// Setting random initial position and constant velocity
-		auto& motion = ECS::registry<Motion>.get(entity);
+		auto& motion = entity.get<Motion>();
 		motion.position = vec2(window_size_in_game_units.x - 150.f, 50.f + uniform_dist(rng) * (window_size_in_game_units.y - 100.f));
 		motion.velocity = vec2(-100.f, 0.f );
 	}
@@ -264,7 +265,7 @@ void WorldSystem::handle_collisions()
 
 		if (ECS::registry<Raoul>.has(entity))
 		{
-			if (ECS::registry<Turtle>.has(entity_other))
+			if (ECS::registry<Egg>.has(entity_other))
 			{
 				// initiate death unless already dying
 				if (!ECS::registry<DeathTimer>.has(entity))
