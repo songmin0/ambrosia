@@ -23,7 +23,7 @@ ECS::Entity Egg::CreateEgg(vec2 position)
 	motion.position = position;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = vec2({ 0.8f, 0.8f }) * static_cast<vec2>(resource.texture.size);
+	motion.scale = vec2({ 0.8f, 0.8f });
 
 	// Animations
 	auto idle_anim = new AnimationData(

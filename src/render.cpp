@@ -16,7 +16,7 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	Transform transform;
 	transform.translate(motion.position);
 	transform.rotate(motion.angle);
-	transform.scale(motion.scale);
+	transform.scale(motion.scale * static_cast<vec2>(texmesh.texture.size));
 
 	// Setting shaders
 	glUseProgram(texmesh.effect.program);
@@ -100,7 +100,7 @@ void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 	Transform transform;
 	transform.translate(motion.position);
 	transform.rotate(motion.angle);
-	transform.scale(motion.scale);
+	transform.scale(motion.scale * static_cast<vec2>(texmesh.texture.size));
 
 	// Setting shaders
 	glUseProgram(texmesh.effect.program);
