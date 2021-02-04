@@ -51,7 +51,6 @@ void AnimationsComponent::AddAnimation(AnimationType type, AnimationData anim)
 	anims[type] = anim;
 }
 
-// temporary animation system location
 void AnimationsComponent::ChangeAnimation(AnimationType newAnim)
 {
 	// do nothing if no change, or the new animation doesn't exist
@@ -65,23 +64,17 @@ void AnimationsComponent::ChangeAnimation(AnimationType newAnim)
 	currAnimData = anims.at(currentAnim);
 
 	// TODO: add check for exit time
-	//// it's probably better to check for exit time elsewhere...?
+	//// we probably don't need exit time since it's turn-based but keep it for now in case
 
-	// replace the mesh ref with the new texture
+	// point the mesh ref to the new texture
 	reference_to_cache = &cache_resource(currAnimData.texture_key);
 }
 
-
-// key should follow the convention: {entityname}_{animation}
-// ie. an idle animation for egg would have key: egg_idle 
 void AnimationData::UpdateTexMeshCache(std::string key, std::string path)
 {
 	ShadedMesh& resource = cache_resource(key);
 	if (resource.effect.program.resource == 0)
 	{
-		RenderSystem::createSpriteSheet(resource, numFrames, path, "animated_sprite");
-		// careful, calling createSpriteSheet() instead of createSprite() binds
-		// ShadedMesh's Texture component
-		// to a 2D Array Texture instead of a 2D Texture
+		RenderSystem::CreateAnimatedSprite(resource, numFrames, path, "animated_sprite");
 	}
 }

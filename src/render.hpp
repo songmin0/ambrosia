@@ -29,7 +29,7 @@ public:
 	static void createColoredMesh(ShadedMesh& mesh_container, std::string shader_name);
 
 	// Animations
-	static void createSpriteSheet(ShadedMesh& sprite, int maxFrames, std::string texture_path, std::string shader_name);
+	static void CreateAnimatedSprite(ShadedMesh& sprite, int maxFrames, std::string texture_path, std::string shader_name);
 
 private:
 	// Initialize the screeen texture used as intermediate render target

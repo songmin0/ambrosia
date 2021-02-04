@@ -77,7 +77,7 @@ void RenderSystem::createSprite(ShadedMesh& sprite, std::string texture_path, st
 }
 
 // Calls load_array_from_file to create a 2D Array texture instead
-void RenderSystem::createSpriteSheet(ShadedMesh& sprite, int maxFrames, std::string texture_path, std::string shader_name)
+void RenderSystem::CreateAnimatedSprite(ShadedMesh& sprite, int maxFrames, std::string texture_path, std::string shader_name)
 {
 	sprite.texture.frames = maxFrames;
 	
