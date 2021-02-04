@@ -28,6 +28,9 @@ public:
 	static void createSprite(ShadedMesh& mesh_container, std::string texture_path, std::string shader_name);
 	static void createColoredMesh(ShadedMesh& mesh_container, std::string shader_name);
 
+	// Animations
+	static void createSpriteSheet(ShadedMesh& sprite, int maxFrames, std::string texture_path, std::string shader_name);
+
 private:
 	// Initialize the screeen texture used as intermediate render target
 	// The draw loop first renders to this texture, then it is used for the water shader

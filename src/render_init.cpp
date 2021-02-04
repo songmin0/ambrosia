@@ -76,6 +76,137 @@ void RenderSystem::createSprite(ShadedMesh& sprite, std::string texture_path, st
 	sprite.effect.load_from_file(shader_path(shader_name) + ".vs.glsl", shader_path(shader_name) + ".fs.glsl");
 }
 
+// Attempt at using 2d array texture
+void RenderSystem::createSpriteSheet(ShadedMesh& sprite, int maxFrames, std::string texture_path, std::string shader_name)
+{
+	// TODO - find a way to load all sprites in a texture, no sprite sheet; just work with 1 for now
+	sprite.texture.frames = maxFrames;
+	
+	if (texture_path.length() > 0)
+	{
+		sprite.texture.load_array_from_file(texture_path.c_str(), maxFrames);
+	}
+
+	// we called a special load function... 
+	// so now texture.texture_id actually holds a 2D array texture
+
+	// we're gonna keep using a ShadedMesh... let's not touch the vertex buffers for now
+
+	// The position corresponds to the center of the texture.
+	TexturedVertex vertices[4];
+	vertices[0].position = { -1.f / 2, +1.f / 2, 0.f };
+	vertices[1].position = { +1.f / 2, +1.f / 2, 0.f };
+	vertices[2].position = { +1.f / 2, -1.f / 2, 0.f };
+	vertices[3].position = { -1.f / 2, -1.f / 2, 0.f };
+
+	vertices[0].texcoord = { 0.f, 1.f };
+	vertices[1].texcoord = { 1.f, 1.f };
+	vertices[2].texcoord = { 1.f, 0.f };
+	vertices[3].texcoord = { 0.f, 0.f };
+
+
+	// Counterclockwise as it's the default opengl front winding direction.
+	uint16_t indices[] = { 0, 3, 1, 1, 3, 2 };
+
+	glGenVertexArrays(1, sprite.mesh.vao.data());
+	glGenBuffers(1, sprite.mesh.vbo.data());
+	glGenBuffers(1, sprite.mesh.ibo.data());
+	gl_has_errors();
+
+	// Vertex Buffer creation
+	glBindBuffer(GL_ARRAY_BUFFER, sprite.mesh.vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // sizeof(TexturedVertex) * 4
+	gl_has_errors();
+
+	// Index Buffer creation
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sprite.mesh.ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); // sizeof(uint16_t) * 6
+	gl_has_errors();
+
+	glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
+
+	// Loading shaders
+	sprite.effect.load_from_file(shader_path(shader_name) + ".vs.glsl", shader_path(shader_name) + ".fs.glsl");
+	gl_has_errors();
+}
+
+//// Create a new sprite and register it with ECS
+//void RenderSystem::createSpriteSheet(ShadedMesh& sprite, std::string texture_path, std::string shader_name)
+//{
+//	if (texture_path.length() > 0)
+//		sprite.texture.load_from_file(texture_path.c_str());
+//
+//	// The position corresponds to the center of the texture.
+//	TexturedVertex vertices[4];
+//	vertices[0].position = { -1.f / 2, +1.f / 2, 0.f };
+//	vertices[1].position = { +1.f / 2, +1.f / 2, 0.f };
+//	vertices[2].position = { +1.f / 2, -1.f / 2, 0.f };
+//	vertices[3].position = { -1.f / 2, -1.f / 2, 0.f };
+//
+//	//vertices[0].texcoord = { 0.f, 1.f };
+//	//vertices[1].texcoord = { 1.f, 1.f };
+//	//vertices[2].texcoord = { 1.f, 0.f };
+//	//vertices[3].texcoord = { 0.f, 0.f };
+//
+//	// uh... test assigning the vertices to only 1/8th the image
+//	// THIS WORKS AND SHOWS ONLY THE FIRST FRAME!
+//	//vertices[0].texcoord = { 0.f, 0.125 };
+//	//vertices[1].texcoord = { 0.125, 0.125 };
+//	//vertices[2].texcoord = { 0.125, 0.f };
+//	//vertices[3].texcoord = { 0.f, 0.f };
+//
+//	// let's try to show the last column
+//	// yes this works but the resolution is still that of a single pixel
+//	//vertices[0].texcoord = { 0.875, 1.0 };
+//	//vertices[1].texcoord = { 1.0, 1.0 };
+//	//vertices[2].texcoord = { 1.0, 0.f };
+//	//vertices[3].texcoord = { 0.875, 0.f };
+//
+//	// so 0,0 is top left, like this:
+//	// 0,0 ------- 1,0
+//	//  |           |
+//	//  |           |
+//	// 0,1 ------- 1,1
+//
+//	// with indices defined as
+//	//  3  -------  2
+//	//  |           |
+//	//  |           |
+//	//  0  -------  1
+//
+//	// we move right first, then down
+//
+//	// so if we want to show pixel 8, or the last pixel of the first row we set
+//	//vertices[0].texcoord = { 0.875, 0.125 }; // 7 units right, 1 unit down - bottom left
+//	//vertices[1].texcoord = { 1.0, 0.125 }; // bottom-right - all the way right, 1 unit down
+//	//vertices[2].texcoord = { 1.0, 0.f }; // top-right - all the way right, at the top
+//	//vertices[3].texcoord = { 0.875, 0.f }; // top-left - 7 units right, at the top
+//
+//	
+//	// Counterclockwise as it's the default opengl front winding direction.
+//	uint16_t indices[] = { 0, 3, 1, 1, 3, 2 };
+//
+//	glGenVertexArrays(1, sprite.mesh.vao.data());
+//	glGenBuffers(1, sprite.mesh.vbo.data());
+//	glGenBuffers(1, sprite.mesh.ibo.data());
+//	gl_has_errors();
+//
+//	// Vertex Buffer creation
+//	glBindBuffer(GL_ARRAY_BUFFER, sprite.mesh.vbo);
+//	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // sizeof(TexturedVertex) * 4
+//	gl_has_errors();
+//
+//	// Index Buffer creation
+//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sprite.mesh.ibo);
+//	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); // sizeof(uint16_t) * 6
+//	gl_has_errors();
+//
+//	glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
+//
+//	// Loading shaders
+//	sprite.effect.load_from_file(shader_path(shader_name) + ".vs.glsl", shader_path(shader_name) + ".fs.glsl");
+//}
+
 // Load a new mesh from disc and register it with ECS
 void RenderSystem::createColoredMesh(ShadedMesh& texmesh, std::string shader_name)
 {

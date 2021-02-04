@@ -2,6 +2,7 @@
 #include "render.hpp"
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
+#include "animation_components.hpp"
 
 #include <iostream>
 
@@ -43,11 +44,45 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	{
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(0));
+		
 		glEnableVertexAttribArray(in_texcoord_loc);
 		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(sizeof(vec3))); // note the stride to skip the preceeding vertex position
-		// Enabling and binding texture to slot 0
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texmesh.texture.texture_id);
+		
+		// check for animations
+		if (entity.has<AnimationsComponent>())
+		{
+			// animations have a ShadedMesh with a Texture component that's a 2D Array Texture, not a 2D Texture
+			GLint frame_uloc = glGetUniformLocation(texmesh.effect.program, "frame");
+			GLint arraySamplerLoc = glGetUniformLocation(texmesh.effect.program, "array_sampler");
+			// if there's ever a problem finding this but you're sure it exists, check that it's being used
+			// in the shader, the compiler likes to garbage things that aren't ACTUALLY being USEFUL
+			// making a copy of it in the shader isn't enough, like ya actually gotta use it
+			if (arraySamplerLoc > -1)
+			{
+				// if it's an animated sprite... uhhhhh
+				//std::cout << "We found an animated sprite\n";
+				auto& anims = entity.get<AnimationsComponent>();
+				float frame = (float)anims.currAnimData.currFrame;
+				// pass in that frame number to the shader andddd theoretically magic
+				glUniform1f(frame_uloc, frame);
+
+				//texture_id stores a 2d array texture instead
+				// bind it to slot 1 so we don't confuse with the 2d texture
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D_ARRAY, texmesh.texture.texture_id);
+
+				// try manually setting the sampler...
+				glUniform1i(arraySamplerLoc, 1);
+				gl_has_errors();
+			}
+		}
+		else
+		{
+			// Enabling and binding texture to slot 0
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texmesh.texture.texture_id);
+			gl_has_errors();
+		}
 	}
 	else if (in_color_loc >= 0)
 	{
@@ -55,21 +90,11 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(0));
 		glEnableVertexAttribArray(in_color_loc);
 		glVertexAttribPointer(in_color_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(sizeof(vec3)));
-
-		// Light up?
-		// !!! TODO A1: check whether the entity has a LightUp component
-		if (false)
-		{
-			GLint light_up_uloc = glGetUniformLocation(texmesh.effect.program, "light_up");
-
-			// !!! TODO A1: set the light_up shader variable using glUniform1i
-			(void)light_up_uloc; // placeholder to silence unused warning until implemented
-		}
 	}
 	else
 	{
 		throw std::runtime_error("This type of entity is not yet supported");
-	}
+	} 
 	gl_has_errors();
 
 	// Getting uniform locations for glUniform* calls
@@ -92,7 +117,7 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	// Drawing of num_indices/3 triangles specified in the index buffer
 	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
 	glBindVertexArray(0);
-}
+};
 
 // Draw the intermediate texture to the screen, with some distortion to simulate water
 void RenderSystem::drawToScreen() 
@@ -192,6 +217,8 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 		drawTexturedMesh(entity, projection_2D);
 		gl_has_errors();
 	}
+
+	// Try doing something fancy to animated things?
 
 	// Truely render to the screen
 	drawToScreen();

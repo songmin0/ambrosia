@@ -10,6 +10,7 @@
 #include <sstream>
 #include <fstream>
 #include <cassert>
+#include <filesystem>
 
 void gl_compile_shader(GLuint shader)
 {
@@ -23,7 +24,7 @@ void gl_compile_shader(GLuint shader)
 		std::vector<char> log(log_len);
 		glGetShaderInfoLog(shader, log_len, &log_len, log.data());
 		glDeleteShader(shader);
-
+		
 		throw std::runtime_error("GLSL: " + std::string(log.data()));
 	}
 }
@@ -73,6 +74,84 @@ void Texture::load_from_file(std::string path)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	stbi_image_free(data);
 	gl_has_errors();
+}
+
+void Texture::load_array_from_file(std::string path, int maxFrames)
+{
+	// TODO: load multiple images... for now this loads a single image, copied from load_from_file
+	// path is expected to include up to each sprite's name, not including frame data
+
+	stbi_uc* data;
+	std::string firstFrame = path + "_000.png";
+
+	//for some reason this has to come first... ah, we need to initialize texture with size
+	// okay, load the first image first then
+	if (texture_cache.count(firstFrame) > 0)
+	{
+		data = texture_cache[firstFrame];
+	}
+	else
+	{
+		data = stbi_load(firstFrame.c_str(), &size.x, &size.y, NULL, 4);
+	}
+	if (data == NULL)
+	{
+		throw std::runtime_error("data == NULL, failed to load texture");
+	}
+	gl_has_errors();
+	
+	// bind to a 2D Array Texture instead
+	//texture_id is a GLResource<TEXTURE> so I guess we get it's data to actually get the texture
+	glActiveTexture(GL_TEXTURE0);
+	glGenTextures(1, texture_id.data());
+
+	// here's the big change, we're gonna bind it to a 2d texture array instead
+	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_id);
+
+	// Allocate the storage, we're not storing any images in here yet, filling it in later
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, size.x, size.y, frames, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	
+	// create a sub image for each frame
+	// we have to be able to get the image data for each one using the image library above
+	// data is a local variable from above, so its the image we just loaded
+	for (int i = 0; i < frames; ++i)
+	{
+		std::string framePath = path + "_00" + std::to_string(i) + ".png";
+		// hack this for now
+		if (i >= 10) 
+		{
+			framePath = path + "_0" + std::to_string(i) + ".png";
+		}
+
+		//for some reason this has to come first... ah, we need to initialize texture with size
+		// okay, load the first image first then
+		if (texture_cache.count(framePath) > 0)
+		{
+			data = texture_cache[framePath];
+		}
+		else
+		{
+			data = stbi_load(framePath.c_str(), &size.x, &size.y, NULL, 4);
+		}
+		if (data == NULL)
+		{
+			throw std::runtime_error("data == NULL, failed to load texture");
+		}
+
+		gl_has_errors();
+		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, size.x, size.y, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
+
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	// oh no, manual memory management, guess we gotta call this for every image we load in
+	stbi_image_free(data);
+	gl_has_errors();
+
+	// Texture.texture_id now points to a 2D ARRAY TEXTURE! HOPEFULLY!
 }
 
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
