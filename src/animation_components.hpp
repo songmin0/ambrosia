@@ -5,17 +5,7 @@
 #include <vector>
 #include <unordered_map> 
 
-
 enum class AnimationType { STATIC, IDLE, MOVE, ATTACK1, ATTACK2, ATTACK3, HIT, DEFEAT };
-
-struct EnumClassHash
-{
-	template <typename T>
-	std::size_t operator()(T t) const
-	{
-		return static_cast<std::size_t>(t);
-	}
-};
 
 struct AnimationData
 {
@@ -38,16 +28,15 @@ struct AnimationsComponent
 	std::unordered_map<AnimationType, AnimationData> anims;
 	AnimationType currentAnim;
 	AnimationData currAnimData;
+	ShadedMesh* reference_to_cache;
 
+	AnimationsComponent(AnimationType type, AnimationData anim);
 	void AddAnimation(AnimationType type, AnimationData anim);
+	void ChangeAnimation(AnimationType newAnim);
 };
 
-void UpdateTexMeshCache(std::string key, std::string path);
-
-//// temporary animation system location
 class AnimationSystem
 {
 public:
 	void step();
-	static void ChangeAnimation(ECS::Entity e, AnimationType newAnim);
 };

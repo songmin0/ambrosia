@@ -57,8 +57,6 @@ int main()
 		world.step(elapsed_ms, window_size_in_game_units);
 		physics.step(elapsed_ms, window_size_in_game_units);
 		world.handle_collisions();
-
-		//moment of truth
 		animations.step();
 
 		renderer.draw(window_size_in_game_units);

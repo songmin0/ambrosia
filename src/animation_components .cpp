@@ -38,9 +38,37 @@ AnimationData::AnimationData(std::string key, std::string path, int anim_numFram
 	UpdateTexMeshCache(key, path);
 }
 
+AnimationsComponent::AnimationsComponent(AnimationType type, AnimationData anim)
+{
+	anims[type] = anim;
+	currentAnim == type;
+	currAnimData = anim;
+	reference_to_cache = &cache_resource(anim.texture_key);
+}
+
 void AnimationsComponent::AddAnimation(AnimationType type, AnimationData anim)
 {
 	anims[type] = anim;
+}
+
+// temporary animation system location
+void AnimationsComponent::ChangeAnimation(AnimationType newAnim)
+{
+	// do nothing if no change, or the new animation doesn't exist
+	if (currentAnim == newAnim || anims.count(newAnim) == 0)
+	{
+		return;
+	}
+
+	// else update current animation and its data
+	currentAnim = newAnim;
+	currAnimData = anims.at(currentAnim);
+
+	// TODO: add check for exit time
+	//// it's probably better to check for exit time elsewhere...?
+
+	// replace the mesh ref with the new texture
+	reference_to_cache = &cache_resource(currAnimData.texture_key);
 }
 
 
@@ -58,35 +86,7 @@ void AnimationData::UpdateTexMeshCache(std::string key, std::string path)
 	}
 }
 
-// temporary animation system location
-void AnimationSystem::ChangeAnimation(ECS::Entity e, AnimationType newAnim)
-{
-	if (e.has<AnimationsComponent>())
-	{
-		auto& anims = e.get<AnimationsComponent>();
-		
-		// do-nothing case
-		if (anims.currentAnim == newAnim)
-		{
-			return;
-		}
-
-		// TODO check that the new anim exists
-
-		// else update current animation and its data
-		anims.currentAnim = newAnim;
-		anims.currAnimData = anims.anims.at(anims.currentAnim);
-
-		// TODO: add check for exit time
-
-		// replace the entity's shaded mesh ref with a new one using the correct texture...?
-		ShadedMesh& resource = cache_resource(anims.currAnimData.texture_key);
-		e.get<ShadedMeshRef>() = ShadedMeshRef(resource);
-		// feels like so much memory is leaking here idk
-	}
-}
-
-// this is called every frame
+// call this every frame
 void AnimationSystem::step()
 {
 	// for each Animation component...
@@ -102,18 +102,26 @@ void AnimationSystem::step()
 			continue;
 		}
 
-		  ///////////////////////////////////
-		 /// else it's time to animate /////
 		///////////////////////////////////
+	   /// else it's time to animate /////
+	  ///////////////////////////////////
 
-		// reset the timer
+	  // reset the timer
 		currAnim.delay_timer = currAnim.delay;
-		
-		 //calculate it's current frame...
+
+		//calculate it's current frame...
 		if (!currAnim.cycle)
 		{
-			// if the animation doesn't cycle and it's done, then stay on it's last frame
-			currAnim.currFrame = max(currAnim.numFrames, currAnim.currFrame + 1);
+			// if we're on the last frame and we don't cycle...
+			if (currAnim.currFrame >= currAnim.numFrames - 1)
+			{
+				// for all anims that don't cycle except defeat, try to return to idle
+				anims.ChangeAnimation(AnimationType::IDLE);
+			}
+			else
+			{
+				currAnim.currFrame++;
+			}
 		}
 		else
 		{
@@ -124,7 +132,5 @@ void AnimationSystem::step()
 			// numFrames is like "length" of an array (it's 1-based) but currFrames is like "index" of an array (it's 0-based)
 			// hence currAnim.currFrame should always stay between 0:(numFrames-1)
 		}
-
-
 	}
-}
+};

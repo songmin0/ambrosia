@@ -48,41 +48,11 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 		glEnableVertexAttribArray(in_texcoord_loc);
 		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(sizeof(vec3))); // note the stride to skip the preceeding vertex position
 		
-		// check for animations
-		if (entity.has<AnimationsComponent>())
-		{
-			// animations have a ShadedMesh with a Texture component that's a 2D Array Texture, not a 2D Texture
-			GLint frame_uloc = glGetUniformLocation(texmesh.effect.program, "frame");
-			GLint arraySamplerLoc = glGetUniformLocation(texmesh.effect.program, "array_sampler");
-			// if there's ever a problem finding this but you're sure it exists, check that it's being used
-			// in the shader, the compiler likes to garbage things that aren't ACTUALLY being USEFUL
-			// making a copy of it in the shader isn't enough, like ya actually gotta use it
-			if (arraySamplerLoc > -1)
-			{
-				// if it's an animated sprite... uhhhhh
-				//std::cout << "We found an animated sprite\n";
-				auto& anims = entity.get<AnimationsComponent>();
-				float frame = (float)anims.currAnimData.currFrame;
-				// pass in that frame number to the shader andddd theoretically magic
-				glUniform1f(frame_uloc, frame);
-
-				//texture_id stores a 2d array texture instead
-				// bind it to slot 1 so we don't confuse with the 2d texture
-				glActiveTexture(GL_TEXTURE1);
-				glBindTexture(GL_TEXTURE_2D_ARRAY, texmesh.texture.texture_id);
-
-				// try manually setting the sampler...
-				glUniform1i(arraySamplerLoc, 1);
-				gl_has_errors();
-			}
-		}
-		else
-		{
-			// Enabling and binding texture to slot 0
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, texmesh.texture.texture_id);
-			gl_has_errors();
-		}
+		// Enabling and binding texture to slot 0
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texmesh.texture.texture_id);
+		gl_has_errors();
+		
 	}
 	else if (in_color_loc >= 0)
 	{
@@ -118,6 +88,91 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
 	glBindVertexArray(0);
 };
+
+
+void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
+{
+	auto& motion = entity.get<Motion>();
+	auto& texmesh = *entity.get<AnimationsComponent>().reference_to_cache;
+	// Transformation code, see Rendering and Transformation in the template specification for more info
+	// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
+	Transform transform;
+	transform.translate(motion.position);
+	transform.rotate(motion.angle);
+	transform.scale(motion.scale);
+
+	// Setting shaders
+	glUseProgram(texmesh.effect.program);
+	glBindVertexArray(texmesh.mesh.vao);
+	gl_has_errors();
+
+	// Enabling alpha channel for textures
+	glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_DEPTH_TEST);
+	gl_has_errors();
+
+	GLint transform_uloc = glGetUniformLocation(texmesh.effect.program, "transform");
+	GLint projection_uloc = glGetUniformLocation(texmesh.effect.program, "projection");
+	gl_has_errors();
+
+	// Setting vertex and index buffers
+	glBindBuffer(GL_ARRAY_BUFFER, texmesh.mesh.vbo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texmesh.mesh.ibo);
+	gl_has_errors();
+
+	// Input data location as in the vertex buffer
+	GLint in_position_loc = glGetAttribLocation(texmesh.effect.program, "in_position");
+	GLint in_texcoord_loc = glGetAttribLocation(texmesh.effect.program, "in_texcoord");
+	GLint in_color_loc = glGetAttribLocation(texmesh.effect.program, "in_color");
+
+	glEnableVertexAttribArray(in_position_loc);
+	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(0));
+
+	glEnableVertexAttribArray(in_texcoord_loc);
+	glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(sizeof(vec3))); // note the stride to skip the preceeding vertex position
+
+	// animations have a ShadedMesh with a Texture component that's a 2D Array Texture, not a 2D Texture
+	GLint frame_uloc = glGetUniformLocation(texmesh.effect.program, "frame");
+	GLint arraySamplerLoc = glGetUniformLocation(texmesh.effect.program, "array_sampler");
+	auto& anims = entity.get<AnimationsComponent>();
+
+	// make sure its animation component isn't empty before trying to render anything
+	if (anims.anims.size() > 0)
+	{
+		float frame = (float)anims.currAnimData.currFrame;
+		glUniform1f(frame_uloc, frame);
+
+		// texture_id stores a 2d array texture instead
+		// bind it to slot 1 so we don't confuse with the 2d texture sampler0 (it probably doesn't matter though)
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, texmesh.texture.texture_id);
+
+		// manually set the sampler...
+		glUniform1i(arraySamplerLoc, 1);
+		gl_has_errors();
+	}
+
+	// Getting uniform locations for glUniform* calls
+	GLint color_uloc = glGetUniformLocation(texmesh.effect.program, "fcolor");
+	glUniform3fv(color_uloc, 1, (float*)&texmesh.texture.color);
+	gl_has_errors();
+
+	// Get number of indices from index buffer, which has elements uint16_t
+	GLint size = 0;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+	gl_has_errors();
+	GLsizei num_indices = size / sizeof(uint16_t);
+
+	// Setting uniform values to the currently bound program
+	glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform.mat);
+	glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
+	gl_has_errors();
+
+	// Drawing of num_indices/3 triangles specified in the index buffer
+	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
+	glBindVertexArray(0);
+};
+
 
 // Draw the intermediate texture to the screen, with some distortion to simulate water
 void RenderSystem::drawToScreen() 
@@ -208,17 +263,29 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 	float ty = -(top + bottom) / (top - bottom);
 	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
 
-	// Draw all textured meshes that have a position and size component
+	// Draw all textured meshes that have a position and size component and NOT an animation component
 	for (ECS::Entity entity : ECS::registry<ShadedMeshRef>.entities)
 	{
-		if (!ECS::registry<Motion>.has(entity))
+		if (!entity.has<Motion>() || entity.has<AnimationsComponent>())
+		{
 			continue;
+		}
 		// Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
 		drawTexturedMesh(entity, projection_2D);
 		gl_has_errors();
 	}
 
-	// Try doing something fancy to animated things?
+	// Draw all animated meshes that have texture and size component
+	for (ECS::Entity entity : ECS::registry<AnimationsComponent>.entities)
+	{
+		if (!entity.has<Motion>())
+		{
+			continue;
+		}
+
+		drawAnimatedMesh(entity, projection_2D);
+		gl_has_errors();
+	}
 
 	// Truely render to the screen
 	drawToScreen();

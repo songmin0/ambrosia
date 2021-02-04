@@ -7,6 +7,7 @@
 #include "pebbles.hpp"
 #include "render_components.hpp"
 # include "raoul.hpp"
+# include "animation_components.hpp"
 
 // stlib
 #include <string.h>
@@ -181,8 +182,35 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			return;
 		}
 	}
+	
+	// Process Raoul's state, animation test
+	// we should make this generic and move the logic somewhere else later
+	auto& raoul_motion = ECS::registry<Motion>.get(player_raoul);
+	auto& raoul_anim = ECS::registry<AnimationsComponent>.get(player_raoul);
+	if (abs(raoul_motion.velocity.x) > 5.0 || abs(raoul_motion.velocity.y) > 5.0)
+	{
+		raoul_anim.ChangeAnimation(AnimationType::MOVE);
 
-	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the DeathTimer
+		// orientation check
+		if (raoul_motion.velocity.x < 0)
+		{
+			if (raoul_motion.scale.x > 0)
+			{
+				raoul_motion.scale.x *= -1;
+			}
+		}
+		else
+		{
+			if (raoul_motion.scale.x < 0)
+			{
+				raoul_motion.scale.x *= -1;
+			}
+		}
+	}
+	else
+	{
+		raoul_anim.ChangeAnimation(AnimationType::IDLE);
+	}
 }
 
 // Reset the world state to its initial state
@@ -290,7 +318,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		
-		auto& salmon_motion = ECS::registry<Motion>.get(player_salmon);
+		//auto& salmon_motion = ECS::registry<Motion>.get(player_salmon);
+
+		//test Raoul
+		auto& motion = ECS::registry<Motion>.get(player_raoul);
+
 		float speed = 200.f;
 
 		 //motion is vec2 { x, y }
@@ -299,30 +331,30 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		{
 			if (key == GLFW_KEY_RIGHT)
 			{
-				salmon_motion.velocity[0] = speed;
+				motion.velocity[0] = speed;
 			}
 			else if (key == GLFW_KEY_LEFT)
 			{
-				salmon_motion.velocity[0] = -speed;
+				motion.velocity[0] = -speed;
 			}
 			else if (key == GLFW_KEY_UP)
 			{
-				salmon_motion.velocity[1] = -speed;
+				motion.velocity[1] = -speed;
 			}
 			else if (key == GLFW_KEY_DOWN)
 			{
-				salmon_motion.velocity[1] = speed;
+				motion.velocity[1] = speed;
 			}
 		}
 		else if (action == GLFW_RELEASE)
 		{
 			if (key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT)
 			{
-				salmon_motion.velocity[0] = 0;
+				motion.velocity[0] = 0;
 			}
 			else if (key == GLFW_KEY_DOWN || key == GLFW_KEY_UP)
 			{
-				salmon_motion.velocity[1] = 0;
+				motion.velocity[1] = 0;
 			}
 		}
 	}
