@@ -95,8 +95,6 @@ void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 {
 	auto& motion = entity.get<Motion>();
 	auto& texmesh = *entity.get<AnimationsComponent>().reference_to_cache;
-	// Transformation code, see Rendering and Transformation in the template specification for more info
-	// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
 	Transform transform;
 	transform.translate(motion.position);
 	transform.rotate(motion.angle);
@@ -137,21 +135,25 @@ void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 	GLint arraySamplerLoc = glGetUniformLocation(texmesh.effect.program, "array_sampler");
 	auto& anims = entity.get<AnimationsComponent>();
 
-	// make sure its animation component isn't empty before trying to render anything
-	if (anims.anims.size() > 0)
+	// safety check, although this should never happen 
+	// because animation component must be initialized with an animation
+	if (anims.anims.size() == 0)
 	{
-		float frame = (float)anims.currAnimData.currFrame;
-		glUniform1f(frame_uloc, frame);
-
-		// texture_id stores a 2d array texture instead
-		// bind it to slot 1 so we don't confuse with the 2d texture sampler0 (it probably doesn't matter though)
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, texmesh.texture.texture_id);
-
-		// manually set the sampler...
-		glUniform1i(arraySamplerLoc, 1);
-		gl_has_errors();
+		return;
 	}
+
+	float frame = (float)anims.currAnimData.currFrame;
+	glUniform1f(frame_uloc, frame);
+
+	// texture_id stores a 2d array texture instead
+	// bind it to slot 1 so we don't confuse with the 2d texture sampler0 (it doesn't reaaally matter though)
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, texmesh.texture.texture_id);
+
+	// manually set the sampler...
+	glUniform1i(arraySamplerLoc, 1);
+	gl_has_errors();
+
 
 	// Getting uniform locations for glUniform* calls
 	GLint color_uloc = glGetUniformLocation(texmesh.effect.program, "fcolor");
@@ -276,7 +278,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 		gl_has_errors();
 	}
 
-	// Draw all animated meshes that have texture and size component
+	// Draw all animated meshes that have a position and size component
 	for (ECS::Entity entity : ECS::registry<AnimationsComponent>.entities)
 	{
 		if (!entity.has<Motion>())
