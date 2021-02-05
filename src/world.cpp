@@ -6,8 +6,11 @@
 #include "fish.hpp"
 #include "pebbles.hpp"
 #include "render_components.hpp"
-# include "raoul.hpp"
+#include "animation_components.hpp"
+#include "animation_system.hpp"
+#include "egg.hpp"
 #include "TurnSystem.hpp"
+# include "raoul.hpp"
 
 // stlib
 #include <string.h>
@@ -51,7 +54,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 
 	// Create the main window (for rendering, keyboard, and mouse input)
-	window = glfwCreateWindow(window_size_px.x, window_size_px.y, "Salmon Game Assignment", nullptr, nullptr);
+	window = glfwCreateWindow(window_size_px.x, window_size_px.y, "Ambrosia", nullptr, nullptr);
 	if (window == nullptr)
 		throw std::runtime_error("Failed to glfwCreateWindow");
 
@@ -139,9 +142,9 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		// Reset timer
 		next_turtle_spawn = (TURTLE_DELAY_MS / 2) + uniform_dist(rng) * (TURTLE_DELAY_MS / 2);
 		// Create turtle
-		ECS::Entity entity = Turtle::createTurtle({0, 0});
+		ECS::Entity entity = Egg::CreateEgg({0, 0});
 		// Setting random initial position and constant velocity
-		auto& motion = ECS::registry<Motion>.get(entity);
+		auto& motion = entity.get<Motion>();
 		motion.position = vec2(window_size_in_game_units.x - 150.f, 50.f + uniform_dist(rng) * (window_size_in_game_units.y - 100.f));
 		motion.velocity = vec2(-100.f, 0.f );
 	}
@@ -160,7 +163,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	// Processing the salmon state
+	// Check for player defeat
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
 	auto& screen = ECS::registry<ScreenState>.components[0];
 
@@ -182,8 +185,35 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			return;
 		}
 	}
+	
+	// Process Raoul's state, animation test
+	// we should make this generic and move the logic somewhere else later
+	auto& raoul_motion = ECS::registry<Motion>.get(player_raoul);
+	auto& raoul_anim = ECS::registry<AnimationsComponent>.get(player_raoul);
+	if (abs(raoul_motion.velocity.x) > 5.0 || abs(raoul_motion.velocity.y) > 5.0)
+	{
+		raoul_anim.ChangeAnimation(AnimationType::MOVE);
 
-	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the DeathTimer
+		// orientation check
+		if (raoul_motion.velocity.x < 0)
+		{
+			if (raoul_motion.scale.x > 0)
+			{
+				raoul_motion.scale.x *= -1;
+			}
+		}
+		else
+		{
+			if (raoul_motion.scale.x < 0)
+			{
+				raoul_motion.scale.x *= -1;
+			}
+		}
+	}
+	else
+	{
+		raoul_anim.ChangeAnimation(AnimationType::IDLE);
+	}
 }
 
 // Reset the world state to its initial state
@@ -204,8 +234,8 @@ void WorldSystem::restart()
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
 
-	// Create a new salmon
-	player_salmon = Salmon::createSalmon({ 100, 200 });
+	//// Create a new salmon
+	//player_salmon = Salmon::createSalmon({ 100, 200 });
 
 	// Create a new Raoul
 	player_raoul = Raoul::CreateRaoul({ 200, 200 });
@@ -234,16 +264,14 @@ void WorldSystem::handle_collisions()
 		auto entity = registry.entities[i];
 		auto entity_other = registry.components[i].other;
 
-		// For now, we are only interested in collisions that involve the salmon
-		if (ECS::registry<Salmon>.has(entity))
+		if (ECS::registry<Raoul>.has(entity))
 		{
-			// Checking Salmon - Turtle collisions
-			if (ECS::registry<Turtle>.has(entity_other))
+			if (ECS::registry<Egg>.has(entity_other))
 			{
 				// initiate death unless already dying
 				if (!ECS::registry<DeathTimer>.has(entity))
 				{
-					// Scream, reset timer, and make the salmon sink
+					// Scream, reset timer, and make the player sink
 					ECS::registry<DeathTimer>.emplace(entity);
 					Mix_PlayChannel(-1, salmon_dead_sound, 0);
 
@@ -252,7 +280,7 @@ void WorldSystem::handle_collisions()
 					// !!! TODO A1: change the salmon color
 				}
 			}
-			// Checking Salmon - Fish collisions
+			// Checking player - Fish collisions
 			else if (ECS::registry<Fish>.has(entity_other))
 			{
 				if (!ECS::registry<DeathTimer>.has(entity))
@@ -282,9 +310,8 @@ bool WorldSystem::is_over() const
 // TODO A1: check out https://www.glfw.org/docs/3.3/input_guide.html
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
- 
-	// Move salmon if alive
-	if (!ECS::registry<DeathTimer>.has(player_salmon))
+	// Move Player if alive
+	if (!ECS::registry<DeathTimer>.has(player_raoul))
 	{
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		// TODO A1: HANDLE SALMON MOVEMENT HERE
@@ -292,7 +319,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		
-		auto& salmon_motion = ECS::registry<Motion>.get(player_salmon);
+		//auto& salmon_motion = ECS::registry<Motion>.get(player_salmon);
+
+		//test Raoul
+		auto& motion = ECS::registry<Motion>.get(player_raoul);
+
 		float speed = 200.f;
 
 		 //motion is vec2 { x, y }
@@ -303,30 +334,30 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				ECS::registry<TurnSystem::TurnComponent>.get(ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0]).hasMoved = true;
 			if (key == GLFW_KEY_RIGHT)
 			{
-				salmon_motion.velocity[0] = speed;
+				motion.velocity[0] = speed;
 			}
 			else if (key == GLFW_KEY_LEFT)
 			{
-				salmon_motion.velocity[0] = -speed;
+				motion.velocity[0] = -speed;
 			}
 			else if (key == GLFW_KEY_UP)
 			{
-				salmon_motion.velocity[1] = -speed;
+				motion.velocity[1] = -speed;
 			}
 			else if (key == GLFW_KEY_DOWN)
 			{
-				salmon_motion.velocity[1] = speed;
+				motion.velocity[1] = speed;
 			}
 		}
 		else if (action == GLFW_RELEASE)
 		{
 			if (key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT)
 			{
-				salmon_motion.velocity[0] = 0;
+				motion.velocity[0] = 0;
 			}
 			else if (key == GLFW_KEY_DOWN || key == GLFW_KEY_UP)
 			{
-				salmon_motion.velocity[1] = 0;
+				motion.velocity[1] = 0;
 			}
 		}
 	}
@@ -360,7 +391,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
 void WorldSystem::on_mouse_move(vec2 mouse_pos)
 {
-	if (!ECS::registry<DeathTimer>.has(player_salmon))
+	if (!ECS::registry<DeathTimer>.has(player_raoul))
 	{
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		// TODO A1: HANDLE SALMON ROTATION HERE
@@ -368,11 +399,11 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 		// default facing direction is (1, 0)
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-		// this points the salmon towards the mouse
-		auto& salmon_motion = ECS::registry<Motion>.get(player_salmon);
+		//// this points the salmon towards the mouse
+		//auto& motion = ECS::registry<Motion>.get(player_salmon);
 
-		float delta_y = mouse_pos[1] - salmon_motion.position[1];
-		float delta_x = abs(mouse_pos[0] - salmon_motion.position[0]); // pretend mouse is always in front of salmon
-		salmon_motion.angle = atan2(delta_y, delta_x); // angle in radians
+		//float delta_y = mouse_pos[1] - salmon_motion.position[1];
+		//float delta_x = abs(mouse_pos[0] - salmon_motion.position[0]); // pretend mouse is always in front of salmon
+		//salmon_motion.angle = atan2(delta_y, delta_x); // angle in radians
 	}
 }

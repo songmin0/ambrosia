@@ -4,16 +4,16 @@
 in vec2 texcoord;
 
 // Application data
-uniform sampler2D sampler0;
 uniform vec3 fcolor;
+
+// Animation data
+uniform float frame;
+uniform sampler2DArray array_sampler;
 
 // Output color
 layout(location = 0) out  vec4 color;
 
 void main()
 {
-	color = vec4(fcolor, 1.0) * texture(sampler0, vec2(texcoord.x, texcoord.y));
-
-	// testing that shader is hooked up
-	//color = vec4(0.0, 0.0, 0.0, 1.0) * texture(sampler0, vec2(texcoord.x, texcoord.y));
+	color = texture(array_sampler, vec3(texcoord, frame));
 }
