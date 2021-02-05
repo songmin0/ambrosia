@@ -12,7 +12,7 @@ public:
 	void step(float elapsed_ms, vec2 window_size_in_game_units);
 
 	// Holds information
-	struct Mob
+	struct MobComponent
 	{
 		ECS::Entity target;	// the (player) target of the mob
 		void TargetEntity(ECS::Entity& target);
