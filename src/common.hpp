@@ -43,3 +43,8 @@ struct Motion {
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
 };
+
+//PlaceHolder please replace with the real one once someone has made them or continue to use these but rename
+struct PlayerComponent {
+
+};

@@ -6,10 +6,11 @@
 #include "fish.hpp"
 #include "pebbles.hpp"
 #include "render_components.hpp"
-#include "raoul.hpp"
 #include "animation_components.hpp"
 #include "animation_system.hpp"
 #include "egg.hpp"
+#include "TurnSystem.hpp"
+# include "raoul.hpp"
 
 // stlib
 #include <string.h>
@@ -309,7 +310,7 @@ bool WorldSystem::is_over() const
 // TODO A1: check out https://www.glfw.org/docs/3.3/input_guide.html
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
-	// Move player if alive
+	// Move Player if alive
 	if (!ECS::registry<DeathTimer>.has(player_raoul))
 	{
 		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -329,6 +330,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		 //updating one direction at a time allows for diagonal movement
 		if (action == GLFW_PRESS)
 		{
+				//TODO make it so only the active fish moves
+				ECS::registry<TurnSystem::TurnComponent>.get(ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0]).hasMoved = true;
 			if (key == GLFW_KEY_RIGHT)
 			{
 				motion.velocity[0] = speed;

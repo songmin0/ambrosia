@@ -2,6 +2,8 @@
 #include "salmon.hpp"
 #include "render.hpp"
 
+#include "TurnSystem.hpp"
+
 ECS::Entity Salmon::createSalmon(vec2 position)
 {
 	auto entity = ECS::Entity();
@@ -27,6 +29,10 @@ ECS::Entity Salmon::createSalmon(vec2 position)
 
 	// Create and (empty) Salmon component to be able to refer to all turtles
 	ECS::registry<Salmon>.emplace(entity);
+
+	ECS::registry<PlayerComponent>.emplace(entity);
+
+	ECS::registry<TurnSystem::TurnComponent>.emplace(entity);
 
 	return entity;
 }

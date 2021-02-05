@@ -16,6 +16,7 @@
 #include "debug.hpp"
 #include "animation_components.hpp"
 #include "animation_system.hpp"
+#include "TurnSystem.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -37,10 +38,14 @@ int main()
 	RenderSystem renderer(*world.window);
 	PhysicsSystem physics;
 	AISystem ai;
+	TurnSystem turnSystem;
 	AnimationSystem animations;
 
 	// Set all states to default
 	world.restart();
+
+	turnSystem.nextActiveEntity();
+
 	auto t = Clock::now();
 	// Variable timestep loop
 	while (!world.is_over())
@@ -59,7 +64,7 @@ int main()
 		physics.step(elapsed_ms, window_size_in_game_units);
 		world.handle_collisions();
 		animations.step();
-
+		turnSystem.step(elapsed_ms);
 		renderer.draw(window_size_in_game_units);
 	}
 

@@ -2,6 +2,7 @@
 #include "raoul.hpp"
 #include "render.hpp"
 #include "animation_components.hpp"
+#include "TurnSystem.hpp"
 
 ECS::Entity Raoul::CreateRaoul(vec2 position)
 {
@@ -25,6 +26,7 @@ ECS::Entity Raoul::CreateRaoul(vec2 position)
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ 1.f, 1.f });
 
+
 	// Animations
 	auto idle_anim = new AnimationData(
 		"raoul_idle", sprite_path("players/raoul/idle/idle"), 62, 1, false, true
@@ -40,6 +42,12 @@ ECS::Entity Raoul::CreateRaoul(vec2 position)
 	anims.ChangeAnimation(AnimationType::IDLE);
 
 	entity.emplace<Raoul>();
+
+	//Add the turn component
+	entity.emplace<TurnSystem::TurnComponent>();
+
+	//Add the player component
+	entity.emplace<PlayerComponent>();
 
 	return entity;
 };
