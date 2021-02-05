@@ -5,12 +5,16 @@
 #include "common.hpp"
 #include "tiny_ecs.hpp"
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// DON'T WORRY ABOUT THIS CLASS UNTIL ASSIGNMENT 3
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+// A simple AI system that moves the enemies (mobs and bosses)
 class AISystem
 {
 public:
 	void step(float elapsed_ms, vec2 window_size_in_game_units);
+
+	// Holds information
+	struct Mob
+	{
+		ECS::Entity target;	// the (player) target of the mob
+		void TargetEntity(ECS::Entity& target);
+	};
 };
