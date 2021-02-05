@@ -7,6 +7,7 @@
 #include "pebbles.hpp"
 #include "render_components.hpp"
 # include "raoul.hpp"
+#include "TurnSystem.hpp"
 
 // stlib
 #include <string.h>
@@ -281,6 +282,7 @@ bool WorldSystem::is_over() const
 // TODO A1: check out https://www.glfw.org/docs/3.3/input_guide.html
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
+ 
 	// Move salmon if alive
 	if (!ECS::registry<DeathTimer>.has(player_salmon))
 	{
@@ -297,6 +299,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		 //updating one direction at a time allows for diagonal movement
 		if (action == GLFW_PRESS)
 		{
+				//TODO make it so only the active fish moves
+				ECS::registry<TurnSystem::TurnComponent>.get(ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0]).hasMoved = true;
 			if (key == GLFW_KEY_RIGHT)
 			{
 				salmon_motion.velocity[0] = speed;
