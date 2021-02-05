@@ -10,6 +10,7 @@
 #include <sstream>
 #include <fstream>
 #include <cassert>
+#include <filesystem>
 
 void gl_compile_shader(GLuint shader)
 {
@@ -23,7 +24,7 @@ void gl_compile_shader(GLuint shader)
 		std::vector<char> log(log_len);
 		glGetShaderInfoLog(shader, log_len, &log_len, log.data());
 		glDeleteShader(shader);
-
+		
 		throw std::runtime_error("GLSL: " + std::string(log.data()));
 	}
 }
@@ -71,6 +72,77 @@ void Texture::load_from_file(std::string path)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	stbi_image_free(data);
+	gl_has_errors();
+}
+
+void Texture::load_array_from_file(std::string path, int maxFrames)
+{
+	// path is expected to include up to each animation frame's name, not including the "_{frame-count}.png"
+	// yes, it's a hard-coded hack, for now...
+	stbi_uc* data;
+	std::string firstFrame = path + "_000.png";
+
+	// we just gotta do this one to initialize texture with the image size...
+	if (texture_cache.count(firstFrame) > 0)
+	{
+		data = texture_cache[firstFrame];
+	}
+	else
+	{
+		data = stbi_load(firstFrame.c_str(), &size.x, &size.y, NULL, 4);
+	}
+	if (data == NULL)
+	{
+		throw std::runtime_error("data == NULL, failed to load texture");
+	}
+	gl_has_errors();
+	
+	glActiveTexture(GL_TEXTURE0);
+	glGenTextures(1, texture_id.data());
+
+	// use a 2D Array Texture cause spritesheets are so old-school
+	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_id);
+
+	// Allocate the storage, we're not storing any images in here yet, filling it in later
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, size.x, size.y, frames, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	
+	// put each frame into a sub image
+	for (int i = 0; i < frames; ++i)
+	{
+		// hack this for now
+		std::string framePath = path + "_00" + std::to_string(i) + ".png";
+		if (i >= 10) 
+		{
+			framePath = path + "_0" + std::to_string(i) + ".png";
+		}
+		if (i >= 100)
+		{
+			framePath = path + "_" + std::to_string(i) + ".png";
+		}
+
+		if (texture_cache.count(framePath) > 0)
+		{
+			data = texture_cache[framePath];
+		}
+		else
+		{
+			data = stbi_load(framePath.c_str(), &size.x, &size.y, NULL, 4);
+		}
+		if (data == NULL)
+		{
+			throw std::runtime_error("data == NULL, failed to load texture");
+		}
+
+		gl_has_errors();
+		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, size.x, size.y, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
+
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 	stbi_image_free(data);
 	gl_has_errors();
 }
