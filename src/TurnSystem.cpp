@@ -37,7 +37,7 @@ void TurnSystem::nextActiveEntity()
 
 		//if all the players have gone start going through all the mobs
 		if (ECS::registry<TurnComponentIsActive>.size() == 0) {
-				auto& registry = ECS::registry<AISystem::Mob>;
+				auto& registry = ECS::registry<AISystem::MobComponent>;
 				for (unsigned int i = 0; i < registry.components.size(); i++) {
 						ECS::Entity entity = registry.entities[i];
 						auto& turnComponent = ECS::registry<TurnComponent>.get(entity);
