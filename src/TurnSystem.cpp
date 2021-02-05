@@ -21,7 +21,6 @@ void TurnSystem::nextActiveEntity()
 				ECS::Entity entity = registry.entities[i];
 				auto& turnComponent = ECS::registry<TurnComponent>.get(entity);
 				if (!turnComponent.hasGone) {
-						//activeEntity = entity;
 						ECS::registry<TurnComponentIsActive>.emplace(entity);
 						break;
 				}
@@ -34,7 +33,6 @@ void TurnSystem::nextActiveEntity()
 						ECS::Entity entity = registry.entities[i];
 						auto& turnComponent = ECS::registry<TurnComponent>.get(entity);
 						if (!turnComponent.hasGone) {
-								//activeEntity = entity;
 								ECS::registry<TurnComponentIsActive>.emplace(entity);
 								break;
 						}
