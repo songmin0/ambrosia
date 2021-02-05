@@ -7,7 +7,7 @@
 vec2 get_bounding_box(const Motion& motion)
 {
 	// fabs is to avoid negative scale due to the facing direction.
-	return { abs(motion.scale.x), abs(motion.scale.y) };
+	return { abs(motion.boundingBox.x), abs(motion.boundingBox.y) };
 }
 
 // This is a SUPER APPROXIMATE check that puts a circle around the bounding boxes and sees

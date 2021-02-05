@@ -25,6 +25,7 @@ ECS::Entity Raoul::CreateRaoul(vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ 1.f, 1.f });
+	motion.boundingBox = motion.scale * vec2({ resource.texture.size.x, resource.texture.size.y });
 
 
 	// Animations

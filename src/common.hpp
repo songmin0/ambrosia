@@ -42,6 +42,7 @@ struct Motion {
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
+	vec2 boundingBox = { 0, 0 };
 };
 
 //PlaceHolder please replace with the real one once someone has made them or continue to use these but rename
