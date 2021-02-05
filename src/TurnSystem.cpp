@@ -6,15 +6,7 @@
 #include <iostream>
 
 #include "ai.hpp"
-
-ECS::Entity TurnSystem::getActiveEntity()
-{
-		return activeEntity;
-}
-
-//void TurnSystem::attach(std::function<void()> update)
-//{
-//}
+#include "render_components.hpp"
 
 //Just sets the next available entity as the current entity
 void TurnSystem::nextActiveEntity()
@@ -29,7 +21,6 @@ void TurnSystem::nextActiveEntity()
 				ECS::Entity entity = registry.entities[i];
 				auto& turnComponent = ECS::registry<TurnComponent>.get(entity);
 				if (!turnComponent.hasGone) {
-						activeEntity = entity;
 						ECS::registry<TurnComponentIsActive>.emplace(entity);
 						break;
 				}
@@ -42,7 +33,6 @@ void TurnSystem::nextActiveEntity()
 						ECS::Entity entity = registry.entities[i];
 						auto& turnComponent = ECS::registry<TurnComponent>.get(entity);
 						if (!turnComponent.hasGone) {
-								activeEntity = entity;
 								ECS::registry<TurnComponentIsActive>.emplace(entity);
 								break;
 						}
@@ -51,6 +41,7 @@ void TurnSystem::nextActiveEntity()
 
 		if (ECS::registry<TurnComponentIsActive>.size() != 0) {
 				//Set the activeEnity's hasGone to true
+				auto& activeEntity = ECS::registry<TurnComponentIsActive>.entities[0];
 				auto& activeEntityTurnComponent = ECS::registry<TurnComponent>.get(activeEntity);
 				activeEntityTurnComponent.hasGone = true;
 		}
@@ -93,9 +84,22 @@ void TurnSystem::nextTurn()
 
 void TurnSystem::step(float elapsed_ms)
 {
-		//std::cout << "active entity: " << activeEntity.id << "\n";
-		if (ECS::registry<TurnComponent>.get(activeEntity).hasMoved) {
-				std::cout << "entity has moved switch to next entity \n";
+		//If there is no active entity (this could be due to a restart) get the next active entity
+		if (ECS::registry<TurnComponentIsActive>.entities.size() == 0) {
+				nextActiveEntity();
+		}
+		auto& activeEntity = ECS::registry<TurnComponentIsActive>.entities[0];
+		if (!activeEntity.has<DeathTimer>()) {
+				//TODO this should check both that the player has moved and used a skill so update once we have skills
+				if (ECS::registry<TurnComponent>.get(activeEntity).hasMoved) {
+						nextActiveEntity();
+				}
+		}
+		else {	
+				//Pretty sure whis will be needed once we get multiple players but that depends 
+				//		on how we handle death leaving for now as it doesn't hurt anything
+				//The current user is dead so switch to the next
 				nextActiveEntity();
 		}
 }
+	
