@@ -77,11 +77,16 @@ struct Texture
 	GLResource<TEXTURE> texture_id;
 	ivec2 size = {0, 0};
 	vec3 color = {1,1,1};
+
+	// for animation
+	int frames = 1;
 	
 	// Loads texture from file specified by path
 	void load_from_file(std::string path);
 	bool is_valid() const; // True if texture is valid
 	void create_from_screen(GLFWwindow const * const window, GLuint* depth_render_buffer_id); // Screen texture
+
+	void load_array_from_file(std::string path, int maxFrames);
 
 	std::unordered_map<std::string, stbi_uc*> texture_cache;
 };
