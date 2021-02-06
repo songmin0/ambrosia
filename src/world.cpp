@@ -272,13 +272,13 @@ void WorldSystem::handle_collisions()
 				///***** This has been commented out because restarting the game breaks the turn system *****//
 				// Please uncomment this when developing the turn system to make sure it's fixed//
 
-				//// initiate death unless already dying
-				//if (!ECS::registry<DeathTimer>.has(entity))
-				//{
-				//	// Scream, reset timer, and make the player sink
-				//	ECS::registry<DeathTimer>.emplace(entity);
-				//	Mix_PlayChannel(-1, salmon_dead_sound, 0);
-				//}
+				// initiate death unless already dying
+				if (!ECS::registry<DeathTimer>.has(entity))
+				{
+					// Scream, reset timer, and make the player sink
+					ECS::registry<DeathTimer>.emplace(entity);
+					Mix_PlayChannel(-1, salmon_dead_sound, 0);
+				}
 			}
 			// Checking player - Fish collisions
 			else if (ECS::registry<Fish>.has(entity_other))

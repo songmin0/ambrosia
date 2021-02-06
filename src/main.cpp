@@ -44,8 +44,6 @@ int main()
 	// Set all states to default
 	world.restart();
 
-	turnSystem.nextActiveEntity();
-
 	auto t = Clock::now();
 	// Variable timestep loop
 	while (!world.is_over())

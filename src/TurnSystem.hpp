@@ -8,16 +8,9 @@
 // A system to handle turns
 class TurnSystem
 {
-private:
-		//std::vector<std::function<void()>> callbacks;
-		ECS::Entity activeEntity;
-		
-		
 
 public:
-		
-		ECS::Entity getActiveEntity();
-		//void attach(std::function<void()> update);
+
 		void nextActiveEntity();
 		void changeActiveEntity(ECS::Entity nextEntity);
 		void nextTurn();
@@ -28,7 +21,6 @@ public:
 		// Stucture to store turn information
 		struct TurnComponent
 		{
-				//bool isActive;
 				bool hasGone = false;
 				bool hasMoved = false;
 				bool hasUsedSKill = false;
