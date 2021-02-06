@@ -10,7 +10,7 @@
 #include "animation_system.hpp"
 #include "egg.hpp"
 #include "TurnSystem.hpp"
-# include "raoul.hpp"
+#include "raoul.hpp"
 
 // stlib
 #include <string.h>
@@ -62,10 +62,8 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	// Input is handled using GLFW, for more info see
 	// http://www.glfw.org/docs/latest/input_guide.html
 	glfwSetWindowUserPointer(window, this);
-	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
-	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
-	glfwSetKeyCallback(window, key_redirect);
-	glfwSetCursorPosCallback(window, cursor_pos_redirect);
+	auto mouseClickRedirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->OnMouseClick(_0, _1, _2); };
+	glfwSetMouseButtonCallback(window, mouseClickRedirect);
 
 	// Playing background music indefinitely
 	init_audio();
@@ -305,104 +303,10 @@ bool WorldSystem::is_over() const
 	return glfwWindowShouldClose(window)>0;
 }
 
-// On key callback
-// TODO A1: check out https://www.glfw.org/docs/3.3/input_guide.html
-void WorldSystem::on_key(int key, int, int action, int mod)
+void WorldSystem::OnMouseClick(int button, int action, int mods)
 {
-	// Move Player if alive
-	if (!ECS::registry<DeathTimer>.has(player_raoul))
-	{
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// TODO A1: HANDLE SALMON MOVEMENT HERE
-		// key is of 'type' GLFW_KEY_
-		// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		
-		//auto& salmon_motion = ECS::registry<Motion>.get(player_salmon);
+	double mousePosX, mousePosY;
+	glfwGetCursorPos(window, &mousePosX, &mousePosY);
 
-		//test Raoul
-		auto& motion = ECS::registry<Motion>.get(player_raoul);
-
-		float speed = 200.f;
-
-		 //motion is vec2 { x, y }
-		 //updating one direction at a time allows for diagonal movement
-		if (action == GLFW_PRESS)
-		{
-				//TODO make it so only the active fish moves
-				ECS::registry<TurnSystem::TurnComponent>.get(ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0]).hasMoved = true;
-			if (key == GLFW_KEY_RIGHT)
-			{
-				motion.velocity[0] = speed;
-			}
-			else if (key == GLFW_KEY_LEFT)
-			{
-				motion.velocity[0] = -speed;
-			}
-			else if (key == GLFW_KEY_UP)
-			{
-				motion.velocity[1] = -speed;
-			}
-			else if (key == GLFW_KEY_DOWN)
-			{
-				motion.velocity[1] = speed;
-			}
-		}
-		else if (action == GLFW_RELEASE)
-		{
-			if (key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT)
-			{
-				motion.velocity[0] = 0;
-			}
-			else if (key == GLFW_KEY_DOWN || key == GLFW_KEY_UP)
-			{
-				motion.velocity[1] = 0;
-			}
-		}
-	}
-
-	// Resetting game
-	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
-	{
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);
-		
-		restart();
-	}
-
-	// Debugging
-	if (key == GLFW_KEY_D)
-		DebugSystem::in_debug_mode = (action != GLFW_RELEASE);
-
-	// Control the current speed with `<` `>`
-	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_COMMA)
-	{
-		current_speed -= 0.1f;
-		std::cout << "Current speed = " << current_speed << std::endl;
-	}
-	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_PERIOD)
-	{
-		current_speed += 0.1f;
-		std::cout << "Current speed = " << current_speed << std::endl;
-	}
-	current_speed = std::max(0.f, current_speed);
-}
-
-void WorldSystem::on_mouse_move(vec2 mouse_pos)
-{
-	if (!ECS::registry<DeathTimer>.has(player_raoul))
-	{
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// TODO A1: HANDLE SALMON ROTATION HERE
-		// xpos and ypos are relative to the top-left of the window, the salmon's 
-		// default facing direction is (1, 0)
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-		//// this points the salmon towards the mouse
-		//auto& motion = ECS::registry<Motion>.get(player_salmon);
-
-		//float delta_y = mouse_pos[1] - salmon_motion.position[1];
-		//float delta_x = abs(mouse_pos[0] - salmon_motion.position[0]); // pretend mouse is always in front of salmon
-		//salmon_motion.angle = atan2(delta_y, delta_x); // angle in radians
-	}
+	// Make use of the mouse position here
 }
