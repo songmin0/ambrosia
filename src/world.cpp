@@ -9,8 +9,9 @@
 #include "animation_components.hpp"
 #include "animation_system.hpp"
 #include "egg.hpp"
+#include "ai.hpp"
 #include "TurnSystem.hpp"
-# include "raoul.hpp"
+#include "raoul.hpp"
 
 // stlib
 #include <string.h>

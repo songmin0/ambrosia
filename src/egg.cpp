@@ -2,6 +2,7 @@
 #include "egg.hpp"
 #include "render.hpp"
 #include "animation_components.hpp"
+#include "ai.hpp"
 
 ECS::Entity Egg::CreateEgg(vec2 position)
 {
@@ -41,6 +42,9 @@ ECS::Entity Egg::CreateEgg(vec2 position)
 	anims.ChangeAnimation(AnimationType::MOVE);
 
 	entity.emplace<Egg>();
+
+	// Give it a Mob component
+	entity.emplace<AISystem::MobComponent>;
 
 	return entity;
 };

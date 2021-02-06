@@ -15,6 +15,7 @@ public:
 	struct MobComponent
 	{
 		ECS::Entity target;	// the (player) target of the mob
-		void TargetEntity(ECS::Entity& target);
+		ECS::Entity GetTargetEntity();
+		void SetTargetEntity(ECS::Entity);
 	};
 };

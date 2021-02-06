@@ -2,6 +2,7 @@
 #include "physics.hpp"
 #include "tiny_ecs.hpp"
 #include "debug.hpp"
+#include "TurnSystem.hpp"
 
 // Returns the local bounding coordinates scaled by the current size of the entity 
 vec2 get_bounding_box(const Motion& motion)
@@ -29,7 +30,6 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
 	// Move entities based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
-	
 	for (auto& motion : ECS::registry<Motion>.components)
 	{
 		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
