@@ -3,6 +3,7 @@
 #include "render.hpp"
 #include "animation_components.hpp"
 #include "ai.hpp"
+#include "TurnSystem.hpp"
 
 ECS::Entity Egg::CreateEgg(vec2 position)
 {
@@ -19,6 +20,13 @@ ECS::Entity Egg::CreateEgg(vec2 position)
 	// note ShadedMeshRefs will only be rendered if there is no AnimationComponent attached to the entity
 	entity.emplace<ShadedMeshRef>(resource);
 
+	// Give it a Mob component
+	entity.emplace<AISystem::MobComponent>();
+
+	entity.emplace<Egg>();
+
+	entity.emplace<TurnSystem::TurnComponent>();
+
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = position;
@@ -31,7 +39,7 @@ ECS::Entity Egg::CreateEgg(vec2 position)
 	auto idle_anim = new AnimationData(
 		"egg_idle", sprite_path("enemies/egg/idle/idle"), 76, 1, false, true
 	);
-	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, *idle_anim);
+	 AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, *idle_anim);
 
 	auto move_anim = new AnimationData(
 		"egg_move", sprite_path("enemies/egg/move/move"), 51, 1, false, true
@@ -40,11 +48,6 @@ ECS::Entity Egg::CreateEgg(vec2 position)
 
 	// start off moving
 	anims.ChangeAnimation(AnimationType::MOVE);
-
-	entity.emplace<Egg>();
-
-	// Give it a Mob component
-	entity.emplace<AISystem::MobComponent>;
 
 	return entity;
 };

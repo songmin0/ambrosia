@@ -14,7 +14,7 @@ public:
 	// Holds information
 	struct MobComponent
 	{
-		ECS::Entity target;	// the (player) target of the mob
+		ECS::Entity target = ECS::registry<PlayerComponent>.entities[0];	// the (player) target of the mob
 		ECS::Entity GetTargetEntity();
 		void SetTargetEntity(ECS::Entity);
 	};

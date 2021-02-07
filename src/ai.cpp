@@ -4,6 +4,8 @@
 #include "physics.hpp"
 #include "TurnSystem.hpp"
 
+#include <iostream>
+
 void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -31,7 +33,8 @@ ECS::Entity AISystem::MobComponent::GetTargetEntity()
 	return this->target;
 }
 
-void AISystem::MobComponent::SetTargetEntity(ECS::Entity)
+void AISystem::MobComponent::SetTargetEntity(ECS::Entity target)
 {
 	this->target = target;
+	std::cout << "Mob target set\n";
 }
