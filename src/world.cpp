@@ -62,7 +62,9 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	// Input is handled using GLFW, for more info see
 	// http://www.glfw.org/docs/latest/input_guide.html
 	glfwSetWindowUserPointer(window, this);
+	auto keyRedirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->OnKey(_0, _1, _2, _3); };
 	auto mouseClickRedirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->OnMouseClick(_0, _1, _2); };
+	glfwSetKeyCallback(window, keyRedirect);
 	glfwSetMouseButtonCallback(window, mouseClickRedirect);
 
 	// Playing background music indefinitely
@@ -303,10 +305,57 @@ bool WorldSystem::is_over() const
 	return glfwWindowShouldClose(window)>0;
 }
 
-void WorldSystem::OnMouseClick(int button, int action, int mods)
+// On key callback
+void WorldSystem::OnKey(int key, int, int action, int mod)
 {
-	double mousePosX, mousePosY;
-	glfwGetCursorPos(window, &mousePosX, &mousePosY);
+	// Resetting game
+	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
+	{
+//		int w, h;
+//		glfwGetWindowSize(window, &w, &h);
+//
+//		restart();
 
-	// Make use of the mouse position here
+		auto& activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+		auto& activeEntityMotion = ECS::registry<Motion>.get(activeEntity);
+		activeEntityMotion.position = {640.f, 512.f};
+		activeEntityMotion.velocity = {0.f, 0.f};
+		while (!activeEntityMotion.path.empty())
+		{
+			activeEntityMotion.path.pop();
+		}
+
+	}
+
+	// Debugging
+	if (key == GLFW_KEY_D)
+		DebugSystem::in_debug_mode = (action != GLFW_RELEASE);
+
+	// Control the current speed with `<` `>`
+	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_COMMA)
+	{
+		current_speed -= 0.1f;
+		std::cout << "Current speed = " << current_speed << std::endl;
+	}
+	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_PERIOD)
+	{
+		current_speed += 0.1f;
+		std::cout << "Current speed = " << current_speed << std::endl;
+	}
+	current_speed = std::max(0.f, current_speed);
+}
+
+void WorldSystem::OnMouseClick(int button, int action, int mods) const
+{
+	if (action == GLFW_RELEASE && button == GLFW_MOUSE_BUTTON_LEFT)
+	{
+		double mousePosX, mousePosY;
+		glfwGetCursorPos(window, &mousePosX, &mousePosY);
+
+		std::cout << "Mouse click (release): {" << mousePosX << ", " << mousePosY << "}" << std::endl;
+
+		MouseClickEvent event;
+		event.mousePos = {mousePosX, mousePosY};
+		EventSystem<MouseClickEvent>::Instance().SendEvent(event);
+	}
 }
