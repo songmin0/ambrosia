@@ -311,20 +311,10 @@ void WorldSystem::OnKey(int key, int, int action, int mod)
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
 	{
-//		int w, h;
-//		glfwGetWindowSize(window, &w, &h);
-//
-//		restart();
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
 
-		auto& activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
-		auto& activeEntityMotion = ECS::registry<Motion>.get(activeEntity);
-		activeEntityMotion.position = {640.f, 512.f};
-		activeEntityMotion.velocity = {0.f, 0.f};
-		while (!activeEntityMotion.path.empty())
-		{
-			activeEntityMotion.path.pop();
-		}
-
+		restart();
 	}
 
 	// Debugging
