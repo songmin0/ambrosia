@@ -11,6 +11,8 @@
 #include "egg.hpp"
 #include "TurnSystem.hpp"
 #include "raoul.hpp"
+#include "EventSystem.hpp"
+#include "Events.hpp"
 
 // stlib
 #include <string.h>
