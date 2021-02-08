@@ -16,6 +16,10 @@
 #include <glm/ext/vector_int2.hpp>  // ivec2
 #include <glm/vec3.hpp>             // vec3
 #include <glm/mat3x3.hpp>           // mat3
+
+#include "EventSystem.hpp"
+#include "Events.hpp"
+
 using namespace glm;
 static const float PI = 3.14159265359f;
 
