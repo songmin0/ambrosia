@@ -16,7 +16,6 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	Transform transform;
 	transform.translate(motion.position);
 	transform.rotate(motion.angle);
-	transform.scale(motion.scale * static_cast<vec2>(texmesh.texture.size));
 
 	// Setting shaders
 	glUseProgram(texmesh.effect.program);
@@ -43,6 +42,7 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	GLint in_color_loc = glGetAttribLocation(texmesh.effect.program, "in_color");
 	if (in_texcoord_loc >= 0)
 	{
+		transform.scale(motion.scale * static_cast<vec2>(texmesh.texture.size));
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(0));
 		
@@ -57,6 +57,7 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	}
 	else if (in_color_loc >= 0)
 	{
+		transform.scale(texmesh.mesh.original_size * motion.scale);
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(0));
 		glEnableVertexAttribArray(in_color_loc);
