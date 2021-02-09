@@ -152,6 +152,42 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		motion.velocity = vec2(-100.f, 0.f );
 	}
 
+	// Spawning new fish
+	next_fish_spawn -= elapsed_ms * current_speed;
+	if (ECS::registry<Fish>.components.size() <= MAX_FISH && next_fish_spawn < 0.f)
+	{
+		// !!! TODO A1: Create new fish with Fish::createFish({0,0}), as for the Turtles above
+		if(false) // dummy to silence warning about unused function until implemented
+			Fish::createFish({ 0,0 });
+	}
+
+	// Set the mob's target which is limited to its closest player for now
+	auto& mobContainer = ECS::registry<AISystem::MobComponent>;
+	auto& playerContainer = ECS::registry<PlayerComponent>;
+	for (unsigned int i = 0; i < mobContainer.components.size(); i++)
+	{
+		ECS::Entity mob = mobContainer.entities[i];
+		auto& mobMotion = mob.get<Motion>();
+		ECS::Entity closestPlayer = playerContainer.entities[0]; // Initialize to first player
+		// If there is more than one player
+		if (playerContainer.components.size() > 1) {
+			for (unsigned int j = 1; j < playerContainer.components.size(); j++)
+			{
+				ECS::Entity player = playerContainer.entities[j];
+				auto& playerMotion = player.get<Motion>();
+				if (distance(mobMotion.position, playerMotion.position) <
+					distance(mobMotion.position, closestPlayer.get<Motion>().position))
+				{
+					closestPlayer = player;
+				}
+			}
+		}
+		mob.get<AISystem::MobComponent>().SetTargetEntity(closestPlayer);
+		auto& mobTransform = mob.get<Transform>();
+		mobTransform.rotate(3.14 / 4);
+		//mobMotion.velocity = closestPlayer.get<Motion>().position - mobMotion.position;
+	}
+
 	// Check for player defeat
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
 	auto& screen = ECS::registry<ScreenState>.components[0];
