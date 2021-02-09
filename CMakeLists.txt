@@ -33,7 +33,14 @@ if (IS_OS_MAC)
   link_directories(/usr/local/lib)
 endif()
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES}  "src/raoul.cpp" "src/raoul.hpp" "src/animation_system.cpp" "src/animation_system.hpp" "src/egg.cpp" "src/egg.hpp"  "src/TurnSystem.cpp" "src/TurnSystem.hpp")
+add_executable(${PROJECT_NAME} ${SOURCE_FILES}
+        "src/raoul.cpp" "src/raoul.hpp"
+        "src/animation_system.cpp" "src/animation_system.hpp"
+        "src/egg.cpp" "src/egg.hpp"
+        "src/TurnSystem.cpp" "src/TurnSystem.hpp"
+        "src/EventSystem.hpp" "src/Events.hpp"
+        "src/PathFindingSystem.cpp" "src/PathFindingSystem.hpp"
+        "src/Map.cpp" "src/Map.hpp")
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 
 # Added this so policy CMP0065 doesn't scream

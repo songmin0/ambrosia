@@ -12,6 +12,8 @@
 #include "ai.hpp"
 #include "TurnSystem.hpp"
 #include "raoul.hpp"
+#include "EventSystem.hpp"
+#include "Events.hpp"
 
 // stlib
 #include <string.h>
@@ -63,10 +65,10 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	// Input is handled using GLFW, for more info see
 	// http://www.glfw.org/docs/latest/input_guide.html
 	glfwSetWindowUserPointer(window, this);
-	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
-	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
-	glfwSetKeyCallback(window, key_redirect);
-	glfwSetCursorPosCallback(window, cursor_pos_redirect);
+	auto keyRedirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->OnKey(_0, _1, _2, _3); };
+	auto mouseClickRedirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->OnMouseClick(_0, _1, _2); };
+	glfwSetKeyCallback(window, keyRedirect);
+	glfwSetMouseButtonCallback(window, mouseClickRedirect);
 
 	// Playing background music indefinitely
 	init_audio();
@@ -150,45 +152,6 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		motion.velocity = vec2(-100.f, 0.f );
 	}
 
-	// Spawning new fish
-	next_fish_spawn -= elapsed_ms * current_speed;
-	if (ECS::registry<Fish>.components.size() <= MAX_FISH && next_fish_spawn < 0.f)
-	{
-		// !!! TODO A1: Create new fish with Fish::createFish({0,0}), as for the Turtles above
-		if(false) // dummy to silence warning about unused function until implemented
-			Fish::createFish({ 0,0 });
-	}
-
-	// Set the mob's target which is limited to its closest player for now
-	auto& mobContainer = ECS::registry<AISystem::MobComponent>;
-	auto& playerContainer = ECS::registry<PlayerComponent>;
-	for (unsigned int i = 0; i < mobContainer.components.size(); i++)
-	{
-		ECS::Entity mob = mobContainer.entities[i];
-		auto& mobMotion = mob.get<Motion>();
-		ECS::Entity closestPlayer = playerContainer.entities[0]; // Initialize to first player
-		// If there is more than one player
-		if (playerContainer.components.size() > 1) {
-			for (unsigned int j = 1; j < playerContainer.components.size(); j++)
-			{
-				ECS::Entity player = playerContainer.entities[j];
-				auto& playerMotion = player.get<Motion>();
-				if (distance(mobMotion.position, playerMotion.position) <
-					distance(mobMotion.position, closestPlayer.get<Motion>().position))
-				{
-					closestPlayer = player;
-				}
-			}
-		}
-		mob.get<AISystem::MobComponent>().SetTargetEntity(closestPlayer);
-		mobMotion.velocity = closestPlayer.get<Motion>().position - mobMotion.position;
-	}
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A3: HANDLE PEBBLE SPAWN/UPDATES HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 	// Check for player defeat
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
 	auto& screen = ECS::registry<ScreenState>.components[0];
@@ -260,23 +223,19 @@ void WorldSystem::restart()
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
 
-	//// Create a new salmon
-	//player_salmon = Salmon::createSalmon({ 100, 200 });
-
 	// Create a new Raoul
-	player_raoul = Raoul::CreateRaoul({ 200, 200 });
+	player_raoul = Raoul::CreateRaoul({ 640, 512 });
 
-	// !! TODO A3: Enable static pebbles on the ground
-	/*
-	// Create pebbles on the floor
-	for (int i = 0; i < 20; i++)
-	{
-		int w, h;
-		glfwGetWindowSize(m_window, &w, &h);
-		float radius = 30 * (m_dist(m_rng) + 0.3f); // range 0.3 .. 1.3
-		Pebble::createPebble({ m_dist(m_rng) * w, h - m_dist(m_rng) * 20 }, { radius, radius });
-	}
-	*/
+	// Removing existing map
+	while (!ECS::registry<MapComponent>.entities.empty())
+		ECS::ContainerInterface::remove_all_components_of(ECS::registry<MapComponent>.entities.back());
+
+	// Get screen/buffer size
+	int frameBufferWidth, frameBufferHeight;
+	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
+
+	// Create the map
+	MapComponent::CreateMap("pizza-arena/pizza-arena-debug", {frameBufferWidth, frameBufferHeight});
 }
 
 // Compute collisions between entities
@@ -305,19 +264,6 @@ void WorldSystem::handle_collisions()
 					Mix_PlayChannel(-1, salmon_dead_sound, 0);
 				}
 			}
-			// Checking player - Fish collisions
-			else if (ECS::registry<Fish>.has(entity_other))
-			{
-				if (!ECS::registry<DeathTimer>.has(entity))
-				{
-					// chew, count points, and set the LightUp timer 
-					ECS::ContainerInterface::remove_all_components_of(entity_other);
-					Mix_PlayChannel(-1, salmon_eat_sound, 0);
-					++points;
-
-					// !!! TODO A1: create a new struct called LightUp in render_components.hpp and add an instance to the salmon entity
-				}
-			}
 		}
 	}
 
@@ -332,67 +278,14 @@ bool WorldSystem::is_over() const
 }
 
 // On key callback
-// TODO A1: check out https://www.glfw.org/docs/3.3/input_guide.html
-void WorldSystem::on_key(int key, int, int action, int mod)
+void WorldSystem::OnKey(int key, int, int action, int mod)
 {
-	// Move Player if alive
-	if (!ECS::registry<DeathTimer>.has(player_raoul))
-	{
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// TODO A1: HANDLE SALMON MOVEMENT HERE
-		// key is of 'type' GLFW_KEY_
-		// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		
-		//auto& salmon_motion = ECS::registry<Motion>.get(player_salmon);
-
-		//test Raoul
-		auto& motion = ECS::registry<Motion>.get(player_raoul);
-
-		float speed = 200.f;
-
-		 //motion is vec2 { x, y }
-		 //updating one direction at a time allows for diagonal movement
-		if (action == GLFW_PRESS)
-		{
-				//TODO make it so only the active fish moves
-				ECS::registry<TurnSystem::TurnComponent>.get(ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0]).hasMoved = true;
-			if (key == GLFW_KEY_RIGHT)
-			{
-				motion.velocity[0] = speed;
-			}
-			else if (key == GLFW_KEY_LEFT)
-			{
-				motion.velocity[0] = -speed;
-			}
-			else if (key == GLFW_KEY_UP)
-			{
-				motion.velocity[1] = -speed;
-			}
-			else if (key == GLFW_KEY_DOWN)
-			{
-				motion.velocity[1] = speed;
-			}
-		}
-		else if (action == GLFW_RELEASE)
-		{
-			if (key == GLFW_KEY_RIGHT || key == GLFW_KEY_LEFT)
-			{
-				motion.velocity[0] = 0;
-			}
-			else if (key == GLFW_KEY_DOWN || key == GLFW_KEY_UP)
-			{
-				motion.velocity[1] = 0;
-			}
-		}
-	}
-
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
 	{
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
-		
+
 		restart();
 	}
 
@@ -414,21 +307,17 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	current_speed = std::max(0.f, current_speed);
 }
 
-void WorldSystem::on_mouse_move(vec2 mouse_pos)
+void WorldSystem::OnMouseClick(int button, int action, int mods) const
 {
-	if (!ECS::registry<DeathTimer>.has(player_raoul))
+	if (action == GLFW_RELEASE && button == GLFW_MOUSE_BUTTON_LEFT)
 	{
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// TODO A1: HANDLE SALMON ROTATION HERE
-		// xpos and ypos are relative to the top-left of the window, the salmon's 
-		// default facing direction is (1, 0)
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		double mousePosX, mousePosY;
+		glfwGetCursorPos(window, &mousePosX, &mousePosY);
 
-		//// this points the salmon towards the mouse
-		//auto& motion = ECS::registry<Motion>.get(player_salmon);
+		std::cout << "Mouse click (release): {" << mousePosX << ", " << mousePosY << "}" << std::endl;
 
-		//float delta_y = mouse_pos[1] - salmon_motion.position[1];
-		//float delta_x = abs(mouse_pos[0] - salmon_motion.position[0]); // pretend mouse is always in front of salmon
-		//salmon_motion.angle = atan2(delta_y, delta_x); // angle in radians
+		MouseClickEvent event;
+		event.mousePos = {mousePosX, mousePosY};
+		EventSystem<MouseClickEvent>::Instance().SendEvent(event);
 	}
 }

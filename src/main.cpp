@@ -17,11 +17,12 @@
 #include "animation_components.hpp"
 #include "animation_system.hpp"
 #include "TurnSystem.hpp"
+#include "PathFindingSystem.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
-const ivec2 window_size_in_px = {1200, 800};
-const vec2 window_size_in_game_units = { 1200, 800 };
+const ivec2 window_size_in_px = {1280, 1024};
+const vec2 window_size_in_game_units = { 1280, 1024};
 // Note, here the window will show a width x height part of the game world, measured in px. 
 // You could also define a window to show 1.5 x 1 part of your game world, where the aspect ratio depends on your window size.
 
@@ -38,11 +39,14 @@ int main()
 	RenderSystem renderer(*world.window);
 	PhysicsSystem physics;
 	AISystem ai;
-	TurnSystem turnSystem;
+	PathFindingSystem pathFindingSystem;
+	TurnSystem turnSystem(pathFindingSystem);
 	AnimationSystem animations;
 
 	// Set all states to default
 	world.restart();
+
+	float dtMax = (1.f / 60.f) * 1000.f; // 60 FPS
 
 	auto t = Clock::now();
 	// Variable timestep loop
@@ -56,14 +60,23 @@ int main()
 		float elapsed_ms = static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count()) / 1000.f;
 		t = now;
 
-		DebugSystem::clearDebugComponents();
-		ai.step(elapsed_ms, window_size_in_game_units);
-		world.step(elapsed_ms, window_size_in_game_units);
-		physics.step(elapsed_ms, window_size_in_game_units);
-		world.handle_collisions();
-		animations.step();
-		turnSystem.step(elapsed_ms);
-		renderer.draw(window_size_in_game_units);
+		while (elapsed_ms > 0.f)
+		{
+			// Reference: https://gafferongames.com/post/fix_your_timestep/#semi-fixed-timestep
+			float deltaTime = std::min(elapsed_ms, dtMax);
+
+			DebugSystem::clearDebugComponents();
+			ai.step(deltaTime, window_size_in_game_units);
+			world.step(deltaTime, window_size_in_game_units);
+			physics.step(deltaTime, window_size_in_game_units);
+			world.handle_collisions();
+			animations.step();
+			turnSystem.step(deltaTime);
+			renderer.draw(window_size_in_game_units);
+
+			elapsed_ms -= deltaTime;
+		}
+
 	}
 
 	return EXIT_SUCCESS;

@@ -7,6 +7,22 @@
 
 #include "ai.hpp"
 #include "render_components.hpp"
+#include "EventSystem.hpp"
+
+TurnSystem::TurnSystem(const PathFindingSystem& pfs)
+	: pathFindingSystem(pfs)
+{
+	EventSystem<MouseClickEvent>::Instance().RegisterListener(
+			std::bind(&TurnSystem::OnMouseClick, this, std::placeholders::_1));
+}
+
+TurnSystem::~TurnSystem()
+{
+	if (mouseClickListener.IsValid())
+	{
+		EventSystem<MouseClickEvent>::Instance().UnregisterListener(mouseClickListener);
+	}
+}
 
 //Just sets the next available entity as the current entity
 void TurnSystem::nextActiveEntity()
@@ -102,4 +118,27 @@ void TurnSystem::step(float elapsed_ms)
 				nextActiveEntity();
 		}
 }
-	
+
+void TurnSystem::OnMouseClick(const MouseClickEvent &event)
+{
+	// This is probably just temporary code. It makes the player move when you click on the screen (unless
+	// the player is already moving)
+
+	if (!ECS::registry<TurnComponentIsActive>.entities.empty())
+	{
+		// Get the active entity
+		auto& activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+
+		// Check that it's a player and has a Motion component
+		if (activeEntity.has<PlayerComponent>() && activeEntity.has<Motion>())
+		{
+			auto& motion = activeEntity.get<Motion>();
+
+			// If the entity is not currently moving, create a path so that it will start moving
+			if (motion.path.empty())
+			{
+				motion.path = pathFindingSystem.GetShortestPath(motion.position, event.mousePos);
+			}
+		}
+	}
+}
