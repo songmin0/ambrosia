@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "tiny_ecs.hpp"
 #include "functional"
+#include "PathFindingSystem.hpp"
 
 
 // A system to handle turns
@@ -10,6 +11,8 @@ class TurnSystem
 {
 
 public:
+		TurnSystem(const PathFindingSystem& pfs);
+		~TurnSystem();
 
 		void nextActiveEntity();
 		void changeActiveEntity(ECS::Entity nextEntity);
@@ -30,4 +33,10 @@ public:
 		{
 
 		};
+
+private:
+	void OnMouseClick(const MouseClickEvent& event);
+
+	EventListenerInfo mouseClickListener;
+	const PathFindingSystem& pathFindingSystem;
 };

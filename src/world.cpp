@@ -149,20 +149,6 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		motion.velocity = vec2(-100.f, 0.f );
 	}
 
-	// Spawning new fish
-	next_fish_spawn -= elapsed_ms * current_speed;
-	if (ECS::registry<Fish>.components.size() <= MAX_FISH && next_fish_spawn < 0.f)
-	{
-		// !!! TODO A1: Create new fish with Fish::createFish({0,0}), as for the Turtles above
-		if(false) // dummy to silence warning about unused function until implemented
-			Fish::createFish({ 0,0 });
-	}
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A3: HANDLE PEBBLE SPAWN/UPDATES HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 	// Check for player defeat
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
 	auto& screen = ECS::registry<ScreenState>.components[0];
@@ -234,23 +220,19 @@ void WorldSystem::restart()
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
 
-	//// Create a new salmon
-	//player_salmon = Salmon::createSalmon({ 100, 200 });
-
 	// Create a new Raoul
-	player_raoul = Raoul::CreateRaoul({ 200, 200 });
+	player_raoul = Raoul::CreateRaoul({ 640, 512 });
 
-	// !! TODO A3: Enable static pebbles on the ground
-	/*
-	// Create pebbles on the floor
-	for (int i = 0; i < 20; i++)
-	{
-		int w, h;
-		glfwGetWindowSize(m_window, &w, &h);
-		float radius = 30 * (m_dist(m_rng) + 0.3f); // range 0.3 .. 1.3
-		Pebble::createPebble({ m_dist(m_rng) * w, h - m_dist(m_rng) * 20 }, { radius, radius });
-	}
-	*/
+	// Removing existing map
+	while (!ECS::registry<MapComponent>.entities.empty())
+		ECS::ContainerInterface::remove_all_components_of(ECS::registry<MapComponent>.entities.back());
+
+	// Get screen/buffer size
+	int frameBufferWidth, frameBufferHeight;
+	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
+
+	// Create the map
+	MapComponent::CreateMap("pizza-arena/pizza-arena-debug", {frameBufferWidth, frameBufferHeight});
 }
 
 // Compute collisions between entities
@@ -277,19 +259,6 @@ void WorldSystem::handle_collisions()
 					// Scream, reset timer, and make the player sink
 					ECS::registry<DeathTimer>.emplace(entity);
 					Mix_PlayChannel(-1, salmon_dead_sound, 0);
-				}
-			}
-			// Checking player - Fish collisions
-			else if (ECS::registry<Fish>.has(entity_other))
-			{
-				if (!ECS::registry<DeathTimer>.has(entity))
-				{
-					// chew, count points, and set the LightUp timer 
-					ECS::ContainerInterface::remove_all_components_of(entity_other);
-					Mix_PlayChannel(-1, salmon_eat_sound, 0);
-					++points;
-
-					// !!! TODO A1: create a new struct called LightUp in render_components.hpp and add an instance to the salmon entity
 				}
 			}
 		}

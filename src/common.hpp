@@ -5,6 +5,7 @@
 #include <tuple>
 #include <vector>
 #include <stdexcept>
+#include <stack>
 
 // glfw (OpenGL)
 #define NOMINMAX
@@ -30,6 +31,7 @@ inline std::string textures_path(const std::string& name) { return data_path() +
 inline std::string audio_path(const std::string& name) { return data_path() + "/audio/" + name; };
 inline std::string mesh_path(const std::string& name) { return data_path() + "/meshes/" + name; };
 inline std::string sprite_path(const std::string& name) { return data_path() + "/sprites/" + name; };
+inline std::string maps_path(const std::string& name) { return data_path() + "/maps/" + name; };
 
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)
@@ -47,6 +49,8 @@ struct Motion {
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
 	vec2 boundingBox = { 0, 0 };
+
+	std::stack<vec2> path;
 };
 
 //PlaceHolder please replace with the real one once someone has made them or continue to use these but rename
