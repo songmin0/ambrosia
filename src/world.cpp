@@ -151,15 +151,6 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		motion.velocity = vec2(-100.f, 0.f );
 	}
 
-	// Spawning new fish
-	next_fish_spawn -= elapsed_ms * current_speed;
-	if (ECS::registry<Fish>.components.size() <= MAX_FISH && next_fish_spawn < 0.f)
-	{
-		// !!! TODO A1: Create new fish with Fish::createFish({0,0}), as for the Turtles above
-		if(false) // dummy to silence warning about unused function until implemented
-			Fish::createFish({ 0,0 });
-	}
-
 	// Check for player defeat
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
 	auto& screen = ECS::registry<ScreenState>.components[0];
