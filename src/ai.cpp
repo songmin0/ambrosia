@@ -36,5 +36,4 @@ ECS::Entity AISystem::MobComponent::GetTargetEntity()
 void AISystem::MobComponent::SetTargetEntity(ECS::Entity target)
 {
 	this->target = target;
-	std::cout << "Mob target set\n";
 }

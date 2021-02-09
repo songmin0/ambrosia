@@ -2,6 +2,7 @@
 #include "physics.hpp"
 #include "tiny_ecs.hpp"
 #include "debug.hpp"
+#include "ai.hpp"
 #include "TurnSystem.hpp"
 
 #include <iostream>
@@ -64,6 +65,27 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 				// Set velocity based on the desired direction of travel
 				motion.velocity = normalize(desiredPos - motion.position) * DEFAULT_SPEED;
 			}
+		}
+		// Movement for mobs - move to closest player
+		if (entity.has<AISystem::MobComponent>())
+		{
+			auto& playerContainer = ECS::registry<PlayerComponent>;
+			ECS::Entity closestPlayer = playerContainer.entities[0]; // Initialize to first player
+			// If there is more than one player
+			if (playerContainer.components.size() > 1) {
+				for (unsigned int j = 1; j < playerContainer.components.size(); j++)
+				{
+					ECS::Entity player = playerContainer.entities[j];
+					auto& playerMotion = player.get<Motion>();
+					if (distance(motion.position, playerMotion.position) <
+						distance(motion.position, closestPlayer.get<Motion>().position))
+					{
+						closestPlayer = player;
+					}
+				}
+			}
+			entity.get<AISystem::MobComponent>().SetTargetEntity(closestPlayer);
+			motion.velocity = normalize(closestPlayer.get<Motion>().position - motion.position) * 100.f; // Temp - matches player's deafult speed above
 		}
 
 		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
