@@ -5,8 +5,6 @@
 #include "TurnSystem.hpp"
 
 #include <iostream>
-
->>>>>>> origin/master
 // Returns the local bounding coordinates scaled by the current size of the entity 
 vec2 get_bounding_box(const Motion& motion)
 {
