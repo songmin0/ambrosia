@@ -4,9 +4,6 @@
 
 std::stack<vec2> PathFindingSystem::GetShortestPath(vec2 source, vec2 destination) const
 {
-	source = floor(source);
-	destination = floor(destination);
-
 	// This will be the final result
 	std::stack<vec2> shortestPath;
 
@@ -22,8 +19,12 @@ std::stack<vec2> PathFindingSystem::GetShortestPath(vec2 source, vec2 destinatio
 	// Should always have a valid map
 	assert(!map.grid.empty());
 
+	// Convert the source and destination points to grid coordinates
+	vec2 gridSource = round(source / map.tileSize);
+	vec2 gridDestination = round(destination / map.tileSize);
+
 	// If the destination is not on the map, not walkable, or too close to the source, return an empty path
-	if (!IsValidPoint(map, destination) || !IsWalkablePoint(map, destination) || length(source - destination) < MIN_DISTANCE_SRC_TO_DST)
+	if (!IsValidPoint(map, gridDestination) || !IsWalkablePoint(map, gridDestination) || gridSource == gridDestination)
 	{
 		return shortestPath;
 	}
@@ -31,18 +32,18 @@ std::stack<vec2> PathFindingSystem::GetShortestPath(vec2 source, vec2 destinatio
 	// The current data structure of our pizza-arena map is a 2D array of size 40x32. Each element in the array represents
 	// one tile, and the tile size is 32. When doing pathfinding, I'm using the full size of the map. This is an easy way
 	// to do it because each position on the screen corresponds to a position in these vectors:
-	int actualMapWidth = map.grid[0].size() * map.tileSize;
-	int actualMapHeight = map.grid.size() * map.tileSize;
+	int gridWidth = map.grid[0].size();
+	int gridHeight = map.grid.size();
 
-	std::vector<std::vector<bool>> visited(actualMapHeight, std::vector<bool>(actualMapWidth));
-	std::vector<std::vector<int>> distance(actualMapHeight, std::vector<int>(actualMapWidth));
+	std::vector<std::vector<bool>> visited(gridHeight, std::vector<bool>(gridWidth));
+	std::vector<std::vector<int>> distance(gridHeight, std::vector<int>(gridWidth));
 
 	// Start at the source point
 	std::queue<vec2> queue;
-	queue.push(source);
+	queue.push(gridSource);
 
-	visited[source.y][source.x] = true;
-	distance[source.y][source.x] = 0;
+	visited[gridSource.y][gridSource.x] = true;
+	distance[gridSource.y][gridSource.x] = 0;
 
 	// Keep searching until destination is reached or the queue is empty (i.e., no possible way to reach destination)
 	while (!queue.empty())
@@ -52,7 +53,7 @@ std::stack<vec2> PathFindingSystem::GetShortestPath(vec2 source, vec2 destinatio
 		queue.pop();
 
 		// If the destination is reached, the search is over
-		if (currentPoint == destination)
+		if (currentPoint == gridDestination)
 		{
 			break;
 		}
@@ -86,23 +87,26 @@ std::stack<vec2> PathFindingSystem::GetShortestPath(vec2 source, vec2 destinatio
 	}
 
 	// If destination was visited, then a path exists. Go backward (from destination to source) to find shortest path
-	if (visited[destination.y][destination.x])
+	if (visited[gridDestination.y][gridDestination.x])
 	{
-		// Start at the destination
-		vec2 currentPoint = destination;
+		// Add the actual destination to the path
+		shortestPath.push(destination);
+
+		// Start working backward from the best neighbouring point
+		vec2 currentPoint = GetCheapestAdjacentPoint(map, distance, visited, gridDestination);
 
 		// Keep going until we're back at the source
-		while (currentPoint != source)
+		while (currentPoint != gridSource)
 		{
-			// Add the current point to the path
-			shortestPath.push(currentPoint);
+			// Add the current point to the path, putting it back into the proper coordinate system
+			shortestPath.push(currentPoint * map.tileSize);
 
 			// Get the neighbour with the shortest distance to the source
 			currentPoint = GetCheapestAdjacentPoint(map, distance, visited, currentPoint);
 		}
 
 		// Add the source point to the path
-		shortestPath.push(currentPoint);
+		shortestPath.push(currentPoint * map.tileSize);
 	}
 
 	return shortestPath;
@@ -110,19 +114,15 @@ std::stack<vec2> PathFindingSystem::GetShortestPath(vec2 source, vec2 destinatio
 
 bool PathFindingSystem::IsValidPoint(const MapComponent& map, vec2 point) const
 {
-	vec2 mapPosition = point / map.tileSize;
-
 	// Check that the point is within the bounds of the map
-	return mapPosition.x >= 0 && mapPosition.x < map.grid[0].size()
-					&& mapPosition.y >= 0 && mapPosition.y < map.grid.size();
+	return point.x >= 0 && point.x < map.grid[0].size()
+					&& point.y >= 0 && point.y < map.grid.size();
 }
 
 bool PathFindingSystem::IsWalkablePoint(const MapComponent& map, vec2 point) const
 {
-	vec2 mapPosition = point / map.tileSize;
-
 	// Check that the point is marked as walkable
-	return map.grid[mapPosition.y][mapPosition.x] == 3;
+	return map.grid[point.y][point.x] == 3;
 }
 
 vec2 PathFindingSystem::GetCheapestAdjacentPoint(const MapComponent& map,
