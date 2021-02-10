@@ -24,7 +24,6 @@ void AnimationSystem::step()
 	  ///////////////////////////////////
 
 		// Check if we should switch between move and idle animations
-		// for some reason this breaks egg mob movement, movement should never rely on animations! always the other way around!
 		CheckAnimation(entity);
 
 	   // reset the timer
