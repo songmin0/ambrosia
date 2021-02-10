@@ -203,7 +203,7 @@ void WorldSystem::restart()
 	MapComponent::CreateMap("pizza-arena/pizza-arena-debug", {frameBufferWidth, frameBufferHeight});
 
 	// Create a deforming blob
-	CheeseBlob::CreateCheeseBlob({ 700, 900 });
+	CheeseBlob::CreateCheeseBlob({ 700, 950 });
 } 
 
 // Compute collisions between entities
