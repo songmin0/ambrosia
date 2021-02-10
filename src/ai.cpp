@@ -22,22 +22,19 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			// Movement for mobs - move to closest player
 			auto& playerContainer = ECS::registry<PlayerComponent>;
 			ECS::Entity closestPlayer = playerContainer.entities[0]; // Initialize to first player
+			float closestPlayerDistance = distance(motion.position, closestPlayer.get<Motion>().position);
 			// If there is more than one player
-			if (playerContainer.components.size() > 1) {
-				for (unsigned int j = 1; j < playerContainer.components.size(); j++)
+			for (unsigned int j = 1; j < playerContainer.components.size(); j++)
+			{
+				ECS::Entity player = playerContainer.entities[j];
+				auto& playerMotion = player.get<Motion>();
+				if (distance(motion.position, playerMotion.position) < closestPlayerDistance)
 				{
-					ECS::Entity player = playerContainer.entities[j];
-					auto& playerMotion = player.get<Motion>();
-					if (distance(motion.position, playerMotion.position) <
-						distance(motion.position, closestPlayer.get<Motion>().position))
-					{
-						closestPlayer = player;
-					}
+					closestPlayer = player;
 				}
 			}
 			entity.get<AISystem::MobComponent>().SetTargetEntity(closestPlayer);
 			motion.path = pathFindingSystem.GetShortestPath(motion.position, closestPlayer.get<Motion>().position);
-			//motion.velocity = normalize(closestPlayer.get<Motion>().position - motion.position) * 100.f; // Temp - matches player's deafult speed above
 		}
 	}
 	
