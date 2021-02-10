@@ -134,6 +134,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 	}
 
+	/*
 	// Spawning new eggs
 	while (ECS::registry<Egg>.components.size() < MAX_EGGS)
 	{
@@ -144,6 +145,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		motion.position = vec2(window_size_in_game_units.x - 150.f, 50.f + uniform_dist(rng) * (window_size_in_game_units.y - 100.f));
 		motion.velocity = vec2(-100.f, 0.f );
 	}
+	*/
 
 	// Check for player defeat
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
@@ -218,6 +220,13 @@ void WorldSystem::restart()
 
 	// Create a new Raoul
 	player_raoul = Raoul::CreateRaoul({ 640, 512 });
+
+	//This is not the final way to add eggs just put them here for testing purposes.
+	ECS::Entity entity = Egg::CreateEgg({ 750, 800 });
+ entity = Egg::CreateEgg({ 1000, 800 });
+	// Setting random initial position and constant velocity
+	//auto& motion = entity.get<Motion>();
+	//motion.position = vec2(window_size_in_game_units.x - 150.f, 50.f + uniform_dist(rng) * (window_size_in_game_units.y - 100.f));
 
 	// Removing existing map
 	while (!ECS::registry<MapComponent>.entities.empty())
