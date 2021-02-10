@@ -38,8 +38,8 @@ int main()
 	WorldSystem world(window_size_in_px);
 	RenderSystem renderer(*world.window);
 	PhysicsSystem physics;
-	AISystem ai;
 	PathFindingSystem pathFindingSystem;
+	AISystem ai(pathFindingSystem);
 	TurnSystem turnSystem(pathFindingSystem);
 	AnimationSystem animations;
 
