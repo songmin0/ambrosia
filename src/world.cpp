@@ -168,35 +168,6 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			return;
 		}
 	}
-	
-	// Process Raoul's state, animation test
-	// we should make this generic and move the logic somewhere else later
-	auto& raoul_motion = ECS::registry<Motion>.get(player_raoul);
-	auto& raoul_anim = ECS::registry<AnimationsComponent>.get(player_raoul);
-	if (abs(raoul_motion.velocity.x) > 5.0 || abs(raoul_motion.velocity.y) > 5.0)
-	{
-		raoul_anim.ChangeAnimation(AnimationType::MOVE);
-
-		// orientation check
-		if (raoul_motion.velocity.x < 0)
-		{
-			if (raoul_motion.scale.x > 0)
-			{
-				raoul_motion.scale.x *= -1;
-			}
-		}
-		else
-		{
-			if (raoul_motion.scale.x < 0)
-			{
-				raoul_motion.scale.x *= -1;
-			}
-		}
-	}
-	else
-	{
-		raoul_anim.ChangeAnimation(AnimationType::IDLE);
-	}
 }
 
 // Reset the world state to its initial state

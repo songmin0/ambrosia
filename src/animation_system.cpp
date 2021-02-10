@@ -6,8 +6,9 @@
 void AnimationSystem::step()
 {
 	// for each Animation component...
-	for (auto& anims : ECS::registry<AnimationsComponent>.components)
+	for (auto& entity : ECS::registry<AnimationsComponent>.entities)
 	{
+		auto& anims = entity.get<AnimationsComponent>();
 		// get the data for the current animation
 		AnimationData& currAnim = anims.currAnimData;
 
@@ -22,7 +23,11 @@ void AnimationSystem::step()
 	   /// else it's time to animate /////
 	  ///////////////////////////////////
 
-	  // reset the timer
+		// Check if we should switch between move and idle animations
+		// for some reason this breaks egg mob movement, movement should never rely on animations! always the other way around!
+		CheckAnimation(entity);
+
+	   // reset the timer
 		currAnim.delay_timer = currAnim.delay;
 
 		//calculate it's current frame...
@@ -50,3 +55,33 @@ void AnimationSystem::step()
 		}
 	}
 };
+
+void AnimationSystem::CheckAnimation(ECS::Entity& entity)
+{
+	auto& motion = entity.get<Motion>();
+	auto& anim = entity.get<AnimationsComponent>();
+	if (abs(motion.velocity.x) > 5.0 || abs(motion.velocity.y) > 5.0)
+	{
+		anim.ChangeAnimation(AnimationType::MOVE);
+
+		// orientation check
+		if (motion.velocity.x < 0)
+		{
+			if (motion.scale.x > 0)
+			{
+				motion.scale.x *= -1;
+			}
+		}
+		else
+		{
+			if (motion.scale.x < 0)
+			{
+				motion.scale.x *= -1;
+			}
+		}
+	}
+	else
+	{
+		anim.ChangeAnimation(AnimationType::IDLE);
+	}
+}
