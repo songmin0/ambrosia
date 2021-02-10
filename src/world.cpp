@@ -21,10 +21,7 @@
 #include <iostream>
 
 // Game configuration
-const size_t MAX_TURTLES = 15;
-const size_t MAX_FISH = 5;
-const size_t TURTLE_DELAY_MS = 2000;
-const size_t FISH_DELAY_MS = 5000;
+const size_t MAX_EGGS = 3;
 
 // Create the fish world
 // Note, this has a lot of OpenGL specific things, could be moved to the renderer; but it also defines the callbacks to the mouse and keyboard. That is why it is called here.
@@ -137,13 +134,10 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 	}
 
-	// Spawning new turtles
-	next_turtle_spawn -= elapsed_ms * current_speed;
-	if (ECS::registry<Turtle>.components.size() <= MAX_TURTLES && next_turtle_spawn < 0.f)
+	// Spawning new eggs
+	while (ECS::registry<Egg>.components.size() < MAX_EGGS)
 	{
-		// Reset timer
-		next_turtle_spawn = (TURTLE_DELAY_MS / 2) + uniform_dist(rng) * (TURTLE_DELAY_MS / 2);
-		// Create turtle
+		// Create egg mob
 		ECS::Entity entity = Egg::CreateEgg({0, 0});
 		// Setting random initial position and constant velocity
 		auto& motion = entity.get<Motion>();
