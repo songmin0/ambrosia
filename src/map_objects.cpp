@@ -30,7 +30,7 @@ ECS::Entity CheeseBlob::CreateCheeseBlob(vec2 position)
 	motion.position = position;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = vec2({ 0.9f, 0.9f });
+	motion.scale = vec2({ 1.f, 1.f });
 
 	// use this scale if you're doing a mesh to see it cause their current loader normalizes the mesh size to tiny
 	//motion.scale = vec2({ 100f, -100f });

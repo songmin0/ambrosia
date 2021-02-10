@@ -149,9 +149,3 @@ struct DeathTimer
 {
 	float counter_ms = 1000;
 };
-
-// A timer to swap between x and y distention, ie. for blobs
-struct DistentionTimer
-{
-	float counter_ms = 5000;
-};
