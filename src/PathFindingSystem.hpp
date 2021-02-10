@@ -25,8 +25,5 @@ private:
 															 	const std::vector<std::vector<int>>& distance,
 															 	std::vector<std::vector<bool>>& visited,
 															 	vec2 p) const;
-
-	// If the destination point is too close to the source, no path will be generated
-	const float MIN_DISTANCE_SRC_TO_DST = 5.f;
 };
 
