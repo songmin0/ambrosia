@@ -46,6 +46,12 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			while (!motion.path.empty() && length(motion.position - motion.path.top()) < THRESHOLD)
 			{
 				motion.path.pop();
+
+				// When entity reaches end of path, the movement phase of its turn will end
+				if (motion.path.empty() && entity.has<TurnSystem::TurnComponent>())
+				{
+					entity.get<TurnSystem::TurnComponent>().hasMoved = true;
+				}
 			}
 
 			// If no path, make sure velocity is zero
