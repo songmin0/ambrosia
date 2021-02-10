@@ -39,7 +39,6 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 							entity.get<AISystem::MobComponent>().SetTargetEntity(closestPlayer);
 							//Find the direction to travel towards the player
 							vec2 direction = closestPlayer.get<Motion>().position - motion.position;
-							
 							float directionMagnitude = abs(sqrt((direction.x * direction.x) + (direction.y * direction.y)));
 							direction = direction / directionMagnitude;
 							std::cout << direction.x << ", " << direction.y;
@@ -48,7 +47,6 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 							//TODO properly define and decide how far a mob can move in a turn
 							float movementDistance = 200.0f;
 							vec2 destintation = motion.position + (direction * movementDistance);
-							std::cout << "Current Location: {" << motion.position.x << ", " << motion.position.y << "}" << " Destination: {" << destintation.x << ", " << destintation.y << "}";
 							//motion.path = pathFindingSystem.GetShortestPath(motion.position, closestPlayer.get<Motion>().position);
 							motion.path = pathFindingSystem.GetShortestPath(motion.position, destintation);
 							//motion.velocity = normalize(closestPlayer.get<Motion>().position - motion.position) * 100.f; // Temp - matches player's deafult speed above
