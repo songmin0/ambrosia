@@ -221,6 +221,8 @@ void WorldSystem::restart()
 	// Create a new Raoul
 	player_raoul = Raoul::CreateRaoul({ 640, 512 });
 
+	Raoul::CreateRaoul({ 200,700 });
+
 	//This is not the final way to add eggs just put them here for testing purposes.
 	ECS::Entity entity = Egg::CreateEgg({ 750, 800 });
  entity = Egg::CreateEgg({ 1000, 800 });
@@ -282,6 +284,17 @@ bool WorldSystem::is_over() const
 // On key callback
 void WorldSystem::OnKey(int key, int, int action, int mod)
 {
+		//TODO replace this with UI buttons
+		//Hacky way to select players manually
+		if (action == GLFW_PRESS && key == GLFW_KEY_0) {
+				auto& registry = ECS::registry<PlayerComponent>;
+				TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[0]);
+		}
+		if (action == GLFW_PRESS && key == GLFW_KEY_1) {
+				auto& registry = ECS::registry<PlayerComponent>;
+				TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[1]);
+		}
+
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
 	{
