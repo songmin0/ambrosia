@@ -24,7 +24,8 @@ std::stack<vec2> PathFindingSystem::GetShortestPath(vec2 source, vec2 destinatio
 	vec2 gridDestination = round(destination / map.tileSize);
 
 	// If the destination is not on the map, not walkable, or too close to the source, return an empty path
-	if (!IsValidPoint(map, gridDestination) || !IsWalkablePoint(map, gridDestination) || gridSource == gridDestination)
+	if (!IsValidPoint(map, gridDestination) || !IsWalkablePoint(map, gridDestination)
+			|| gridSource == gridDestination || !IsWalkablePoint(map, gridSource))
 	{
 		return shortestPath;
 	}
