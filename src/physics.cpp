@@ -2,7 +2,11 @@
 #include "physics.hpp"
 #include "tiny_ecs.hpp"
 #include "debug.hpp"
+#include "TurnSystem.hpp"
+
 #include <iostream>
+
+>>>>>>> origin/master
 // Returns the local bounding coordinates scaled by the current size of the entity 
 vec2 get_bounding_box(const Motion& motion)
 {
@@ -51,18 +55,48 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	// Move entities based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
 	
-	for (auto& motion : ECS::registry<Motion>.components)
+	for (auto entity : ECS::registry<Motion>.entities)
 	{
+		auto& motion = entity.get<Motion>();
+
+		// TEMP - I'm only enabling path movement for the player for the time being
+		if (entity.has<PlayerComponent>())
+		{
+			// Get rid of any points that are close enough that no movement is needed
+			const float THRESHOLD = 3.f;
+			while (!motion.path.empty() && length(motion.position - motion.path.top()) < THRESHOLD)
+			{
+				motion.path.pop();
+
+				// When entity reaches end of path, the movement phase of its turn will end
+				if (motion.path.empty() && entity.has<TurnSystem::TurnComponent>())
+				{
+					entity.get<TurnSystem::TurnComponent>().hasMoved = true;
+				}
+			}
+
+			// If no path, make sure velocity is zero
+			if (motion.path.empty())
+			{
+				motion.velocity = {0.f, 0.f};
+			}
+			else
+			{
+				const float DEFAULT_SPEED = 100.f; // TEMPORARY
+
+				// The position at the top of the stack is where the entity wants to go next. We will give the entity
+				// velocity in order to reach that point, and we leave the point on the stack until the entity is within
+				// the threshold distance.
+				vec2 desiredPos = motion.path.top();
+
+				// Set velocity based on the desired direction of travel
+				motion.velocity = normalize(desiredPos - motion.position) * DEFAULT_SPEED;
+			}
+		}
+
 		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
 		motion.position += step_seconds * motion.velocity;
 	}
-	
-	(void)window_size_in_game_units;
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A3: HANDLE PEBBLE UPDATES HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	// Visualization for debugging the position and scale of objects
 	if (DebugSystem::in_debug_mode)

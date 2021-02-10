@@ -101,6 +101,9 @@ void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 	transform.rotate(motion.angle);
 	transform.scale(motion.scale * static_cast<vec2>(texmesh.texture.size));
 
+	// The entity's feet are at the bottom of the texture, so move it upward by half the texture size
+	transform.translate(vec2(0.f, -0.5f));
+
 	// Setting shaders
 	glUseProgram(texmesh.effect.program);
 	glBindVertexArray(texmesh.mesh.vao);
