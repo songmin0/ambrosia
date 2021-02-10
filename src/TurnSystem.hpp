@@ -4,7 +4,8 @@
 #include "tiny_ecs.hpp"
 #include "functional"
 #include "PathFindingSystem.hpp"
-
+#include "Events.hpp"
+#include "EventSystem.hpp"
 
 // A system to handle turns
 class TurnSystem

@@ -7,7 +7,6 @@
 
 #include "ai.hpp"
 #include "render_components.hpp"
-#include "EventSystem.hpp"
 
 TurnSystem::TurnSystem(const PathFindingSystem& pfs)
 	: pathFindingSystem(pfs)
