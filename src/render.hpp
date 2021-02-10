@@ -27,6 +27,7 @@ public:
 	// Expose the creating of visual representations to other systems
 	static void createSprite(ShadedMesh& mesh_container, std::string texture_path, std::string shader_name);
 	static void createColoredMesh(ShadedMesh& mesh_container, std::string shader_name);
+	static void CreateTexturedMesh(ShadedMesh& mesh_container, std::string texture_path, std::string shader_name);
 
 	// Animations
 	static void CreateAnimatedSprite(ShadedMesh& sprite, int maxFrames, std::string texture_path, std::string shader_name);

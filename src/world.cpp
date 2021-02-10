@@ -9,6 +9,7 @@
 #include "animation_components.hpp"
 #include "animation_system.hpp"
 #include "egg.hpp"
+#include "map_objects.hpp"
 #include "TurnSystem.hpp"
 #include "raoul.hpp"
 #include "EventSystem.hpp"
@@ -229,7 +230,10 @@ void WorldSystem::restart()
 
 	// Create the map
 	MapComponent::CreateMap("pizza-arena/pizza-arena-debug", {frameBufferWidth, frameBufferHeight});
-}
+
+	// Create a deforming blob
+	CheeseBlob::CreateCheeseBlob({ 700, 900 });
+} 
 
 // Compute collisions between entities
 void WorldSystem::handle_collisions()

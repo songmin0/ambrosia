@@ -76,6 +76,37 @@ void RenderSystem::createSprite(ShadedMesh& sprite, std::string texture_path, st
 	sprite.effect.load_from_file(shader_path(shader_name) + ".vs.glsl", shader_path(shader_name) + ".fs.glsl");
 }
 
+void RenderSystem::CreateTexturedMesh(ShadedMesh& sprite, std::string texture_path, std::string shader_name)
+{
+	// Load the texture into the sprite
+	if (texture_path.length() > 0)
+	{
+		sprite.texture.load_from_file(texture_path.c_str());
+	}
+
+	// Load the mesh vertices into the sprite
+	// The loading of the texture vertices need to be handled in a better mesh loading function...
+	// Vertex Array
+	glGenVertexArrays(1, sprite.mesh.vao.data());
+	glGenBuffers(1, sprite.mesh.vbo.data());
+	glGenBuffers(1, sprite.mesh.ibo.data());
+	glBindVertexArray(sprite.mesh.vao);
+
+	// Vertex Buffer creation
+	glBindBuffer(GL_ARRAY_BUFFER, sprite.mesh.vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(ColoredVertex) * sprite.mesh.vertices.size(), sprite.mesh.vertices.data(), GL_STATIC_DRAW);
+
+	// Index Buffer creation
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sprite.mesh.ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint16_t) * sprite.mesh.vertex_indices.size(), sprite.mesh.vertex_indices.data(), GL_STATIC_DRAW);
+	gl_has_errors();
+
+	glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
+
+	// Loading shaders
+	sprite.effect.load_from_file(shader_path(shader_name) + ".vs.glsl", shader_path(shader_name) + ".fs.glsl");
+}
+
 // Calls load_array_from_file to create a 2D Array texture instead
 void RenderSystem::CreateAnimatedSprite(ShadedMesh& sprite, int maxFrames, std::string texture_path, std::string shader_name)
 {
