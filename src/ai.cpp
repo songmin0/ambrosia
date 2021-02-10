@@ -6,23 +6,35 @@
 
 #include <iostream>
 
+AISystem::AISystem(const PathFindingSystem& pfs)
+	: pathFindingSystem(pfs)
+{
+}
+
 void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE FISH AI HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// You will likely want to write new functions and need to create
-	// new data structures to implement a more sophisticated Fish AI. 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-	/*auto& players = ECS::registry<PlayerComponent>;
-	for (unsigned int i = 0; i < players.components.size(); i++) {
-		ECS::Entity entity = players.entities[i];
-		auto& turnComponent = ECS::registry<TurnSystem::TurnComponent>.get(entity);
-		if (!turnComponent.hasGone) {
-
+	for (ECS::Entity entity : ECS::registry<MobComponent>.entities)
+	{
+		auto& motion = entity.get<Motion>();
+		// Movement for mobs - move to closest player
+		auto& playerContainer = ECS::registry<PlayerComponent>;
+		ECS::Entity closestPlayer = playerContainer.entities[0]; // Initialize to first player
+		// If there is more than one player
+		if (playerContainer.components.size() > 1) {
+			for (unsigned int j = 1; j < playerContainer.components.size(); j++)
+			{
+				ECS::Entity player = playerContainer.entities[j];
+				auto& playerMotion = player.get<Motion>();
+				if (distance(motion.position, playerMotion.position) <
+					distance(motion.position, closestPlayer.get<Motion>().position))
+				{
+					closestPlayer = player;
+				}
+			}
 		}
-	}*/
+		entity.get<AISystem::MobComponent>().SetTargetEntity(closestPlayer);
+		motion.velocity = normalize(closestPlayer.get<Motion>().position - motion.position) * 100.f; // Temp - matches player's deafult speed above
+	}
 	
 	(void)elapsed_ms; // placeholder to silence unused warning until implemented
 	(void)window_size_in_game_units; // placeholder to silence unused warning until implemented
