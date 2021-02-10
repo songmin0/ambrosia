@@ -7,7 +7,6 @@
 #include "Events.hpp"
 #include "EventSystem.hpp"
 
-
 // A system to handle turns
 class TurnSystem
 {
