@@ -106,6 +106,7 @@ struct Effect
 struct Mesh
 {
 	void loadFromOBJFile(std::string obj_path);
+	//void LoadFromTexturedOBJFile(std::string obj_path);
 	vec2 original_size = {1.f,1.f};
 	GLResource<BUFFER> vbo;
 	GLResource<BUFFER> ibo;

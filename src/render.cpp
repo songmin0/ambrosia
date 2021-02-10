@@ -69,6 +69,13 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	} 
 	gl_has_errors();
 
+	// Set time uniform if it exists
+	GLuint time_uloc = glGetUniformLocation(texmesh.effect.program, "time");
+	if (time_uloc >= 0)
+	{
+		glUniform1f(time_uloc, static_cast<float>(glfwGetTime() * 10.0f));
+	}
+
 	// Getting uniform locations for glUniform* calls
 	GLint color_uloc = glGetUniformLocation(texmesh.effect.program, "fcolor");
 	glUniform3fv(color_uloc, 1, (float*)&texmesh.texture.color);
