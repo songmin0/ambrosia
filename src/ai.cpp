@@ -33,7 +33,8 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			}
 		}
 		entity.get<AISystem::MobComponent>().SetTargetEntity(closestPlayer);
-		motion.velocity = normalize(closestPlayer.get<Motion>().position - motion.position) * 100.f; // Temp - matches player's deafult speed above
+		motion.path = pathFindingSystem.GetShortestPath(motion.position, closestPlayer.get<Motion>().position);
+		//motion.velocity = normalize(closestPlayer.get<Motion>().position - motion.position) * 100.f; // Temp - matches player's deafult speed above
 	}
 	
 	(void)elapsed_ms; // placeholder to silence unused warning until implemented
