@@ -198,7 +198,7 @@ void WorldSystem::restart()
 
 	//This is not the final way to add eggs just put them here for testing purposes.
 	ECS::Entity entity = Egg::CreateEgg({ 750, 800 });
- entity = Egg::CreateEgg({ 1000, 800 });
+	entity = Egg::CreateEgg({ 1000, 800 });
 	// Setting random initial position and constant velocity
 	//auto& motion = entity.get<Motion>();
 	//motion.position = vec2(window_size_in_game_units.x - 150.f, 50.f + uniform_dist(rng) * (window_size_in_game_units.y - 100.f));
@@ -272,6 +272,19 @@ void WorldSystem::OnKey(int key, int, int action, int mod)
 		if (action == GLFW_PRESS && key == GLFW_KEY_1) {
 				auto& registry = ECS::registry<PlayerComponent>;
 				TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[1]);
+		}
+
+		// Animation Test
+		if (action == GLFW_PRESS && key == GLFW_KEY_3) {
+			auto& anim = player_raoul.get<AnimationsComponent>();
+			anim.ChangeAnimation(AnimationType::ATTACK3);
+		}
+		if (action == GLFW_PRESS && key == GLFW_KEY_4) {
+			for (auto entity : ECS::registry<Egg>.entities)
+			{
+				auto& anim = entity.get<AnimationsComponent>();
+				anim.ChangeAnimation(AnimationType::HIT);
+			}
 		}
 
 	// Resetting game
