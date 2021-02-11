@@ -18,6 +18,7 @@
 #include "animation_system.hpp"
 #include "TurnSystem.hpp"
 #include "PathFindingSystem.hpp"
+#include "UISystem.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -42,6 +43,7 @@ int main()
 	AISystem ai(pathFindingSystem);
 	TurnSystem turnSystem(pathFindingSystem);
 	AnimationSystem animations;
+	UISystem ui;
 
 	// Set all states to default
 	world.restart();
