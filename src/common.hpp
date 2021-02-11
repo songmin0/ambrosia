@@ -30,6 +30,7 @@ inline std::string mesh_path(const std::string& name) { return data_path() + "/m
 inline std::string sprite_path(const std::string& name) { return data_path() + "/sprites/" + name; };
 inline std::string maps_path(const std::string& name) { return data_path() + "/maps/" + name; };
 inline std::string objects_path(const std::string& name) { return data_path() + "/objects/" + name; };
+inline std::string ui_path(const std::string& name) { return data_path() + "/ui/" + name; };
 
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)

@@ -40,7 +40,10 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES}
         "src/TurnSystem.cpp" "src/TurnSystem.hpp"
         "src/EventSystem.hpp" "src/Events.hpp"
         "src/PathFindingSystem.cpp" "src/PathFindingSystem.hpp"
-        "src/Map.cpp" "src/Map.hpp")
+        "src/Map.cpp" "src/Map.hpp"
+        "src/Button.cpp" "src/Button.hpp" 
+        "src/ui_components.cpp" "src/ui_components.hpp" 
+        "src/UISystem.cpp" "src/UISystem.hpp")
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 
 # Added this so policy CMP0065 doesn't scream
