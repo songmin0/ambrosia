@@ -12,6 +12,7 @@
 #include "map_objects.hpp"
 #include "TurnSystem.hpp"
 #include "raoul.hpp"
+#include "raoul-bone.hpp"
 #include "EventSystem.hpp"
 #include "Events.hpp"
 
@@ -215,6 +216,9 @@ void WorldSystem::restart()
 
 	// Create a deforming blob
 	CheeseBlob::CreateCheeseBlob({ 700, 950 });
+
+	// Render test for new bone
+	RaoulBone::CreateRaoulBone({ 640, 512 });
 } 
 
 // Compute collisions between entities
