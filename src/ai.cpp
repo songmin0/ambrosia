@@ -38,9 +38,7 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 							}
 							entity.get<AISystem::MobComponent>().SetTargetEntity(closestPlayer);
 							//Find the direction to travel towards the player
-							vec2 direction = closestPlayer.get<Motion>().position - motion.position;
-							float directionMagnitude = abs(sqrt((direction.x * direction.x) + (direction.y * direction.y)));
-							direction = direction / directionMagnitude;
+							vec2 direction = normalize(closestPlayer.get<Motion>().position - motion.position);
 
 							//Calculate the point to walk to
 							//TODO properly define and decide how far a mob can move in a turn
