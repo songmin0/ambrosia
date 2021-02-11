@@ -46,6 +46,21 @@ ECS::Entity Egg::CreateEgg(vec2 position)
 	);
 	anims.AddAnimation(AnimationType::MOVE, *move_anim);
 
+	auto hit_anim = new AnimationData(
+		"egg_hit", sprite_path("enemies/egg/hit/hit"), 29, 1, true, false
+	);
+	anims.AddAnimation(AnimationType::HIT, *hit_anim);
+
+	auto attack1_anim = new AnimationData(
+		"egg_attack1", sprite_path("enemies/egg/attack1/attack1"), 36, 1, true, false
+	);
+	anims.AddAnimation(AnimationType::ATTACK1, *attack1_anim);
+
+	auto defeat_anim = new AnimationData(
+		"egg_defeat", sprite_path("enemies/egg/defeat/defeat"), 48, 1, true, false
+	);
+	anims.AddAnimation(AnimationType::DEFEAT, *defeat_anim);
+
 	// start off moving
 	anims.ChangeAnimation(AnimationType::MOVE);
 
