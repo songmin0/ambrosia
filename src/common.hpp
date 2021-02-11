@@ -53,5 +53,4 @@ struct Motion {
 
 //PlaceHolder please replace with the real one once someone has made them or continue to use these but rename
 struct PlayerComponent {
-
 };

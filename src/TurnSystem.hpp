@@ -16,7 +16,7 @@ public:
 		~TurnSystem();
 
 		void nextActiveEntity();
-		void changeActiveEntity(ECS::Entity nextEntity);
+		static void changeActiveEntity(ECS::Entity nextEntity);
 		void nextTurn();
 
 		void step(float elapsed_ms);

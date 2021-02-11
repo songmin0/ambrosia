@@ -135,6 +135,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 	}
 
+	/*
 	// Spawning new eggs
 	while (ECS::registry<Egg>.components.size() < MAX_EGGS)
 	{
@@ -145,6 +146,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		motion.position = vec2(window_size_in_game_units.x - 150.f, 50.f + uniform_dist(rng) * (window_size_in_game_units.y - 100.f));
 		motion.velocity = vec2(-100.f, 0.f );
 	}
+	*/
 
 	// Check for player defeat
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
@@ -190,6 +192,15 @@ void WorldSystem::restart()
 
 	// Create a new Raoul
 	player_raoul = Raoul::CreateRaoul({ 640, 512 });
+
+	Raoul::CreateRaoul({ 200,700 });
+
+	//This is not the final way to add eggs just put them here for testing purposes.
+	ECS::Entity entity = Egg::CreateEgg({ 750, 800 });
+ entity = Egg::CreateEgg({ 1000, 800 });
+	// Setting random initial position and constant velocity
+	//auto& motion = entity.get<Motion>();
+	//motion.position = vec2(window_size_in_game_units.x - 150.f, 50.f + uniform_dist(rng) * (window_size_in_game_units.y - 100.f));
 
 	// Removing existing map
 	while (!ECS::registry<MapComponent>.entities.empty())
@@ -248,6 +259,17 @@ bool WorldSystem::is_over() const
 // On key callback
 void WorldSystem::OnKey(int key, int, int action, int mod)
 {
+		//TODO replace this with UI buttons
+		//Hacky way to select players manually
+		if (action == GLFW_PRESS && key == GLFW_KEY_0) {
+				auto& registry = ECS::registry<PlayerComponent>;
+				TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[0]);
+		}
+		if (action == GLFW_PRESS && key == GLFW_KEY_1) {
+				auto& registry = ECS::registry<PlayerComponent>;
+				TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[1]);
+		}
+
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
 	{

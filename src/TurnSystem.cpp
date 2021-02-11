@@ -71,10 +71,26 @@ void TurnSystem::nextActiveEntity()
 void TurnSystem::changeActiveEntity(ECS::Entity nextEntity)
 {
 		//Make sure the nextEntity has a TurnComponent
+		assert(nextEntity.has<TurnComponent>());
+		auto& turnComponent = ECS::registry<TurnComponent>.get(nextEntity);
+		if (!turnComponent.hasGone) {
+				ECS::registry<TurnComponent>.get(ECS::registry<TurnComponentIsActive>.entities[0]).hasGone = false;
+				std::cout << "switching to the next active entity \n";
+				//Remove the active entity
+				ECS::registry<TurnComponentIsActive>.clear();
 
+				//Set the activeEntity to the nextEntity
+				ECS::registry<TurnComponentIsActive>.emplace(nextEntity);
+				
+				//Set the activeEnity's hasGone to true
+				auto& activeEntityTurnComponent = ECS::registry<TurnComponent>.get(nextEntity);
+				activeEntityTurnComponent.hasGone = true;
+		}
+		else {
+				std::cout << "player has already gone this turn\n";
+		}
+		
 
-		//Set the activeEntity to the nextEntity
-		//Set the activeEnity's isActive and hasGone to true
 }
 
 //All players and mobs have completed their turn. This makes sure the next turn starts properly
