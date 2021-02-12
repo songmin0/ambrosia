@@ -216,6 +216,9 @@ void WorldSystem::restart()
 	// Create the map
 	MapComponent::CreateMap("pizza-arena/pizza-arena-debug", {frameBufferWidth, frameBufferHeight});
 
+	// Create a deforming blob
+	CheeseBlob::CreateCheeseBlob({ 700, 950 });
+
 	// Create UI buttons
 	Button::createButton(ButtonShape::RECTANGLE, { frameBufferWidth / 4, 60 }, "placeholder_char_button",
 		[]() {
@@ -246,9 +249,6 @@ void WorldSystem::restart()
 		[]() { std::cout << "Skill three button clicked!" << std::endl; });
 	Button::createButton(ButtonShape::CIRCLE, { 550, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
 		[]() { std::cout << "Skill four button clicked!" << std::endl; });
-
-	// Create a deforming blob
-	CheeseBlob::CreateCheeseBlob({ 700, 950 });
 } 
 
 // Compute collisions between entities
