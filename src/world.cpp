@@ -299,17 +299,6 @@ bool WorldSystem::is_over() const
 // On key callback
 void WorldSystem::OnKey(int key, int, int action, int mod)
 {
-		//TODO replace this with UI buttons
-		//Hacky way to select players manually
-		if (action == GLFW_PRESS && key == GLFW_KEY_0) {
-				auto& registry = ECS::registry<PlayerComponent>;
-				TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[0]);
-		}
-		if (action == GLFW_PRESS && key == GLFW_KEY_1) {
-				auto& registry = ECS::registry<PlayerComponent>;
-				TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[1]);
-		}
-
 		// Animation Test
 		if (action == GLFW_PRESS && key == GLFW_KEY_3) {
 			auto& anim = player_raoul.get<AnimationsComponent>();
