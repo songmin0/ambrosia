@@ -3,7 +3,7 @@
 
 UISystem::UISystem()
 {
-	mouseClickListener = EventSystem<MouseClickEvent>::Instance().RegisterListener(
+	mouseClickListener = EventSystem<RawMouseClickEvent>::Instance().RegisterListener(
 		std::bind(&UISystem::OnMouseClick, this, std::placeholders::_1));
 }
 
@@ -11,7 +11,7 @@ UISystem::~UISystem()
 {
 	if (mouseClickListener.IsValid())
 	{
-		EventSystem<MouseClickEvent>::Instance().UnregisterListener(mouseClickListener);
+		EventSystem<RawMouseClickEvent>::Instance().UnregisterListener(mouseClickListener);
 	}
 }
 
@@ -30,22 +30,35 @@ bool UISystem::IsClicked(ClickableRectangleComponent clickable, vec2 position)
 }
 
 template <typename ClickableComponent>
-void UISystem::HandleClick(ECS::Entity entity, const MouseClickEvent& event)
+// Handles calling callback function when a button is clicked
+// returns true if button is clicked, false otherwise
+bool UISystem::HandleClick(ECS::Entity entity, const RawMouseClickEvent& event)
 {
+	if (!entity.has<ClickableComponent>()) {
+		return false;
+	}
+
 	auto& clickable = entity.get<ClickableComponent>();
 	if (IsClicked(clickable, event.mousePos)) {
 		clickable.callback();
+		return true;
 	}
+
+	return false;
 }
 
-void UISystem::OnMouseClick(const MouseClickEvent& event)
+void UISystem::OnMouseClick(const RawMouseClickEvent& event)
 {
+	// Handles if any button entities are clicked
 	for (auto entity : ECS::registry<Button>.entities) {
-		if (entity.has<ClickableCircleComponent>()) {
-			HandleClick<ClickableCircleComponent>(entity, event);
+		if (HandleClick<ClickableCircleComponent>(entity, event)) {
+			return;
 		}
-		else if (entity.has<ClickableRectangleComponent>()) {
-			HandleClick<ClickableRectangleComponent>(entity, event);
+		else if (HandleClick<ClickableRectangleComponent>(entity, event)) {
+			return;
 		}
 	}
+
+	// Sends a MouseClickEvent to event system if no buttons are clicked
+	EventSystem<MouseClickEvent>::Instance().SendEvent(MouseClickEvent{ event.mousePos });
 }
