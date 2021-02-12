@@ -149,3 +149,10 @@ struct DeathTimer
 {
 	float counter_ms = 1000;
 };
+
+struct ColourShift
+{
+	// values 1-4 will set colours
+	// other values will do nothing
+	float colour = 0;
+};
