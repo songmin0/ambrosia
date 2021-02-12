@@ -6,7 +6,6 @@
 #include "TurnSystem.hpp"
 
 #include <iostream>
-
 // Returns the local bounding coordinates scaled by the current size of the entity 
 vec2 get_bounding_box(const Motion& motion)
 {
@@ -17,16 +16,37 @@ vec2 get_bounding_box(const Motion& motion)
 // This is a SUPER APPROXIMATE check that puts a circle around the bounding boxes and sees
 // if the center point of either object is inside the other's bounding-box-circle. You don't
 // need to try to use this technique.
+//bool collides(const Motion& motion1, const Motion& motion2)
+//{
+//	auto dp = motion1.position - motion2.position;
+//	float dist_squared = dot(dp,dp);
+//	float other_r = std::sqrt(std::pow(get_bounding_box(motion1).x/2.0f, 2.f) + std::pow(get_bounding_box(motion1).y/2.0f, 2.f));
+//	float my_r = std::sqrt(std::pow(get_bounding_box(motion2).x/2.0f, 2.f) + std::pow(get_bounding_box(motion2).y/2.0f, 2.f));
+//	float r = max(other_r, my_r);
+//	if (dist_squared < r * r)
+//		return true;
+//	return false;
+//}
+
 bool collides(const Motion& motion1, const Motion& motion2)
 {
-	auto dp = motion1.position - motion2.position;
-	float dist_squared = dot(dp,dp);
-	float other_r = std::sqrt(std::pow(get_bounding_box(motion1).x/2.0f, 2.f) + std::pow(get_bounding_box(motion1).y/2.0f, 2.f));
-	float my_r = std::sqrt(std::pow(get_bounding_box(motion2).x/2.0f, 2.f) + std::pow(get_bounding_box(motion2).y/2.0f, 2.f));
-	float r = max(other_r, my_r);
-	if (dist_squared < r * r)
-		return true;
-	return false;
+	auto boundingBox1 = get_bounding_box(motion1);
+	auto boundingBox2 = get_bounding_box(motion2);
+
+	bool collisionX = boundingBox1.x + motion1.position.x >= motion2.position.x &&
+						motion1.position.x <= boundingBox2.x + motion2.position.x;
+
+	bool collisionY = boundingBox1.y + motion1.position.y >= motion2.position.y &&
+						motion1.position.y <= boundingBox2.y + motion2.position.y;
+
+	if (collisionX && collisionY) {
+		std::cout << "bounding box 1 x: " << boundingBox1.x;
+		std::cout << "bounding box 1 y: " << boundingBox1.y;
+		std::cout << "bounding box 2 x: " << boundingBox2.x;
+		std::cout << "bounding box 2 y: " << boundingBox2.y;
+	}
+	
+	return collisionX && collisionY;
 }
 
 void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
