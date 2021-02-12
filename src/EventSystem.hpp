@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <functional>
 
 // Manages the unique identifier for an event listener
 class EventListenerInfo

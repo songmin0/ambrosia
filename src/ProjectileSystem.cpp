@@ -3,6 +3,8 @@
 #include "render.hpp"
 #include "animation_components.hpp"
 
+#include <functional>
+
 
 ProjectileSystem::ProjectileSystem()
 {
