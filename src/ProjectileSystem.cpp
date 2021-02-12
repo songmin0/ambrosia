@@ -33,7 +33,7 @@ void ProjectileSystem::Step(float elapsed_ms)
 	// Service launch requests
 	for (int i = launchRequests.size() - 1; i >= 0; i--)
 	{
-		LaunchRequest& request = launchRequests.front();
+		LaunchRequest& request = launchRequests[i];
 
 		request.params.delay -= elapsed_s;
 
