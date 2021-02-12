@@ -196,7 +196,10 @@ void WorldSystem::restart()
 	// Create a new Raoul
 	player_raoul = Raoul::CreateRaoul({ 640, 512 });
 
+	//TODO replace these with the real other characters
 	Raoul::CreateRaoul({ 200,700 });
+	Raoul::CreateRaoul({ 400,700 });
+	Raoul::CreateRaoul({ 400,400 });
 
 	//This is not the final way to add eggs just put them here for testing purposes.
 	ECS::Entity entity = Egg::CreateEgg({ 750, 800 });
@@ -218,13 +221,25 @@ void WorldSystem::restart()
 
 	// Create UI buttons
 	Button::createButton(ButtonShape::RECTANGLE, { frameBufferWidth / 4, 60 }, "placeholder_char_button",
-		[]() { std::cout << "Character one button clicked!" << std::endl; });
+		[]() {
+					std::cout << "Character one button clicked!" << std::endl;
+					TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[0]);
+			});
 	Button::createButton(ButtonShape::RECTANGLE, { frameBufferWidth / 4 + 200, 60 }, "placeholder_char_button",
-		[]() { std::cout << "Character two button clicked!" << std::endl; });
+		[]() {
+					std::cout << "Character two button clicked!" << std::endl;
+					TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[1]);
+			});
 	Button::createButton(ButtonShape::RECTANGLE, { frameBufferWidth / 4 + 400, 60 }, "placeholder_char_button",
-		[]() { std::cout << "Character three button clicked!" << std::endl; });
+		[]() {
+					std::cout << "Character three button clicked!" << std::endl;
+					TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[2]);
+			});
 	Button::createButton(ButtonShape::RECTANGLE, { frameBufferWidth / 4 + 600, 60 }, "placeholder_char_button",
-		[]() { std::cout << "Character four button clicked!" << std::endl; });
+		[]() {
+					std::cout << "Character four button clicked!" << std::endl;
+					TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[3]);
+			});
 
 	Button::createButton(ButtonShape::CIRCLE, { 100, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
 		[]() { std::cout << "Skill one button clicked!" << std::endl; });

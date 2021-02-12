@@ -9,18 +9,18 @@
 #include "render_components.hpp"
 
 TurnSystem::TurnSystem(const PathFindingSystem& pfs)
-	: pathFindingSystem(pfs)
+		: pathFindingSystem(pfs)
 {
-	EventSystem<MouseClickEvent>::Instance().RegisterListener(
-			std::bind(&TurnSystem::OnMouseClick, this, std::placeholders::_1));
+		EventSystem<MouseClickEvent>::Instance().RegisterListener(
+				std::bind(&TurnSystem::OnMouseClick, this, std::placeholders::_1));
 }
 
 TurnSystem::~TurnSystem()
 {
-	if (mouseClickListener.IsValid())
-	{
-		EventSystem<MouseClickEvent>::Instance().UnregisterListener(mouseClickListener);
-	}
+		if (mouseClickListener.IsValid())
+		{
+				EventSystem<MouseClickEvent>::Instance().UnregisterListener(mouseClickListener);
+		}
 }
 
 //Just sets the next available entity as the current entity
@@ -81,13 +81,18 @@ void TurnSystem::changeActiveEntity(ECS::Entity nextEntity)
 
 				//Set the activeEntity to the nextEntity
 				ECS::registry<TurnComponentIsActive>.emplace(nextEntity);
-				
+
 				//Set the activeEnity's hasGone to true
 				auto& activeEntityTurnComponent = ECS::registry<TurnComponent>.get(nextEntity);
 				activeEntityTurnComponent.hasGone = true;
 		}
 		else {
-				std::cout << "player has already gone this turn\n";
+				if (nextEntity.id == ECS::registry<TurnComponentIsActive>.entities[0].id){
+						std::cout << "The requested player is already the active player\n";
+				}
+				else {
+						std::cout << "player has already gone this turn\n";
+				}
 		}
 		
 
