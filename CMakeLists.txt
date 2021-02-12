@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-project(salmon)
+project(Ambrosia)
 
 # Set c++11
 # https://stackoverflow.com/questions/10851247/how-to-activate-c-11-in-cmake
@@ -44,7 +44,9 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES}
         "src/Button.cpp" "src/Button.hpp" 
         "src/ui_components.cpp" "src/ui_components.hpp" 
         "src/UISystem.cpp" "src/UISystem.hpp"
-	"src/raoul-bone.cpp" "src/raoul-bone.hpp")
+        "src/raoul-bone.cpp" "src/raoul-bone.hpp"
+        "src/Projectile.cpp" src/Projectile.hpp
+        "src/ProjectileSystem.cpp" "src/ProjectileSystem.hpp")
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 
 # Added this so policy CMP0065 doesn't scream

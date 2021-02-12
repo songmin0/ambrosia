@@ -2,7 +2,7 @@
 
 // internal
 #include "common.hpp"
-#include "salmon.hpp"
+#include "tiny_ecs.hpp"
 
 // stlib
 #include <vector>
@@ -53,9 +53,6 @@ private:
 
 	// Game state
 	float current_speed;
-	float next_turtle_spawn;
-	float next_fish_spawn;
-	ECS::Entity player_salmon;
 
 	// Player test
 	ECS::Entity player_raoul;

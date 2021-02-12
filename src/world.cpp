@@ -2,9 +2,6 @@
 #include "world.hpp"
 #include "physics.hpp"
 #include "debug.hpp"
-#include "turtle.hpp"
-#include "fish.hpp"
-#include "pebbles.hpp"
 #include "render_components.hpp"
 #include "animation_components.hpp"
 #include "animation_system.hpp"
@@ -17,6 +14,7 @@
 #include "Events.hpp"
 #include "Button.hpp"
 #include "ui_components.hpp"
+#include "Projectile.hpp"
 
 // stlib
 #include <string.h>
@@ -27,12 +25,10 @@
 // Game configuration
 const size_t MAX_EGGS = 3;
 
-// Create the fish world
+// Create the world
 // Note, this has a lot of OpenGL specific things, could be moved to the renderer; but it also defines the callbacks to the mouse and keyboard. That is why it is called here.
 WorldSystem::WorldSystem(ivec2 window_size_px) :
-	points(0),
-	next_turtle_spawn(0.f),
-	next_fish_spawn(0.f)
+	points(0)
 {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
@@ -132,7 +128,8 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	for (int i = static_cast<int>(registry.components.size())-1; i >= 0; --i)
 	{
 		auto& motion = registry.components[i];
-		if (motion.position.x + abs(motion.scale.x) < 0.f)
+		if (motion.position.x < -200.f || motion.position.x > (window_size_in_game_units.x + 200.f)
+		    || motion.position.y < -200.f || motion.position.y > (window_size_in_game_units.y + 200.f))
 		{
 			ECS::ContainerInterface::remove_all_components_of(registry.entities[i]);
 		}
@@ -237,9 +234,6 @@ void WorldSystem::restart()
 
 	// Create a deforming blob
 	CheeseBlob::CreateCheeseBlob({ 700, 950 });
-
-	// Render test for new bone
-	RaoulBone::CreateRaoulBone({ 640, 512 });
 } 
 
 // Compute collisions between entities
@@ -253,6 +247,22 @@ void WorldSystem::handle_collisions()
 		auto entity = registry.entities[i];
 		auto entity_other = registry.components[i].other;
 
+		// Check for projectiles colliding with the player or with the eggs
+		if (ECS::registry<ProjectileComponent>.has(entity))
+		{
+			if (ECS::registry<Raoul>.has(entity_other) || ECS::registry<Egg>.has(entity_other))
+			{
+				auto& projComponent = entity.get<ProjectileComponent>();
+
+				HitEvent event;
+				event.instigator = projComponent.instigator;
+				event.target = entity_other;
+
+				EventSystem<HitEvent>::Instance().SendEvent(event);
+			}
+		}
+
+		// Check for collisions between player and eggs
 		if (ECS::registry<Raoul>.has(entity))
 		{
 			if (ECS::registry<Egg>.has(entity_other))
