@@ -42,6 +42,31 @@ ECS::Entity Raoul::CreateRaoul(vec2 position)
 	);
 	anims.AddAnimation(AnimationType::MOVE, *move_anim);
 
+	auto attack3 = new AnimationData(
+		"raoul_attack3", sprite_path("players/raoul/attack3/attack3"), 66, 1, true, false
+	);
+	anims.AddAnimation(AnimationType::ATTACK3, *attack3);
+
+	auto attack1 = new AnimationData(
+		"raoul_attack1", sprite_path("players/raoul/attack1/attack1"), 99, 1, true, false
+	);
+	anims.AddAnimation(AnimationType::ATTACK1, *attack1);
+
+	auto attack2 = new AnimationData(
+		"raoul_attack2", sprite_path("players/raoul/attack2/attack2"), 99, 1, true, false
+	);
+	anims.AddAnimation(AnimationType::ATTACK2, *attack2);
+
+	auto hit = new AnimationData(
+		"raoul_hit", sprite_path("players/raoul/hit/hit"), 66, 1, true, false
+	);
+	anims.AddAnimation(AnimationType::HIT, *hit);
+
+	auto defeat = new AnimationData(
+		"raoul_defeat", sprite_path("players/raoul/defeat/defeat"), 82, 1, true, false
+	);
+	anims.AddAnimation(AnimationType::DEFEAT, *defeat);
+
 	// start off idle
 	anims.ChangeAnimation(AnimationType::IDLE);
 

@@ -36,7 +36,10 @@ void AnimationSystem::step()
 			if (currAnim.currFrame >= currAnim.numFrames - 1)
 			{
 				// for all anims that don't cycle except defeat, try to return to idle
-				anims.ChangeAnimation(AnimationType::IDLE);
+				if (anims.currentAnim != AnimationType::DEFEAT)
+				{
+					anims.ChangeAnimation(AnimationType::IDLE);
+				}
 			}
 			else
 			{
@@ -59,6 +62,13 @@ void AnimationSystem::CheckAnimation(ECS::Entity& entity)
 {
 	auto& motion = entity.get<Motion>();
 	auto& anim = entity.get<AnimationsComponent>();
+
+	// only check move and idle animations
+	if (anim.currentAnim != AnimationType::IDLE && anim.currentAnim != AnimationType::MOVE)
+	{
+		return;
+	}
+
 	if (abs(motion.velocity.x) > 5.0 || abs(motion.velocity.y) > 5.0)
 	{
 		anim.ChangeAnimation(AnimationType::MOVE);
