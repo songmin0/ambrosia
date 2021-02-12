@@ -4,6 +4,7 @@
 #include "debug.hpp"
 #include "ai.hpp"
 #include "TurnSystem.hpp"
+#include "Projectile.hpp"
 
 #include <iostream>
 // Returns the local bounding coordinates scaled by the current size of the entity 
@@ -39,7 +40,8 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	bool collisionY = boundingBox1.y + motion1.position.y >= motion2.position.y &&
 						motion1.position.y <= boundingBox2.y + motion2.position.y;
 
-	if (collisionX && collisionY) {
+	bool debugEnabled = false;
+	if (debugEnabled && collisionX && collisionY) {
 		std::cout << "bounding box 1 x: " << boundingBox1.x;
 		std::cout << "bounding box 1 y: " << boundingBox1.y;
 		std::cout << "bounding box 2 x: " << boundingBox2.x;
@@ -58,35 +60,40 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	{
 		auto& motion = entity.get<Motion>();
 
-		// Get rid of any points that are close enough that no movement is needed
-		const float THRESHOLD = 3.f;
-		while (!motion.path.empty() && length(motion.position - motion.path.top()) < THRESHOLD)
+		// Projectiles don't use `motion.path`, so they need to skip this block of code. Their
+		// path/velocity is managed by the ProjectileSystem.
+		if (!entity.has<ProjectileComponent>())
 		{
-			motion.path.pop();
-
-			// When entity reaches end of path, the movement phase of its turn will end
-			if (motion.path.empty() && entity.has<TurnSystem::TurnComponent>())
+			// Get rid of any points that are close enough that no movement is needed
+			const float THRESHOLD = 3.f;
+			while (!motion.path.empty() && length(motion.position - motion.path.top()) < THRESHOLD)
 			{
-				entity.get<TurnSystem::TurnComponent>().hasMoved = true;
+				motion.path.pop();
+
+				// When entity reaches end of path, the movement phase of its turn will end
+				if (motion.path.empty() && entity.has<TurnSystem::TurnComponent>())
+				{
+					entity.get<TurnSystem::TurnComponent>().hasMoved = true;
+				}
 			}
-		}
 
-		// If no path, make sure velocity is zero
-		if (motion.path.empty())
-		{
-			motion.velocity = {0.f, 0.f};
-		}
-		else
-		{
-			const float DEFAULT_SPEED = 100.f; // TEMPORARY
+			// If no path, make sure velocity is zero
+			if (motion.path.empty())
+			{
+				motion.velocity = {0.f, 0.f};
+			}
+			else
+			{
+				const float DEFAULT_SPEED = 100.f; // TEMPORARY
 
-			// The position at the top of the stack is where the entity wants to go next. We will give the entity
-			// velocity in order to reach that point, and we leave the point on the stack until the entity is within
-			// the threshold distance.
-			vec2 desiredPos = motion.path.top();
+				// The position at the top of the stack is where the entity wants to go next. We will give the entity
+				// velocity in order to reach that point, and we leave the point on the stack until the entity is within
+				// the threshold distance.
+				vec2 desiredPos = motion.path.top();
 
-			// Set velocity based on the desired direction of travel
-			motion.velocity = normalize(desiredPos - motion.position) * DEFAULT_SPEED;
+				// Set velocity based on the desired direction of travel
+				motion.velocity = normalize(desiredPos - motion.position) * DEFAULT_SPEED;
+			}
 		}
 
 		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
@@ -129,16 +136,6 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			}
 		}
 	}
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE SALMON - WALL COLLISIONS HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A3: HANDLE PEBBLE COLLISIONS HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
 PhysicsSystem::Collision::Collision(ECS::Entity& other)

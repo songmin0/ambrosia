@@ -158,6 +158,17 @@ void TurnSystem::OnMouseClick(const MouseClickEvent &event)
 			if (motion.path.empty())
 			{
 				motion.path = pathFindingSystem.GetShortestPath(motion.position, event.mousePos);
+
+
+
+				// TEMPORARY: If you click on an unwalkable area of the map, the character will do a bone throw
+				if(motion.path.empty())
+				{
+					LaunchBoneEvent launchBoneEvent;
+					launchBoneEvent.instigator = activeEntity;
+					launchBoneEvent.targetPosition = event.mousePos;
+					EventSystem<LaunchBoneEvent>::Instance().SendEvent(launchBoneEvent);
+				}
 			}
 		}
 	}

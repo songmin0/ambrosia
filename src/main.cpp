@@ -19,6 +19,7 @@
 #include "TurnSystem.hpp"
 #include "PathFindingSystem.hpp"
 #include "UISystem.hpp"
+#include "ProjectileSystem.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -44,6 +45,7 @@ int main()
 	TurnSystem turnSystem(pathFindingSystem);
 	AnimationSystem animations;
 	UISystem ui;
+	ProjectileSystem projectileSystem;
 
 	// Set all states to default
 	world.restart();
@@ -72,6 +74,7 @@ int main()
 			world.step(deltaTime, window_size_in_game_units);
 			physics.step(deltaTime, window_size_in_game_units);
 			world.handle_collisions();
+			projectileSystem.Step(deltaTime);
 			animations.step();
 			turnSystem.step(deltaTime);
 			renderer.draw(window_size_in_game_units);
