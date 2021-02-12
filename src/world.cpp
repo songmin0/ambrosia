@@ -358,8 +358,8 @@ void WorldSystem::OnMouseClick(int button, int action, int mods) const
 
 		std::cout << "Mouse click (release): {" << mousePosX << ", " << mousePosY << "}" << std::endl;
 
-		MouseClickEvent event;
+		RawMouseClickEvent event;
 		event.mousePos = {mousePosX, mousePosY};
-		EventSystem<MouseClickEvent>::Instance().SendEvent(event);
+		EventSystem<RawMouseClickEvent>::Instance().SendEvent(event);
 	}
 }
