@@ -223,25 +223,21 @@ void WorldSystem::restart()
 	Button::createButton(ButtonShape::RECTANGLE, { frameBufferWidth / 4, 60 }, "placeholder_char_button",
 		[]() {
 					std::cout << "Character one button clicked!" << std::endl;
-					auto& registry = ECS::registry<PlayerComponent>;
 					TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[0]);
 			});
 	Button::createButton(ButtonShape::RECTANGLE, { frameBufferWidth / 4 + 200, 60 }, "placeholder_char_button",
 		[]() {
-					std::cout << "Character two button clicked!" << std::endl; 
-					auto& registry = ECS::registry<PlayerComponent>;
+					std::cout << "Character two button clicked!" << std::endl;
 					TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[1]);
 			});
 	Button::createButton(ButtonShape::RECTANGLE, { frameBufferWidth / 4 + 400, 60 }, "placeholder_char_button",
 		[]() {
-					std::cout << "Character three button clicked!" << std::endl; 
-					auto& registry = ECS::registry<PlayerComponent>;
+					std::cout << "Character three button clicked!" << std::endl;
 					TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[2]);
 			});
 	Button::createButton(ButtonShape::RECTANGLE, { frameBufferWidth / 4 + 600, 60 }, "placeholder_char_button",
 		[]() {
-					std::cout << "Character four button clicked!" << std::endl; 
-					auto& registry = ECS::registry<PlayerComponent>;
+					std::cout << "Character four button clicked!" << std::endl;
 					TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[3]);
 			});
 
