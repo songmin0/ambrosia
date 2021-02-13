@@ -20,7 +20,7 @@ private:
 	bool IsClicked(ClickableRectangleComponent clickable, vec2 position);
 
 	template <typename ClickableComponent>
-	void HandleClick(ECS::Entity entity, const MouseClickEvent& event);
+	bool HandleClick(ECS::Entity entity, const RawMouseClickEvent& event);
 
-	void OnMouseClick(const MouseClickEvent& event);
+	void OnMouseClick(const RawMouseClickEvent& event);
 };

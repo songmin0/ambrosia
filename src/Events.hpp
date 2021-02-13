@@ -2,6 +2,11 @@
 
 using namespace glm;
 
+struct RawMouseClickEvent
+{
+	vec2 mousePos;
+};
+
 struct MouseClickEvent
 {
 	vec2 mousePos;

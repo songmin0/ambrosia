@@ -76,6 +76,14 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 		glUniform1f(time_uloc, static_cast<float>(glfwGetTime() * 10.0f));
 	}
 
+	// Set colour shift if it exists
+	if (entity.has<ColourShift>())
+	{
+		float colour = entity.get<ColourShift>().colour;
+		GLuint colourshift_uloc = glGetUniformLocation(texmesh.effect.program, "colourShift");
+		glUniform1f(colourshift_uloc, colour);
+	}
+
 	// Getting uniform locations for glUniform* calls
 	GLint color_uloc = glGetUniformLocation(texmesh.effect.program, "fcolor");
 	glUniform3fv(color_uloc, 1, (float*)&texmesh.texture.color);
@@ -165,6 +173,13 @@ void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 	glUniform1i(arraySamplerLoc, 1);
 	gl_has_errors();
 
+	// Set colour shift if it exists
+	if (entity.has<ColourShift>())
+	{
+		float colour = entity.get<ColourShift>().colour;
+		GLuint colourshift_uloc = glGetUniformLocation(texmesh.effect.program, "colourShift");
+		glUniform1f(colourshift_uloc, colour);
+	}
 
 	// Getting uniform locations for glUniform* calls
 	GLint color_uloc = glGetUniformLocation(texmesh.effect.program, "fcolor");

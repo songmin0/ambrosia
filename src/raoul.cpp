@@ -4,7 +4,7 @@
 #include "animation_components.hpp"
 #include "TurnSystem.hpp"
 
-ECS::Entity Raoul::CreateRaoul(vec2 position)
+ECS::Entity Raoul::CreateRaoul(vec2 position, float colourShift)
 {
 	auto entity = ECS::Entity();
 
@@ -77,6 +77,9 @@ ECS::Entity Raoul::CreateRaoul(vec2 position)
 
 	//Add the player component
 	entity.emplace<PlayerComponent>();
+
+	// Temporary colour shift
+	entity.emplace<ColourShift>().colour = colourShift;
 
 	return entity;
 };
