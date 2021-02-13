@@ -191,12 +191,13 @@ void WorldSystem::restart()
 	ECS::ContainerInterface::list_all_components();
 
 	// Create a new Raoul
-	player_raoul = Raoul::CreateRaoul({ 640, 512 });
+	player_raoul = Raoul::CreateRaoul({ 640, 512 }, 1.f);
 
 	//TODO replace these with the real other characters
-	Raoul::CreateRaoul({ 200,700 });
-	Raoul::CreateRaoul({ 400,700 });
-	Raoul::CreateRaoul({ 400,400 });
+	auto raoul_2 = Raoul::CreateRaoul({ 200,700 }, 2.f);
+	auto raoul_3 = Raoul::CreateRaoul({ 400,700 }, 3.f);
+	auto raoul_4 = Raoul::CreateRaoul({ 400,400 }, 4.f);
+
 
 	//This is not the final way to add eggs just put them here for testing purposes.
 	ECS::Entity entity = Egg::CreateEgg({ 750, 800 });
