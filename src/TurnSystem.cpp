@@ -89,7 +89,7 @@ void TurnSystem::changeActiveEntity(ECS::Entity nextEntity)
 				activeEntityTurnComponent.hasGone = true;
 		}
 		else {
-				assert(ECS::registry<TurnComponentIsActive>.entities.size() > 1);
+				assert(ECS::registry<TurnComponentIsActive>.entities.size() > 0);
 				if (nextEntity.id == ECS::registry<TurnComponentIsActive>.entities[0].id){
 						std::cout << "The requested player is already the active player\n";
 				}
