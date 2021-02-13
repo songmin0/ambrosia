@@ -14,6 +14,7 @@ std::stack<vec2> PathFindingSystem::GetShortestPath(vec2 source, vec2 destinatio
 	}
 
 	// For now, just take the first/only map in the registry
+	// Check happens in if statement above
 	const MapComponent& map = ECS::registry<MapComponent>.components.front();
 
 	// Should always have a valid map
@@ -50,6 +51,7 @@ std::stack<vec2> PathFindingSystem::GetShortestPath(vec2 source, vec2 destinatio
 	while (!queue.empty())
 	{
 		// Take the first point from the queue. We'll look at its neighbours and add any valid ones to the queue
+		// Check happens within while statement
 		vec2 currentPoint = queue.front();
 		queue.pop();
 
@@ -162,6 +164,7 @@ vec2 PathFindingSystem::GetCheapestAdjacentPoint(const MapComponent& map,
 	assert(!validAdjacentPoints.empty());
 
 	// Determine which neighbour has the shortest path back to the source
+	// Checked in an assert above because this validAdjacentPoints should never be empty
 	vec2 bestPoint = validAdjacentPoints.front();
 	for (int i = 1; i < validAdjacentPoints.size(); i++)
 	{
