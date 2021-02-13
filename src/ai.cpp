@@ -22,6 +22,8 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 							auto& motion = entity.get<Motion>();
 							// Movement for mobs - move to closest player
 							auto& playerContainer = ECS::registry<PlayerComponent>;
+							// There should always be at least one player in a game
+							assert(playerContainer.entities.size() > 0);
 							ECS::Entity closestPlayer = playerContainer.entities[0]; // Initialize to first player
 							// If there is more than one player
 							if (playerContainer.components.size() > 1) {

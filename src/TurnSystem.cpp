@@ -56,6 +56,7 @@ void TurnSystem::nextActiveEntity()
 
 		if (ECS::registry<TurnComponentIsActive>.size() != 0) {
 				//Set the activeEnity's hasGone to true
+				// Check happens with if statement
 				auto& activeEntity = ECS::registry<TurnComponentIsActive>.entities[0];
 				auto& activeEntityTurnComponent = ECS::registry<TurnComponent>.get(activeEntity);
 				activeEntityTurnComponent.hasGone = true;
@@ -74,6 +75,7 @@ void TurnSystem::changeActiveEntity(ECS::Entity nextEntity)
 		assert(nextEntity.has<TurnComponent>());
 		auto& turnComponent = ECS::registry<TurnComponent>.get(nextEntity);
 		if (!turnComponent.hasGone) {
+				assert(ECS::registry<TurnComponentIsActive>.entities.size() > 0);
 				ECS::registry<TurnComponent>.get(ECS::registry<TurnComponentIsActive>.entities[0]).hasGone = false;
 				std::cout << "switching to the next active entity \n";
 				//Remove the active entity
@@ -87,6 +89,7 @@ void TurnSystem::changeActiveEntity(ECS::Entity nextEntity)
 				activeEntityTurnComponent.hasGone = true;
 		}
 		else {
+				assert(ECS::registry<TurnComponentIsActive>.entities.size() > 1);
 				if (nextEntity.id == ECS::registry<TurnComponentIsActive>.entities[0].id){
 						std::cout << "The requested player is already the active player\n";
 				}
@@ -124,6 +127,7 @@ void TurnSystem::step(float elapsed_ms)
 		if (ECS::registry<TurnComponentIsActive>.entities.size() == 0) {
 				nextActiveEntity();
 		}
+		// Check happens with above if statement.
 		auto& activeEntity = ECS::registry<TurnComponentIsActive>.entities[0];
 		if (!activeEntity.has<DeathTimer>()) {
 				//TODO this should check both that the player has moved and used a skill so update once we have skills
@@ -147,6 +151,7 @@ void TurnSystem::OnMouseClick(const MouseClickEvent &event)
 	if (!ECS::registry<TurnComponentIsActive>.entities.empty())
 	{
 		// Get the active entity
+		// Check already occurs with if statement above
 		auto& activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 
 		// Check that it's a player and has a Motion component
