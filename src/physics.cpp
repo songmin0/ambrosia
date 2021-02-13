@@ -37,8 +37,8 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	bool collisionX = boundingBox1.x + motion1.position.x >= motion2.position.x &&
 						motion1.position.x <= boundingBox2.x + motion2.position.x;
 
-	bool collisionY = boundingBox1.y + motion1.position.y >= motion2.position.y &&
-						motion1.position.y <= boundingBox2.y + motion2.position.y;
+	bool collisionY = motion1.position.y - boundingBox1.y <= motion2.position.y &&
+						motion1.position.y >= motion2.position.y - boundingBox2.y;
 
 	bool debugEnabled = false;
 	if (debugEnabled && collisionX && collisionY) {
