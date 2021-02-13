@@ -42,3 +42,8 @@ Our work on this milestone aligned with our development plan. We have reviewed o
 - D = debug mode
 - 3 = makes one of the player characters play his bone-throw attack animation (animation only)
 - 4 = makes all the eggs play the hit animation
+
+### Additional Info
+The lighter area in the center of the map is the walkable region. In this basic version of our game, click on the walkable region to make the current active player navigate to that position. Alternatively, click on an unwalkable region of the map to make the current active player launch a bone-throw attack which travels on a boomerang trajectory. This was implemented for testing purposes.
+
+Each player character gets their turn, and then the mobs get their turns. A "turn" only has a movement phase at the moment, but in the near future, a turn will consist of an optional move phase, followed by a skill phase.
