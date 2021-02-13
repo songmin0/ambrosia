@@ -15,7 +15,7 @@ struct AnimationData
 	int numFrames;
 	int currFrame;
 	int delay;
-	int delay_timer = delay;
+	int delay_timer;
 
 	AnimationData();
 	AnimationData(std::string key, std::string path, int anim_numFrames);

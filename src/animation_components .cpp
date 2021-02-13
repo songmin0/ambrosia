@@ -10,6 +10,7 @@ AnimationData::AnimationData()
 	numFrames = 1;
 	currFrame = 0;
 	delay = 3;
+	delay_timer = delay;
 }
 
 AnimationData::AnimationData(std::string key, std::string path, int anim_numFrames)
@@ -20,6 +21,7 @@ AnimationData::AnimationData(std::string key, std::string path, int anim_numFram
 	numFrames = anim_numFrames;
 	currFrame = 0;
 	delay = 3;
+	delay_timer = delay;
 
 	UpdateTexMeshCache(key, path);
 }
@@ -34,6 +36,7 @@ AnimationData::AnimationData(std::string key, std::string path, int anim_numFram
 	numFrames = anim_numFrames;
 	currFrame = 0;
 	delay = anim_delay;
+	delay_timer = delay;
 
 	UpdateTexMeshCache(key, path);
 }
