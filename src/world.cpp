@@ -149,7 +149,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	*/
 
 	// Check for player defeat
-	assert(ECS::registry<ScreenState>.components.size() <= 1);
+	assert(ECS::registry<ScreenState>.components.size() == 1);
 	auto& screen = ECS::registry<ScreenState>.components[0];
 
 	for (auto entity : ECS::registry<DeathTimer>.entities)
