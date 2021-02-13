@@ -35,6 +35,12 @@ Our work on this milestone aligned with our development plan. We have reviewed o
 - Implemented the ProjectileSystem which allows for launching projectile attacks such as the bone throw attack. Projectiles can travel with a linear trajectory or a boomerang trajectory.
 - Projectiles are entities and can collide with players and enemies. A HitEvent is sent (using the EventSystem) upon collision.
 
+#### Turn system
+- Implemented a turn system which works for players and AI
+- Hooked up the player buttons so clicking on them switches to the appropriate player's turn
+- Hooked up colour coordination between the Player UI buttons and the players to help identify which player button is for which player
+
+
 ---
 
 ### Key Bindings for Debugging
