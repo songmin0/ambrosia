@@ -48,12 +48,12 @@ ECS::Entity Raoul::createRaoul(vec2 position, float colourShift)
 	anims.addAnimation(AnimationType::ATTACK3, *attack3);
 
 	auto attack1 = new AnimationData(
-			"raoul_attack1", spritePath("players/raoul/attack1/attack1"), 99, 1, true, false
+			"raoul_attack1", spritePath("players/raoul/attack1/attack1"), 99, 1, true, false, vec2({0.03f, 0.f})
 	);
 	anims.addAnimation(AnimationType::ATTACK1, *attack1);
 
 	auto attack2 = new AnimationData(
-			"raoul_attack2", spritePath("players/raoul/attack2/attack2"), 99, 1, true, false
+			"raoul_attack2", spritePath("players/raoul/attack2/attack2"), 99, 1, true, false, vec2({ 0.03f, 0.f })
 	);
 	anims.addAnimation(AnimationType::ATTACK2, *attack2);
 
@@ -63,7 +63,7 @@ ECS::Entity Raoul::createRaoul(vec2 position, float colourShift)
 	anims.addAnimation(AnimationType::HIT, *hit);
 
 	auto defeat = new AnimationData(
-			"raoul_defeat", spritePath("players/raoul/defeat/defeat"), 82, 1, true, false
+			"raoul_defeat", spritePath("players/raoul/defeat/defeat"), 82, 1, true, false, vec2({ 0.16f, 0.055f })
 	);
 	anims.addAnimation(AnimationType::DEFEAT, *defeat);
 
