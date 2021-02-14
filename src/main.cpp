@@ -6,18 +6,19 @@
 #include <chrono>
 
 // internal
-#include "common.hpp"
-#include "world.hpp"
-#include "tiny_ecs.hpp"
-#include "render.hpp"
-#include "physics.hpp"
-#include "ai.hpp"
-#include "debug.hpp"
-#include "animation_system.hpp"
-#include "turn_system.hpp"
-#include "path_finding_system.hpp"
-#include "ui_system.hpp"
-#include "projectile_system.hpp"
+#include "game/common.hpp"
+#include "game/world.hpp"
+#include "game/turn_system.hpp"
+#include "entities/tiny_ecs.hpp"
+#include "rendering/render.hpp"
+#include "physics/physics.hpp"
+#include "physics/debug.hpp"
+#include "physics/projectile_system.hpp"
+#include "ai/ai.hpp"
+#include "animation/animation_system.hpp"
+#include "maps/path_finding_system.hpp"
+#include "ui/ui_system.hpp"
+
 
 using Clock = std::chrono::high_resolution_clock;
 
