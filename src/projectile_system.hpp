@@ -2,9 +2,9 @@
 
 #include "common.hpp"
 #include "tiny_ecs.hpp"
-#include "Projectile.hpp"
-#include "EventSystem.hpp"
-#include "Events.hpp"
+#include "projectile.hpp"
+#include "event_system.hpp"
+#include "events.hpp"
 
 class ProjectileSystem
 {

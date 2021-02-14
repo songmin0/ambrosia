@@ -4,7 +4,7 @@
 
 #include "common.hpp"
 #include "tiny_ecs.hpp"
-#include "PathFindingSystem.hpp"
+#include "path_finding_system.hpp"
 
 // A simple AI system that moves the enemies (mobs and bosses)
 class AISystem

@@ -3,9 +3,9 @@
 #include <functional>
 #include "tiny_ecs.hpp"
 #include "ui_components.hpp"
-#include "Button.hpp"
-#include "Events.hpp"
-#include "EventSystem.hpp"
+#include "button.hpp"
+#include "events.hpp"
+#include "event_system.hpp"
 
 class UISystem
 {

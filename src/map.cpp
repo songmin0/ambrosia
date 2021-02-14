@@ -1,4 +1,4 @@
-#include "Map.hpp"
+#include "map.hpp"
 #include "render.hpp"
 
 ECS::Entity MapComponent::createMap(const std::string& name, vec2 screenSize)

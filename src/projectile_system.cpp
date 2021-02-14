@@ -1,5 +1,5 @@
-#include "ProjectileSystem.hpp"
-#include "Projectile.hpp"
+#include "projectile_system.hpp"
+#include "projectile.hpp"
 #include "render.hpp"
 #include "animation_components.hpp"
 

@@ -37,15 +37,15 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES}
         "src/raoul.cpp" "src/raoul.hpp"
         "src/animation_system.cpp" "src/animation_system.hpp"
         "src/egg.cpp" "src/egg.hpp"
-        "src/TurnSystem.cpp" "src/TurnSystem.hpp"
-        "src/EventSystem.hpp" "src/Events.hpp"
-        "src/PathFindingSystem.cpp" "src/PathFindingSystem.hpp"
-        "src/Map.cpp" "src/Map.hpp"
-        "src/Button.cpp" "src/Button.hpp" 
+        "src/turn_system.cpp" "src/turn_system.hpp"
+        "src/event_system.hpp" "src/events.hpp"
+        "src/path_finding_system.cpp" "src/path_finding_system.hpp"
+        "src/map.cpp" "src/map.hpp"
+        "src/button.cpp" "src/button.hpp"
         "src/ui_components.cpp" "src/ui_components.hpp" 
-        "src/UISystem.cpp" "src/UISystem.hpp"
-        "src/Projectile.cpp" src/Projectile.hpp
-        "src/ProjectileSystem.cpp" "src/ProjectileSystem.hpp")
+        "src/ui_system.cpp" "src/ui_system.hpp"
+        "src/projectile.cpp" src/projectile.hpp
+        "src/projectile_system.cpp" "src/projectile_system.hpp")
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 
 # Added this so policy CMP0065 doesn't scream

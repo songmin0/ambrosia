@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common.hpp"
-#include "Map.hpp"
+#include "map.hpp"
 
 class PathFindingSystem
 {

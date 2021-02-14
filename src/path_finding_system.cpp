@@ -1,4 +1,4 @@
-#include "PathFindingSystem.hpp"
+#include "path_finding_system.hpp"
 
 #include <queue>
 

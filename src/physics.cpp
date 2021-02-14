@@ -2,8 +2,8 @@
 #include "physics.hpp"
 #include "tiny_ecs.hpp"
 #include "debug.hpp"
-#include "TurnSystem.hpp"
-#include "Projectile.hpp"
+#include "turn_system.hpp"
+#include "projectile.hpp"
 
 #include <iostream>
 // Returns the local bounding coordinates scaled by the current size of the entity 

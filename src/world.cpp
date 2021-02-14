@@ -6,12 +6,12 @@
 #include "animation_components.hpp"
 #include "egg.hpp"
 #include "map_objects.hpp"
-#include "TurnSystem.hpp"
+#include "turn_system.hpp"
 #include "raoul.hpp"
-#include "EventSystem.hpp"
-#include "Events.hpp"
-#include "Button.hpp"
-#include "Projectile.hpp"
+#include "event_system.hpp"
+#include "events.hpp"
+#include "button.hpp"
+#include "projectile.hpp"
 
 // stlib
 #include <string.h>

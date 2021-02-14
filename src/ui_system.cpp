@@ -1,5 +1,5 @@
-#include "UISystem.hpp"
-#include "EventSystem.hpp"
+#include "ui_system.hpp"
+#include "event_system.hpp"
 
 UISystem::UISystem()
 {

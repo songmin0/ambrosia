@@ -14,10 +14,10 @@
 #include "ai.hpp"
 #include "debug.hpp"
 #include "animation_system.hpp"
-#include "TurnSystem.hpp"
-#include "PathFindingSystem.hpp"
-#include "UISystem.hpp"
-#include "ProjectileSystem.hpp"
+#include "turn_system.hpp"
+#include "path_finding_system.hpp"
+#include "ui_system.hpp"
+#include "projectile_system.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
 

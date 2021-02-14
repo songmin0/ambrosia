@@ -3,7 +3,7 @@
 #include "render.hpp"
 #include "animation_components.hpp"
 #include "ai.hpp"
-#include "TurnSystem.hpp"
+#include "turn_system.hpp"
 
 ECS::Entity Egg::createEgg(vec2 pos)
 {
