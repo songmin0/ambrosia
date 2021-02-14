@@ -14,9 +14,9 @@ void AnimationSystem::step()
 		AnimationData& currAnim = anims.currAnimData;
 
 		// if the anim is waiting for frame delay, decrement the delay timer and don't do anything else
-		if (currAnim.delay_timer > 0)
+		if (currAnim.delayTimer > 0)
 		{
-			currAnim.delay_timer--;
+			currAnim.delayTimer--;
 			continue;
 		}
 
@@ -28,10 +28,10 @@ void AnimationSystem::step()
 		checkAnimation(entity);
 
 	   // reset the timer
-		currAnim.delay_timer = currAnim.delay;
+		currAnim.delayTimer = currAnim.delay;
 
 		//calculate it's current frame...
-		if (!currAnim.cycle)
+		if (!currAnim.isCycle)
 		{
 			// if we're on the last frame and we don't cycle...
 			if (currAnim.currFrame >= currAnim.numFrames - 1)

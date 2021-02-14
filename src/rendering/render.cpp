@@ -109,7 +109,7 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 {
 	auto& motion = entity.get<Motion>();
-	auto& texmesh = *entity.get<AnimationsComponent>().reference_to_cache;
+	auto& texmesh = *entity.get<AnimationsComponent>().referenceToCache;
 	Transform transform;
 	transform.translate(motion.position);
 	transform.rotate(motion.angle);
