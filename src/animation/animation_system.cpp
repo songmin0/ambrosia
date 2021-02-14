@@ -78,7 +78,7 @@ void AnimationSystem::checkAnimation(ECS::Entity& entity)
 		assert(abs(motion.orientation) == 1);
 
 		// orientation check
-		// left -->
+		// left <--
 		if (motion.velocity.x < 0)
 		{
 			// flip if they're facing right
@@ -87,7 +87,7 @@ void AnimationSystem::checkAnimation(ECS::Entity& entity)
 				motion.scale.x *= motion.orientation * -1;
 			}
 		}
-		// <-- right
+		// right -->
 		else
 		{
 			// flip if they're facing left
