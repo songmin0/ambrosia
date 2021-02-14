@@ -32,7 +32,7 @@ ProjectileParams ProjectileParams::createBoneParams() {
 	params.launchOffset = {0.f, -75.f};
 	params.launchSpeed = 200.f;
 	params.rotationSpeed = 200.f;
-	params.delay = 1.3f;
+	params.delay = 0.6f;
 	params.trajectory = Trajectory::BOOMERANG;
 
 	return params;
