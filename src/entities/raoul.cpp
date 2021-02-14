@@ -38,32 +38,32 @@ ECS::Entity Raoul::createRaoul(vec2 position, float colourShift)
 	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, *idle_anim);
 
 	auto move_anim = new AnimationData(
-			"raoul_move", spritePath("players/raoul/move/move"), 47, 1, false, true
+			"raoul_move", spritePath("players/raoul/move/move"), 32, 1, false, true
 	);
 	anims.addAnimation(AnimationType::MOVE, *move_anim);
 
-	auto attack3 = new AnimationData(
-			"raoul_attack3", spritePath("players/raoul/attack3/attack3"), 66, 1, true, false
-	);
-	anims.addAnimation(AnimationType::ATTACK3, *attack3);
-
 	auto attack1 = new AnimationData(
-			"raoul_attack1", spritePath("players/raoul/attack1/attack1"), 99, 1, true, false, vec2({0.03f, 0.f})
+			"raoul_attack1", spritePath("players/raoul/attack1/attack1"), 59, 1, true, false, vec2({0.03f, 0.f})
 	);
 	anims.addAnimation(AnimationType::ATTACK1, *attack1);
 
 	auto attack2 = new AnimationData(
-			"raoul_attack2", spritePath("players/raoul/attack2/attack2"), 99, 1, true, false, vec2({ 0.03f, 0.f })
+			"raoul_attack2", spritePath("players/raoul/attack2/attack2"), 64, 1, true, false, vec2({ 0.03f, 0.f })
 	);
 	anims.addAnimation(AnimationType::ATTACK2, *attack2);
 
+	auto attack3 = new AnimationData(
+		"raoul_attack3", spritePath("players/raoul/attack3/attack3"), 40, 1, true, false
+	);
+	anims.addAnimation(AnimationType::ATTACK3, *attack3);
+
 	auto hit = new AnimationData(
-			"raoul_hit", spritePath("players/raoul/hit/hit"), 66, 1, true, false
+			"raoul_hit", spritePath("players/raoul/hit/hit"), 49, 1, true, false
 	);
 	anims.addAnimation(AnimationType::HIT, *hit);
 
 	auto defeat = new AnimationData(
-			"raoul_defeat", spritePath("players/raoul/defeat/defeat"), 82, 1, true, false, vec2({ 0.16f, 0.055f })
+			"raoul_defeat", spritePath("players/raoul/defeat/defeat"), 61, 1, true, false, vec2({ 0.16f, 0.055f })
 	);
 	anims.addAnimation(AnimationType::DEFEAT, *defeat);
 
