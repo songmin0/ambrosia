@@ -5,5 +5,5 @@
 
 struct CheeseBlob
 {
-	static ECS::Entity CreateCheeseBlob(vec2 position);
+	static ECS::Entity createCheeseBlob(vec2 position);
 };

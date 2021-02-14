@@ -3,9 +3,6 @@
 #include "tiny_ecs.hpp"
 #include "render.hpp"
 
-#include <cmath>
-#include <iostream>
-
 #include "render_components.hpp"
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -17,7 +14,7 @@ namespace DebugSystem
 		auto entity = ECS::Entity();
 
 		std::string key = "thick_line";
-		ShadedMesh& resource = cache_resource(key);
+		ShadedMesh& resource = cacheResource(key);
 		if (resource.effect.program.resource == 0) {
 			// create a procedural circle
 			constexpr float z = -0.1f;
@@ -64,9 +61,9 @@ namespace DebugSystem
 
 	void clearDebugComponents() {
 		// Clear old debugging visualizations
-		while (ECS::registry<DebugComponent>.entities.size() > 0) {
-			ECS::ContainerInterface::remove_all_components_of(ECS::registry<DebugComponent>.entities.back());
-        }
+		while (!ECS::registry<DebugComponent>.entities.empty()) {
+			ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<DebugComponent>.entities.back());
+		}
 	}
 
 	bool in_debug_mode = false;

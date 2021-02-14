@@ -1,4 +1,3 @@
-#include <math.h>
 #include "ui_components.hpp"
 
 ClickableCircleComponent::ClickableCircleComponent(vec2 position, float radius, void (*callback)())

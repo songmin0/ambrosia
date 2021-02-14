@@ -18,9 +18,9 @@ struct AnimationData
 	int delay_timer;
 
 	AnimationData();
-	AnimationData(std::string key, std::string path, int anim_numFrames);
-	AnimationData(std::string key, std::string path, int anim_numFrames, int anim_delay, bool anim_hasExitTime, bool anim_cycle);
-	void UpdateTexMeshCache(std::string key, std::string path);
+	AnimationData(const std::string& key, const std::string& path, int anim_numFrames);
+	AnimationData(const std::string& key, const std::string& path, int anim_numFrames, int anim_delay, bool anim_hasExitTime, bool anim_cycle);
+	void updateTexMeshCache(const std::string& key, const std::string& path);
 };
 
 struct AnimationsComponent
@@ -30,7 +30,7 @@ struct AnimationsComponent
 	AnimationData currAnimData;
 	ShadedMesh* reference_to_cache;
 
-	AnimationsComponent(AnimationType type, AnimationData anim);
-	void AddAnimation(AnimationType type, AnimationData anim);
-	void ChangeAnimation(AnimationType newAnim);
+	AnimationsComponent(AnimationType type, const AnimationData& anim);
+	void addAnimation(AnimationType type, const AnimationData& anim);
+	void changeAnimation(AnimationType newAnim);
 };

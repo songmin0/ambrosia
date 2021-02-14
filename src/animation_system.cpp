@@ -24,7 +24,7 @@ void AnimationSystem::step()
 	  ///////////////////////////////////
 
 		// Check if we should switch between move and idle animations
-		CheckAnimation(entity);
+		checkAnimation(entity);
 
 	   // reset the timer
 		currAnim.delay_timer = currAnim.delay;
@@ -38,7 +38,7 @@ void AnimationSystem::step()
 				// for all anims that don't cycle except defeat, try to return to idle
 				if (anims.currentAnim != AnimationType::DEFEAT)
 				{
-					anims.ChangeAnimation(AnimationType::IDLE);
+					anims.changeAnimation(AnimationType::IDLE);
 				}
 			}
 			else
@@ -58,7 +58,7 @@ void AnimationSystem::step()
 	}
 };
 
-void AnimationSystem::CheckAnimation(ECS::Entity& entity)
+void AnimationSystem::checkAnimation(ECS::Entity& entity)
 {
 	auto& motion = entity.get<Motion>();
 	auto& anim = entity.get<AnimationsComponent>();
@@ -71,7 +71,7 @@ void AnimationSystem::CheckAnimation(ECS::Entity& entity)
 
 	if (abs(motion.velocity.x) > 5.0 || abs(motion.velocity.y) > 5.0)
 	{
-		anim.ChangeAnimation(AnimationType::MOVE);
+		anim.changeAnimation(AnimationType::MOVE);
 
 		// orientation check
 		if (motion.velocity.x < 0)
@@ -91,6 +91,6 @@ void AnimationSystem::CheckAnimation(ECS::Entity& entity)
 	}
 	else
 	{
-		anim.ChangeAnimation(AnimationType::IDLE);
+		anim.changeAnimation(AnimationType::IDLE);
 	}
 }

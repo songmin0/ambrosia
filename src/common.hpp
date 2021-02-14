@@ -22,15 +22,15 @@ using namespace glm;
 static const float PI = 3.14159265359f;
 
 // Simple utility functions to avoid mistyping directory name
-inline std::string data_path() { return "data"; };
-inline std::string shader_path(const std::string& name) { return data_path() + "/shaders/" + name;};
-inline std::string textures_path(const std::string& name) { return data_path() + "/textures/" + name; };
-inline std::string audio_path(const std::string& name) { return data_path() + "/audio/" + name; };
-inline std::string mesh_path(const std::string& name) { return data_path() + "/meshes/" + name; };
-inline std::string sprite_path(const std::string& name) { return data_path() + "/sprites/" + name; };
-inline std::string maps_path(const std::string& name) { return data_path() + "/maps/" + name; };
-inline std::string objects_path(const std::string& name) { return data_path() + "/objects/" + name; };
-inline std::string ui_path(const std::string& name) { return data_path() + "/ui/" + name; };
+inline std::string dataPath() { return "data"; };
+inline std::string shaderPath(const std::string& name) { return dataPath() + "/shaders/" + name;};
+inline std::string texturesPath(const std::string& name) { return dataPath() + "/textures/" + name; };
+inline std::string audioPath(const std::string& name) { return dataPath() + "/audio/" + name; };
+inline std::string meshPath(const std::string& name) { return dataPath() + "/meshes/" + name; };
+inline std::string spritePath(const std::string& name) { return dataPath() + "/sprites/" + name; };
+inline std::string mapsPath(const std::string& name) { return dataPath() + "/maps/" + name; };
+inline std::string objectsPath(const std::string& name) { return dataPath() + "/objects/" + name; };
+inline std::string uiPath(const std::string& name) { return dataPath() + "/ui/" + name; };
 
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)

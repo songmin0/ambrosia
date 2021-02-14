@@ -9,5 +9,5 @@ class AnimationSystem
 {
 public:
 	void step();
-	void CheckAnimation(ECS::Entity& entity);
+	void checkAnimation(ECS::Entity& entity);
 };

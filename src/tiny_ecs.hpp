@@ -19,7 +19,7 @@ namespace ECS {
 	{
 		Entity()
 		{
-			id = next_id();
+			id = nextId();
 			// Note, indices of already deleted entities arent re-used in this simple implementation.
 		}
 
@@ -54,7 +54,7 @@ namespace ECS {
 
 	private:
 		// yields ids from 1; entity 0 is the default initialization
-		static unsigned int next_id() {
+		static unsigned int nextId() {
 			static unsigned int id_count = 1;
 			return id_count++;
 		}
@@ -72,14 +72,14 @@ namespace ECS {
 		std::vector<Entity> entities;
 
 		// Callbacks to remove a particular or all entities in the system
-		static void clear_all_components();
-		static void list_all_components();
-		static void remove_all_components_of(Entity e);
+		static void clearAllComponents();
+		static void listAllComponents();
+		static void removeAllComponentsOf(Entity e);
 		static void list_all_components_of(Entity e);
 	protected:
 		// The hash map from Entity -> array index.
 		std::unordered_map<unsigned int, unsigned int> map_entity_component_index; // the entity is cast to uint to be hashable.
-		static std::vector<ContainerInterface*>& registry_list_singleton();
+		static std::vector<ContainerInterface*>& registryListSingleton();
 	};
 
 	// A container that stores components of type 'Component' and associated entities
@@ -93,13 +93,13 @@ namespace ECS {
 		// Constructor that registers the component type
 		ComponentContainer()
 		{
-			auto& singleton = registry_list_singleton();
+			auto& singleton = registryListSingleton();
 			singleton.push_back(this);
 		}
 		// Destructor that frees memory from the singleton vector
         ~ComponentContainer()
         {
-            auto& singleton = registry_list_singleton();
+            auto& singleton = registryListSingleton();
             auto it = find(begin(singleton), end(singleton), this);
             assert(it != end(singleton));
 			singleton.erase(it);
@@ -129,7 +129,7 @@ namespace ECS {
 			return insert(e, Component(std::forward<Args>(args)...)); // the forward ensures that arguments are moved not copied
 		};
 		template<typename... Args>
-		Component& emplace_with_duplicates(Entity e, Args &&... args) {
+		Component& emplaceWithDuplicates(Entity e, Args &&... args) {
 			return insert(e, Component(std::forward<Args>(args)...), false);
 		};
 

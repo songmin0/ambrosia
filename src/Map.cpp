@@ -1,14 +1,14 @@
 #include "Map.hpp"
 #include "render.hpp"
 
-ECS::Entity MapComponent::CreateMap(std::string name, vec2 screenSize)
+ECS::Entity MapComponent::createMap(const std::string& name, vec2 screenSize)
 {
 	auto entity = ECS::Entity();
 
 	// Create rendering primitives
-	ShadedMesh& resource = cache_resource(name);
+	ShadedMesh& resource = cacheResource(name);
 	if (resource.effect.program.resource == 0)
-		RenderSystem::createSprite(resource, maps_path(name + ".png"), "textured");
+		RenderSystem::createSprite(resource, mapsPath(name + ".png"), "textured");
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	entity.emplace<ShadedMeshRef>(resource);

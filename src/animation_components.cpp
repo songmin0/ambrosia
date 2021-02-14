@@ -13,7 +13,7 @@ AnimationData::AnimationData()
 	delay_timer = delay;
 }
 
-AnimationData::AnimationData(std::string key, std::string path, int anim_numFrames)
+AnimationData::AnimationData(const std::string& key, const std::string& path, int anim_numFrames)
 {
 	texture_key = key;
 	hasExitTime = false;
@@ -23,10 +23,10 @@ AnimationData::AnimationData(std::string key, std::string path, int anim_numFram
 	delay = 3;
 	delay_timer = delay;
 
-	UpdateTexMeshCache(key, path);
+	updateTexMeshCache(key, path);
 }
 
-AnimationData::AnimationData(std::string key, std::string path, int anim_numFrames, int anim_delay, bool anim_hasExitTime, bool anim_cycle)
+AnimationData::AnimationData(const std::string& key, const std::string& path, int anim_numFrames, int anim_delay, bool anim_hasExitTime, bool anim_cycle)
 {
 	assert(anim_numFrames > 0);
 
@@ -38,23 +38,23 @@ AnimationData::AnimationData(std::string key, std::string path, int anim_numFram
 	delay = anim_delay;
 	delay_timer = delay;
 
-	UpdateTexMeshCache(key, path);
+	updateTexMeshCache(key, path);
 }
 
-AnimationsComponent::AnimationsComponent(AnimationType type, AnimationData anim)
+AnimationsComponent::AnimationsComponent(AnimationType type, const AnimationData& anim)
 {
 	anims[type] = anim;
-	currentAnim == type;
+	currentAnim = type;
 	currAnimData = anim;
-	reference_to_cache = &cache_resource(anim.texture_key);
+	reference_to_cache = &cacheResource(anim.texture_key);
 }
 
-void AnimationsComponent::AddAnimation(AnimationType type, AnimationData anim)
+void AnimationsComponent::addAnimation(AnimationType type, const AnimationData& anim)
 {
 	anims[type] = anim;
 }
 
-void AnimationsComponent::ChangeAnimation(AnimationType newAnim)
+void AnimationsComponent::changeAnimation(AnimationType newAnim)
 {
 	// do nothing if no change, or the new animation doesn't exist
 	if (currentAnim == newAnim || anims.count(newAnim) == 0)
@@ -70,14 +70,14 @@ void AnimationsComponent::ChangeAnimation(AnimationType newAnim)
 	//// we probably don't need exit time since it's turn-based but keep it for now in case
 
 	// point the mesh ref to the new texture
-	reference_to_cache = &cache_resource(currAnimData.texture_key);
+	reference_to_cache = &cacheResource(currAnimData.texture_key);
 }
 
-void AnimationData::UpdateTexMeshCache(std::string key, std::string path)
+void AnimationData::updateTexMeshCache(const std::string& key, const std::string& path)
 {
-	ShadedMesh& resource = cache_resource(key);
+	ShadedMesh& resource = cacheResource(key);
 	if (resource.effect.program.resource == 0)
 	{
-		RenderSystem::CreateAnimatedSprite(resource, numFrames, path, "animated_sprite");
+		RenderSystem::createAnimatedSprite(resource, numFrames, path, "animated_sprite");
 	}
 }

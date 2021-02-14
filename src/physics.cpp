@@ -2,13 +2,12 @@
 #include "physics.hpp"
 #include "tiny_ecs.hpp"
 #include "debug.hpp"
-#include "ai.hpp"
 #include "TurnSystem.hpp"
 #include "Projectile.hpp"
 
 #include <iostream>
 // Returns the local bounding coordinates scaled by the current size of the entity 
-vec2 get_bounding_box(const Motion& motion)
+vec2 getBoundingBox(const Motion& motion)
 {
 	// fabs is to avoid negative scale due to the facing direction.
 	return { abs(motion.boundingBox.x), abs(motion.boundingBox.y) };
@@ -31,8 +30,8 @@ vec2 get_bounding_box(const Motion& motion)
 
 bool collides(const Motion& motion1, const Motion& motion2)
 {
-	auto boundingBox1 = get_bounding_box(motion1);
-	auto boundingBox2 = get_bounding_box(motion2);
+	auto boundingBox1 = getBoundingBox(motion1);
+	auto boundingBox2 = getBoundingBox(motion2);
 
 	bool collisionX = boundingBox1.x + motion1.position.x >= motion2.position.x &&
 						motion1.position.x <= boundingBox2.x + motion2.position.x;
@@ -130,9 +129,9 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			if (collides(motion_i, motion_j))
 			{
 				// Create a collision event
-				// Note, we are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity, hence, emplace_with_duplicates
-				ECS::registry<Collision>.emplace_with_duplicates(entity_i, entity_j);
-				ECS::registry<Collision>.emplace_with_duplicates(entity_j, entity_i);
+				// Note, we are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity, hence, emplaceWithDuplicates
+				ECS::registry<Collision>.emplaceWithDuplicates(entity_i, entity_j);
+				ECS::registry<Collision>.emplaceWithDuplicates(entity_j, entity_i);
 			}
 		}
 	}

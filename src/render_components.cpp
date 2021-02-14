@@ -55,15 +55,15 @@ template<> GLResource<SHADER>::~GLResource() noexcept {
 		glDeleteShader(resource);
 }
 
-void Texture::load_from_file(std::string path)
+void Texture::loadFromFile(const std::string& path)
 {
 	stbi_uc* data;
 	if (texture_cache.count(path) > 0)
 		data = texture_cache[path];
 	else
-		data  = stbi_load(path.c_str(), &size.x, &size.y, NULL, 4);
+		data  = stbi_load(path.c_str(), &size.x, &size.y, nullptr, 4);
 
-	if (data == NULL)
+	if (data == nullptr)
 		throw std::runtime_error("data == NULL, failed to load texture");
 	gl_has_errors();
 
@@ -76,7 +76,7 @@ void Texture::load_from_file(std::string path)
 	gl_has_errors();
 }
 
-void Texture::load_array_from_file(std::string path, int maxFrames)
+void Texture::loadArrayFromFile(const std::string& path, int maxFrames)
 {
 	// path is expected to include up to each animation frame's name, not including the "_{frame-count}.png"
 	// yes, it's a hard-coded hack, for now...
@@ -90,9 +90,9 @@ void Texture::load_array_from_file(std::string path, int maxFrames)
 	}
 	else
 	{
-		data = stbi_load(firstFrame.c_str(), &size.x, &size.y, NULL, 4);
+		data = stbi_load(firstFrame.c_str(), &size.x, &size.y, nullptr, 4);
 	}
-	if (data == NULL)
+	if (data == nullptr)
 	{
 		throw std::runtime_error("data == NULL, failed to load texture");
 	}
@@ -105,7 +105,7 @@ void Texture::load_array_from_file(std::string path, int maxFrames)
 	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_id);
 
 	// Allocate the storage, we're not storing any images in here yet, filling it in later
-	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, size.x, size.y, frames, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, size.x, size.y, frames, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 	
 	// put each frame into a sub image
 	for (int i = 0; i < frames; ++i)
@@ -127,9 +127,9 @@ void Texture::load_array_from_file(std::string path, int maxFrames)
 		}
 		else
 		{
-			data = stbi_load(framePath.c_str(), &size.x, &size.y, NULL, 4);
+			data = stbi_load(framePath.c_str(), &size.x, &size.y, nullptr, 4);
 		}
-		if (data == NULL)
+		if (data == nullptr)
 		{
 			throw std::runtime_error("data == NULL, failed to load texture");
 		}
@@ -148,7 +148,7 @@ void Texture::load_array_from_file(std::string path, int maxFrames)
 }
 
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
-void Texture::create_from_screen(GLFWwindow const* window, GLuint* depth_render_buffer_id) {
+void Texture::createFromScreen(const GLFWwindow *const window, GLuint* depth_render_buffer_id) {
 	glGenTextures(1, texture_id.data());
 	glBindTexture(GL_TEXTURE_2D, texture_id);
 
@@ -177,12 +177,12 @@ void Texture::create_from_screen(GLFWwindow const* window, GLuint* depth_render_
 	gl_has_errors();
 }
 
-bool Texture::is_valid() const
+bool Texture::isValid() const
 {
 	return texture_id != 0;
 }
 
-void Effect::load_from_file(std::string vs_path, std::string fs_path)
+void Effect::loadFromFile(const std::string& vs_path, const std::string& fs_path)
 {
 	// Opening files
 	std::ifstream vs_is(vs_path);
@@ -249,7 +249,7 @@ namespace {
 
 // Very, VERY simple OBJ loader adapted from https://github.com/opengl-tutorials/ogl tutorial 7
 // (modified to also read vertex color and omit uv and normals)
-void Mesh::loadFromOBJFile(std::string obj_path) {
+void Mesh::loadFromOBJFile(const std::string& obj_path) {
     std::cout << "Loading OBJ file " << obj_path << std::endl;
 
 	// Note: normal and UV indices are currently not used
@@ -335,11 +335,11 @@ void Mesh::loadFromOBJFile(std::string obj_path) {
 	// Normalize mesh to range -0.5 ... 0.5
 	for (auto& pos : vertices) {
 		pos.position = ((pos.position - min_position) / extent) - vec3(0.5f, 0.5f, 0.0f);
-    }
+	}
 }
 
 // Returns a resource for every key, initializing with zero on the first query
-ShadedMesh& cache_resource(std::string key) 
+ShadedMesh& cacheResource(std::string key)
 {
 	static std::unordered_map<std::string, ShadedMesh> resource_cache;
 	const auto it = resource_cache.find(key);

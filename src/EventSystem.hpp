@@ -9,15 +9,15 @@ class EventListenerInfo
 public:
 	EventListenerInfo() : id(INVALID_ID) {};
 
-	void Initialize() {
+	void initialize() {
 		static int nextID = 0;
 		id = nextID++;
 	}
 
-	void Uninitialize() {id = INVALID_ID;}
+	void uninitialize() {id = INVALID_ID;}
 
-	int GetID() const {return id;}
-	bool IsValid() const {return id != INVALID_ID;}
+	int getID() const {return id;}
+	bool isValid() const {return id != INVALID_ID;}
 
 private:
 	int id;
@@ -34,14 +34,14 @@ public:
 	typedef std::function<void(const T&)> EventListener;
 
 	// Returns the singleton instance of this system
-	static EventSystem& Instance()
+	static EventSystem& instance()
 	{
 		static EventSystem eventSystem;
 		return eventSystem;
 	}
 
 	// Send an event to all who are listening for that event
-	void SendEvent(T event)
+	void sendEvent(T event)
 	{
 		for (const auto& listener : eventListeners)
 		{
@@ -50,22 +50,22 @@ public:
 	}
 
 	// Register a callback for events
-	EventListenerInfo RegisterListener(const EventListener& callback)
+	EventListenerInfo registerListener(const EventListener& callback)
 	{
 		EventListenerInfo listenerInfo;
-		listenerInfo.Initialize();
+		listenerInfo.initialize();
 
-		eventListeners.insert({listenerInfo.GetID(), callback});
+		eventListeners.insert({listenerInfo.getID(), callback});
 
 		return listenerInfo;
 	}
 
 	// Remove an event listener using the unique identifier that was received
 	// when registering it
-	void UnregisterListener(EventListenerInfo& info)
+	void unregisterListener(EventListenerInfo& info)
 	{
-		eventListeners.erase(info.GetID());
-		info.Uninitialize();
+		eventListeners.erase(info.getID());
+		info.uninitialize();
 	}
 
 private:

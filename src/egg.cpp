@@ -5,15 +5,15 @@
 #include "ai.hpp"
 #include "TurnSystem.hpp"
 
-ECS::Entity Egg::CreateEgg(vec2 position)
+ECS::Entity Egg::createEgg(vec2 pos)
 {
 	auto entity = ECS::Entity();
 
 	std::string key = "egg_static";
-	ShadedMesh& resource = cache_resource(key);
+	ShadedMesh& resource = cacheResource(key);
 	if (resource.effect.program.resource == 0)
 	{
-		RenderSystem::createSprite(resource, sprite_path("enemies/egg/egg_static.png"), "textured");
+		RenderSystem::createSprite(resource, spritePath("enemies/egg/egg_static.png"), "textured");
 	}
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -29,7 +29,7 @@ ECS::Entity Egg::CreateEgg(vec2 position)
 
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
-	motion.position = position;
+	motion.position = pos;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ 0.8f, 0.8f });
@@ -41,32 +41,32 @@ ECS::Entity Egg::CreateEgg(vec2 position)
 
 	// Animations
 	auto idle_anim = new AnimationData(
-		"egg_idle", sprite_path("enemies/egg/idle/idle"), 76, 1, false, true
+			"egg_idle", spritePath("enemies/egg/idle/idle"), 76, 1, false, true
 	);
-	 AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, *idle_anim);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, *idle_anim);
 
 	auto move_anim = new AnimationData(
-		"egg_move", sprite_path("enemies/egg/move/move"), 51, 1, false, true
+			"egg_move", spritePath("enemies/egg/move/move"), 51, 1, false, true
 	);
-	anims.AddAnimation(AnimationType::MOVE, *move_anim);
+	anims.addAnimation(AnimationType::MOVE, *move_anim);
 
 	auto hit_anim = new AnimationData(
-		"egg_hit", sprite_path("enemies/egg/hit/hit"), 29, 1, true, false
+			"egg_hit", spritePath("enemies/egg/hit/hit"), 29, 1, true, false
 	);
-	anims.AddAnimation(AnimationType::HIT, *hit_anim);
+	anims.addAnimation(AnimationType::HIT, *hit_anim);
 
 	auto attack1_anim = new AnimationData(
-		"egg_attack1", sprite_path("enemies/egg/attack1/attack1"), 36, 1, true, false
+			"egg_attack1", spritePath("enemies/egg/attack1/attack1"), 36, 1, true, false
 	);
-	anims.AddAnimation(AnimationType::ATTACK1, *attack1_anim);
+	anims.addAnimation(AnimationType::ATTACK1, *attack1_anim);
 
 	auto defeat_anim = new AnimationData(
-		"egg_defeat", sprite_path("enemies/egg/defeat/defeat"), 48, 1, true, false
+			"egg_defeat", spritePath("enemies/egg/defeat/defeat"), 48, 1, true, false
 	);
-	anims.AddAnimation(AnimationType::DEFEAT, *defeat_anim);
+	anims.addAnimation(AnimationType::DEFEAT, *defeat_anim);
 
 	// start off moving
-	anims.ChangeAnimation(AnimationType::MOVE);
+	anims.changeAnimation(AnimationType::MOVE);
 
 	return entity;
 };

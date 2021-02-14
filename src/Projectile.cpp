@@ -11,7 +11,7 @@ ProjectileParams::ProjectileParams()
 	, trajectory(Trajectory::LINEAR)
 {}
 
-ProjectileParams ProjectileParams::CreateBulletParams() {
+ProjectileParams ProjectileParams::createBulletParams() {
 
 	ProjectileParams params;
 	params.spritePath = "placeholder";
@@ -25,7 +25,7 @@ ProjectileParams ProjectileParams::CreateBulletParams() {
 	return params;
 }
 
-ProjectileParams ProjectileParams::CreateBoneParams() {
+ProjectileParams ProjectileParams::createBoneParams() {
 
 	ProjectileParams params;
 	params.spritePath = "players/raoul/raoul-bone";

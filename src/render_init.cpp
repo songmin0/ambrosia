@@ -29,17 +29,17 @@ RenderSystem::~RenderSystem()
 	glDeleteFramebuffers(1, &frame_buffer);
 
 	// remove all entities created by the render system
-	while (ECS::registry<Motion>.entities.size() > 0)
-		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities.back());
-	while (ECS::registry<ShadedMeshRef>.entities.size() > 0)
-		ECS::ContainerInterface::remove_all_components_of(ECS::registry<ShadedMeshRef>.entities.back());
+	while (!ECS::registry<Motion>.entities.empty())
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Motion>.entities.back());
+	while (!ECS::registry<ShadedMeshRef>.entities.empty())
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<ShadedMeshRef>.entities.back());
 }
 
 // Create a new sprite and register it with ECS
-void RenderSystem::createSprite(ShadedMesh& sprite, std::string texture_path, std::string shader_name)
+void RenderSystem::createSprite(ShadedMesh& sprite, const std::string& texture_path, const std::string& shader_name)
 {
 	if (texture_path.length() > 0)
-		sprite.texture.load_from_file(texture_path.c_str());
+		sprite.texture.loadFromFile(texture_path);
 
 	// The position corresponds to the center of the texture.
 	TexturedVertex vertices[4];
@@ -73,15 +73,15 @@ void RenderSystem::createSprite(ShadedMesh& sprite, std::string texture_path, st
 	glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
 
 	// Loading shaders
-	sprite.effect.load_from_file(shader_path(shader_name) + ".vs.glsl", shader_path(shader_name) + ".fs.glsl");
+	sprite.effect.loadFromFile(shaderPath(shader_name) + ".vs.glsl", shaderPath(shader_name) + ".fs.glsl");
 }
 
-void RenderSystem::CreateTexturedMesh(ShadedMesh& sprite, std::string texture_path, std::string shader_name)
+void RenderSystem::createTexturedMesh(ShadedMesh& sprite, const std::string& texture_path, const std::string& shader_name)
 {
 	// Load the texture into the sprite
 	if (texture_path.length() > 0)
 	{
-		sprite.texture.load_from_file(texture_path.c_str());
+		sprite.texture.loadFromFile(texture_path);
 	}
 
 	// Load the mesh vertices into the sprite
@@ -104,17 +104,17 @@ void RenderSystem::CreateTexturedMesh(ShadedMesh& sprite, std::string texture_pa
 	glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
 
 	// Loading shaders
-	sprite.effect.load_from_file(shader_path(shader_name) + ".vs.glsl", shader_path(shader_name) + ".fs.glsl");
+	sprite.effect.loadFromFile(shaderPath(shader_name) + ".vs.glsl", shaderPath(shader_name) + ".fs.glsl");
 }
 
-// Calls load_array_from_file to create a 2D Array texture instead
-void RenderSystem::CreateAnimatedSprite(ShadedMesh& sprite, int maxFrames, std::string texture_path, std::string shader_name)
+// Calls loadArrayFromFile to create a 2D Array texture instead
+void RenderSystem::createAnimatedSprite(ShadedMesh& sprite, int maxFrames, const std::string& texture_path, const std::string& shader_name)
 {
 	sprite.texture.frames = maxFrames;
 	
 	if (texture_path.length() > 0)
 	{
-		sprite.texture.load_array_from_file(texture_path.c_str(), maxFrames);
+		sprite.texture.loadArrayFromFile(texture_path, maxFrames);
 	}
 
 	// The position corresponds to the center of the texture.
@@ -151,12 +151,12 @@ void RenderSystem::CreateAnimatedSprite(ShadedMesh& sprite, int maxFrames, std::
 	glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
 
 	// Loading shaders
-	sprite.effect.load_from_file(shader_path(shader_name) + ".vs.glsl", shader_path(shader_name) + ".fs.glsl");
+	sprite.effect.loadFromFile(shaderPath(shader_name) + ".vs.glsl", shaderPath(shader_name) + ".fs.glsl");
 	gl_has_errors();
 }
 
 // Load a new mesh from disc and register it with ECS
-void RenderSystem::createColoredMesh(ShadedMesh& texmesh, std::string shader_name)
+void RenderSystem::createColoredMesh(ShadedMesh& texmesh, const std::string& shader_name)
 {
 	// Vertex Array
 	glGenVertexArrays(1, texmesh.mesh.vao.data());
@@ -181,7 +181,7 @@ void RenderSystem::createColoredMesh(ShadedMesh& texmesh, std::string shader_nam
 	glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
 
 	// Loading shaders
-	texmesh.effect.load_from_file(shader_path(shader_name)+".vs.glsl", shader_path(shader_name)+".fs.glsl");
+	texmesh.effect.loadFromFile(shaderPath(shader_name) + ".vs.glsl", shaderPath(shader_name) + ".fs.glsl");
 }
 
 // Initialize the screen texture from a standard sprite
@@ -191,6 +191,6 @@ void RenderSystem::initScreenTexture()
 	createSprite(screen_sprite, "", "water");
 
 	// Initialize the screen texture and its state
-	screen_sprite.texture.create_from_screen(&window, depth_render_buffer_id.data());
+	screen_sprite.texture.createFromScreen(&window, depth_render_buffer_id.data());
 	ECS::registry<ScreenState>.emplace(screen_state_entity);
 }

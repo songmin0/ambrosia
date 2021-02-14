@@ -16,11 +16,11 @@ public:
 private:
 	EventListenerInfo mouseClickListener;
 
-	bool IsClicked(ClickableCircleComponent clickable, vec2 position);
-	bool IsClicked(ClickableRectangleComponent clickable, vec2 position);
+	bool isClicked(ClickableCircleComponent clickable, vec2 position);
+	bool isClicked(ClickableRectangleComponent clickable, vec2 position);
 
 	template <typename ClickableComponent>
-	bool HandleClick(ECS::Entity entity, const RawMouseClickEvent& event);
+	bool handleClick(ECS::Entity entity, const RawMouseClickEvent& event);
 
-	void OnMouseClick(const RawMouseClickEvent& event);
+	void onMouseClick(const RawMouseClickEvent& event);
 };

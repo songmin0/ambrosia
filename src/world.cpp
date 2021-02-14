@@ -4,16 +4,13 @@
 #include "debug.hpp"
 #include "render_components.hpp"
 #include "animation_components.hpp"
-#include "animation_system.hpp"
 #include "egg.hpp"
 #include "map_objects.hpp"
 #include "TurnSystem.hpp"
 #include "raoul.hpp"
-#include "raoul-bone.hpp"
 #include "EventSystem.hpp"
 #include "Events.hpp"
 #include "Button.hpp"
-#include "ui_components.hpp"
 #include "Projectile.hpp"
 
 // stlib
@@ -61,13 +58,13 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	// Input is handled using GLFW, for more info see
 	// http://www.glfw.org/docs/latest/input_guide.html
 	glfwSetWindowUserPointer(window, this);
-	auto keyRedirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->OnKey(_0, _1, _2, _3); };
-	auto mouseClickRedirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->OnMouseClick(_0, _1, _2); };
+	auto keyRedirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->onKey(_0, _1, _2, _3); };
+	auto mouseClickRedirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->onMouseClick(_0, _1, _2); };
 	glfwSetKeyCallback(window, keyRedirect);
 	glfwSetMouseButtonCallback(window, mouseClickRedirect);
 
 	// Playing background music indefinitely
-	init_audio();
+	initAudio();
 	Mix_PlayMusic(background_music, -1);
 	std::cout << "Loaded music\n";
 }
@@ -83,13 +80,13 @@ WorldSystem::~WorldSystem(){
 	Mix_CloseAudio();
 
 	// Destroy all created components
-	ECS::ContainerInterface::clear_all_components();
+	ECS::ContainerInterface::clearAllComponents();
 
 	// Close the window
 	glfwDestroyWindow(window);
 }
 
-void WorldSystem::init_audio()
+void WorldSystem::initAudio()
 {
 	//////////////////////////////////////
 	// Loading music and sounds with SDL
@@ -99,15 +96,15 @@ void WorldSystem::init_audio()
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
 		throw std::runtime_error("Failed to open audio device");
 
-	background_music = Mix_LoadMUS(audio_path("music.wav").c_str());
-	salmon_dead_sound = Mix_LoadWAV(audio_path("salmon_dead.wav").c_str());
-	salmon_eat_sound = Mix_LoadWAV(audio_path("salmon_eat.wav").c_str());
+	background_music = Mix_LoadMUS(audioPath("music.wav").c_str());
+	salmon_dead_sound = Mix_LoadWAV(audioPath("salmon_dead.wav").c_str());
+	salmon_eat_sound = Mix_LoadWAV(audioPath("salmon_eat.wav").c_str());
 
 	if (background_music == nullptr || salmon_dead_sound == nullptr || salmon_eat_sound == nullptr)
-		throw std::runtime_error("Failed to load sounds make sure the data directory is present: "+
-			audio_path("music.wav")+
-			audio_path("salmon_dead.wav")+
-			audio_path("salmon_eat.wav"));
+		throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
+																 audioPath("music.wav") +
+														 audioPath("salmon_dead.wav") +
+														 audioPath("salmon_eat.wav"));
 
 }
 
@@ -131,7 +128,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		if (motion.position.x < -200.f || motion.position.x > (window_size_in_game_units.x + 200.f)
 		    || motion.position.y < -200.f || motion.position.y > (window_size_in_game_units.y + 200.f))
 		{
-			ECS::ContainerInterface::remove_all_components_of(registry.entities[i]);
+			ECS::ContainerInterface::removeAllComponentsOf(registry.entities[i]);
 		}
 	}
 
@@ -140,7 +137,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	while (ECS::registry<Egg>.components.size() < MAX_EGGS)
 	{
 		// Create egg mob
-		ECS::Entity entity = Egg::CreateEgg({0, 0});
+		ECS::Entity entity = Egg::createEgg({0, 0});
 		// Setting random initial position and constant velocity
 		auto& motion = entity.get<Motion>();
 		motion.position = vec2(window_size_in_game_units.x - 150.f, 50.f + uniform_dist(rng) * (window_size_in_game_units.y - 100.f));
@@ -176,7 +173,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 void WorldSystem::restart()
 {
 	// Debugging for memory/component leaks
-	ECS::ContainerInterface::list_all_components();
+	ECS::ContainerInterface::listAllComponents();
 	std::cout << "Restarting\n";
 
 	// Reset the game speed
@@ -184,47 +181,47 @@ void WorldSystem::restart()
 
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
-	while (ECS::registry<Motion>.entities.size()>0)
-		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities.back());
+	while (!ECS::registry<Motion>.entities.empty())
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Motion>.entities.back());
 
 	// Debugging for memory/component leaks
-	ECS::ContainerInterface::list_all_components();
+	ECS::ContainerInterface::listAllComponents();
 
 	// Create a new Raoul
-	player_raoul = Raoul::CreateRaoul({ 640, 512 }, 1.f);
+	player_raoul = Raoul::createRaoul({ 640, 512 }, 1.f);
 
 	//TODO replace these with the real other characters
-	auto raoul_2 = Raoul::CreateRaoul({ 200,700 }, 2.f);
-	auto raoul_3 = Raoul::CreateRaoul({ 400,700 }, 3.f);
-	auto raoul_4 = Raoul::CreateRaoul({ 400,400 }, 4.f);
+	auto raoul_2 = Raoul::createRaoul({ 200,700 }, 2.f);
+	auto raoul_3 = Raoul::createRaoul({ 400,700 }, 3.f);
+	auto raoul_4 = Raoul::createRaoul({ 400,400 }, 4.f);
 
 
 	//This is not the final way to add eggs just put them here for testing purposes.
-	ECS::Entity entity = Egg::CreateEgg({ 750, 800 });
-	entity = Egg::CreateEgg({ 1000, 800 });
+	ECS::Entity entity = Egg::createEgg({750, 800});
+	entity = Egg::createEgg({1000, 800});
 	// Setting random initial position and constant velocity
 	//auto& motion = entity.get<Motion>();
 	//motion.position = vec2(window_size_in_game_units.x - 150.f, 50.f + uniform_dist(rng) * (window_size_in_game_units.y - 100.f));
 
 	// Removing existing map
 	while (!ECS::registry<MapComponent>.entities.empty())
-		ECS::ContainerInterface::remove_all_components_of(ECS::registry<MapComponent>.entities.back());
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<MapComponent>.entities.back());
 
 	// Get screen/buffer size
 	int frameBufferWidth, frameBufferHeight;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
 	// Create the map
-	MapComponent::CreateMap("pizza-arena/pizza-arena-debug", {frameBufferWidth, frameBufferHeight});
+	MapComponent::createMap("pizza-arena/pizza-arena-debug", {frameBufferWidth, frameBufferHeight});
 
 	// Create a deforming blob
-	CheeseBlob::CreateCheeseBlob({ 700, 950 });
+	CheeseBlob::createCheeseBlob({ 700, 950 });
 
 	// Create UI buttons
 	Button::createButton(ButtonShape::RECTANGLE, { frameBufferWidth / 4, 60 }, "placeholder_char_button",
 		[]() {
 					std::cout << "Character one button clicked!" << std::endl;
-					if (ECS::registry<PlayerComponent>.entities.size() > 0)
+					if (!ECS::registry<PlayerComponent>.entities.empty())
 					{
 						TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[0]);
 					}
@@ -265,7 +262,7 @@ void WorldSystem::restart()
 } 
 
 // Compute collisions between entities
-void WorldSystem::handle_collisions()
+void WorldSystem::handleCollisions()
 {
 	// Loop over all collisions detected by the physics system
 	auto& registry = ECS::registry<PhysicsSystem::Collision>;
@@ -286,7 +283,7 @@ void WorldSystem::handle_collisions()
 				event.instigator = projComponent.instigator;
 				event.target = entity_other;
 
-				EventSystem<HitEvent>::Instance().SendEvent(event);
+				EventSystem<HitEvent>::instance().sendEvent(event);
 			}
 		}
 
@@ -314,24 +311,24 @@ void WorldSystem::handle_collisions()
 }
 
 // Should the game be over ?
-bool WorldSystem::is_over() const
+bool WorldSystem::isOver() const
 {
 	return glfwWindowShouldClose(window)>0;
 }
 
 // On key callback
-void WorldSystem::OnKey(int key, int, int action, int mod)
+void WorldSystem::onKey(int key, int, int action, int mod)
 {
 		// Animation Test
 		if (action == GLFW_PRESS && key == GLFW_KEY_3) {
 			auto& anim = player_raoul.get<AnimationsComponent>();
-			anim.ChangeAnimation(AnimationType::ATTACK3);
+			anim.changeAnimation(AnimationType::ATTACK3);
 		}
 		if (action == GLFW_PRESS && key == GLFW_KEY_4) {
 			for (auto entity : ECS::registry<Egg>.entities)
 			{
 				auto& anim = entity.get<AnimationsComponent>();
-				anim.ChangeAnimation(AnimationType::HIT);
+				anim.changeAnimation(AnimationType::HIT);
 			}
 		}
 
@@ -362,7 +359,7 @@ void WorldSystem::OnKey(int key, int, int action, int mod)
 	current_speed = std::max(0.f, current_speed);
 }
 
-void WorldSystem::OnMouseClick(int button, int action, int mods) const
+void WorldSystem::onMouseClick(int button, int action, int mods) const
 {
 	if (action == GLFW_RELEASE && button == GLFW_MOUSE_BUTTON_LEFT)
 	{
@@ -373,6 +370,6 @@ void WorldSystem::OnMouseClick(int button, int action, int mods) const
 
 		RawMouseClickEvent event;
 		event.mousePos = {mousePosX, mousePosY};
-		EventSystem<RawMouseClickEvent>::Instance().SendEvent(event);
+		EventSystem<RawMouseClickEvent>::instance().sendEvent(event);
 	}
 }

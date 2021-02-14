@@ -4,7 +4,6 @@
 
 // stlib
 #include <chrono>
-#include <iostream>
 
 // internal
 #include "common.hpp"
@@ -14,7 +13,6 @@
 #include "physics.hpp"
 #include "ai.hpp"
 #include "debug.hpp"
-#include "animation_components.hpp"
 #include "animation_system.hpp"
 #include "TurnSystem.hpp"
 #include "PathFindingSystem.hpp"
@@ -54,7 +52,7 @@ int main()
 
 	auto t = Clock::now();
 	// Variable timestep loop
-	while (!world.is_over())
+	while (!world.isOver())
 	{
 		// Processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
@@ -73,15 +71,14 @@ int main()
 			ai.step(deltaTime, window_size_in_game_units);
 			world.step(deltaTime, window_size_in_game_units);
 			physics.step(deltaTime, window_size_in_game_units);
-			world.handle_collisions();
-			projectileSystem.Step(deltaTime);
+			world.handleCollisions();
+			projectileSystem.step(deltaTime);
 			animations.step();
 			turnSystem.step(deltaTime);
 			renderer.draw(window_size_in_game_units);
 
 			elapsed_ms -= deltaTime;
 		}
-
 	}
 
 	return EXIT_SUCCESS;

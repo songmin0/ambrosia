@@ -36,7 +36,7 @@ public:
 		};
 
 private:
-	void OnMouseClick(const MouseClickEvent& event);
+	void onMouseClick(const MouseClickEvent& event);
 
 	EventListenerInfo mouseClickListener;
 	const PathFindingSystem& pathFindingSystem;

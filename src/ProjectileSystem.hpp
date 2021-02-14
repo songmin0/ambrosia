@@ -12,7 +12,7 @@ public:
 	ProjectileSystem();
 	~ProjectileSystem();
 
-	void Step(float elapsed_ms);
+	void step(float elapsed_ms);
 
 private:
 	struct LaunchRequest
@@ -22,13 +22,13 @@ private:
 		ProjectileParams params;
 	};
 
-	void UpdateLinearTrajectory(float elapsed_s, ECS::Entity projEntity, ProjectileComponent& projComponent);
-	void UpdateBoomerangTrajectory(float elapsed_s, ECS::Entity projEntity, ProjectileComponent& projComponent);
+	void updateLinearTrajectory(float elapsed_s, ECS::Entity projEntity, ProjectileComponent& projComponent);
+	void updateBoomerangTrajectory(float elapsed_s, ECS::Entity projEntity, ProjectileComponent& projComponent);
 
-	void LaunchProjectile(LaunchRequest& request);
+	void launchProjectile(LaunchRequest& request);
 
-	void OnLaunchBulletEvent(const LaunchBulletEvent& event);
-	void OnLaunchBoneEvent(const LaunchBoneEvent& event);
+	void onLaunchBulletEvent(const LaunchBulletEvent& event);
+	void onLaunchBoneEvent(const LaunchBoneEvent& event);
 
 	EventListenerInfo launchBulletListener;
 	EventListenerInfo launchBoneListener;

@@ -2,16 +2,15 @@
 #include "ui_components.hpp"
 #include "render.hpp"
 
-ECS::Entity Button::createButton(ButtonShape shape, vec2 position, std::string texture, void(*callback)())
+ECS::Entity Button::createButton(ButtonShape shape, vec2 position, const std::string& texture, void(*callback)())
 {
 	auto entity = ECS::Entity();
 
-	std::string key = texture;
-	ShadedMesh& resource = cache_resource(key);
+	ShadedMesh& resource = cacheResource(texture);
 	if (resource.effect.program.resource == 0)
 	{
 		resource = ShadedMesh();
-		RenderSystem::createSprite(resource, ui_path(texture + ".png"), "textured");
+		RenderSystem::createSprite(resource, uiPath(texture + ".png"), "textured");
 	}
 
 	ECS::registry<ShadedMeshRef>.emplace(entity, resource);

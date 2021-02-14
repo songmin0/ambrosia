@@ -11,15 +11,15 @@
 TurnSystem::TurnSystem(const PathFindingSystem& pfs)
 		: pathFindingSystem(pfs)
 {
-		EventSystem<MouseClickEvent>::Instance().RegisterListener(
-				std::bind(&TurnSystem::OnMouseClick, this, std::placeholders::_1));
+		EventSystem<MouseClickEvent>::instance().registerListener(
+				std::bind(&TurnSystem::onMouseClick, this, std::placeholders::_1));
 }
 
 TurnSystem::~TurnSystem()
 {
-		if (mouseClickListener.IsValid())
+		if (mouseClickListener.isValid())
 		{
-				EventSystem<MouseClickEvent>::Instance().UnregisterListener(mouseClickListener);
+				EventSystem<MouseClickEvent>::instance().unregisterListener(mouseClickListener);
 		}
 }
 
@@ -65,7 +65,6 @@ void TurnSystem::nextActiveEntity()
 				//All entities have gone so end the turn
 				nextTurn();
 		}
-		return;
 }
 
 //Sets the current entity to the specified "nextEntity"
@@ -75,7 +74,7 @@ void TurnSystem::changeActiveEntity(ECS::Entity nextEntity)
 		assert(nextEntity.has<TurnComponent>());
 		auto& turnComponent = ECS::registry<TurnComponent>.get(nextEntity);
 		if (!turnComponent.hasGone) {
-				assert(ECS::registry<TurnComponentIsActive>.entities.size() > 0);
+				assert(!ECS::registry<TurnComponentIsActive>.entities.empty());
 				ECS::registry<TurnComponent>.get(ECS::registry<TurnComponentIsActive>.entities[0]).hasGone = false;
 				std::cout << "switching to the next active entity \n";
 				//Remove the active entity
@@ -89,7 +88,7 @@ void TurnSystem::changeActiveEntity(ECS::Entity nextEntity)
 				activeEntityTurnComponent.hasGone = true;
 		}
 		else {
-				assert(ECS::registry<TurnComponentIsActive>.entities.size() > 0);
+				assert(!ECS::registry<TurnComponentIsActive>.entities.empty());
 				if (nextEntity.id == ECS::registry<TurnComponentIsActive>.entities[0].id){
 						std::cout << "The requested player is already the active player\n";
 				}
@@ -124,7 +123,7 @@ void TurnSystem::nextTurn()
 void TurnSystem::step(float elapsed_ms)
 {
 		//If there is no active entity (this could be due to a restart) get the next active entity
-		if (ECS::registry<TurnComponentIsActive>.entities.size() == 0) {
+		if (ECS::registry<TurnComponentIsActive>.entities.empty()) {
 				nextActiveEntity();
 		}
 		// Check happens with above if statement.
@@ -143,7 +142,7 @@ void TurnSystem::step(float elapsed_ms)
 		}
 }
 
-void TurnSystem::OnMouseClick(const MouseClickEvent &event)
+void TurnSystem::onMouseClick(const MouseClickEvent &event)
 {
 	// This is probably just temporary code. It makes the player move when you click on the screen (unless
 	// the player is already moving)
@@ -162,7 +161,7 @@ void TurnSystem::OnMouseClick(const MouseClickEvent &event)
 			// If the entity is not currently moving, create a path so that it will start moving
 			if (motion.path.empty())
 			{
-				motion.path = pathFindingSystem.GetShortestPath(motion.position, event.mousePos);
+				motion.path = pathFindingSystem.getShortestPath(motion.position, event.mousePos);
 
 
 
@@ -172,7 +171,7 @@ void TurnSystem::OnMouseClick(const MouseClickEvent &event)
 					LaunchBoneEvent launchBoneEvent;
 					launchBoneEvent.instigator = activeEntity;
 					launchBoneEvent.targetPosition = event.mousePos;
-					EventSystem<LaunchBoneEvent>::Instance().SendEvent(launchBoneEvent);
+					EventSystem<LaunchBoneEvent>::instance().sendEvent(launchBoneEvent);
 				}
 			}
 		}

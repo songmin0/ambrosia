@@ -82,11 +82,11 @@ struct Texture
 	int frames = 1;
 	
 	// Loads texture from file specified by path
-	void load_from_file(std::string path);
-	bool is_valid() const; // True if texture is valid
-	void create_from_screen(GLFWwindow const * const window, GLuint* depth_render_buffer_id); // Screen texture
+	void loadFromFile(const std::string& path);
+	bool isValid() const; // True if texture is valid
+	void createFromScreen(GLFWwindow const * const window, GLuint* depth_render_buffer_id); // Screen texture
 
-	void load_array_from_file(std::string path, int maxFrames);
+	void loadArrayFromFile(const std::string& path, int maxFrames);
 
 	std::unordered_map<std::string, stbi_uc*> texture_cache;
 };
@@ -99,13 +99,13 @@ struct Effect
 	GLResource<SHADER> fragment;
 	GLResource<PROGRAM> program;
 
-	void load_from_file(std::string vs_path, std::string fs_path); // load shaders from files and link into program
+	void loadFromFile(const std::string& vs_path, const std::string& fs_path); // load shaders from files and link into program
 };
 
 // Mesh datastructure for storing vertex and index buffers
 struct Mesh
 {
-	void loadFromOBJFile(std::string obj_path);
+	void loadFromOBJFile(const std::string& obj_path);
 	//void LoadFromTexturedOBJFile(std::string obj_path);
 	vec2 original_size = {1.f,1.f};
 	GLResource<BUFFER> vbo;
@@ -129,7 +129,7 @@ struct ShadedMesh
 };
 
 // Cache for ShadedMesh resources (mesh consisting of vertex and index buffer, the vertex and fragment shaders, and the texture)
-ShadedMesh& cache_resource(std::string key);
+ShadedMesh& cacheResource(std::string key);
 
 // A wrapper that points to the ShadedMesh in the resource_cache
 struct ShadedMeshRef

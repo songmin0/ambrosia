@@ -8,27 +8,27 @@
 
 ProjectileSystem::ProjectileSystem()
 {
-	launchBulletListener = EventSystem<LaunchBulletEvent>::Instance().RegisterListener(
-			std::bind(&ProjectileSystem::OnLaunchBulletEvent, this, std::placeholders::_1));
+	launchBulletListener = EventSystem<LaunchBulletEvent>::instance().registerListener(
+			std::bind(&ProjectileSystem::onLaunchBulletEvent, this, std::placeholders::_1));
 
-	launchBoneListener = EventSystem<LaunchBoneEvent>::Instance().RegisterListener(
-			std::bind(&ProjectileSystem::OnLaunchBoneEvent, this, std::placeholders::_1));
+	launchBoneListener = EventSystem<LaunchBoneEvent>::instance().registerListener(
+			std::bind(&ProjectileSystem::onLaunchBoneEvent, this, std::placeholders::_1));
 }
 
 ProjectileSystem::~ProjectileSystem()
 {
-	if (launchBulletListener.IsValid())
+	if (launchBulletListener.isValid())
 	{
-		EventSystem<LaunchBulletEvent>::Instance().UnregisterListener(launchBulletListener);
+		EventSystem<LaunchBulletEvent>::instance().unregisterListener(launchBulletListener);
 	}
 
-	if (launchBoneListener.IsValid())
+	if (launchBoneListener.isValid())
 	{
-		EventSystem<LaunchBoneEvent>::Instance().UnregisterListener(launchBoneListener);
+		EventSystem<LaunchBoneEvent>::instance().unregisterListener(launchBoneListener);
 	}
 }
 
-void ProjectileSystem::Step(float elapsed_ms)
+void ProjectileSystem::step(float elapsed_ms)
 {
 	const float elapsed_s = elapsed_ms / 1000.f;
 
@@ -41,7 +41,7 @@ void ProjectileSystem::Step(float elapsed_ms)
 
 		if (request.params.delay <= 0)
 		{
-			LaunchProjectile(request);
+			launchProjectile(request);
 			launchRequests.erase(launchRequests.begin() + i);
 		}
 	}
@@ -57,22 +57,22 @@ void ProjectileSystem::Step(float elapsed_ms)
 		// Projectile handling based on trajectory type
 		if (projComponent.params.trajectory == Trajectory::LINEAR)
 		{
-			UpdateLinearTrajectory(elapsed_s, projEntity, projComponent);
+			updateLinearTrajectory(elapsed_s, projEntity, projComponent);
 		}
 		else
 		{
-			UpdateBoomerangTrajectory(elapsed_s, projEntity, projComponent);
+			updateBoomerangTrajectory(elapsed_s, projEntity, projComponent);
 		}
 
 		// Remove projectile if needed
 		if (projComponent.phase == Phase::END)
 		{
-			ECS::registry<ProjectileComponent>.remove_all_components_of(projEntity);
+			ECS::registry<ProjectileComponent>.removeAllComponentsOf(projEntity);
 		}
 	}
 }
 
-void ProjectileSystem::UpdateLinearTrajectory(float elapsed_s, ECS::Entity projEntity, ProjectileComponent& projComponent)
+void ProjectileSystem::updateLinearTrajectory(float elapsed_s, ECS::Entity projEntity, ProjectileComponent& projComponent)
 {
 	auto& projMotion = projEntity.get<Motion>();
 
@@ -94,7 +94,7 @@ void ProjectileSystem::UpdateLinearTrajectory(float elapsed_s, ECS::Entity projE
 	}
 }
 
-void ProjectileSystem::UpdateBoomerangTrajectory(float elapsed_s, ECS::Entity projEntity, ProjectileComponent& projComponent)
+void ProjectileSystem::updateBoomerangTrajectory(float elapsed_s, ECS::Entity projEntity, ProjectileComponent& projComponent)
 {
 	// For the boomerang, the velocity gets updated in every tick, so there's no special "launch" logic. Just put it in
 	// phase 1 immediately
@@ -157,15 +157,15 @@ void ProjectileSystem::UpdateBoomerangTrajectory(float elapsed_s, ECS::Entity pr
 	}
 }
 
-void ProjectileSystem::LaunchProjectile(LaunchRequest& request)
+void ProjectileSystem::launchProjectile(LaunchRequest& request)
 {
 	auto entity = ECS::Entity();
 
 	// Create rendering primitives
-	ShadedMesh& resource = cache_resource(request.params.spritePath);
+	ShadedMesh& resource = cacheResource(request.params.spritePath);
 	if (resource.effect.program.resource == 0)
 	{
-		RenderSystem::createSprite(resource, sprite_path(request.params.spritePath + ".png"), "textured");
+		RenderSystem::createSprite(resource, spritePath(request.params.spritePath + ".png"), "textured");
 	}
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -187,27 +187,27 @@ void ProjectileSystem::LaunchProjectile(LaunchRequest& request)
 	motion.boundingBox = motion.scale * vec2(resource.texture.size.x, resource.texture.size.y);
 }
 
-void ProjectileSystem::OnLaunchBulletEvent(const LaunchBulletEvent& event)
+void ProjectileSystem::onLaunchBulletEvent(const LaunchBulletEvent& event)
 {
 	LaunchRequest request;
 	request.instigator = event.instigator;
 	request.targetPosition = event.targetPosition;
-	request.params = ProjectileParams::CreateBulletParams();
+	request.params = ProjectileParams::createBulletParams();
 
 	launchRequests.push_back(request);
 }
 
-void ProjectileSystem::OnLaunchBoneEvent(const LaunchBoneEvent& event)
+void ProjectileSystem::onLaunchBoneEvent(const LaunchBoneEvent& event)
 {
 	LaunchRequest request;
 	request.instigator = event.instigator;
 	request.targetPosition = event.targetPosition;
-	request.params = ProjectileParams::CreateBoneParams();
+	request.params = ProjectileParams::createBoneParams();
 
 	launchRequests.push_back(request);
 
 	// Activating the animation here for the time being. Added a delay to the projectile launch so that it syncs
 	// up with this attack animation
 	auto& anim = request.instigator.get<AnimationsComponent>();
-	anim.ChangeAnimation(AnimationType::ATTACK3);
+	anim.changeAnimation(AnimationType::ATTACK3);
 }

@@ -2,7 +2,7 @@
 
 #include <queue>
 
-std::stack<vec2> PathFindingSystem::GetShortestPath(vec2 source, vec2 destination) const
+std::stack<vec2> PathFindingSystem::getShortestPath(vec2 source, vec2 destination) const
 {
 	// This will be the final result
 	std::stack<vec2> shortestPath;
@@ -25,8 +25,8 @@ std::stack<vec2> PathFindingSystem::GetShortestPath(vec2 source, vec2 destinatio
 	vec2 gridDestination = round(destination / map.tileSize);
 
 	// If the destination is not on the map, not walkable, or too close to the source, return an empty path
-	if (!IsValidPoint(map, gridDestination) || !IsWalkablePoint(map, gridDestination)
-			|| gridSource == gridDestination || !IsWalkablePoint(map, gridSource))
+	if (!isValidPoint(map, gridDestination) || !isWalkablePoint(map, gridDestination)
+			|| gridSource == gridDestination || !isWalkablePoint(map, gridSource))
 	{
 		return shortestPath;
 	}
@@ -63,13 +63,13 @@ std::stack<vec2> PathFindingSystem::GetShortestPath(vec2 source, vec2 destinatio
 
 		// A lambda to cut down on code duplication when checking the current point's neighbours
 		auto checkPoint = [&](vec2 adjacentPoint) {
-			if (IsValidPoint(map, adjacentPoint) && !visited[adjacentPoint.y][adjacentPoint.x])
+			if (isValidPoint(map, adjacentPoint) && !visited[adjacentPoint.y][adjacentPoint.x])
 			{
 				// Set visited so that we never check this point again
 				visited[adjacentPoint.y][adjacentPoint.x] = true;
 
 				// If it's a walkable point, set its distance to be 1 greater than its "parent", and then add it to the queue
-				if (IsWalkablePoint(map, adjacentPoint))
+				if (isWalkablePoint(map, adjacentPoint))
 				{
 					distance[adjacentPoint.y][adjacentPoint.x] = distance[currentPoint.y][currentPoint.x] + 1;
 					queue.push(adjacentPoint);
@@ -96,7 +96,7 @@ std::stack<vec2> PathFindingSystem::GetShortestPath(vec2 source, vec2 destinatio
 		shortestPath.push(destination);
 
 		// Start working backward from the best neighbouring point
-		vec2 currentPoint = GetCheapestAdjacentPoint(map, distance, visited, gridDestination);
+		vec2 currentPoint = getCheapestAdjacentPoint(map, distance, visited, gridDestination);
 
 		// Keep going until we're back at the source
 		while (currentPoint != gridSource)
@@ -105,7 +105,7 @@ std::stack<vec2> PathFindingSystem::GetShortestPath(vec2 source, vec2 destinatio
 			shortestPath.push(currentPoint * map.tileSize);
 
 			// Get the neighbour with the shortest distance to the source
-			currentPoint = GetCheapestAdjacentPoint(map, distance, visited, currentPoint);
+			currentPoint = getCheapestAdjacentPoint(map, distance, visited, currentPoint);
 		}
 
 		// Add the source point to the path
@@ -115,20 +115,20 @@ std::stack<vec2> PathFindingSystem::GetShortestPath(vec2 source, vec2 destinatio
 	return shortestPath;
 }
 
-bool PathFindingSystem::IsValidPoint(const MapComponent& map, vec2 point) const
+bool PathFindingSystem::isValidPoint(const MapComponent& map, vec2 point) const
 {
 	// Check that the point is within the bounds of the map
 	return point.x >= 0 && point.x < map.grid[0].size()
 					&& point.y >= 0 && point.y < map.grid.size();
 }
 
-bool PathFindingSystem::IsWalkablePoint(const MapComponent& map, vec2 point) const
+bool PathFindingSystem::isWalkablePoint(const MapComponent& map, vec2 point) const
 {
 	// Check that the point is marked as walkable
 	return map.grid[point.y][point.x] == 3;
 }
 
-vec2 PathFindingSystem::GetCheapestAdjacentPoint(const MapComponent& map,
+vec2 PathFindingSystem::getCheapestAdjacentPoint(const MapComponent& map,
 																								 const std::vector<std::vector<int>>& distance,
 																								 std::vector<std::vector<bool>>& visited,
 																								 vec2 point) const
@@ -138,10 +138,10 @@ vec2 PathFindingSystem::GetCheapestAdjacentPoint(const MapComponent& map,
 
 	// A lambda to cut down on code duplication when checking the adjacent points
 	auto checkPoint = [&](vec2 p) {
-		if (IsValidPoint(map, p))
+		if (isValidPoint(map, p))
 		{
 			// If the point is walkable and we visited it, then we can consider it
-			if (IsWalkablePoint(map, p) && visited[p.y][p.x])
+			if (isWalkablePoint(map, p) && visited[p.y][p.x])
 			{
 				validAdjacentPoints.push_back(p);
 			}

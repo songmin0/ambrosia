@@ -6,5 +6,5 @@
 struct Egg
 {
 	// Creates all the associated render resources and default transform
-	static ECS::Entity CreateEgg(vec2 pos);
+	static ECS::Entity createEgg(vec2 pos);
 };

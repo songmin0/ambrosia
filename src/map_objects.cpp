@@ -2,15 +2,15 @@
 #include "map_objects.hpp"
 #include "render.hpp"
 
-ECS::Entity CheeseBlob::CreateCheeseBlob(vec2 position)
+ECS::Entity CheeseBlob::createCheeseBlob(vec2 position)
 {
 	auto entity = ECS::Entity();
 
 	std::string key = "cheeseblob_static";
-	ShadedMesh& resource = cache_resource(key);
+	ShadedMesh& resource = cacheResource(key);
 	if (resource.effect.program.resource == 0)
 	{
-		RenderSystem::createSprite(resource, objects_path("cheese-texture.png"), "bloblike");
+		RenderSystem::createSprite(resource, objectsPath("cheese-texture.png"), "bloblike");
 	}
 
 	// uncomment this if you want to try loading a textured mesh... right now it loads but its a tiny af square
@@ -19,8 +19,8 @@ ECS::Entity CheeseBlob::CreateCheeseBlob(vec2 position)
 	//	// this mesh loader doesn't support textures, if you load "blob-convert-mesh.obj" it works but then there's no texture coords
 	//	// and then we can't see the image
 	//	// so we'd have to create our own obj loader...
-	//	resource.mesh.loadFromOBJFile(objects_path("blob-mesh2.obj"));
-	//	RenderSystem::CreateTexturedMesh(resource, objects_path("cheese-texture.png"), "bloblike");
+	//	resource.mesh.loadFromOBJFile(objectsPath("blob-mesh2.obj"));
+	//	RenderSystem::CreateTexturedMesh(resource, objectsPath("cheese-texture.png"), "bloblike");
 	//}
 
 	entity.emplace<ShadedMeshRef>(resource);

@@ -23,7 +23,7 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 							// Movement for mobs - move to closest player
 							auto& playerContainer = ECS::registry<PlayerComponent>;
 							// There should always be at least one player in a game
-							assert(playerContainer.entities.size() > 0);
+							assert(!playerContainer.entities.empty());
 							ECS::Entity closestPlayer = playerContainer.entities[0]; // Initialize to first player
 							// If there is more than one player
 							if (playerContainer.components.size() > 1) {
@@ -38,7 +38,7 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 											}
 									}
 							}
-							entity.get<AISystem::MobComponent>().SetTargetEntity(closestPlayer);
+							entity.get<AISystem::MobComponent>().setTargetEntity(closestPlayer);
 							//Find the direction to travel towards the player
 							vec2 direction = normalize(closestPlayer.get<Motion>().position - motion.position);
 
@@ -47,7 +47,7 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 							float movementDistance = 200.0f;
 							vec2 destintation = motion.position + (direction * movementDistance);
 							//motion.path = pathFindingSystem.GetShortestPath(motion.position, closestPlayer.get<Motion>().position);
-							motion.path = pathFindingSystem.GetShortestPath(motion.position, destintation);
+							motion.path = pathFindingSystem.getShortestPath(motion.position, destintation);
 							//motion.velocity = normalize(closestPlayer.get<Motion>().position - motion.position) * 100.f; // Temp - matches player's deafult speed above
 					}
 			}
@@ -57,12 +57,12 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	(void)window_size_in_game_units; // placeholder to silence unused warning until implemented
 }
 
-ECS::Entity AISystem::MobComponent::GetTargetEntity()
+ECS::Entity AISystem::MobComponent::getTargetEntity()
 {
 	return this->target;
 }
 
-void AISystem::MobComponent::SetTargetEntity(ECS::Entity target)
+void AISystem::MobComponent::setTargetEntity(ECS::Entity target)
 {
 	this->target = target;
 }

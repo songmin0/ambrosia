@@ -21,8 +21,8 @@ struct ProjectileParams
 {
 	ProjectileParams();
 
-	static ProjectileParams CreateBulletParams();
-	static ProjectileParams CreateBoneParams();
+	static ProjectileParams createBulletParams();
+	static ProjectileParams createBoneParams();
 
 	std::string spritePath;
 	vec2 spriteScale;

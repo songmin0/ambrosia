@@ -3,7 +3,6 @@
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
 #include "animation_components.hpp"
-#include "animation_system.hpp"
 
 #include <iostream>
 
@@ -156,7 +155,7 @@ void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 
 	// safety check, although this should never happen 
 	// because animation component must be initialized with an animation
-	if (anims.anims.size() == 0)
+	if (anims.anims.empty())
 	{
 		return;
 	}

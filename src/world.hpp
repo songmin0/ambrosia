@@ -30,23 +30,23 @@ public:
 	void step(float elapsed_ms, vec2 window_size_in_game_units);
 
 	// Check for collisions
-	void handle_collisions();
+	void handleCollisions();
 
 	// Renders our scene
 	void draw();
 
 	// Should the game be over ?
-	bool is_over() const;
+	bool isOver() const;
 
 	// OpenGL window handle
 	GLFWwindow* window;
 private:
 	// Input callback functions
-	void OnKey(int key, int, int action, int mod);
-	void OnMouseClick(int button, int action, int mods) const;
+	void onKey(int key, int, int action, int mod);
+	void onMouseClick(int button, int action, int mods) const;
 
 	// Loads the audio
-	void init_audio();
+	void initAudio();
 
 	// Number of fish eaten by the salmon, displayed in the window title
 	unsigned int points;
