@@ -24,8 +24,43 @@ endif()
 
 # Create executable target
 
-# You can switch to use the file GLOB for simplicity but at your own risk
-file(GLOB SOURCE_FILES src/*.cpp src/*.hpp)
+# Set variable to represent all source files
+SET(SOURCE_FILES
+        "src/main.cpp"
+        "src/ai/ai.cpp"
+        "src/animation/animation_components.cpp"
+        "src/animation/animation_system.cpp"
+        "src/entities/egg.cpp"
+        "src/entities/raoul.cpp"
+        "src/entities/tiny_ecs.cpp"
+        "src/game/common.cpp"
+        "src/game/turn_system.cpp"
+        "src/game/world.cpp"
+        "src/maps/map.cpp"
+        "src/maps/map_objects.cpp"
+        "src/maps/path_finding_system.cpp"
+        "src/physics/debug.cpp"
+        "src/physics/physics.cpp"
+        "src/physics/projectile.cpp"
+        "src/physics/projectile_system.cpp"
+        "src/rendering/render.cpp"
+        "src/rendering/render_components.cpp"
+        "src/rendering/render_init.cpp"
+        "src/ui/button.cpp"
+        "src/ui/ui_components.cpp"
+        "src/ui/ui_system.cpp")
+
+# Add the directories that the compiler has to search for #include files
+INCLUDE_DIRECTORIES(
+        "src/"
+        "src/ai"
+        "src/animation"
+        "src/entities"
+        "src/game"
+        "src/maps"
+        "src/physics"
+        "src/rendering"
+        "src/ui")
 
 # external libraries will be installed into /usr/local/include and /usr/local/lib but that folder is not automatically included in the search on MACs
 if (IS_OS_MAC)
@@ -33,20 +68,7 @@ if (IS_OS_MAC)
   link_directories(/usr/local/lib)
 endif()
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES}
-        "src/raoul.cpp" "src/raoul.hpp"
-        "src/animation_system.cpp" "src/animation_system.hpp"
-        "src/egg.cpp" "src/egg.hpp"
-        "src/TurnSystem.cpp" "src/TurnSystem.hpp"
-        "src/EventSystem.hpp" "src/Events.hpp"
-        "src/PathFindingSystem.cpp" "src/PathFindingSystem.hpp"
-        "src/Map.cpp" "src/Map.hpp"
-        "src/Button.cpp" "src/Button.hpp" 
-        "src/ui_components.cpp" "src/ui_components.hpp" 
-        "src/UISystem.cpp" "src/UISystem.hpp"
-        "src/raoul-bone.cpp" "src/raoul-bone.hpp"
-        "src/Projectile.cpp" src/Projectile.hpp
-        "src/ProjectileSystem.cpp" "src/ProjectileSystem.hpp")
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 
 # Added this so policy CMP0065 doesn't scream

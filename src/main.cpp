@@ -4,22 +4,21 @@
 
 // stlib
 #include <chrono>
-#include <iostream>
 
 // internal
-#include "common.hpp"
-#include "world.hpp"
-#include "tiny_ecs.hpp"
-#include "render.hpp"
-#include "physics.hpp"
-#include "ai.hpp"
-#include "debug.hpp"
-#include "animation_components.hpp"
-#include "animation_system.hpp"
-#include "TurnSystem.hpp"
-#include "PathFindingSystem.hpp"
-#include "UISystem.hpp"
-#include "ProjectileSystem.hpp"
+#include "game/common.hpp"
+#include "game/world.hpp"
+#include "game/turn_system.hpp"
+#include "entities/tiny_ecs.hpp"
+#include "rendering/render.hpp"
+#include "physics/physics.hpp"
+#include "physics/debug.hpp"
+#include "physics/projectile_system.hpp"
+#include "ai/ai.hpp"
+#include "animation/animation_system.hpp"
+#include "maps/path_finding_system.hpp"
+#include "ui/ui_system.hpp"
+
 
 using Clock = std::chrono::high_resolution_clock;
 
@@ -54,7 +53,7 @@ int main()
 
 	auto t = Clock::now();
 	// Variable timestep loop
-	while (!world.is_over())
+	while (!world.isOver())
 	{
 		// Processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
@@ -73,15 +72,14 @@ int main()
 			ai.step(deltaTime, window_size_in_game_units);
 			world.step(deltaTime, window_size_in_game_units);
 			physics.step(deltaTime, window_size_in_game_units);
-			world.handle_collisions();
-			projectileSystem.Step(deltaTime);
+			world.handleCollisions();
+			projectileSystem.step(deltaTime);
 			animations.step();
 			turnSystem.step(deltaTime);
 			renderer.draw(window_size_in_game_units);
 
 			elapsed_ms -= deltaTime;
 		}
-
 	}
 
 	return EXIT_SUCCESS;
