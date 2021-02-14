@@ -74,6 +74,9 @@ void AnimationSystem::checkAnimation(ECS::Entity& entity)
 	{
 		anim.changeAnimation(AnimationType::MOVE);
 
+		// orientation should always be -1 or 1
+		assert(abs(motion.orientation) == 1);
+
 		// orientation check
 		// left -->
 		if (motion.velocity.x < 0)
