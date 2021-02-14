@@ -10,9 +10,10 @@ AnimationData::AnimationData()
 	currFrame = 0;
 	delay = 3;
 	delayTimer = delay;
+	offset = vec2(0.f);
 }
 
-AnimationData::AnimationData(const std::string& key, const std::string& path, int animNumFrames, int animDelay, bool animHasExitTime, bool animIsCycle)
+AnimationData::AnimationData(const std::string& key, const std::string& path, int animNumFrames, int animDelay, bool animHasExitTime, bool animIsCycle, vec2 animOffset)
 {
 	assert(animNumFrames > 0);
 
@@ -23,6 +24,7 @@ AnimationData::AnimationData(const std::string& key, const std::string& path, in
 	currFrame = 0;
 	delay = animDelay;
 	delayTimer = delay;
+	offset = animOffset;
 
 	updateTexMeshCache(key, path);
 }

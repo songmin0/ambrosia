@@ -17,9 +17,10 @@ struct AnimationData
 	int currFrame;
 	int delay;
 	int delayTimer;
+	vec2 offset;
 
 	AnimationData();
-	AnimationData(const std::string& key, const std::string& path, int animNumFrames, int animDelay = 1, bool animHasExitTime = false, bool animIsCycle = true);
+	AnimationData(const std::string& key, const std::string& path, int animNumFrames, int animDelay = 1, bool animHasExitTime = false, bool animIsCycle = true, vec2 animOffset = vec2(0.f));
 	void updateTexMeshCache(const std::string& key, const std::string& path);
 };
 
