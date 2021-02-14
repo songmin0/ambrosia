@@ -75,18 +75,22 @@ void AnimationSystem::checkAnimation(ECS::Entity& entity)
 		anim.changeAnimation(AnimationType::MOVE);
 
 		// orientation check
+		// left -->
 		if (motion.velocity.x < 0)
 		{
-			if (motion.scale.x > 0)
+			// flip if they're facing right
+			if (motion.scale.x * motion.orientation > 0)
 			{
-				motion.scale.x *= -1;
+				motion.scale.x *= motion.orientation * -1;
 			}
 		}
+		// <-- right
 		else
 		{
-			if (motion.scale.x < 0)
+			// flip if they're facing left
+			if (motion.scale.x * motion.orientation < 0)
 			{
-				motion.scale.x *= -1;
+				motion.scale.x *= motion.orientation * -1;
 			}
 		}
 	}
