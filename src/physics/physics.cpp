@@ -4,6 +4,7 @@
 
 #include "entities/tiny_ecs.hpp"
 #include "game/turn_system.hpp"
+#include "animation/animation_components.hpp"
 
 #include <iostream>
 
@@ -103,15 +104,31 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	// Visualization for debugging the position and scale of objects
 	if (DebugSystem::in_debug_mode)
 	{
-		for (auto& motion : ECS::registry<Motion>.components)
+		int numEntities = ECS::registry<Motion>.entities.size();
+
+		for (int i = 0; i < numEntities; i++)
 		{
+			auto& entity = ECS::registry<Motion>.entities[i];
+			auto& motion = ECS::registry<Motion>.components[i];
+
+			vec2 position = motion.position;
+
+			if (entity.has<AnimationsComponent>())
+			{
+				// For entities with an AnimationsComponent, we translate the sprite upward by half the texture size so that the
+				// entity's position refers to their feet instead of the middle of the sprite. This happens in
+				// RenderSystem::drawAnimatedMesh. See `transform.translate(vec2(0.f, -0.5f))`. The line of code below this
+				// comment just aligns the debug lines properly for those entities.
+				position.y -= motion.boundingBox.y / 2;
+			}
+
 			// draw a cross at the position of all objects
 			auto scale_horizontal_line = motion.boundingBox;
 			scale_horizontal_line.y *= 0.1f;
 			auto scale_vertical_line = motion.boundingBox;
 			scale_vertical_line.x *= 0.1f;
-			DebugSystem::createLine(motion.position, scale_horizontal_line);
-			DebugSystem::createLine(motion.position, scale_vertical_line);
+			DebugSystem::createLine(position, scale_horizontal_line);
+			DebugSystem::createLine(position, scale_vertical_line);
 		}
 	}
 
