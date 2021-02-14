@@ -109,7 +109,8 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 {
 	auto& motion = entity.get<Motion>();
-	auto& texmesh = *entity.get<AnimationsComponent>().reference_to_cache;
+	auto& anims = entity.get<AnimationsComponent>();
+	auto& texmesh = *anims.referenceToCache;
 	Transform transform;
 	transform.translate(motion.position);
 	transform.rotate(motion.angle);
@@ -151,7 +152,6 @@ void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 	// animations have a ShadedMesh with a Texture component that's a 2D Array Texture, not a 2D Texture
 	GLint frame_uloc = glGetUniformLocation(texmesh.effect.program, "frame");
 	GLint arraySamplerLoc = glGetUniformLocation(texmesh.effect.program, "array_sampler");
-	auto& anims = entity.get<AnimationsComponent>();
 
 	// safety check, although this should never happen 
 	// because animation component must be initialized with an animation
@@ -159,6 +159,9 @@ void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 	{
 		return;
 	}
+
+	// add animation offset
+	transform.translate(anims.currAnimData.offset);
 
 	float frame = (float)anims.currAnimData.currFrame;
 	glUniform1f(frame_uloc, frame);

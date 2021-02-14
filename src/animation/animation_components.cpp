@@ -5,37 +5,26 @@ AnimationData::AnimationData()
 {
 	texture_key = "static";
 	hasExitTime = false;
-	cycle = true;
+	isCycle = true;
 	numFrames = 1;
 	currFrame = 0;
 	delay = 3;
-	delay_timer = delay;
+	delayTimer = delay;
+	offset = vec2(0.f);
 }
 
-AnimationData::AnimationData(const std::string& key, const std::string& path, int anim_numFrames)
+AnimationData::AnimationData(const std::string& key, const std::string& path, int animNumFrames, int animDelay, bool animHasExitTime, bool animIsCycle, vec2 animOffset)
 {
-	texture_key = key;
-	hasExitTime = false;
-	cycle = true;
-	numFrames = anim_numFrames;
-	currFrame = 0;
-	delay = 3;
-	delay_timer = delay;
-
-	updateTexMeshCache(key, path);
-}
-
-AnimationData::AnimationData(const std::string& key, const std::string& path, int anim_numFrames, int anim_delay, bool anim_hasExitTime, bool anim_cycle)
-{
-	assert(anim_numFrames > 0);
+	assert(animNumFrames > 0);
 
 	texture_key = key;
-	hasExitTime = anim_hasExitTime;
-	cycle = anim_cycle;
-	numFrames = anim_numFrames;
+	hasExitTime = animHasExitTime;
+	isCycle = animIsCycle;
+	numFrames = animNumFrames;
 	currFrame = 0;
-	delay = anim_delay;
-	delay_timer = delay;
+	delay = animDelay;
+	delayTimer = delay;
+	offset = animOffset;
 
 	updateTexMeshCache(key, path);
 }
@@ -45,7 +34,7 @@ AnimationsComponent::AnimationsComponent(AnimationType type, const AnimationData
 	anims[type] = anim;
 	currentAnim = type;
 	currAnimData = anim;
-	reference_to_cache = &cacheResource(anim.texture_key);
+	referenceToCache = &cacheResource(anim.texture_key);
 }
 
 void AnimationsComponent::addAnimation(AnimationType type, const AnimationData& anim)
@@ -69,7 +58,7 @@ void AnimationsComponent::changeAnimation(AnimationType newAnim)
 	//// we probably don't need exit time since it's turn-based but keep it for now in case
 
 	// point the mesh ref to the new texture
-	reference_to_cache = &cacheResource(currAnimData.texture_key);
+	referenceToCache = &cacheResource(currAnimData.texture_key);
 }
 
 void AnimationData::updateTexMeshCache(const std::string& key, const std::string& path)
