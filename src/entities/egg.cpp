@@ -34,6 +34,7 @@ ECS::Entity Egg::createEgg(vec2 pos)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ 0.8f, 0.8f });
+	motion.orientation = -1;
 
 
 	// hitbox scaling

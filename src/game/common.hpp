@@ -49,6 +49,10 @@ struct Motion {
 	vec2 scale = { 10, 10 };
 	vec2 boundingBox = { 0, 0 };
 
+	// (orientation * scale.x) faces right when positive 
+	// ie. if a sprite's texture faces left, then orientation should be -1
+	float orientation = 1;
+
 	std::stack<vec2> path;
 };
 
