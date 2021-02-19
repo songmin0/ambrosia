@@ -1,7 +1,7 @@
 #include "button.hpp"
 #include "ui_components.hpp"
-
 #include "rendering/render.hpp"
+#include "animation/animation_components.hpp"
 
 ECS::Entity Button::createButton(ButtonShape shape, vec2 position, const std::string& texture, void(*callback)())
 {
@@ -36,6 +36,40 @@ ECS::Entity Button::createButton(ButtonShape shape, vec2 position, const std::st
 	}
 
 	ECS::registry<Button>.emplace(entity);
+
+	return entity;
+}
+
+ECS::Entity Button::createPlayerButton(PlayerType player, vec2 position, void(*callback)())
+{
+	auto entity = Button::createButton(ButtonShape::RECTANGLE, position, "placeholder_char_button", callback);
+	std::string playerName = "raoul";
+
+	switch (player) {
+	case PlayerType::TAJI:
+		playerName = "taji";
+		break;
+	case PlayerType::CHIA:
+		playerName = "chia";
+		break;
+	case PlayerType::SPICY:
+		playerName = "spicy";
+		break;
+	default:
+		break;
+	}
+
+	auto active_anim = new AnimationData(
+		playerName + "button_active", uiPath("player_buttons/" + playerName + "/active/" + playerName + "_active"), 40);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::ACTIVE, *active_anim);
+
+	auto inactive_anim = new AnimationData(
+		playerName + "button_inactive", uiPath("player_buttons/" + playerName + "/" + playerName + "_inactive"), 1);
+	anims.addAnimation(AnimationType::INACTIVE, *inactive_anim);
+
+	auto disabled_anim = new AnimationData(
+		playerName + "button_disabled", uiPath("player_buttons/" + playerName + "/" + playerName + "_disabled"), 1);
+	anims.addAnimation(AnimationType::DISABLED, *disabled_anim);
 
 	return entity;
 }
