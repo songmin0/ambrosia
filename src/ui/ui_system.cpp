@@ -1,17 +1,22 @@
 #include "ui_system.hpp"
-#include "game/event_system.hpp"
 
 UISystem::UISystem()
 {
 	mouseClickListener = EventSystem<RawMouseClickEvent>::instance().registerListener(
 		std::bind(&UISystem::onMouseClick, this, std::placeholders::_1));
+
+	playerChangeListener = EventSystem<PlayerChangeEvent>::instance().registerListener(
+		std::bind(&UISystem::onPlayerChange, this, std::placeholders::_1));
 }
 
 UISystem::~UISystem()
 {
-	if (mouseClickListener.isValid())
-	{
+	if (mouseClickListener.isValid()) {
 		EventSystem<RawMouseClickEvent>::instance().unregisterListener(mouseClickListener);
+	}
+
+	if (playerChangeListener.isValid()) {
+		EventSystem<PlayerChangeEvent>::instance().unregisterListener(playerChangeListener);
 	}
 }
 
@@ -61,4 +66,37 @@ void UISystem::onMouseClick(const RawMouseClickEvent& event)
 
 	// Sends a MouseClickEvent to event system if no buttons are clicked
 	EventSystem<MouseClickEvent>::instance().sendEvent(MouseClickEvent{ event.mousePos });
+}
+
+// Handles highlighting player buttons on player change
+void UISystem::onPlayerChange(const PlayerChangeEvent& event)
+{
+	for (auto entity : ECS::registry<PlayerComponent>.entities) {
+		PlayerType player = entity.get<PlayerComponent>().player;
+
+		// find the player's corresponding player button
+		for (auto playerButton : ECS::registry<PlayerButtonComponent>.entities) {
+			auto& playerButtonComponent = playerButton.get<PlayerButtonComponent>();
+			if (player != playerButtonComponent.player) {
+				continue;
+			}
+
+			auto& anim = playerButton.get<AnimationsComponent>();
+			// show active button if player is active
+			if (entity.has<TurnSystem::TurnComponentIsActive>()) {
+				anim.changeAnimation(AnimationType::ACTIVE);
+				break;
+			}
+
+			auto& turnComponent = entity.get<TurnSystem::TurnComponent>();
+			// show disable button if player has completed their turn
+			if (TurnSystem::hasCompletedTurn(turnComponent)) {
+				anim.changeAnimation(AnimationType::DISABLED);
+			}
+			else { // show inactive button
+				anim.changeAnimation(AnimationType::INACTIVE);
+			}
+			break;
+		}
+	}
 }

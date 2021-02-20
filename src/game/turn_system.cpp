@@ -13,13 +13,20 @@ TurnSystem::TurnSystem(const PathFindingSystem& pfs)
 {
 		EventSystem<MouseClickEvent>::instance().registerListener(
 				std::bind(&TurnSystem::onMouseClick, this, std::placeholders::_1));
+
+		EventSystem<PlayerButtonEvent>::instance().registerListener(
+				std::bind(&TurnSystem::onPlayerButtonClick, this, std::placeholders::_1));
 }
 
 TurnSystem::~TurnSystem()
 {
 		if (mouseClickListener.isValid())
 		{
-				EventSystem<MouseClickEvent>::instance().unregisterListener(mouseClickListener);
+			EventSystem<MouseClickEvent>::instance().unregisterListener(mouseClickListener);
+		}
+		if (playerButtonListener.isValid())
+		{
+			EventSystem<MouseClickEvent>::instance().unregisterListener(playerButtonListener);
 		}
 }
 
@@ -35,8 +42,9 @@ void TurnSystem::nextActiveEntity()
 		for (unsigned int i = 0; i < registry.components.size(); i++) {
 				ECS::Entity entity = registry.entities[i];
 				auto& turnComponent = ECS::registry<TurnComponent>.get(entity);
-				if (!turnComponent.hasGone) {
+				if (!hasCompletedTurn(turnComponent)) {
 						ECS::registry<TurnComponentIsActive>.emplace(entity);
+						EventSystem<PlayerChangeEvent>::instance().sendEvent(PlayerChangeEvent{ entity });
 						break;
 				}
 		}
@@ -47,21 +55,15 @@ void TurnSystem::nextActiveEntity()
 				for (unsigned int i = 0; i < registry.components.size(); i++) {
 						ECS::Entity entity = registry.entities[i];
 						auto& turnComponent = ECS::registry<TurnComponent>.get(entity);
-						if (!turnComponent.hasGone) {
+						if (!hasCompletedTurn(turnComponent)) {
 								ECS::registry<TurnComponentIsActive>.emplace(entity);
+								EventSystem<PlayerChangeEvent>::instance().sendEvent(PlayerChangeEvent{ entity });
 								break;
 						}
 				}
 		}
 
-		if (ECS::registry<TurnComponentIsActive>.size() != 0) {
-				//Set the activeEnity's hasGone to true
-				// Check happens with if statement
-				auto& activeEntity = ECS::registry<TurnComponentIsActive>.entities[0];
-				auto& activeEntityTurnComponent = ECS::registry<TurnComponent>.get(activeEntity);
-				activeEntityTurnComponent.hasGone = true;
-		}
-		else {
+		if (ECS::registry<TurnComponentIsActive>.size() == 0) {
 				//All entities have gone so end the turn
 				nextTurn();
 		}
@@ -73,31 +75,25 @@ void TurnSystem::changeActiveEntity(ECS::Entity nextEntity)
 		//Make sure the nextEntity has a TurnComponent
 		assert(nextEntity.has<TurnComponent>());
 		auto& turnComponent = ECS::registry<TurnComponent>.get(nextEntity);
-		if (!turnComponent.hasGone) {
+		if (!hasCompletedTurn(turnComponent)) {
+				//Check if the selected player is the current active player
 				assert(!ECS::registry<TurnComponentIsActive>.entities.empty());
-				ECS::registry<TurnComponent>.get(ECS::registry<TurnComponentIsActive>.entities[0]).hasGone = false;
-				std::cout << "switching to the next active entity \n";
-				//Remove the active entity
-				ECS::registry<TurnComponentIsActive>.clear();
-
-				//Set the activeEntity to the nextEntity
-				ECS::registry<TurnComponentIsActive>.emplace(nextEntity);
-
-				//Set the activeEnity's hasGone to true
-				auto& activeEntityTurnComponent = ECS::registry<TurnComponent>.get(nextEntity);
-				activeEntityTurnComponent.hasGone = true;
-		}
-		else {
-				assert(!ECS::registry<TurnComponentIsActive>.entities.empty());
-				if (nextEntity.id == ECS::registry<TurnComponentIsActive>.entities[0].id){
+				if (nextEntity.id == ECS::registry<TurnComponentIsActive>.entities[0].id) {
 						std::cout << "The requested player is already the active player\n";
 				}
 				else {
-						std::cout << "player has already gone this turn\n";
+						std::cout << "switching to the next active entity \n";
+						//Remove the active entity
+						ECS::registry<TurnComponentIsActive>.clear();
+
+						//Set the activeEntity to the nextEntity
+						ECS::registry<TurnComponentIsActive>.emplace(nextEntity);
+						EventSystem<PlayerChangeEvent>::instance().sendEvent(PlayerChangeEvent{ nextEntity });
 				}
 		}
-		
-
+		else {
+				std::cout << "player has already gone this turn\n";
+		}
 }
 
 //All players and mobs have completed their turn. This makes sure the next turn starts properly
@@ -110,7 +106,6 @@ void TurnSystem::nextTurn()
 		auto& registry = ECS::registry<TurnComponent>;
 		for (unsigned int i = 0; i < registry.components.size(); i++) {
 				auto& turnComponent = registry.components[i];
-				turnComponent.hasGone = false;
 				turnComponent.hasMoved = false;
 				turnComponent.hasUsedSKill = false;
 		}
@@ -140,6 +135,12 @@ void TurnSystem::step(float elapsed_ms)
 				//The current user is dead so switch to the next
 				nextActiveEntity();
 		}
+}
+
+bool TurnSystem::hasCompletedTurn(TurnComponent tc) 
+{
+	// TODO change to hasUsedSkill when skills are implemented
+	return tc.hasMoved;
 }
 
 void TurnSystem::onMouseClick(const MouseClickEvent &event)
@@ -174,6 +175,20 @@ void TurnSystem::onMouseClick(const MouseClickEvent &event)
 					EventSystem<LaunchBoneEvent>::instance().sendEvent(launchBoneEvent);
 				}
 			}
+		}
+	}
+}
+
+// Handles switching active player when a player button is clicked
+void TurnSystem::onPlayerButtonClick(const PlayerButtonEvent& event) 
+{
+	// look for player entity that matches player in event
+	for (auto entity : ECS::registry<PlayerComponent>.entities) 
+	{
+		auto& player = entity.get<PlayerComponent>().player;
+		if (event.player == player) {
+			TurnSystem::changeActiveEntity(entity);
+			break;
 		}
 	}
 }

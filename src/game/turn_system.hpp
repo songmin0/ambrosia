@@ -26,9 +26,8 @@ public:
 		// Stucture to store turn information
 		struct TurnComponent
 		{
-				bool hasGone = false;
-				bool hasMoved = false;
-				bool hasUsedSKill = false;
+			bool hasMoved = false;
+			bool hasUsedSKill = false;
 		};
 
 		struct TurnComponentIsActive
@@ -36,9 +35,14 @@ public:
 
 		};
 
-private:
-	void onMouseClick(const MouseClickEvent& event);
+		static bool hasCompletedTurn(TurnComponent tc);
 
-	EventListenerInfo mouseClickListener;
+private:
 	const PathFindingSystem& pathFindingSystem;
+
+	void onMouseClick(const MouseClickEvent& event);
+	EventListenerInfo mouseClickListener;
+
+	void onPlayerButtonClick(const PlayerButtonEvent& event);
+	EventListenerInfo playerButtonListener;
 };

@@ -14,3 +14,8 @@ ClickableRectangleComponent::ClickableRectangleComponent(vec2 position, float wi
 	this->height = height;
 	this->callback = callback;
 }
+
+PlayerButtonComponent::PlayerButtonComponent(PlayerType player)
+{
+	this->player = player;
+}
