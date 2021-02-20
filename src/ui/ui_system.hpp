@@ -5,7 +5,9 @@
 #include "game/common.hpp"
 #include "game/event_system.hpp"
 #include "game/events.hpp"
+#include "game/turn_system.hpp"
 #include "entities/tiny_ecs.hpp"
+#include "animation/animation_components.hpp"
 
 #include <functional>
 
@@ -16,13 +18,15 @@ public:
 	~UISystem();
 
 private:
-	EventListenerInfo mouseClickListener;
-
 	bool isClicked(ClickableCircleComponent clickable, vec2 position);
 	bool isClicked(ClickableRectangleComponent clickable, vec2 position);
 
 	template <typename ClickableComponent>
 	bool handleClick(ECS::Entity entity, const RawMouseClickEvent& event);
 
+	EventListenerInfo mouseClickListener;
 	void onMouseClick(const RawMouseClickEvent& event);
+
+	EventListenerInfo playerChangeListener;
+	void onPlayerChange(const PlayerChangeEvent& event);
 };

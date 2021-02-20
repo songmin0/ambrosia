@@ -30,3 +30,13 @@ struct HitEvent
 	ECS::Entity instigator;
 	ECS::Entity target;
 };
+
+struct PlayerButtonEvent
+{
+	PlayerType player;
+};
+
+struct PlayerChangeEvent
+{
+	ECS::Entity newActiveEntity;
+};

@@ -43,17 +43,24 @@ ECS::Entity Button::createButton(ButtonShape shape, vec2 position, const std::st
 ECS::Entity Button::createPlayerButton(PlayerType player, vec2 position, void(*callback)())
 {
 	auto entity = Button::createButton(ButtonShape::RECTANGLE, position, "placeholder_char_button", callback);
-	std::string playerName = "raoul";
+	std::string playerName = "";
 
 	switch (player) {
+	case PlayerType::RAOUL:
+		playerName = "raoul";
+		entity.emplace<PlayerButtonComponent>(PlayerType::RAOUL);
+		break;
 	case PlayerType::TAJI:
 		playerName = "taji";
+		entity.emplace<PlayerButtonComponent>(PlayerType::TAJI);
 		break;
 	case PlayerType::CHIA:
 		playerName = "chia";
+		entity.emplace<PlayerButtonComponent>(PlayerType::CHIA);
 		break;
 	case PlayerType::SPICY:
 		playerName = "spicy";
+		entity.emplace<PlayerButtonComponent>(PlayerType::SPICY);
 		break;
 	default:
 		break;

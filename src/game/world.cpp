@@ -12,6 +12,7 @@
 #include "animation/animation_components.hpp"
 #include "maps/map_objects.hpp"
 #include "ui/button.hpp"
+#include "ui/ui_system.hpp"
 
 // stlib
 #include <string.h>
@@ -188,13 +189,12 @@ void WorldSystem::restart()
 	ECS::ContainerInterface::listAllComponents();
 
 	// Create a new Raoul
-	player_raoul = Raoul::createRaoul({ 640, 512 }, 4.f);
+	player_raoul = Raoul::createRaoul({ 640, 512 }, PlayerType::RAOUL, 4.f);
 
 	//TODO replace these with the real other characters
-	auto raoul_2 = Raoul::createRaoul({ 200,700 }, 3.f);
-	auto raoul_3 = Raoul::createRaoul({ 400,700 }, 1.f);
-	auto raoul_4 = Raoul::createRaoul({ 400,400 }, 2.f);
-
+	auto raoul_2 = Raoul::createRaoul({ 200,700 }, PlayerType::TAJI, 3.f);
+	auto raoul_3 = Raoul::createRaoul({ 400,700 }, PlayerType::SPICY, 1.f);
+	auto raoul_4 = Raoul::createRaoul({ 400,400 }, PlayerType::CHIA, 2.f);
 
 	//This is not the final way to add eggs just put them here for testing purposes.
 	ECS::Entity entity = Egg::createEgg({750, 800});
@@ -218,39 +218,17 @@ void WorldSystem::restart()
 	CheeseBlob::createCheeseBlob({ 700, 950 });
 
 	// Create UI buttons
-	Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth / 4, 100 }, 
-		[]() {
-			std::cout << "Character one button clicked!" << std::endl;
-			if (!ECS::registry<PlayerComponent>.entities.empty())
-			{
-				TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[0]);
-			}
-		});
-	Button::createPlayerButton(PlayerType::TAJI, { frameBufferWidth / 4 + 200, 100 },
-		[]() {
-			std::cout << "Character two button clicked!" << std::endl;
-			if (!ECS::registry<PlayerComponent>.entities.empty())
-			{
-				TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[1]);
-			}
-		});
-	Button::createPlayerButton(PlayerType::SPICY, { frameBufferWidth / 4 + 400, 100 },
-		[]() {
-			std::cout << "Character three button clicked!" << std::endl;
-			if (!ECS::registry<PlayerComponent>.entities.empty())
-			{
-				TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[2]);
-			}
-		});
+	auto player_button_1 = Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth / 4, 100 },
+		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::RAOUL }); });
 
-	Button::createPlayerButton(PlayerType::CHIA, { frameBufferWidth / 4 + 600, 100 },
-		[]() {
-			std::cout << "Character four button clicked!" << std::endl;
-			if (!ECS::registry<PlayerComponent>.entities.empty())
-			{
-				TurnSystem::changeActiveEntity(ECS::registry<PlayerComponent>.entities[3]);
-			}
-		});
+	auto player_button_2 = Button::createPlayerButton(PlayerType::TAJI, { frameBufferWidth / 4 + 200, 100 },
+		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::TAJI }); });
+
+	auto player_button_3 = Button::createPlayerButton(PlayerType::SPICY, { frameBufferWidth / 4 + 400, 100 },
+		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::SPICY }); });
+
+	auto player_button_4 = Button::createPlayerButton(PlayerType::CHIA, { frameBufferWidth / 4 + 600, 100 },
+		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::CHIA }); });
 	
 	Button::createButton(ButtonShape::CIRCLE, { 100, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
 		[]() { std::cout << "Skill one button clicked!" << std::endl; });

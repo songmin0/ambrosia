@@ -17,3 +17,9 @@ struct ClickableRectangleComponent
 	void (*callback)();
 	ClickableRectangleComponent(vec2 position, float width, float height, void (*callback)());
 };
+
+struct PlayerButtonComponent
+{
+	PlayerType player;
+	PlayerButtonComponent(PlayerType player);
+};
