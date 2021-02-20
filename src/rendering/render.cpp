@@ -3,6 +3,7 @@
 
 #include "entities/tiny_ecs.hpp"
 #include "animation/animation_components.hpp"
+#include "ai/ai.hpp"
 
 #include <iostream>
 
@@ -117,7 +118,10 @@ void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 	transform.scale(motion.scale * static_cast<vec2>(texmesh.texture.size));
 
 	// The entity's feet are at the bottom of the texture, so move it upward by half the texture size
-	transform.translate(vec2(0.f, -0.5f));
+	if (entity.has<PlayerComponent>() || entity.has<AISystem::MobComponent>())
+	{
+		transform.translate(vec2(0.f, -0.5f));
+	}
 
 	// Setting shaders
 	glUseProgram(texmesh.effect.program);
