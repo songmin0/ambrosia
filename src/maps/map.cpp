@@ -1,7 +1,6 @@
 #include "map.hpp"
 #include "rendering/render.hpp"
 #include <iostream>
-//#include "stb_image.h"
 
 void getPixel(stbi_uc* image, size_t imageWidth, size_t x, size_t y, stbi_uc* r, stbi_uc* g, stbi_uc* b, stbi_uc* a) {
 	const stbi_uc* p = image + (4 * (y * imageWidth + x));
@@ -15,7 +14,7 @@ ECS::Entity MapComponent::createMap(const std::string& name, vec2 screenSize)
 {
 	auto entity = ECS::Entity();
 
-	std::string navmeshAlphaPath = mapsPath(name + "-navmesh-alpha" + ".png");
+	std::string navmeshPath = mapsPath(name + "-navmesh-alpha" + ".png");
 	std::string debugPath = mapsPath(name + "-debug" + ".png");
 
 	// Create rendering primitives
@@ -38,8 +37,6 @@ ECS::Entity MapComponent::createMap(const std::string& name, vec2 screenSize)
 
 	// Temporarily hardcoded until we implement a function to load this from the data file
 	mapComponent.tileSize = 32;
-
-	std::string navmeshPath = mapsPath(name  + "-navmesh-alpha" + ".png");
 
 	int width, height, numChannelsRead;
 	unsigned char* data = stbi_load(navmeshPath.c_str(), &width, &height, &numChannelsRead, 0);
@@ -69,7 +66,7 @@ ECS::Entity MapComponent::createMap(const std::string& name, vec2 screenSize)
 			else {
 				matrix[y][x] = 3;
 			}
-			//std::cout << matrix[y][x]; // comment these two lines out if you would like to see the map that is being generated in terminal
+			//std::cout << matrix[y][x]; // uncomment these two lines out if you would like to see the map that is being generated in the debug console
 			pixelX += mapComponent.tileSize;
 		}
 		//std::cout << std::endl;
