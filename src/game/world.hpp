@@ -54,6 +54,7 @@ private:
 
 	// Player test
 	ECS::Entity player_raoul;
+	ECS::Entity player_taji;
 	
 	// music references
 	Mix_Music* background_music;

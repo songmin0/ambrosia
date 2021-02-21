@@ -7,6 +7,7 @@
 #include "physics/projectile.hpp"
 #include "physics/debug.hpp"
 #include "entities/raoul.hpp"
+#include "entities/taji.hpp"
 #include "entities/egg.hpp"
 #include "rendering/render_components.hpp"
 #include "animation/animation_components.hpp"
@@ -189,10 +190,10 @@ void WorldSystem::restart()
 	ECS::ContainerInterface::listAllComponents();
 
 	// Create a new Raoul
-	player_raoul = Raoul::createRaoul({ 640, 512 }, PlayerType::RAOUL, 4.f);
+	player_raoul = Raoul::createRaoul({ 640, 512 }, PlayerType::RAOUL);
+	player_taji = Taji::createTaji({ 200,700 });
 
 	//TODO replace these with the real other characters
-	auto raoul_2 = Raoul::createRaoul({ 200,700 }, PlayerType::TAJI, 3.f);
 	auto raoul_3 = Raoul::createRaoul({ 400,700 }, PlayerType::SPICY, 1.f);
 	auto raoul_4 = Raoul::createRaoul({ 400,400 }, PlayerType::CHIA, 2.f);
 

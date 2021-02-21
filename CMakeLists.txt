@@ -32,6 +32,7 @@ SET(SOURCE_FILES
         "src/animation/animation_system.cpp"
         "src/entities/egg.cpp"
         "src/entities/raoul.cpp"
+	"src/entities/taji.cpp"
         "src/entities/tiny_ecs.cpp"
         "src/game/common.cpp"
         "src/game/turn_system.cpp"
