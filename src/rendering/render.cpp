@@ -17,6 +17,12 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	transform.translate(motion.position);
 	transform.rotate(motion.angle);
 
+	// Adjust root position of pathfinding entities
+	if (entity.has<PlayerComponent>() || entity.has<AISystem::MobComponent>())
+	{
+		transform.translate(vec2(0.f, -0.5f));
+	}
+
 	// Setting shaders
 	glUseProgram(texmesh.effect.program);
 	glBindVertexArray(texmesh.mesh.vao);
