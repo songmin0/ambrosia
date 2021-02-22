@@ -45,4 +45,10 @@ private:
 
 	void onPlayerButtonClick(const PlayerButtonEvent& event);
 	EventListenerInfo playerButtonListener;
+
+	void onFinishedMovement(const FinishedMovementEvent& event);
+	EventListenerInfo finishedMovementListener;
+
+	void onFinishedSkill(const FinishedSkillEvent& event);
+	EventListenerInfo finishedSkillListener;
 };

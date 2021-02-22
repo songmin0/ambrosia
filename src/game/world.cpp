@@ -157,16 +157,16 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		auto& counter = ECS::registry<DeathTimer>.get(entity);
 		counter.counter_ms -= elapsed_ms;
 
-		// Reduce window brightness if any of the present salmons is dying
-		screen.darken_screen_factor = 1-counter.counter_ms/3000.f;
-
-		// Restart the game once the death timer expired
+		// Remove player/mob once death timer expires
 		if (counter.counter_ms < 0)
 		{
-			ECS::registry<DeathTimer>.remove(entity);
-			screen.darken_screen_factor = 0;
-			restart();
-			return;
+			ECS::ContainerInterface::removeAllComponentsOf(entity);
+			// Check if there are no more players left, restart game
+			if (ECS::registry<PlayerComponent>.entities.empty())
+			{
+				restart();
+				return;
+			}
 		}
 	}
 }
@@ -230,15 +230,70 @@ void WorldSystem::restart()
 
 	auto player_button_4 = Button::createPlayerButton(PlayerType::CHIA, { frameBufferWidth / 4 + 600, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::CHIA }); });
-	
+
 	Button::createButton(ButtonShape::CIRCLE, { 100, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
-		[]() { std::cout << "Skill one button clicked!" << std::endl; });
+		[]() {
+			std::cout << "Skill one button clicked!" << std::endl;
+
+			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
+			{
+				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
+
+				SetActiveSkillEvent event;
+				event.entity = activeEntity;
+				event.type = SkillType::SKILL1;
+
+				EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
+			}
+	});
+
 	Button::createButton(ButtonShape::CIRCLE, { 250, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
-		[]() { std::cout << "Skill two button clicked!" << std::endl; });
+		[]() {
+			std::cout << "Skill two button clicked!" << std::endl;
+
+			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
+			{
+				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
+
+				SetActiveSkillEvent event;
+				event.entity = activeEntity;
+				event.type = SkillType::SKILL2;
+
+				EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
+			}
+	});
+
 	Button::createButton(ButtonShape::CIRCLE, { 400, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
-		[]() { std::cout << "Skill three button clicked!" << std::endl; });
+		[]() {
+			std::cout << "Skill three button clicked!" << std::endl;
+
+			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
+			{
+				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
+
+				SetActiveSkillEvent event;
+				event.entity = activeEntity;
+				event.type = SkillType::SKILL3;
+
+				EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
+			}
+	});
+
 	Button::createButton(ButtonShape::CIRCLE, { 550, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
-		[]() { std::cout << "Skill four button clicked!" << std::endl; });
+		[]() {
+			std::cout << "Skill four button clicked!" << std::endl;
+
+			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
+			{
+				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
+
+				SetActiveSkillEvent event;
+				event.entity = activeEntity;
+				event.type = SkillType::SKILL4;
+
+				EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
+			}
+	});
 } 
 
 // Compute collisions between entities
@@ -255,14 +310,18 @@ void WorldSystem::handleCollisions()
 		// Check for projectiles colliding with the player or with the eggs
 		if (ECS::registry<ProjectileComponent>.has(entity))
 		{
-			if (ECS::registry<Raoul>.has(entity_other) || ECS::registry<Egg>.has(entity_other))
+			auto& projComponent = entity.get<ProjectileComponent>();
+
+			// Only allowing a projectile to collide with an entity once. It can collide with multiple entities, but only once
+			// per entity
+			if (projComponent.canCollideWith(entity_other))
 			{
-				auto& projComponent = entity.get<ProjectileComponent>();
+				projComponent.collideWith(entity_other);
 
 				HitEvent event;
 				event.instigator = projComponent.instigator;
 				event.target = entity_other;
-
+				event.damage = projComponent.params.damage;
 				EventSystem<HitEvent>::instance().sendEvent(event);
 			}
 		}
@@ -299,18 +358,34 @@ bool WorldSystem::isOver() const
 // On key callback
 void WorldSystem::onKey(int key, int, int action, int mod)
 {
-		// Animation Test
-		if (action == GLFW_PRESS && key == GLFW_KEY_3) {
-			auto& anim = player_raoul.get<AnimationsComponent>();
+	// Animation Test
+	if (action == GLFW_PRESS && key == GLFW_KEY_3) {
+		auto& anim = player_raoul.get<AnimationsComponent>();
+		anim.changeAnimation(AnimationType::HIT);
+	}
+	if (action == GLFW_PRESS && key == GLFW_KEY_4) {
+		for (auto entity : ECS::registry<Egg>.entities)
+		{
+			auto& anim = entity.get<AnimationsComponent>();
 			anim.changeAnimation(AnimationType::HIT);
 		}
-		if (action == GLFW_PRESS && key == GLFW_KEY_4) {
-			for (auto entity : ECS::registry<Egg>.entities)
-			{
-				auto& anim = entity.get<AnimationsComponent>();
-				anim.changeAnimation(AnimationType::HIT);
-			}
+	}
+
+	// Debug info for stats...press 'S' at any time to print out the stats for all entities. It's useful for checking
+	// whether buffs and debuffs are working properly and to see how much damage was applied in an attack
+	if (action == GLFW_PRESS && key == GLFW_KEY_S)
+	{
+		for (auto& entity : ECS::registry<StatsComponent>.entities)
+		{
+			auto& statsComponent = entity.get<StatsComponent>();
+
+			std::cout << "Entity " << entity.id << "-->"
+								<< " HP: " << statsComponent.getStatValue(StatType::HP)
+								<< " Ambrosia: " << statsComponent.getStatValue(StatType::AMBROSIA)
+								<< " Strength: " << statsComponent.getStatValue(StatType::STRENGTH)
+								<< std::endl;
 		}
+	}
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
