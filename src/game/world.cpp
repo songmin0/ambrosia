@@ -14,6 +14,7 @@
 #include "maps/map_objects.hpp"
 #include "ui/button.hpp"
 #include "ui/ui_system.hpp"
+#include "ai/ai.hpp"
 
 // stlib
 #include <string.h>
@@ -189,111 +190,14 @@ void WorldSystem::restart()
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::listAllComponents();
 
-	// Create a new Raoul
-	player_raoul = Raoul::createRaoul({ 640, 512 }, PlayerType::RAOUL);
-	player_taji = Taji::createTaji({ 200,700 });
-
-	//TODO replace these with the real other characters
-	auto raoul_3 = Raoul::createRaoul({ 400,700 }, PlayerType::SPICY, 1.f);
-	auto raoul_4 = Raoul::createRaoul({ 400,400 }, PlayerType::CHIA, 2.f);
-
-	//This is not the final way to add eggs just put them here for testing purposes.
-	ECS::Entity entity = Egg::createEgg({750, 800});
-	entity = Egg::createEgg({1000, 800});
-	// Setting random initial position and constant velocity
-	//auto& motion = entity.get<Motion>();
-	//motion.position = vec2(window_size_in_game_units.x - 150.f, 50.f + uniform_dist(rng) * (window_size_in_game_units.y - 100.f));
-
-	// Removing existing map
-	while (!ECS::registry<MapComponent>.entities.empty())
-		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<MapComponent>.entities.back());
-
 	// Get screen/buffer size
 	int frameBufferWidth, frameBufferHeight;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
-	// Create the map
-	MapComponent::createMap("pizza-arena/pizza-arena-debug", {frameBufferWidth, frameBufferHeight});
-
-	// Create a deforming blob
-	CheeseBlob::createCheeseBlob({ 700, 950 });
-
-	// Create UI buttons
-	auto player_button_1 = Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth / 4, 60 },
-		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::RAOUL }); });
-
-	auto player_button_2 = Button::createPlayerButton(PlayerType::TAJI, { frameBufferWidth / 4 + 200, 60 },
-		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::TAJI }); });
-
-	auto player_button_3 = Button::createPlayerButton(PlayerType::SPICY, { frameBufferWidth / 4 + 400, 60 },
-		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::SPICY }); });
-
-	auto player_button_4 = Button::createPlayerButton(PlayerType::CHIA, { frameBufferWidth / 4 + 600, 60 },
-		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::CHIA }); });
-
-	Button::createButton(ButtonShape::CIRCLE, { 100, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
-		[]() {
-			std::cout << "Skill one button clicked!" << std::endl;
-
-			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
-			{
-				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-
-				SetActiveSkillEvent event;
-				event.entity = activeEntity;
-				event.type = SkillType::SKILL1;
-
-				EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
-			}
-	});
-
-	Button::createButton(ButtonShape::CIRCLE, { 250, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
-		[]() {
-			std::cout << "Skill two button clicked!" << std::endl;
-
-			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
-			{
-				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-
-				SetActiveSkillEvent event;
-				event.entity = activeEntity;
-				event.type = SkillType::SKILL2;
-
-				EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
-			}
-	});
-
-	Button::createButton(ButtonShape::CIRCLE, { 400, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
-		[]() {
-			std::cout << "Skill three button clicked!" << std::endl;
-
-			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
-			{
-				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-
-				SetActiveSkillEvent event;
-				event.entity = activeEntity;
-				event.type = SkillType::SKILL3;
-
-				EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
-			}
-	});
-
-	Button::createButton(ButtonShape::CIRCLE, { 550, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
-		[]() {
-			std::cout << "Skill four button clicked!" << std::endl;
-
-			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
-			{
-				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-
-				SetActiveSkillEvent event;
-				event.entity = activeEntity;
-				event.type = SkillType::SKILL4;
-
-				EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
-			}
-	});
+	createMap(frameBufferWidth, frameBufferHeight);
+	createButtons(frameBufferWidth, frameBufferHeight);
+	createPlayers(frameBufferWidth, frameBufferHeight);
+	createMobs(frameBufferWidth, frameBufferHeight);
 } 
 
 // Compute collisions between entities
@@ -326,18 +230,15 @@ void WorldSystem::handleCollisions()
 			}
 		}
 
-		// Check for collisions between player and eggs
-		if (ECS::registry<Raoul>.has(entity))
+		// Check for collisions between player and mobs
+		if (ECS::registry<PlayerComponent>.has(entity))
 		{
-			if (ECS::registry<Egg>.has(entity_other))
+			if (ECS::registry<AISystem::MobComponent>.has(entity_other))
 			{
-				///***** This has been commented out because restarting the game breaks the turn system *****//
-				// Please uncomment this when developing the turn system to make sure it's fixed//
-
 				// initiate death unless already dying
 				if (!ECS::registry<DeathTimer>.has(entity))
 				{
-					// Scream, reset timer, and make the player sink
+					// Scream and set timer
 					ECS::registry<DeathTimer>.emplace(entity);
 					Mix_PlayChannel(-1, salmon_dead_sound, 0);
 				}
@@ -353,6 +254,129 @@ void WorldSystem::handleCollisions()
 bool WorldSystem::isOver() const
 {
 	return glfwWindowShouldClose(window)>0;
+}
+
+void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
+{
+	// Create the map
+	MapComponent::createMap("pizza-arena/pizza-arena-debug", {frameBufferWidth, frameBufferHeight});
+
+	// Create a deforming blob
+	CheeseBlob::createCheeseBlob({ 700, 950 });
+}
+
+void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
+{
+	// Create UI buttons
+	auto player_button_1 = Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth / 4, 60 },
+		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::RAOUL }); });
+
+	auto player_button_2 = Button::createPlayerButton(PlayerType::TAJI, { frameBufferWidth / 4 + 200, 60 },
+		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::TAJI }); });
+
+	auto player_button_3 = Button::createPlayerButton(PlayerType::SPICY, { frameBufferWidth / 4 + 400, 60 },
+		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::SPICY }); });
+
+	auto player_button_4 = Button::createPlayerButton(PlayerType::CHIA, { frameBufferWidth / 4 + 600, 60 },
+		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::CHIA }); });
+
+	Button::createButton(ButtonShape::CIRCLE, { 100, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
+		[]() {
+			std::cout << "Skill one button clicked!" << std::endl;
+
+			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
+			{
+				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
+
+				// Skill buttons should only affect players
+				if (activeEntity.has<PlayerComponent>())
+				{
+					SetActiveSkillEvent event;
+					event.entity = activeEntity;
+					event.type = SkillType::SKILL1;
+
+					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
+				}
+			}
+	});
+
+	Button::createButton(ButtonShape::CIRCLE, { 250, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
+		[]() {
+			std::cout << "Skill two button clicked!" << std::endl;
+
+			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
+			{
+				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
+
+				// Skill buttons should only affect players
+				if (activeEntity.has<PlayerComponent>())
+				{
+					SetActiveSkillEvent event;
+					event.entity = activeEntity;
+					event.type = SkillType::SKILL2;
+
+					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
+				}
+			}
+	});
+
+	Button::createButton(ButtonShape::CIRCLE, { 400, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
+		[]() {
+			std::cout << "Skill three button clicked!" << std::endl;
+
+			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
+			{
+				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
+
+				// Skill buttons should only affect players
+				if (activeEntity.has<PlayerComponent>())
+				{
+					SetActiveSkillEvent event;
+					event.entity = activeEntity;
+					event.type = SkillType::SKILL3;
+
+					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
+				}
+			}
+	});
+
+	Button::createButton(ButtonShape::CIRCLE, { 550, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
+		[]() {
+			std::cout << "Skill four button clicked!" << std::endl;
+
+			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
+			{
+				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
+
+				// Skill buttons should only affect players
+				if (activeEntity.has<PlayerComponent>())
+				{
+					SetActiveSkillEvent event;
+					event.entity = activeEntity;
+					event.type = SkillType::SKILL4;
+
+					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
+				}
+			}
+	});
+}
+
+void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
+{
+	// Create a new Raoul
+	player_raoul = Raoul::createRaoul({ 640, 512 }, PlayerType::RAOUL);
+	player_taji = Taji::createTaji({ 200,700 });
+
+	//TODO replace these with the real other characters
+	auto raoul_3 = Raoul::createRaoul({ 400,700 }, PlayerType::SPICY, 1.f);
+	auto raoul_4 = Raoul::createRaoul({ 400,400 }, PlayerType::CHIA, 2.f);
+}
+
+void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
+{
+	//This is not the final way to add eggs just put them here for testing purposes.
+	Egg::createEgg({750, 800});
+	Egg::createEgg({1000, 800});
 }
 
 // On key callback
