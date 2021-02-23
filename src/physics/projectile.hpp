@@ -3,6 +3,7 @@
 #include "entities/tiny_ecs.hpp"
 
 #include <set>
+#include <functional>
 
 enum class ProjectileType
 {

@@ -5,6 +5,8 @@
 #include "skills/skill_component.hpp"
 #include "physics/projectile.hpp"
 
+#include <functional>
+
 using namespace glm;
 
 struct RawMouseClickEvent
