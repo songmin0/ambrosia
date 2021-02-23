@@ -47,11 +47,16 @@ void TurnSystem::nextActiveEntity()
 		auto& registry = ECS::registry<PlayerComponent>;
 		for (unsigned int i = 0; i < registry.components.size(); i++) {
 				ECS::Entity entity = registry.entities[i];
-				auto& turnComponent = ECS::registry<TurnComponent>.get(entity);
-				if (!hasCompletedTurn(turnComponent)) {
-						ECS::registry<TurnComponentIsActive>.emplace(entity);
-						EventSystem<PlayerChangeEvent>::instance().sendEvent(PlayerChangeEvent{ entity });
-						break;
+
+				// Make sure the entity is alive
+				if (!entity.has<DeathTimer>())
+				{
+						auto& turnComponent = ECS::registry<TurnComponent>.get(entity);
+						if (!hasCompletedTurn(turnComponent)) {
+								ECS::registry<TurnComponentIsActive>.emplace(entity);
+								EventSystem<PlayerChangeEvent>::instance().sendEvent(PlayerChangeEvent{ entity });
+								break;
+						}
 				}
 		}
 
@@ -112,8 +117,10 @@ void TurnSystem::nextTurn()
 		auto& registry = ECS::registry<TurnComponent>;
 		for (unsigned int i = 0; i < registry.components.size(); i++) {
 				auto& turnComponent = registry.components[i];
+				turnComponent.isMoving = false;
 				turnComponent.hasMoved = false;
-				turnComponent.hasUsedSKill = false;
+				turnComponent.hasMoved = false;
+				turnComponent.hasUsedSkill = false;
 		}
 
 		//start the next turn
@@ -131,8 +138,31 @@ void TurnSystem::step(float elapsed_ms)
 		auto& activeEntity = ECS::registry<TurnComponentIsActive>.entities[0];
 		if (!activeEntity.has<DeathTimer>()) {
 				if (activeEntity.has<TurnComponent>()) {
-						if (hasCompletedTurn(activeEntity.get<TurnComponent>())) {
+						auto& turnComponent = activeEntity.get<TurnComponent>();
+
+						if (hasCompletedTurn(turnComponent))
+						{
 								nextActiveEntity();
+						}
+						// For mobs, need to tell them when its time to move and to perform a skill
+						else if (activeEntity.has<AISystem::MobComponent>())
+						{
+								if (turnComponent.canStartMoving())
+								{
+										turnComponent.isMoving = true;
+
+										StartMobMovementEvent event;
+										event.entity = activeEntity;
+										EventSystem<StartMobMovementEvent>::instance().sendEvent(event);
+								}
+								else if (turnComponent.canStartSkill())
+								{
+										turnComponent.isUsingSkill = true;
+
+										StartMobSkillEvent event;
+										event.entity = activeEntity;
+										EventSystem<StartMobSkillEvent>::instance().sendEvent(event);
+								}
 						}
 				}
 		}
@@ -146,7 +176,7 @@ void TurnSystem::step(float elapsed_ms)
 
 bool TurnSystem::hasCompletedTurn(TurnComponent tc) 
 {
-	return tc.hasUsedSKill;
+	return tc.hasUsedSkill;
 }
 
 void TurnSystem::onMouseClick(const MouseClickEvent &event)
@@ -162,23 +192,26 @@ void TurnSystem::onMouseClick(const MouseClickEvent &event)
 		{
 			auto& turnComponent = activeEntity.get<TurnComponent>();
 
-			// If this player has already moved, then they must be performing a skill
-			if (turnComponent.hasMoved)
+			if (turnComponent.canStartMoving())
 			{
+				// Motion component is mandatory
+				assert(activeEntity.has<Motion>());
+
+				auto& motion = activeEntity.get<Motion>();
+				motion.path = pathFindingSystem.getShortestPath(motion.position, event.mousePos);
+
+				// Only set isMoving to true if a path was actually generated. If the user clicked too close to their character,
+				// then no path would be generated, for example
+				turnComponent.isMoving = !motion.path.empty();
+			}
+			else if (turnComponent.canStartSkill())
+			{
+				turnComponent.isUsingSkill = true;
+
 				PerformActiveSkillEvent performActiveSkillEvent;
 				performActiveSkillEvent.entity = activeEntity;
 				performActiveSkillEvent.target = event.mousePos;
 				EventSystem<PerformActiveSkillEvent>::instance().sendEvent(performActiveSkillEvent);
-			}
-			// Otherwise, if the player isn't moving yet, create a path and start moving
-			else if (activeEntity.has<Motion>())
-			{
-				auto& motion = activeEntity.get<Motion>();
-
-				if (motion.path.empty())
-				{
-					motion.path = pathFindingSystem.getShortestPath(motion.position, event.mousePos);
-				}
 			}
 		}
 	}
@@ -187,6 +220,22 @@ void TurnSystem::onMouseClick(const MouseClickEvent &event)
 // Handles switching active player when a player button is clicked
 void TurnSystem::onPlayerButtonClick(const PlayerButtonEvent& event) 
 {
+	// Can't change players if the current active player is busy with movement or a skill
+	if (!ECS::registry<TurnComponentIsActive>.entities.empty())
+	{
+		auto activeEntity = ECS::registry<TurnComponentIsActive>.entities.front();
+
+		if (activeEntity.has<TurnComponent>())
+		{
+			auto& turnComponent = activeEntity.get<TurnComponent>();
+
+			if (turnComponent.isMoving || turnComponent.isUsingSkill)
+			{
+				return;
+			}
+		}
+	}
+
 	// look for player entity that matches player in event
 	for (auto entity : ECS::registry<PlayerComponent>.entities) 
 	{
@@ -200,26 +249,26 @@ void TurnSystem::onPlayerButtonClick(const PlayerButtonEvent& event)
 
 void TurnSystem::onFinishedMovement(const FinishedMovementEvent& event)
 {
-	if (!ECS::registry<TurnComponentIsActive>.entities.empty())
-	{
-		auto& activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+	auto entity = event.entity;
 
-		if (activeEntity.has<TurnComponent>())
-		{
-			activeEntity.get<TurnComponent>().hasMoved = true;
-		}
+	if (entity.has<TurnComponent>())
+	{
+		auto& turnComponent = entity.get<TurnComponent>();
+
+		turnComponent.isMoving = false;
+		turnComponent.hasMoved = true;
 	}
 }
 
 void TurnSystem::onFinishedSkill(const FinishedSkillEvent& event)
 {
-	if (!ECS::registry<TurnComponentIsActive>.entities.empty())
-	{
-		auto& activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+	auto entity = event.entity;
 
-		if (activeEntity.has<TurnComponent>())
-		{
-			activeEntity.get<TurnComponent>().hasUsedSKill = true;
-		}
+	if (entity.has<TurnComponent>())
+	{
+		auto& turnComponent = entity.get<TurnComponent>();
+
+		turnComponent.isUsingSkill = false;
+		turnComponent.hasUsedSkill = true;
 	}
 }
