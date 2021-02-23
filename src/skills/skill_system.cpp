@@ -8,6 +8,9 @@ SkillSystem::SkillSystem()
 
 	performSkillListener = EventSystem<PerformActiveSkillEvent>::instance().registerListener(
 			std::bind(&SkillSystem::onPerformSkillEvent, this, std::placeholders::_1));
+
+	playerChangeListener = EventSystem<PlayerChangeEvent>::instance().registerListener(
+			std::bind(&SkillSystem::onPlayerChangeEvent, this, std::placeholders::_1));
 }
 
 SkillSystem::~SkillSystem()
@@ -20,6 +23,11 @@ SkillSystem::~SkillSystem()
 	if (performSkillListener.isValid())
 	{
 		EventSystem<PerformActiveSkillEvent>::instance().unregisterListener(performSkillListener);
+	}
+
+	if (playerChangeListener.isValid())
+	{
+		EventSystem<PlayerChangeEvent>::instance().unregisterListener(playerChangeListener);
 	}
 }
 
@@ -41,10 +49,16 @@ void SkillSystem::step(float elapsed_ms)
 			queuedSkill.skill->performSkill(queuedSkill.target);
 			toRemove.push_back(i);
 
-			// Notify the TurnSystem that this entity has performed a skill
-			FinishedSkillEvent event;
-			event.entity = queuedSkill.skill->getInstigator();
-			EventSystem<FinishedSkillEvent>::instance().sendEvent(event);
+			// AreaOfEffect skills happen immediately, so we can notify the TurnSystem that the skill is done right away.
+			// Projectile skills are not done until the projectile reaches the end of its trajectory, so we don't send a
+			// FinishedSkillEvent for those ones here. The ProjectileSystem handles that.
+			if (std::dynamic_pointer_cast<AreaOfEffectSkill>(queuedSkill.skill))
+			{
+				// Notify the TurnSystem that this entity has performed a skill
+				FinishedSkillEvent event;
+				event.entity = queuedSkill.skill->getInstigator();
+				EventSystem<FinishedSkillEvent>::instance().sendEvent(event);
+			}
 		}
 	}
 
@@ -56,11 +70,6 @@ void SkillSystem::step(float elapsed_ms)
 }
 
 // Every time a skill button is pressed, we change the active skill
-//
-// TODO: At the beginning (or end) of a turn, need to reset the active skill back to the default one
-//
-// TODO: Need to test the skill buttons once mobs start using skills. If we click on the skill buttons while it's a
-//  mob's turn, need to make sure the mob is not affected
 void SkillSystem::onSetActiveSkillEvent(const SetActiveSkillEvent &event)
 {
 	auto entity = event.entity;
@@ -93,5 +102,16 @@ void SkillSystem::onPerformSkillEvent(const PerformActiveSkillEvent &event)
 
 			queuedSkills.push_back(queuedSkill);
 		}
+	}
+}
+
+// When a turn starts, set that entity's selected skill back to SKILL1
+void SkillSystem::onPlayerChangeEvent(const PlayerChangeEvent &event)
+{
+	auto entity = event.newActiveEntity;
+
+	if (entity.has<SkillComponent>())
+	{
+		entity.get<SkillComponent>().setActiveSkill(SkillType::SKILL1);
 	}
 }

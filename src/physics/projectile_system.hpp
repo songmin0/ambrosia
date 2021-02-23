@@ -20,10 +20,8 @@ private:
 
 	void launchProjectile(LaunchEvent launchEvent, const ProjectileParams& params);
 
-	void onLaunchBulletEvent(const LaunchBulletEvent& event);
-	void onLaunchBoneEvent(const LaunchBoneEvent& event);
+	void onLaunchEvent(const LaunchEvent& event);
 
-	EventListenerInfo launchBulletListener;
-	EventListenerInfo launchBoneListener;
+	EventListenerInfo launchListener;
 };
 

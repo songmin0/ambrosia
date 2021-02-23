@@ -9,23 +9,15 @@
 
 ProjectileSystem::ProjectileSystem()
 {
-	launchBulletListener = EventSystem<LaunchBulletEvent>::instance().registerListener(
-			std::bind(&ProjectileSystem::onLaunchBulletEvent, this, std::placeholders::_1));
-
-	launchBoneListener = EventSystem<LaunchBoneEvent>::instance().registerListener(
-			std::bind(&ProjectileSystem::onLaunchBoneEvent, this, std::placeholders::_1));
+	launchListener = EventSystem<LaunchEvent>::instance().registerListener(
+			std::bind(&ProjectileSystem::onLaunchEvent, this, std::placeholders::_1));
 }
 
 ProjectileSystem::~ProjectileSystem()
 {
-	if (launchBulletListener.isValid())
+	if (launchListener.isValid())
 	{
-		EventSystem<LaunchBulletEvent>::instance().unregisterListener(launchBulletListener);
-	}
-
-	if (launchBoneListener.isValid())
-	{
-		EventSystem<LaunchBoneEvent>::instance().unregisterListener(launchBoneListener);
+		EventSystem<LaunchEvent>::instance().unregisterListener(launchListener);
 	}
 }
 
@@ -54,6 +46,11 @@ void ProjectileSystem::step(float elapsed_ms)
 		// Remove projectile if needed
 		if (projComponent.phase == Phase::END)
 		{
+			if (projComponent.callback)
+			{
+				projComponent.callback();
+			}
+
 			ECS::ContainerInterface::removeAllComponentsOf(projEntity);
 		}
 	}
@@ -164,6 +161,7 @@ void ProjectileSystem::launchProjectile(LaunchEvent launchEvent, const Projectil
 	projComponent.sourcePosition = launchEvent.instigator.get<Motion>().position + params.launchOffset;
 	projComponent.targetPosition = launchEvent.targetPosition;
 	projComponent.params = params;
+	projComponent.callback = launchEvent.callback;
 
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
@@ -175,12 +173,7 @@ void ProjectileSystem::launchProjectile(LaunchEvent launchEvent, const Projectil
 	motion.collidesWith = launchEvent.collisionMask;
 }
 
-void ProjectileSystem::onLaunchBulletEvent(const LaunchBulletEvent& event)
+void ProjectileSystem::onLaunchEvent(const LaunchEvent& event)
 {
-	launchProjectile(event, ProjectileParams::createBulletParams(event.damage));
-}
-
-void ProjectileSystem::onLaunchBoneEvent(const LaunchBoneEvent& event)
-{
-	launchProjectile(event, ProjectileParams::createBoneParams(event.damage));
+	launchProjectile(event, ProjectileParams::create(event.projectileType, event.damage));
 }

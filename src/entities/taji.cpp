@@ -93,7 +93,7 @@ ECS::Entity Taji::createTaji(vec2 position, float colourShift)
 	boneThrowParams.delay = 0.6f;
 	boneThrowParams.damage = 50.f;
 	boneThrowParams.collidesWith = CollisionGroup::MOB;
-	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<BoneThrowSkill>(boneThrowParams));
+	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<ProjectileSkill>(boneThrowParams, ProjectileType::BONE));
 
 	// Placeholder, just for fun, debuff an enemy by clicking on the enemy (doesn't matter how far away they are from the player)
 	StatModifier strengthDebuffModifier;

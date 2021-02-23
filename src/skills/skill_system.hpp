@@ -24,9 +24,11 @@ private:
 
 	void onSetActiveSkillEvent(const SetActiveSkillEvent& event);
 	void onPerformSkillEvent(const PerformActiveSkillEvent& event);
+	void onPlayerChangeEvent(const PlayerChangeEvent& event);
 
 	std::vector<QueuedSkill> queuedSkills;
 
 	EventListenerInfo setActiveSkillListener;
 	EventListenerInfo performSkillListener;
+	EventListenerInfo playerChangeListener;
 };

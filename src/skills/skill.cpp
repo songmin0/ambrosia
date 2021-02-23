@@ -20,6 +20,17 @@ void Skill::performAnimation()
 	}
 }
 
+void Skill::performSkill(vec2 target)
+{
+	assert(params.instigator.has<Motion>());
+
+	// Update the internal params
+	params.sourcePosition = params.instigator.get<Motion>().position;
+	params.targetPosition = target;
+
+	performSkillInternal();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // AreaOfEffectSkill
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,12 +39,8 @@ AreaOfEffectSkill::AreaOfEffectSkill(SkillParams params)
 	: Skill(params)
 {}
 
-void AreaOfEffectSkill::performSkill(vec2 target)
+void AreaOfEffectSkill::performSkillInternal()
 {
-	// Update the internal params
-	params.sourcePosition = params.instigator.get<Motion>().position;
-	params.targetPosition = target;
-
 	// Get the entities that should be affected by this skill
 	std::vector<ECS::Entity> entities = getEntities();
 
@@ -79,19 +86,28 @@ std::vector<ECS::Entity> AreaOfEffectSkill::getEntities()
 // ProjectileSkill
 ///////////////////////////////////////////////////////////////////////////////
 
-ProjectileSkill::ProjectileSkill(SkillParams params)
+ProjectileSkill::ProjectileSkill(SkillParams params, ProjectileType projectileType)
 	: Skill(params)
+	, projectileType(projectileType)
+{}
+
+void ProjectileSkill::performSkillInternal()
 {
+	LaunchEvent launchEvent;
+	launchEvent.projectileType = projectileType;
+	launchEvent.instigator = params.instigator;
+	launchEvent.targetPosition = params.targetPosition;
+	launchEvent.damage = params.damage;
+	launchEvent.collisionMask = params.collidesWith;
+	launchEvent.callback = [=]() {
 
-}
-
-void ProjectileSkill::performSkill(vec2 target)
-{
-	// Update the internal params
-	params.sourcePosition = params.instigator.get<Motion>().position;
-	params.targetPosition = target;
-
-	process();
+		// When the projectile reaches the end of its trajectory, notify the TurnSystem
+		// that the skill is finished
+		FinishedSkillEvent event;
+		event.entity = params.instigator;
+		EventSystem<FinishedSkillEvent>::instance().sendEvent(event);
+	};
+	EventSystem<LaunchEvent>::instance().sendEvent(launchEvent);
 }
 
 
@@ -164,32 +180,4 @@ BuffMouseClickSkill::BuffMouseClickSkill(SkillParams params, StatModifier statMo
 	entityProvider = std::make_unique<MouseClickProvider>();
 
 	entityFilters.push_back(std::make_unique<CollisionFilter>());
-}
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-// CUSTOM PROJECTILE SKILLS
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-
-///////////////////////////////////////////////////////////////////////////////
-// BoneThrowSkill
-///////////////////////////////////////////////////////////////////////////////
-
-BoneThrowSkill::BoneThrowSkill(SkillParams params)
-	: ProjectileSkill(params)
-{}
-
-void BoneThrowSkill::process()
-{
-	LaunchBoneEvent launchBoneEvent;
-	launchBoneEvent.instigator = params.instigator;
-	launchBoneEvent.targetPosition = params.targetPosition;
-	launchBoneEvent.damage = params.damage;
-	launchBoneEvent.collisionMask = params.collidesWith;
-	EventSystem<LaunchBoneEvent>::instance().sendEvent(launchBoneEvent);
 }

@@ -78,5 +78,17 @@ ECS::Entity Egg::createEgg(vec2 pos)
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
 
+	// Initialize skills
+	auto& skillComponent = entity.emplace<SkillComponent>();
+
+	// Egg shell projectile
+	SkillParams eggShellParams;
+	eggShellParams.instigator = entity;
+	eggShellParams.animationType = AnimationType::ATTACK1;
+	eggShellParams.delay = 0.6f;
+	eggShellParams.damage = 10.f;
+	eggShellParams.collidesWith = CollisionGroup::PLAYER;
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(eggShellParams, ProjectileType::EGG_SHELL));
+
 	return entity;
 };

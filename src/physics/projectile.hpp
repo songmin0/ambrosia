@@ -4,6 +4,13 @@
 
 #include <set>
 
+enum class ProjectileType
+{
+	BULLET,
+	BONE,
+	EGG_SHELL
+};
+
 enum class Phase
 {
 	INIT,		// Not launched yet
@@ -22,8 +29,7 @@ struct ProjectileParams
 {
 	ProjectileParams();
 
-	static ProjectileParams createBulletParams(float damage);
-	static ProjectileParams createBoneParams(float damage);
+	static ProjectileParams create(ProjectileType type, float damage);
 
 	std::string spritePath;
 	vec2 spriteScale;
@@ -49,4 +55,9 @@ struct ProjectileComponent
 	Phase phase;
 
 	std::set<int> ignoredEntities;
+
+	// This callback is executed when the projectile is finished. When using a linear trajectory, this happens when the
+	// projectile reaches the target position. When using a boomerang trajectory, this happens when the projectile gets
+	// back to the instigator.
+	std::function<void()> callback;
 };

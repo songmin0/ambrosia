@@ -7,6 +7,9 @@
 #include "game/common.hpp"
 #include "game/stats_component.hpp"
 #include "entities/tiny_ecs.hpp"
+#include "physics/projectile.hpp"
+
+#include <memory>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Skill
@@ -20,10 +23,13 @@ public:
 	~Skill() = default;
 
 	void performAnimation();
-	virtual void performSkill(vec2 target) = 0;
+	void performSkill(vec2 target);
 
 	inline float getDelay() const {return params.delay;}
 	inline ECS::Entity getInstigator() const {return params.instigator;}
+
+private:
+	virtual void performSkillInternal() = 0;
 
 protected:
 	SkillParams params;
@@ -46,9 +52,9 @@ public:
 	AreaOfEffectSkill(SkillParams params);
 	~AreaOfEffectSkill() = default;
 
-	void performSkill(vec2 target) override;
-
 private:
+	void performSkillInternal() override;
+
 	std::vector<ECS::Entity> getEntities();
 	virtual void process(ECS::Entity entity) = 0;
 
@@ -59,23 +65,21 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 // ProjectileSkill
-// 	- abstract class
 //	- does not use EntityProviders and EntityFilters like AreaOfEffectSkill does because we don't know where the
 // 		projectile is going to go at this point. That's up to the ProjectileSystem. Instead, ProjectileSkill just
 // 		launches a projectile, and the ProjectileSystem will take care of the rest.
-//	- we only have the bone projectile at the moment, so there's only one subclass of ProjectileSkill right now
 ///////////////////////////////////////////////////////////////////////////////
 
 class ProjectileSkill : public Skill
 {
 public:
-	ProjectileSkill(SkillParams params);
+	ProjectileSkill(SkillParams params, ProjectileType projectileType);
 	~ProjectileSkill() = default;
 
-	void performSkill(vec2 target) override;
+	void performSkillInternal() override;
 
 private:
-	virtual void process() = 0;
+	ProjectileType projectileType;
 };
 
 
@@ -149,29 +153,4 @@ class BuffMouseClickSkill : public BuffSkill
 public:
 	BuffMouseClickSkill(SkillParams params, StatModifier statModifier);
 	~BuffMouseClickSkill() = default;
-};
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-// CUSTOM PROJECTILE SKILLS
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-
-///////////////////////////////////////////////////////////////////////////////
-// BoneThrowSkill
-//	- launches a bone throw attack
-///////////////////////////////////////////////////////////////////////////////
-
-class BoneThrowSkill : public ProjectileSkill
-{
-public:
-	BoneThrowSkill(SkillParams params);
-	~BoneThrowSkill() = default;
-
-private:
-	void process() override;
 };

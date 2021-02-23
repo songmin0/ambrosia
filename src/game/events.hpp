@@ -3,6 +3,7 @@
 
 #include "entities/tiny_ecs.hpp"
 #include "skills/skill_component.hpp"
+#include "physics/projectile.hpp"
 
 using namespace glm;
 
@@ -18,17 +19,16 @@ struct MouseClickEvent
 
 struct LaunchEvent
 {
+	ProjectileType projectileType;
+
 	ECS::Entity instigator;
 	vec2 targetPosition;
 	float damage;
 	CollisionGroup collisionMask;
+
+	// Callback to be executed at end of projectile trajectory
+	std::function<void()> callback;
 };
-
-struct LaunchBulletEvent : public LaunchEvent
-{};
-
-struct LaunchBoneEvent : public LaunchEvent
-{};
 
 struct HitEvent
 {
@@ -63,6 +63,16 @@ struct BuffEvent
 {
 	ECS::Entity entity;
 	StatModifier statModifier;
+};
+
+struct StartMobMovementEvent
+{
+	ECS::Entity entity;
+};
+
+struct StartMobSkillEvent
+{
+	ECS::Entity entity;
 };
 
 struct FinishedMovementEvent
