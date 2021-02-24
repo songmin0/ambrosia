@@ -192,14 +192,67 @@ void WorldSystem::restart()
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::listAllComponents();
 
+<<<<<<< HEAD
+=======
+	// Removing existing map
+	while (!ECS::registry<MapComponent>.entities.empty())
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<MapComponent>.entities.back());
+
+>>>>>>> 1a1b5f5... ground work for level loader
 	// Get screen/buffer size
 	int frameBufferWidth, frameBufferHeight;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
+<<<<<<< HEAD
 	createMap(frameBufferWidth, frameBufferHeight);
 	createButtons(frameBufferWidth, frameBufferHeight);
 	createPlayers(frameBufferWidth, frameBufferHeight);
 	createMobs(frameBufferWidth, frameBufferHeight);
+=======
+	// ================== Start Loading in Map Specific Variables Here =========================
+
+	// Create the map
+	MapComponent::createMap("pizza-arena/pizza-arena", {frameBufferWidth, frameBufferHeight});
+
+	// Create a new Raoul
+	player_raoul = Raoul::createRaoul({ 640, 512 }, PlayerType::RAOUL);
+	player_taji = Taji::createTaji({ 200,700 });
+
+	//TODO replace these with the real other characters
+	auto raoul_3 = Raoul::createRaoul({ 400,700 }, PlayerType::SPICY, 1.f);
+	auto raoul_4 = Raoul::createRaoul({ 400,400 }, PlayerType::CHIA, 2.f);
+
+	//This is not the final way to add eggs just put them here for testing purposes.
+	ECS::Entity entity = Egg::createEgg({ 750, 800 });
+	entity = Egg::createEgg({ 1000, 800 });
+
+	// ================================= Loading End =========================================
+
+	// Create a deforming blob
+	CheeseBlob::createCheeseBlob({ 700, 950 });
+
+	// Create UI buttons
+	auto player_button_1 = Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth / 4, 60 },
+		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::RAOUL }); });
+
+	auto player_button_2 = Button::createPlayerButton(PlayerType::TAJI, { frameBufferWidth / 4 + 200, 60 },
+		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::TAJI }); });
+
+	auto player_button_3 = Button::createPlayerButton(PlayerType::SPICY, { frameBufferWidth / 4 + 400, 60 },
+		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::SPICY }); });
+
+	auto player_button_4 = Button::createPlayerButton(PlayerType::CHIA, { frameBufferWidth / 4 + 600, 60 },
+		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::CHIA }); });
+	
+	Button::createButton(ButtonShape::CIRCLE, { 100, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
+		[]() { std::cout << "Skill one button clicked!" << std::endl; });
+	Button::createButton(ButtonShape::CIRCLE, { 250, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
+		[]() { std::cout << "Skill two button clicked!" << std::endl; });
+	Button::createButton(ButtonShape::CIRCLE, { 400, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
+		[]() { std::cout << "Skill three button clicked!" << std::endl; });
+	Button::createButton(ButtonShape::CIRCLE, { 550, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
+		[]() { std::cout << "Skill four button clicked!" << std::endl; });
+>>>>>>> 1a1b5f5... ground work for level loader
 } 
 
 // Compute collisions between entities

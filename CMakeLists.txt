@@ -39,8 +39,12 @@ SET(SOURCE_FILES
         "src/game/common.cpp"
         "src/game/turn_system.cpp"
         "src/game/world.cpp"
+<<<<<<< HEAD
         "src/game/stats_component.cpp"
         "src/game/stats_system.cpp"
+=======
+        "src/levels/levels.cpp"
+>>>>>>> 1a1b5f5... ground work for level loader
         "src/maps/map.cpp"
         "src/maps/map_objects.cpp"
         "src/maps/path_finding_system.cpp"
