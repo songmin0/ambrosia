@@ -18,6 +18,7 @@
 #include "animation/animation_system.hpp"
 #include "maps/path_finding_system.hpp"
 #include "ui/ui_system.hpp"
+#include "particle_system.hpp"
 
 
 using Clock = std::chrono::high_resolution_clock;
@@ -37,7 +38,8 @@ int main()
 {
 	// Initialize the main systems
 	WorldSystem world(window_size_in_px);
-	RenderSystem renderer(*world.window);
+	particle_system particleSystem;
+	RenderSystem renderer(*world.window, &particleSystem);
 	PhysicsSystem physics;
 	PathFindingSystem pathFindingSystem;
 	AISystem ai(pathFindingSystem);
@@ -45,6 +47,8 @@ int main()
 	AnimationSystem animations;
 	UISystem ui;
 	ProjectileSystem projectileSystem;
+	
+
 
 	// Set all states to default
 	world.restart();
@@ -76,7 +80,9 @@ int main()
 			projectileSystem.step(deltaTime);
 			animations.step();
 			turnSystem.step(deltaTime);
+			particleSystem.step(deltaTime);
 			renderer.draw(window_size_in_game_units);
+
 
 			elapsed_ms -= deltaTime;
 		}
