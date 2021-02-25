@@ -34,6 +34,7 @@ SET(SOURCE_FILES
         "src/entities/raoul.cpp"
         "src/entities/taji.cpp"
         "src/entities/ember.cpp"
+        "src/entities/chia.cpp"
         "src/entities/tiny_ecs.cpp"
         "src/game/common.cpp"
         "src/game/turn_system.cpp"

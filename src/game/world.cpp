@@ -9,6 +9,7 @@
 #include "entities/raoul.hpp"
 #include "entities/taji.hpp"
 #include "entities/ember.hpp"
+#include "entities/chia.hpp"
 #include "entities/egg.hpp"
 #include "rendering/render_components.hpp"
 #include "animation/animation_components.hpp"
@@ -368,9 +369,7 @@ void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 	player_raoul = Raoul::createRaoul({ 640, 512 }, PlayerType::RAOUL);
 	player_taji = Taji::createTaji({ 200,700 });
 	player_ember = Ember::createEmber({ 400,700 });
-
-	//TODO replace these with the real other characters
-	auto raoul_4 = Raoul::createRaoul({ 400,400 }, PlayerType::CHIA, 2.f);
+	player_chia = Chia::createChia({ 400,400 });
 }
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
