@@ -27,7 +27,7 @@ ECS::Entity Ember::createEmber(vec2 position)
 	motion.collidesWith = CollisionGroup::MOB;
 
 	// hitbox scaling
-	auto hitboxScale = vec2({ 0.6f, 0.6f });
+	auto hitboxScale = vec2({ 0.4f, 0.6f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 
 	// Animations

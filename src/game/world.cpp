@@ -365,8 +365,7 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 
 void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 {
-	// Create a new Raoul
-	player_raoul = Raoul::createRaoul({ 640, 512 }, PlayerType::RAOUL);
+	player_raoul = Raoul::createRaoul({ 640, 512 });
 	player_taji = Taji::createTaji({ 200,700 });
 	player_ember = Ember::createEmber({ 400,700 });
 	player_chia = Chia::createChia({ 400,400 });
