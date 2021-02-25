@@ -8,6 +8,7 @@
 #include "physics/debug.hpp"
 #include "entities/raoul.hpp"
 #include "entities/taji.hpp"
+#include "entities/ember.hpp"
 #include "entities/egg.hpp"
 #include "rendering/render_components.hpp"
 #include "animation/animation_components.hpp"
@@ -274,8 +275,8 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 	auto player_button_2 = Button::createPlayerButton(PlayerType::TAJI, { frameBufferWidth / 4 + 200, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::TAJI }); });
 
-	auto player_button_3 = Button::createPlayerButton(PlayerType::SPICY, { frameBufferWidth / 4 + 400, 60 },
-		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::SPICY }); });
+	auto player_button_3 = Button::createPlayerButton(PlayerType::EMBER, { frameBufferWidth / 4 + 400, 60 },
+		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::EMBER }); });
 
 	auto player_button_4 = Button::createPlayerButton(PlayerType::CHIA, { frameBufferWidth / 4 + 600, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::CHIA }); });
@@ -366,9 +367,9 @@ void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 	// Create a new Raoul
 	player_raoul = Raoul::createRaoul({ 640, 512 }, PlayerType::RAOUL);
 	player_taji = Taji::createTaji({ 200,700 });
+	player_ember = Ember::createEmber({ 400,700 });
 
 	//TODO replace these with the real other characters
-	auto raoul_3 = Raoul::createRaoul({ 400,700 }, PlayerType::SPICY, 1.f);
 	auto raoul_4 = Raoul::createRaoul({ 400,400 }, PlayerType::CHIA, 2.f);
 }
 
