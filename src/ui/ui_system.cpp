@@ -54,6 +54,9 @@ bool UISystem::handleClick(ECS::Entity entity, const RawMouseClickEvent& event)
 
 void UISystem::onMouseClick(const RawMouseClickEvent& event)
 {
+	// Plays a mouse click fx
+	playMouseClickFX(event.mousePos);
+
 	// Handles if any button entities are clicked
 	for (auto entity : ECS::registry<Button>.entities) {
 		if (handleClick<ClickableCircleComponent>(entity, event)) {
@@ -112,6 +115,19 @@ void UISystem::onPlayerChange(const PlayerChangeEvent& event)
 		if (!playerFound)
 		{
 			animComponent.changeAnimation(AnimationType::DISABLED);
+		}
+	}
+}
+
+
+void UISystem::playMouseClickFX(vec2 position)
+{
+	for (auto& entity : ECS::registry<MouseClickFX>.entities)
+	{
+		if (entity.has<AnimationsComponent>() && entity.has<Motion>())
+		{
+			entity.get<Motion>().position = position;
+			entity.get<AnimationsComponent>().currAnimData.currFrame = 0;
 		}
 	}
 }

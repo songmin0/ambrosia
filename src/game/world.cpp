@@ -200,6 +200,7 @@ void WorldSystem::restart()
 	createButtons(frameBufferWidth, frameBufferHeight);
 	createPlayers(frameBufferWidth, frameBufferHeight);
 	createMobs(frameBufferWidth, frameBufferHeight);
+	createEffects(frameBufferWidth, frameBufferHeight);
 } 
 
 // Compute collisions between entities
@@ -361,8 +362,11 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 				}
 			}
 	});
+}
 
-	mouseclickFX = MouseClickFX::createMouseClickFX();
+void WorldSystem::createEffects(int frameBufferWidth, int frameBufferHeight)
+{
+	MouseClickFX::createMouseClickFX();
 }
 
 void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
@@ -439,7 +443,7 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	current_speed = std::max(0.f, current_speed);
 }
 
-void WorldSystem::onMouseClick(int button, int action, int mods)
+void WorldSystem::onMouseClick(int button, int action, int mods) const
 {
 	if (action == GLFW_RELEASE && button == GLFW_MOUSE_BUTTON_LEFT)
 	{
@@ -451,13 +455,5 @@ void WorldSystem::onMouseClick(int button, int action, int mods)
 		RawMouseClickEvent event;
 		event.mousePos = {mousePosX, mousePosY};
 		EventSystem<RawMouseClickEvent>::instance().sendEvent(event);
-		playMouseClickFX(vec2(mousePosX, mousePosY));
 	}
-}
-
-void WorldSystem::playMouseClickFX(vec2 position)
-{
-	assert(mouseclickFX.has<AnimationsComponent>() && mouseclickFX.has<Motion>());
-	mouseclickFX.get<Motion>().position = position;
-	mouseclickFX.get<AnimationsComponent>().currAnimData.currFrame = 0;
 }

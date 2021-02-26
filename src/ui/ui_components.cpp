@@ -36,5 +36,7 @@ ECS::Entity MouseClickFX::createMouseClickFX()
 	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::EFFECT, *idle_anim);
 	anims.currAnimData.currFrame = 11; // start with the animation finished
 
+	entity.emplace<MouseClickFX>();
+
 	return entity;
 }

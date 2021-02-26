@@ -43,10 +43,11 @@ private:
 	void createButtons(int frameBufferWidth, int frameBufferHeight);
 	void createPlayers(int frameBufferWidth, int frameBufferHeight);
 	void createMobs(int frameBufferWidth, int frameBufferHeight);
+	void WorldSystem::createEffects(int frameBufferWidth, int frameBufferHeight);
 
 	// Input callback functions
 	void onKey(int key, int, int action, int mod);
-	void onMouseClick(int button, int action, int mods);
+	void onMouseClick(int button, int action, int mods) const;
 
 	// Loads the audio
 	void initAudio();
@@ -67,10 +68,6 @@ private:
 	Mix_Music* background_music;
 	Mix_Chunk* salmon_dead_sound;
 	Mix_Chunk* salmon_eat_sound;
-
-	// global effects
-	ECS::Entity mouseclickFX;
-	void playMouseClickFX(vec2 position);
 
 	// C++ random number generator
 	std::default_random_engine rng;
