@@ -384,7 +384,7 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 {
 	// Animation Test
 	if (action == GLFW_PRESS && key == GLFW_KEY_3) {
-		auto& anim = player_raoul.get<AnimationsComponent>();
+		auto& anim = player_taji.get<AnimationsComponent>();
 		anim.changeAnimation(AnimationType::HIT);
 	}
 	if (action == GLFW_PRESS && key == GLFW_KEY_4) {
