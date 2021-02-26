@@ -27,7 +27,7 @@ ECS::Entity Taji::createTaji(vec2 position, float colourShift)
 	motion.collidesWith = CollisionGroup::MOB;
 
 	// hitbox scaling
-	auto hitboxScale = vec2({ 0.6f, 0.9f });
+	auto hitboxScale = vec2({ 0.5f, 0.85f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 
 	// Animations

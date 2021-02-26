@@ -5,9 +5,7 @@
 #include "game/turn_system.hpp"
 #include "skills/skill_component.hpp"
 
-
-// TODO we can remove PlayerType parameter once each player has their own entity class and intialize PlayerType there
-ECS::Entity Raoul::createRaoul(vec2 position, PlayerType player, float colourShift)
+ECS::Entity Raoul::createRaoul(vec2 position, float colourShift)
 {
 	auto entity = ECS::Entity();
 
@@ -81,7 +79,7 @@ ECS::Entity Raoul::createRaoul(vec2 position, PlayerType player, float colourShi
 	entity.emplace<TurnSystem::TurnComponent>();
 
 	//Add the player component
-	entity.emplace<PlayerComponent>().player = player;
+	entity.emplace<PlayerComponent>().player = PlayerType::RAOUL;
 
 	// Temporary colour shift
 	entity.emplace<ColourShift>().colour = colourShift;
