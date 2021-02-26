@@ -1,5 +1,6 @@
 #pragma once
 #include "game/common.hpp"
+#include "entities/tiny_ecs.hpp"
 
 struct ClickableCircleComponent
 {
@@ -22,4 +23,9 @@ struct PlayerButtonComponent
 {
 	PlayerType player;
 	PlayerButtonComponent(PlayerType player);
+};
+
+struct MouseClickFX
+{
+	static ECS::Entity createMouseClickFX();
 };

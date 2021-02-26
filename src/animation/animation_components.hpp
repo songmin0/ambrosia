@@ -6,7 +6,7 @@
 #include <vector>
 #include <unordered_map> 
 
-enum class AnimationType { STATIC, IDLE, MOVE, ATTACK1, ATTACK2, ATTACK3, HIT, DEFEAT, ACTIVE, INACTIVE, DISABLED };
+enum class AnimationType { STATIC, IDLE, MOVE, ATTACK1, ATTACK2, ATTACK3, HIT, DEFEAT, ACTIVE, INACTIVE, DISABLED, EFFECT };
 
 struct AnimationData
 {

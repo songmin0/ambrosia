@@ -361,14 +361,16 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 				}
 			}
 	});
+
+	mouseclickFX = MouseClickFX::createMouseClickFX();
 }
 
 void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 {
-	player_raoul = Raoul::createRaoul({ 640, 512 });
-	player_taji = Taji::createTaji({ 200,700 });
-	player_ember = Ember::createEmber({ 400,700 });
-	player_chia = Chia::createChia({ 400,400 });
+	playerRaoul = Raoul::createRaoul({ 640, 512 });
+	playerTaji = Taji::createTaji({ 200,700 });
+	playerEmber = Ember::createEmber({ 400,700 });
+	playerChia = Chia::createChia({ 400,400 });
 }
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
@@ -383,7 +385,7 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 {
 	// Animation Test
 	if (action == GLFW_PRESS && key == GLFW_KEY_3) {
-		auto& anim = player_taji.get<AnimationsComponent>();
+		auto& anim = playerTaji.get<AnimationsComponent>();
 		anim.changeAnimation(AnimationType::HIT);
 	}
 	if (action == GLFW_PRESS && key == GLFW_KEY_4) {
@@ -437,7 +439,7 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	current_speed = std::max(0.f, current_speed);
 }
 
-void WorldSystem::onMouseClick(int button, int action, int mods) const
+void WorldSystem::onMouseClick(int button, int action, int mods)
 {
 	if (action == GLFW_RELEASE && button == GLFW_MOUSE_BUTTON_LEFT)
 	{
@@ -449,5 +451,13 @@ void WorldSystem::onMouseClick(int button, int action, int mods) const
 		RawMouseClickEvent event;
 		event.mousePos = {mousePosX, mousePosY};
 		EventSystem<RawMouseClickEvent>::instance().sendEvent(event);
+		playMouseClickFX(vec2(mousePosX, mousePosY));
 	}
+}
+
+void WorldSystem::playMouseClickFX(vec2 position)
+{
+	assert(mouseclickFX.has<AnimationsComponent>() && mouseclickFX.has<Motion>());
+	mouseclickFX.get<Motion>().position = position;
+	mouseclickFX.get<AnimationsComponent>().currAnimData.currFrame = 0;
 }

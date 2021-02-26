@@ -46,7 +46,7 @@ private:
 
 	// Input callback functions
 	void onKey(int key, int, int action, int mod);
-	void onMouseClick(int button, int action, int mods) const;
+	void onMouseClick(int button, int action, int mods);
 
 	// Loads the audio
 	void initAudio();
@@ -58,15 +58,19 @@ private:
 	float current_speed;
 
 	// Player test
-	ECS::Entity player_raoul;
-	ECS::Entity player_taji;
-	ECS::Entity player_ember;
-	ECS::Entity player_chia;
+	ECS::Entity playerRaoul;
+	ECS::Entity playerTaji;
+	ECS::Entity playerEmber;
+	ECS::Entity playerChia;
 	
 	// music references
 	Mix_Music* background_music;
 	Mix_Chunk* salmon_dead_sound;
 	Mix_Chunk* salmon_eat_sound;
+
+	// global effects
+	ECS::Entity mouseclickFX;
+	void playMouseClickFX(vec2 position);
 
 	// C++ random number generator
 	std::default_random_engine rng;
