@@ -5,6 +5,7 @@
 #include "animation/animation_components.hpp"
 #include "ai/ai.hpp"
 #include "ui/ui_components.hpp"
+#include "ui/effects.hpp"
 
 #include <iostream>
 
@@ -100,6 +101,11 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 		glUniform1f(isDisabled_uloc, component.isDisabled ? 1.f : 0.f);
 		GLuint isEnabled_uloc = glGetUniformLocation(texmesh.effect.program, "isEnabled");
 		glUniform1f(isEnabled_uloc, component.isDisabled ? 1.f : 0.f);
+	}
+
+	if (entity.has<ActiveSkillFX>())
+	{
+		transform.rotate(glfwGetTime());
 	}
 
 	// Getting uniform locations for glUniform* calls
