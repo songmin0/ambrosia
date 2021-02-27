@@ -1,6 +1,7 @@
 #pragma once
 #include "ui_components.hpp"
 #include "button.hpp"
+#include "effects.hpp"
 
 #include "game/common.hpp"
 #include "game/event_system.hpp"

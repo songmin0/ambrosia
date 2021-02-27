@@ -67,6 +67,12 @@ void UISystem::onMouseClick(const RawMouseClickEvent& event)
 		}
 	}
 
+	for (auto entity : ECS::registry<SkillButton>.entities) {
+		if (handleClick<ClickableCircleComponent>(entity, event)) {
+			return;
+		}
+	}
+
 	// Sends a MouseClickEvent to event system if no buttons are clicked
 	EventSystem<MouseClickEvent>::instance().sendEvent(MouseClickEvent{ event.mousePos });
 }

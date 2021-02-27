@@ -43,7 +43,7 @@ private:
 	void createButtons(int frameBufferWidth, int frameBufferHeight);
 	void createPlayers(int frameBufferWidth, int frameBufferHeight);
 	void createMobs(int frameBufferWidth, int frameBufferHeight);
-	void WorldSystem::createEffects(int frameBufferWidth, int frameBufferHeight);
+	void createEffects(int frameBufferWidth, int frameBufferHeight);
 
 	// Input callback functions
 	void onKey(int key, int, int action, int mod);

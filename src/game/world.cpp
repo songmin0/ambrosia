@@ -16,6 +16,7 @@
 #include "maps/map_objects.hpp"
 #include "ui/button.hpp"
 #include "ui/ui_system.hpp"
+#include "ui/effects.hpp"
 #include "ai/ai.hpp"
 
 // stlib
@@ -270,6 +271,9 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 
 void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 {
+	// Temporarily here so it renders behind the buttons
+	ActiveSkillFX::createActiveSkillFX();
+
 	// Create UI buttons
 	auto player_button_1 = Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth / 4, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::RAOUL }); });
@@ -283,7 +287,12 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 	auto player_button_4 = Button::createPlayerButton(PlayerType::CHIA, { frameBufferWidth / 4 + 600, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::CHIA }); });
 
-	Button::createButton(ButtonShape::CIRCLE, { 100, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
+	SkillButton::createSkillButton({ 100, frameBufferHeight - 80 }, "skill_buttons/skill_generic_move",
+		[]() {
+		std::cout << "Move button clicked!" << std::endl;
+	});
+
+	SkillButton::createSkillButton({ 250, frameBufferHeight - 80 }, "skill_buttons/raoul/skill1",
 		[]() {
 			std::cout << "Skill one button clicked!" << std::endl;
 
@@ -301,9 +310,9 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
 				}
 			}
-	});
+		});
 
-	Button::createButton(ButtonShape::CIRCLE, { 250, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
+	SkillButton::createSkillButton({ 400, frameBufferHeight - 80 }, "skill_buttons/raoul/skill2",
 		[]() {
 			std::cout << "Skill two button clicked!" << std::endl;
 
@@ -321,9 +330,9 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
 				}
 			}
-	});
+		});
 
-	Button::createButton(ButtonShape::CIRCLE, { 400, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
+	SkillButton::createSkillButton({ 550, frameBufferHeight - 80 }, "skill_buttons/raoul/skill3",
 		[]() {
 			std::cout << "Skill three button clicked!" << std::endl;
 
@@ -341,32 +350,13 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
 				}
 			}
-	});
-
-	Button::createButton(ButtonShape::CIRCLE, { 550, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
-		[]() {
-			std::cout << "Skill four button clicked!" << std::endl;
-
-			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
-			{
-				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-
-				// Skill buttons should only affect players
-				if (activeEntity.has<PlayerComponent>())
-				{
-					SetActiveSkillEvent event;
-					event.entity = activeEntity;
-					event.type = SkillType::SKILL4;
-
-					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
-				}
-			}
-	});
+		});
 }
 
 void WorldSystem::createEffects(int frameBufferWidth, int frameBufferHeight)
 {
 	MouseClickFX::createMouseClickFX();
+	/*ActiveSkillFX::createActiveSkillFX();*/
 }
 
 void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)

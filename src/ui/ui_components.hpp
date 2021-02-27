@@ -25,7 +25,11 @@ struct PlayerButtonComponent
 	PlayerButtonComponent(PlayerType player);
 };
 
-struct MouseClickFX
+struct SkillButtonComponent
 {
-	static ECS::Entity createMouseClickFX();
+	SkillButtonComponent() : isActive{ false }, isDisabled{ false }, isEnabled{ true } {}
+	SkillButtonComponent(bool active, bool disabled, bool enabled) : isActive{ active }, isDisabled{ disabled }, isEnabled{ enabled } {}
+	bool isActive;
+	bool isDisabled;
+	bool isEnabled;
 };

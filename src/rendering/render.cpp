@@ -4,6 +4,7 @@
 #include "entities/tiny_ecs.hpp"
 #include "animation/animation_components.hpp"
 #include "ai/ai.hpp"
+#include "ui/ui_components.hpp"
 
 #include <iostream>
 
@@ -88,6 +89,17 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 		float colour = entity.get<ColourShift>().colour;
 		GLuint colourshift_uloc = glGetUniformLocation(texmesh.effect.program, "colourShift");
 		glUniform1f(colourshift_uloc, colour);
+	}
+
+	if (entity.has<SkillButtonComponent>())
+	{
+		const auto& component = entity.get<SkillButtonComponent>();
+		GLuint isActive_uloc = glGetUniformLocation(texmesh.effect.program, "isActive");
+		glUniform1f(isActive_uloc, component.isActive ? 1.f : 0.f);
+		GLuint isDisabled_uloc = glGetUniformLocation(texmesh.effect.program, "isDisabled");
+		glUniform1f(isDisabled_uloc, component.isDisabled ? 1.f : 0.f);
+		GLuint isEnabled_uloc = glGetUniformLocation(texmesh.effect.program, "isEnabled");
+		glUniform1f(isEnabled_uloc, component.isDisabled ? 1.f : 0.f);
 	}
 
 	// Getting uniform locations for glUniform* calls
