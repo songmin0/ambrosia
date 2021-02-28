@@ -19,6 +19,6 @@ void main()
 	if (texcoord.x <= percentHP)
 	{
 		color.xyz -= vec3(1.0, 0.0, 1.0); // remove red and blue
-		color.xyz += vec3(color.x * 0.0, color. y * 1.0,  color.z * 0.0); // augment green
+		color.xyz += vec3(color.x * 0.0, color. y * 3.0,  color.z * 0.0); // augment green
 	}
 }
