@@ -24,6 +24,7 @@ particle_system::particle_system()
 				ParticlesContainer[i].life = -1.0f;
 				//ParticlesContainer[i].cameradistance = -1.0f;
 		}
+
 		//TODO make particleContainer a heap variable so that we aren't limited to stack size (use a shared or unique pointer for this)
 
 }
@@ -54,6 +55,12 @@ void particle_system::drawParticles(const mat3& projection)
 		glVertexAttribDivisor(1, 1); // positions : one per quad (its center) -> 1
 		//This make sure that every instance of a particle uses a new colour
 		glVertexAttribDivisor(2, 1); // color : one per quad -> 1
+
+		// Enabling and binding texture to slot 0
+		glActiveTexture(GL_TEXTURE0);
+
+		glBindTexture(GL_TEXTURE_2D, particleTexture.texture_id);
+
 		// Draw the particules
 		glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, particlesCount);
 
@@ -122,11 +129,6 @@ void particle_system::prepRender() {
 
 // from http://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
 void particle_system::updateGPU() {
-		//TODO look into the more sophisticated method of updating the GPU buffers
-		// Update the buffers that OpenGL uses for rendering.
-		// There are much more sophisticated means to stream data from the CPU to the GPU
-		// http://www.opengl.org/wiki/Buffer_Object_Streaming
-
 		//These two blocks of code reallocate the buffers to stop the program from having to stop and wait for the previous draw calls to be done with the previous data in the buffer. This allows us to now add our new data to the buffers without waiting.
 		glBindBuffer(GL_ARRAY_BUFFER, particlesCenterPositionAndSizeBuffer);
 		glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW); // Buffer orphaning
@@ -142,9 +144,12 @@ void particle_system::updateGPU() {
 
 void particle_system::step(float elapsed_ms)
 {
+		//TODO add a variable for "timeSinceLastParticle" so that we can create less than like 100 particles per second
 		//Reference http://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
 		float elapsed_time_sec = elapsed_ms / 1000.0f;
 		int newParticles = (int)(elapsed_time_sec * 80.0f);
+
+		//TODO change particle creation logic so that it happens in the simulate phase and if there is no room for new particles then just don't create them.
 		createParticles(newParticles);
 
 		// Simulate all particles
@@ -192,7 +197,8 @@ void particle_system::step(float elapsed_ms)
 void particle_system::initParticles()
 {
 		// Create and compile our GLSL program from the shaders
-		programID = LoadShaders("data/shaders/Particle.vs", "data/shaders/Particle.fs");
+		programID = LoadShaders("data/shaders/Particle.vs", "data/shaders/Particle.fs"); 
+		particleTexture.loadFromFile(texturesPath("fish.png"));
 
 
 
@@ -252,7 +258,8 @@ void particle_system::createParticles(int numParticles) {
 				ParticlesContainer[particleIndex].r = rand() % 256;
 				ParticlesContainer[particleIndex].g = rand() % 256;
 				ParticlesContainer[particleIndex].b = rand() % 256;
-				ParticlesContainer[particleIndex].a = (rand() % 256) / 3;
+				//Make them mostly opaque
+				ParticlesContainer[particleIndex].a = (rand() % 125) + 131;
 
 				//Generate a random size for each particle
 				ParticlesContainer[particleIndex].size = (rand() % 20)  + 10.0f;

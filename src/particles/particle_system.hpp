@@ -1,6 +1,8 @@
 #pragma once
 #include "common.hpp"
 #include "entities/tiny_ecs.hpp"
+#include "render_components.hpp"
+
 
 // CPU representation of a particle
 struct Particle {
@@ -41,6 +43,7 @@ private:
 		GLuint programID;
 
 		GLuint LoadShaders(const char* vertex_file_path, const char* fragment_file_path);
+		Texture particleTexture;
 
 
 		static const GLfloat particleVertexBufferData[];
