@@ -31,5 +31,8 @@ private:
 	EventListenerInfo playerChangeListener;
 	void onPlayerChange(const PlayerChangeEvent& event);
 
+	EventListenerInfo mouseHoverListener;
+	void onMouseHover(const RawMouseHoverEvent& event);
+
 	void playMouseClickFX(vec2 position);
 };

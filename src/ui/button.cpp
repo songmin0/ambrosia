@@ -61,7 +61,7 @@ ECS::Entity Button::createPlayerButton(PlayerType player, vec2 position, void(*c
 		entity.emplace<PlayerButtonComponent>(PlayerType::CHIA);
 		break;
 	case PlayerType::EMBER:
-		playerName = "spicy";
+		playerName = "ember";
 		entity.emplace<PlayerButtonComponent>(PlayerType::EMBER);
 		break;
 	default:
@@ -83,7 +83,7 @@ ECS::Entity Button::createPlayerButton(PlayerType player, vec2 position, void(*c
 	return entity;
 }
 
-ECS::Entity SkillButton::createSkillButton(vec2 position, const std::string& texture, void(*callback)())
+ECS::Entity SkillButton::createSkillButton(vec2 position, PlayerType player, SkillType skillType, const std::string& texture, void(*callback)())
 {
 	auto entity = ECS::Entity();
 
@@ -103,7 +103,8 @@ ECS::Entity SkillButton::createSkillButton(vec2 position, const std::string& tex
 	motion.boundingBox = motion.scale * vec2({ resource.texture.size.x, resource.texture.size.y });
 
 	entity.emplace<ClickableCircleComponent>(position, resource.texture.size.x / 2, callback);
-	entity.emplace<SkillButtonComponent>();
+	entity.emplace<ButtonStateComponent>();
+	entity.emplace<SkillButtonComponent>(player, skillType);
 
 	entity.emplace<SkillButton>();
 	

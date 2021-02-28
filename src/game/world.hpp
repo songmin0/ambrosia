@@ -48,6 +48,7 @@ private:
 	// Input callback functions
 	void onKey(int key, int, int action, int mod);
 	void onMouseClick(int button, int action, int mods) const;
+	void onMouseHover(double xpos, double ypos) const;
 
 	// Loads the audio
 	void initAudio();

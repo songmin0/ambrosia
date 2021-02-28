@@ -1,4 +1,5 @@
 #include "ui_system.hpp"
+#include <iostream>
 
 UISystem::UISystem()
 {
@@ -7,6 +8,9 @@ UISystem::UISystem()
 
 	playerChangeListener = EventSystem<PlayerChangeEvent>::instance().registerListener(
 		std::bind(&UISystem::onPlayerChange, this, std::placeholders::_1));
+
+	mouseHoverListener = EventSystem<RawMouseHoverEvent>::instance().registerListener(
+		std::bind(&UISystem::onMouseHover, this, std::placeholders::_1));
 }
 
 UISystem::~UISystem()
@@ -121,6 +125,62 @@ void UISystem::onPlayerChange(const PlayerChangeEvent& event)
 		if (!playerFound)
 		{
 			animComponent.changeAnimation(AnimationType::DISABLED);
+		}
+	}
+}
+
+void UISystem::onMouseHover(const RawMouseHoverEvent& event)
+{
+	for (auto entity : ECS::registry<SkillButton>.entities) {
+		assert(entity.has<ClickableCircleComponent>());
+
+		auto& clickableArea = entity.get<ClickableCircleComponent>();
+		if (isClicked(clickableArea, event.mousePos))
+		{
+			auto& skillInfo = entity.get<SkillButtonComponent>();
+			SkillType skillType = skillInfo.skillType;
+			PlayerType player = skillInfo.player;
+			std::string playerName = "???";
+			std::string skillName = "???";
+
+			switch (player) {
+			case PlayerType::RAOUL:
+				playerName = "raoul";
+				break;
+			case PlayerType::TAJI:
+				playerName = "taji";
+				break;
+			case PlayerType::CHIA:
+				playerName = "chia";
+				break;
+			case PlayerType::EMBER:
+				playerName = "ember";
+				break;
+			default:
+				break;
+			}
+
+			switch (skillType){
+			case SkillType::MOVE:
+				skillName = "move";
+				break;
+			case SkillType::SKILL1:
+				skillName = "skill 1";
+				break;
+			case SkillType::SKILL2:
+				skillName = "skill 2";
+				break;
+			case SkillType::SKILL3:
+				skillName = "skill 3";
+				break;
+			case SkillType::SKILL4:
+				skillName = "skill 4";
+				break;
+			default:
+				break;
+			}
+			
+			std::cout << "hovering over: " << playerName << "'s " << skillName << " button /n";
 		}
 	}
 }

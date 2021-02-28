@@ -92,9 +92,9 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 		glUniform1f(colourshift_uloc, colour);
 	}
 
-	if (entity.has<SkillButtonComponent>())
+	if (entity.has<ButtonStateComponent>())
 	{
-		const auto& component = entity.get<SkillButtonComponent>();
+		const auto& component = entity.get<ButtonStateComponent>();
 		GLuint isActive_uloc = glGetUniformLocation(texmesh.effect.program, "isActive");
 		glUniform1f(isActive_uloc, component.isActive ? 1.f : 0.f);
 		GLuint isDisabled_uloc = glGetUniformLocation(texmesh.effect.program, "isDisabled");

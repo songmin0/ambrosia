@@ -69,6 +69,10 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	glfwSetKeyCallback(window, keyRedirect);
 	glfwSetMouseButtonCallback(window, mouseClickRedirect);
 
+	auto mouseHoverRedirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->onMouseHover(_0, _1); };
+	glfwSetCursorPosCallback(window, mouseHoverRedirect);
+
+
 	// Playing background music indefinitely
 	initAudio();
 	Mix_PlayMusic(background_music, -1);
@@ -287,12 +291,12 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 	auto player_button_4 = Button::createPlayerButton(PlayerType::CHIA, { frameBufferWidth / 4 + 600, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::CHIA }); });
 
-	SkillButton::createSkillButton({ 100, frameBufferHeight - 80 }, "skill_buttons/skill_generic_move",
+	SkillButton::createSkillButton({ 100, frameBufferHeight - 80 }, PlayerType::RAOUL, SkillType::MOVE, "skill_buttons/skill_generic_move",
 		[]() {
 		std::cout << "Move button clicked!" << std::endl;
 	});
 
-	SkillButton::createSkillButton({ 250, frameBufferHeight - 80 }, "skill_buttons/raoul/skill1",
+	SkillButton::createSkillButton({ 250, frameBufferHeight - 80 }, PlayerType::RAOUL, SkillType::SKILL1, "skill_buttons/raoul/skill1",
 		[]() {
 			std::cout << "Skill one button clicked!" << std::endl;
 
@@ -312,7 +316,7 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 			}
 		});
 
-	SkillButton::createSkillButton({ 400, frameBufferHeight - 80 }, "skill_buttons/raoul/skill2",
+	SkillButton::createSkillButton({ 400, frameBufferHeight - 80 }, PlayerType::RAOUL, SkillType::SKILL2, "skill_buttons/raoul/skill2",
 		[]() {
 			std::cout << "Skill two button clicked!" << std::endl;
 
@@ -332,7 +336,7 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 			}
 		});
 
-	SkillButton::createSkillButton({ 550, frameBufferHeight - 80 }, "skill_buttons/raoul/skill3",
+	SkillButton::createSkillButton({ 550, frameBufferHeight - 80 }, PlayerType::RAOUL, SkillType::SKILL3, "skill_buttons/raoul/skill3",
 		[]() {
 			std::cout << "Skill three button clicked!" << std::endl;
 
@@ -446,4 +450,13 @@ void WorldSystem::onMouseClick(int button, int action, int mods) const
 		event.mousePos = {mousePosX, mousePosY};
 		EventSystem<RawMouseClickEvent>::instance().sendEvent(event);
 	}
+}
+
+void WorldSystem::onMouseHover(double xpos, double ypos) const
+{
+	RawMouseHoverEvent event;
+	event.mousePos = { xpos, ypos };
+	EventSystem<RawMouseHoverEvent>::instance().sendEvent(event);
+	//std::cout << "xpos: " << xpos;
+	//std::cout << "ypos: " << ypos;
 }
