@@ -226,7 +226,20 @@ void WorldSystem::restart()
 	ECS::Entity entity = Egg::createEgg({ 750, 800 });
 	entity = Egg::createEgg({ 1000, 800 });
 
+<<<<<<< HEAD
 	// ================================= Loading End =========================================
+=======
+	// Removing existing map
+	while (!ECS::registry<MapComponent>.entities.empty())
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<MapComponent>.entities.back());
+
+	// Get screen/buffer size
+	int frameBufferWidth, frameBufferHeight;
+	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
+
+	// Create the map
+	MapComponent::createMap("pizza-arena/pizza-arena", {frameBufferWidth, frameBufferHeight});
+>>>>>>> 849c0176d29061cb6690cd57209ae0d8436fa24b
 
 	// Create a deforming blob
 	CheeseBlob::createCheeseBlob({ 700, 950 });
