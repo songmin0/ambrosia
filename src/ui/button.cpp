@@ -90,7 +90,7 @@ ECS::Entity SkillButton::createSkillButton(vec2 position, PlayerType player, Ski
 	ShadedMesh& resource = cacheResource(texture);
 	if (resource.effect.program.resource == 0)
 	{
-		RenderSystem::createSprite(resource, uiPath(texture + ".png"), "dynamic_texture");
+		RenderSystem::createPlayerSpecificMesh(resource, uiPath("skill_buttons/" + texture), "skill_button");
 	}
 
 	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
@@ -107,10 +107,35 @@ ECS::Entity SkillButton::createSkillButton(vec2 position, PlayerType player, Ski
 	entity.emplace<SkillInfoComponent>(player, skillType);
 	entity.emplace<VisibilityComponent>();
 
-	if (skillType == SkillType::MOVE)
+	entity.emplace<SkillButton>();
+
+	return entity;
+}
+
+ECS::Entity SkillButton::createMoveButton(vec2 position, const std::string& texture, void(*callback)())
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource("move_button");
+	if (resource.effect.program.resource == 0)
 	{
-		entity.emplace<MoveButtonComponent>();
+		RenderSystem::createSprite(resource, uiPath(texture + ".png"), "dynamic_texture");
 	}
+
+	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = vec2({ 1.f, 1.f });
+	motion.boundingBox = motion.scale * vec2({ resource.texture.size.x, resource.texture.size.y });
+
+	entity.emplace<ClickableCircleComponent>(position, resource.texture.size.x / 2, callback);
+	entity.emplace<ButtonStateComponent>();
+	entity.emplace<VisibilityComponent>();
+	entity.emplace<MoveButtonComponent>();
+	entity.emplace<SkillInfoComponent>(PlayerType::RAOUL, SkillType::MOVE);
 
 	entity.emplace<SkillButton>();
 
@@ -154,6 +179,35 @@ ECS::Entity ToolTip::createToolTip(PlayerType player, SkillType skillType, vec2 
 	motion.boundingBox = motion.scale * vec2({ resource.texture.size.x, resource.texture.size.y });
 
 	entity.emplace<SkillInfoComponent>(player, skillType);
+	entity.emplace<VisibilityComponent>().isVisible = false;
+
+	entity.emplace<ToolTip>();
+
+	return entity;
+}
+
+// This will be moved to ui_entities.cpp once the branch that has it is merged...
+ECS::Entity ToolTip::createMoveToolTip(vec2 position)
+{
+	auto entity = ECS::Entity();
+	entity.emplace<MoveToolTipComponent>();
+
+	ShadedMesh& resource = cacheResource("move_tooltip");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, uiPath("tooltips/move_tooltip.png"), "textured");
+	}
+
+	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position + vec2(resource.texture.size.x / 2.f, -resource.texture.size.y) / 2.f;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = vec2({ 1.f, 1.f });
+	motion.boundingBox = motion.scale * vec2({ resource.texture.size.x, resource.texture.size.y });
+
+	entity.emplace<SkillInfoComponent>(PlayerType::RAOUL, SkillType::MOVE);
 	entity.emplace<VisibilityComponent>().isVisible = false;
 
 	entity.emplace<ToolTip>();

@@ -88,6 +88,7 @@ struct Texture
 	void createFromScreen(GLFWwindow const * const window, GLuint* depth_render_buffer_id); // Screen texture
 
 	void loadArrayFromFile(const std::string& path, int maxFrames);
+	void loadPlayerSpecificTextures(const std::string& path);
 
 	std::unordered_map<std::string, stbi_uc*> texture_cache;
 };

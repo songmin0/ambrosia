@@ -28,6 +28,7 @@ public:
 	static void createSprite(ShadedMesh& mesh_container, const std::string& texture_path, const std::string& shader_name);
 	static void createColoredMesh(ShadedMesh& mesh_container, const std::string& shader_name);
 	static void createTexturedMesh(ShadedMesh& mesh_container, const std::string& texture_path, const std::string& shader_name);
+	static void createPlayerSpecificMesh(ShadedMesh& sprite, const std::string& texture_path, const std::string& shader_name);
 
 	// Animations
 	static void createAnimatedSprite(ShadedMesh& sprite, int maxFrames, const std::string& texture_path, const std::string& shader_name);
