@@ -109,10 +109,12 @@ void AISystem::startMobSkill(ECS::Entity entity)
 {
 	// Motion component is mandatory
 	assert(entity.has<Motion>());
-	auto& motion = entity.get<Motion>();
 	assert(entity.has<MobComponent>());
+	auto& motion = entity.get<Motion>();
 	auto& mobComponent = entity.get<MobComponent>();
 
+	// Skill currently targets the closest player
+	// TODO: This can change with cooperative actions like buffing between mobs
 	ECS::Entity closestPlayer = mobComponent.target;
 	// Get position of closest player
 	assert(closestPlayer.has<Motion>());
