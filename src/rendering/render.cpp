@@ -6,6 +6,7 @@
 #include "ai/ai.hpp"
 #include "ui/ui_components.hpp"
 #include "ui/effects.hpp"
+#include "ui/ui_entities.hpp"
 
 #include <iostream>
 
