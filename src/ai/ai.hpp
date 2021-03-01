@@ -25,7 +25,7 @@ public:
 	};
 
 private:
-	bool getClosestPlayer(vec2 position, ECS::Entity& closestPlayerOut);
+	bool getClosestPlayer(ECS::Entity& mob);
 
 	void startMobMovement(ECS::Entity entity);
 	void startMobSkill(ECS::Entity entity);
