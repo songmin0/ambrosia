@@ -39,12 +39,9 @@ SET(SOURCE_FILES
         "src/game/common.cpp"
         "src/game/turn_system.cpp"
         "src/game/world.cpp"
-<<<<<<< HEAD
         "src/game/stats_component.cpp"
         "src/game/stats_system.cpp"
-=======
         "src/levels/levels.cpp"
->>>>>>> 1a1b5f5... ground work for level loader
         "src/maps/map.cpp"
         "src/maps/map_objects.cpp"
         "src/maps/path_finding_system.cpp"
@@ -90,6 +87,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES ENABLE_EXPORTS 0)
 # External header-only libraries in the ext/
 target_include_directories(${PROJECT_NAME} PUBLIC ext/stb_image/)
 target_include_directories(${PROJECT_NAME} PUBLIC ext/gl3w)
+target_include_directories(${PROJECT_NAME} PUBLIC ext/nlohmann/)
 
 # Find OpenGL
 find_package(OpenGL REQUIRED)
