@@ -16,6 +16,7 @@
 #include "maps/map_objects.hpp"
 #include "ui/button.hpp"
 #include "ui/ui_system.hpp"
+#include "ui/ui_entities.hpp"
 #include "ai/ai.hpp"
 
 // stlib
@@ -269,6 +270,9 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 
 void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 {
+	// HP bar test
+	HPBar::createHPBar({ frameBufferWidth / 4, 120 });
+
 	// Create UI buttons
 	auto player_button_1 = Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth / 4, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::RAOUL }); });
