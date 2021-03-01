@@ -107,10 +107,10 @@ void UISystem::updatePlayerSkillButtons(const PlayerType& player)
 	}
 }
 
-// Handles highlighting player buttons on player change and swapping skill buttons
+// Handles highlighting player buttons on player change and swapping skill UI
 void UISystem::onPlayerChange(const PlayerChangeEvent& event)
 {
-	// update skill button UI
+	// update skill UI
 	auto newPlayer = event.newActiveEntity;
 	assert(newPlayer.has<PlayerComponent>());
 	updatePlayerSkillButtons(newPlayer.get<PlayerComponent>().player);
@@ -160,7 +160,7 @@ void UISystem::onPlayerChange(const PlayerChangeEvent& event)
 	}
 }
 
-ECS::Entity& UISystem::getToolTip(PlayerType player, SkillType skill)
+ECS::Entity& UISystem::getToolTip(SkillType skill)
 {
 	if (skill == SkillType::MOVE)
 	{
@@ -171,7 +171,7 @@ ECS::Entity& UISystem::getToolTip(PlayerType player, SkillType skill)
 	for (auto& entity : ECS::registry<ToolTip>.entities)
 	{
 		auto skillInfo = entity.get<SkillInfoComponent>();
-		if (skillInfo.player == player && skillInfo.skillType == skill)
+		if (skillInfo.skillType == skill)
 		{
 			return entity;
 		}
@@ -180,28 +180,6 @@ ECS::Entity& UISystem::getToolTip(PlayerType player, SkillType skill)
 	// temporary default tooltip
 	assert(ECS::registry<MoveToolTipComponent>.size() > 0);
 	return ECS::registry<MoveToolTipComponent>.entities.front();
-}
-
-ECS::Entity& UISystem::getSkillButton(PlayerType player, SkillType skill)
-{
-	if (skill == SkillType::MOVE)
-	{
-		assert(ECS::registry<MoveButtonComponent>.size() > 0);
-		return ECS::registry<MoveButtonComponent>.entities.front();
-	}
-
-	for (auto& entity : ECS::registry<SkillButton>.entities)
-	{
-		auto skillInfo = entity.get<SkillInfoComponent>();
-		if (skillInfo.player == player && skillInfo.skillType == skill)
-		{
-			return entity;
-		}
-	}
-
-	// temporary default tooltip
-	assert(ECS::registry<MoveButtonComponent>.size() > 0);
-	return ECS::registry<MoveButtonComponent>.entities.front();
 }
 
 void UISystem::clearToolTips()
@@ -272,7 +250,7 @@ void UISystem::onMouseHover(const RawMouseHoverEvent& event)
 			SkillType skillType = skillInfo.skillType;
 			PlayerType player = skillInfo.player;
 
-			ECS::Entity& toolTip = getToolTip(player, skillType);
+			ECS::Entity& toolTip = getToolTip(skillType);
 			auto& vis = toolTip.get<VisibilityComponent>();
 			vis.isVisible = true;
 
@@ -289,13 +267,12 @@ void UISystem::onMouseHover(const RawMouseHoverEvent& event)
 void UISystem::onSkillActivate(const SetActiveSkillEvent& event)
 {
 	auto entity = event.entity;
-	PlayerType player = entity.get<PlayerComponent>().player;
-
 	for (auto& entity : ECS::registry<SkillButton>.entities)
 	{
+		assert(entity.has<SkillInfoComponent>() && entity.has<ButtonStateComponent>());
 		auto skillInfo = entity.get<SkillInfoComponent>();
 		auto& buttonState = entity.get<ButtonStateComponent>();
-		if (skillInfo.player == player && skillInfo.skillType == event.type || event.type == SkillType::MOVE)
+		if (skillInfo.skillType == event.type || event.type == SkillType::MOVE)
 		{
 			if (!buttonState.isDisabled)
 			{
@@ -319,6 +296,7 @@ void UISystem::onSkillFinished(const FinishedSkillEvent& event)
 {
 	for (auto& entity : ECS::registry<SkillButton>.entities)
 	{
+		assert(entity.has<ButtonStateComponent>());
 		auto& buttonState = entity.get<ButtonStateComponent>();
 		if (!buttonState.isDisabled)
 		{
@@ -340,6 +318,7 @@ void UISystem::playMouseClickFX(vec2 position)
 		{
 			entity.get<Motion>().position = position;
 			entity.get<AnimationsComponent>().currAnimData.currFrame = 0;
+			break;
 		}
 	}
 }

@@ -45,5 +45,5 @@ private:
 	void updatePlayerSkillButtons(const PlayerType& player);
 
 	void clearToolTips();
-	ECS::Entity& getToolTip(PlayerType player, SkillType skill);
+	ECS::Entity& getToolTip(SkillType skill);
 };
