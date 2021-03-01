@@ -32,7 +32,7 @@ inline std::string mapsPath(const std::string& name) { return dataPath() + "/map
 inline std::string objectsPath(const std::string& name) { return dataPath() + "/objects/" + name; };
 inline std::string uiPath(const std::string& name) { return dataPath() + "/ui/" + name; };
 
-enum class PlayerType { RAOUL, TAJI, CHIA, SPICY };
+enum class PlayerType { RAOUL, TAJI, CHIA, EMBER };
 
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)
@@ -41,6 +41,14 @@ struct Transform {
 	void scale(vec2 scale);
 	void rotate(float radians);
 	void translate(vec2 offset);
+};
+
+enum CollisionGroup
+{
+	NONE = 0,
+	PLAYER = 1 << 0,
+	MOB = 1 << 1,
+	ALL = ~NONE
 };
 
 // All data relevant to the shape and motion of entities
@@ -56,6 +64,9 @@ struct Motion {
 	float orientation = 1;
 
 	std::stack<vec2> path;
+
+	CollisionGroup colliderType = CollisionGroup::NONE;
+	CollisionGroup collidesWith = CollisionGroup::NONE;
 };
 
 //PlaceHolder please replace with the real one once someone has made them or continue to use these but rename

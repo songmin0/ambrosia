@@ -71,32 +71,47 @@ void UISystem::onMouseClick(const RawMouseClickEvent& event)
 // Handles highlighting player buttons on player change
 void UISystem::onPlayerChange(const PlayerChangeEvent& event)
 {
-	for (auto entity : ECS::registry<PlayerComponent>.entities) {
-		PlayerType player = entity.get<PlayerComponent>().player;
+	// Go through all the buttons and update their animations
+	for (auto playerButton : ECS::registry<PlayerButtonComponent>.entities)
+	{
+		auto& animComponent = playerButton.get<AnimationsComponent>();
+		auto& playerButtonComponent = playerButton.get<PlayerButtonComponent>();
 
-		// find the player's corresponding player button
-		for (auto playerButton : ECS::registry<PlayerButtonComponent>.entities) {
-			auto& playerButtonComponent = playerButton.get<PlayerButtonComponent>();
-			if (player != playerButtonComponent.player) {
-				continue;
-			}
+		// Find the player associated with this button
+		bool playerFound = false;
+		for (auto player : ECS::registry<PlayerComponent>.entities)
+		{
+			auto& playerComponent = player.get<PlayerComponent>();
 
-			auto& anim = playerButton.get<AnimationsComponent>();
-			// show active button if player is active
-			if (entity.has<TurnSystem::TurnComponentIsActive>()) {
-				anim.changeAnimation(AnimationType::ACTIVE);
+			// Check whether this is the player associated with the button
+			if (playerComponent.player == playerButtonComponent.player)
+			{
+				auto& turnComponent = player.get<TurnSystem::TurnComponent>();
+
+				// If the player is dead or they completed their turn, show disabled button
+				if (player.has<DeathTimer>() || TurnSystem::hasCompletedTurn(turnComponent))
+				{
+					animComponent.changeAnimation(AnimationType::DISABLED);
+				}
+				// If it's the player's turn, show active button
+				else if (player.id == event.newActiveEntity.id)
+				{
+					animComponent.changeAnimation(AnimationType::ACTIVE);
+				}
+				// Otherwise show inactive button
+				else
+				{
+					animComponent.changeAnimation(AnimationType::INACTIVE);
+				}
+				playerFound = true;
 				break;
 			}
+		}
 
-			auto& turnComponent = entity.get<TurnSystem::TurnComponent>();
-			// show disable button if player has completed their turn
-			if (TurnSystem::hasCompletedTurn(turnComponent)) {
-				anim.changeAnimation(AnimationType::DISABLED);
-			}
-			else { // show inactive button
-				anim.changeAnimation(AnimationType::INACTIVE);
-			}
-			break;
+		// If the player wasn't found, then the player is probably dead and has been removed from the registry
+		if (!playerFound)
+		{
+			animComponent.changeAnimation(AnimationType::DISABLED);
 		}
 	}
 }

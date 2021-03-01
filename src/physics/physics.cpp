@@ -32,24 +32,32 @@ vec2 getBoundingBox(const Motion& motion)
 
 bool collides(const Motion& motion1, const Motion& motion2)
 {
-	auto boundingBox1 = getBoundingBox(motion1);
-	auto boundingBox2 = getBoundingBox(motion2);
+	// Before checking the bounding boxes, check whether these entities are allowed
+	// to collide with one another
+	if (motion1.collidesWith & motion2.colliderType ||
+			motion2.collidesWith & motion1.colliderType)
+	{
+		auto boundingBox1 = getBoundingBox(motion1);
+		auto boundingBox2 = getBoundingBox(motion2);
 
-	bool collisionX = boundingBox1.x + motion1.position.x >= motion2.position.x &&
-						motion1.position.x <= boundingBox2.x + motion2.position.x;
+		bool collisionX = boundingBox1.x + motion1.position.x >= motion2.position.x &&
+											motion1.position.x <= boundingBox2.x + motion2.position.x;
 
-	bool collisionY = motion1.position.y - boundingBox1.y <= motion2.position.y &&
-						motion1.position.y >= motion2.position.y - boundingBox2.y;
+		bool collisionY = motion1.position.y - boundingBox1.y <= motion2.position.y &&
+											motion1.position.y >= motion2.position.y - boundingBox2.y;
 
-	bool debugEnabled = false;
-	if (debugEnabled && collisionX && collisionY) {
-		std::cout << "bounding box 1 x: " << boundingBox1.x;
-		std::cout << "bounding box 1 y: " << boundingBox1.y;
-		std::cout << "bounding box 2 x: " << boundingBox2.x;
-		std::cout << "bounding box 2 y: " << boundingBox2.y;
+		bool debugEnabled = false;
+		if (debugEnabled && collisionX && collisionY) {
+			std::cout << "bounding box 1 x: " << boundingBox1.x;
+			std::cout << "bounding box 1 y: " << boundingBox1.y;
+			std::cout << "bounding box 2 x: " << boundingBox2.x;
+			std::cout << "bounding box 2 y: " << boundingBox2.y;
+		}
+
+		return collisionX && collisionY;
 	}
-	
-	return collisionX && collisionY;
+
+	return false;
 }
 
 void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
@@ -72,9 +80,11 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 				motion.path.pop();
 
 				// When entity reaches end of path, the movement phase of its turn will end
-				if (motion.path.empty() && entity.has<TurnSystem::TurnComponent>())
+				if (motion.path.empty())
 				{
-					entity.get<TurnSystem::TurnComponent>().hasMoved = true;
+					FinishedMovementEvent event;
+					event.entity = entity;
+					EventSystem<FinishedMovementEvent>::instance().sendEvent(event);
 				}
 			}
 

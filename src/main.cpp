@@ -18,6 +18,8 @@
 #include "animation/animation_system.hpp"
 #include "maps/path_finding_system.hpp"
 #include "ui/ui_system.hpp"
+#include "skills/skill_system.hpp"
+#include "game/stats_system.hpp"
 
 
 using Clock = std::chrono::high_resolution_clock;
@@ -45,6 +47,8 @@ int main()
 	AnimationSystem animations;
 	UISystem ui;
 	ProjectileSystem projectileSystem;
+	SkillSystem skillSystem;
+	StatsSystem statsSystem;
 
 	// Set all states to default
 	world.restart();
@@ -74,6 +78,8 @@ int main()
 			physics.step(deltaTime, window_size_in_game_units);
 			world.handleCollisions();
 			projectileSystem.step(deltaTime);
+			skillSystem.step(deltaTime);
+			statsSystem.step(deltaTime);
 			animations.step();
 			turnSystem.step(deltaTime);
 			renderer.draw(window_size_in_game_units);

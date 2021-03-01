@@ -39,6 +39,11 @@ public:
 	// OpenGL window handle
 	GLFWwindow* window;
 private:
+	void createMap(int frameBufferWidth, int frameBufferHeight);
+	void createButtons(int frameBufferWidth, int frameBufferHeight);
+	void createPlayers(int frameBufferWidth, int frameBufferHeight);
+	void createMobs(int frameBufferWidth, int frameBufferHeight);
+
 	// Input callback functions
 	void onKey(int key, int, int action, int mod);
 	void onMouseClick(int button, int action, int mods) const;
@@ -55,6 +60,8 @@ private:
 	// Player test
 	ECS::Entity player_raoul;
 	ECS::Entity player_taji;
+	ECS::Entity player_ember;
+	ECS::Entity player_chia;
 	
 	// music references
 	Mix_Music* background_music;
