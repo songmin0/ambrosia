@@ -100,8 +100,8 @@ void WorldSystem::initAudio()
 
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
 		throw std::runtime_error("Failed to open audio device");
-
-	background_music = Mix_LoadMUS(audioPath("music.wav").c_str());
+// REMEMEMBER TO CHANGE BACK
+	background_music = Mix_LoadMUS(audioPath("silence.wav").c_str());
 	salmon_dead_sound = Mix_LoadWAV(audioPath("salmon_dead.wav").c_str());
 	salmon_eat_sound = Mix_LoadWAV(audioPath("salmon_eat.wav").c_str());
 
