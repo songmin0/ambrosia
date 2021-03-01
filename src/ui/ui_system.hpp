@@ -40,8 +40,12 @@ private:
 	EventListenerInfo finishedSkillListener;
 	void onSkillFinished(const FinishedSkillEvent& event);
 
+	EventListenerInfo finishedMovementListener;
+	void onMoveFinished(const FinishedMovementEvent& event);
+
 	void playMouseClickFX(vec2 position);
-	void updatePlayerSkillButtons(const PlayerType& player);
+	void updatePlayerSkillButton(ECS::Entity& entity);
+	void activateSkillButton(const SkillType& skillType);
 
 	void clearToolTips();
 	ECS::Entity& getToolTip(SkillType skill);

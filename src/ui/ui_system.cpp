@@ -17,6 +17,9 @@ UISystem::UISystem()
 
 	finishedSkillListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
 		std::bind(&UISystem::onSkillFinished, this, std::placeholders::_1));
+
+	finishedMovementListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
+		std::bind(&UISystem::onMoveFinished, this, std::placeholders::_1));
 }
 
 UISystem::~UISystem()
@@ -30,15 +33,19 @@ UISystem::~UISystem()
 	}
 
 	if (mouseHoverListener.isValid()) {
-		EventSystem<PlayerChangeEvent>::instance().unregisterListener(mouseHoverListener);
+		EventSystem<RawMouseHoverEvent>::instance().unregisterListener(mouseHoverListener);
 	}
 
 	if (activateSkillListener.isValid()) {
-		EventSystem<PlayerChangeEvent>::instance().unregisterListener(activateSkillListener);
+		EventSystem<SetActiveSkillEvent>::instance().unregisterListener(activateSkillListener);
 	}
 
 	if (finishedSkillListener.isValid()) {
-		EventSystem<PlayerChangeEvent>::instance().unregisterListener(finishedSkillListener);
+		EventSystem<FinishedSkillEvent>::instance().unregisterListener(finishedSkillListener);
+	}
+
+	if (finishedMovementListener.isValid()) {
+		EventSystem<FinishedMovementEvent>::instance().unregisterListener(finishedMovementListener);
 	}
 }
 
@@ -99,12 +106,42 @@ void UISystem::onMouseClick(const RawMouseClickEvent& event)
 	EventSystem<MouseClickEvent>::instance().sendEvent(MouseClickEvent{ event.mousePos });
 }
 
-void UISystem::updatePlayerSkillButtons(const PlayerType& player)
+void UISystem::updatePlayerSkillButton(ECS::Entity& entity)
 {
-	for (auto& buttonInfo : ECS::registry<SkillInfoComponent>.components)
+	if (entity.has<PlayerComponent>() && entity.has< TurnSystem::TurnComponent>())
 	{
-		buttonInfo.player = player;
+		const auto& player = entity.get<PlayerComponent>().player;
+		auto& turnComponent = entity.get<TurnSystem::TurnComponent>();
+
+		// If the player is dead or they completed their turn, don't update
+		if (entity.has<DeathTimer>() || TurnSystem::hasCompletedTurn(turnComponent))
+		{
+			return;
+		}
+
+		// update the button textures to that player
+		for (auto& buttonInfo : ECS::registry<SkillInfoComponent>.components)
+		{
+			buttonInfo.player = player;
+		}
+
+		// sync buttons to current action
+		if (turnComponent.canStartMoving()) // for now, this means they can't use skills yet
+		{
+			activateSkillButton(SkillType::MOVE);
+		}
+		else if (turnComponent.canStartSkill())
+		{
+			const auto& skillType = entity.get<SkillComponent>().getActiveSkillType();
+			activateSkillButton(skillType);
+		}
 	}
+}
+
+void UISystem::onMoveFinished(const FinishedMovementEvent& event)
+{
+	auto entity = event.entity;
+	updatePlayerSkillButton(entity);
 }
 
 // Handles highlighting player buttons on player change and swapping skill UI
@@ -112,10 +149,7 @@ void UISystem::onPlayerChange(const PlayerChangeEvent& event)
 {
 	// update skill UI
 	auto newPlayer = event.newActiveEntity;
-	if (newPlayer.has<PlayerComponent>())
-	{
-		updatePlayerSkillButtons(newPlayer.get<PlayerComponent>().player);
-	}
+	updatePlayerSkillButton(newPlayer);
 
 	// Go through all the buttons and update their animations
 	for (auto playerButton : ECS::registry<PlayerButtonComponent>.entities)
@@ -266,15 +300,14 @@ void UISystem::onMouseHover(const RawMouseHoverEvent& event)
 	}
 }
 
-void UISystem::onSkillActivate(const SetActiveSkillEvent& event)
+void UISystem::activateSkillButton(const SkillType& skillType)
 {
-	auto entity = event.entity;
 	for (auto& entity : ECS::registry<SkillButton>.entities)
 	{
 		assert(entity.has<SkillInfoComponent>() && entity.has<ButtonStateComponent>());
 		auto skillInfo = entity.get<SkillInfoComponent>();
 		auto& buttonState = entity.get<ButtonStateComponent>();
-		if (skillInfo.skillType == event.type || event.type == SkillType::MOVE)
+		if (skillInfo.skillType == skillType)
 		{
 			if (!buttonState.isDisabled)
 			{
@@ -291,6 +324,16 @@ void UISystem::onSkillActivate(const SetActiveSkillEvent& event)
 		{
 			buttonState.isActive = false;
 		}
+	}
+}
+
+void UISystem::onSkillActivate(const SetActiveSkillEvent& event)
+{
+	auto player = event.entity;
+	auto& turnComponent = player.get<TurnSystem::TurnComponent>();
+	if (turnComponent.canStartSkill())
+	{
+		activateSkillButton(event.type);
 	}
 }
 
