@@ -2,6 +2,7 @@
 #include "game/common.hpp"
 #include "entities/tiny_ecs.hpp"
 #include "skills/skill_component.hpp"
+#include "button.hpp"
 
 struct ClickableCircleComponent
 {
@@ -35,10 +36,18 @@ struct ButtonStateComponent
 	bool isEnabled;
 };
 
-struct SkillButtonComponent
+struct SkillInfoComponent
 {
-	SkillButtonComponent() : player{ PlayerType::RAOUL }, skillType{ SkillType::SKILL1 } {}
-	SkillButtonComponent(PlayerType playerType, SkillType skill) : player{ playerType }, skillType{ skill } {}
+	SkillInfoComponent() : player{ PlayerType::RAOUL }, skillType{ SkillType::SKILL1 } {}
+	SkillInfoComponent(PlayerType playerType, SkillType skill) : player{ playerType }, skillType{ skill } {}
 	PlayerType player;
 	SkillType skillType;
 };
+
+struct ToolTipRef
+{
+	ToolTipRef(ECS::Entity& entity) : toolTip{ entity } {};
+	ECS::Entity& toolTip;
+};
+
+struct MoveToolTipComponent {};

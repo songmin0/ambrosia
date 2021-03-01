@@ -11,6 +11,15 @@
 
 void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 {
+	// don't render if the entity is not supposed to be visible
+	if (entity.has<VisibilityComponent>())
+	{
+		if (!entity.get<VisibilityComponent>().isVisible)
+		{
+			return;
+		}
+	}
+
 	auto& motion = ECS::registry<Motion>.get(entity);
 	auto& texmesh = *ECS::registry<ShadedMeshRef>.get(entity).reference_to_cache;
 	// Transformation code, see Rendering and Transformation in the template specification for more info
@@ -133,6 +142,15 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 
 void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 {
+	// don't render if the entity is not supposed to be visible
+	if (entity.has<VisibilityComponent>())
+	{
+		if (!entity.get<VisibilityComponent>().isVisible)
+		{
+			return;
+		}
+	}
+
 	auto& motion = entity.get<Motion>();
 	auto& anims = entity.get<AnimationsComponent>();
 	auto& texmesh = *anims.referenceToCache;

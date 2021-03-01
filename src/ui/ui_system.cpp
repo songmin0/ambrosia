@@ -129,62 +129,92 @@ void UISystem::onPlayerChange(const PlayerChangeEvent& event)
 	}
 }
 
+ECS::Entity& UISystem::getToolTip(PlayerType player, SkillType skill)
+{
+	if (skill == SkillType::MOVE)
+	{
+		assert(ECS::registry<MoveToolTipComponent>.size() > 0);
+		return ECS::registry<MoveToolTipComponent>.entities.front();
+	}
+
+	for (auto& entity : ECS::registry<ToolTip>.entities)
+	{
+		auto skillInfo = entity.get<SkillInfoComponent>();
+		if (skillInfo.player == player && skillInfo.skillType == skill)
+		{
+			return entity;
+		}
+	}
+
+	// temporary default tooltip
+	assert(ECS::registry<MoveToolTipComponent>.size() > 0);
+	return ECS::registry<MoveToolTipComponent>.entities.front();
+}
+
+void UISystem::clearToolTips()
+{
+	for (auto entity : ECS::registry<ToolTip>.entities)
+	{
+		if (entity.has<VisibilityComponent>())
+		{
+			entity.get<VisibilityComponent>().isVisible = false;
+		}
+	}
+}
+
+void printSkillButtonHoverDebug(PlayerType player, SkillType skillType)
+{
+	std::string playerName = "???";
+	std::string skillName = "???";
+	switch (skillType) {
+	case SkillType::MOVE:
+		skillName = "move";
+		break;
+	case SkillType::SKILL1:
+		skillName = "skill 1";
+		break;
+	case SkillType::SKILL2:
+		skillName = "skill 2";
+		break;
+	case SkillType::SKILL3:
+		skillName = "skill 3";
+		break;
+	case SkillType::SKILL4:
+		skillName = "skill 4";
+		break;
+	default:
+		break;
+	}
+	std::cout << "hovering over: " << playerName << "'s " << skillName << " button" << std::endl;
+}
+
 void UISystem::onMouseHover(const RawMouseHoverEvent& event)
 {
+	bool didTriggerTooltip = false;
 	for (auto entity : ECS::registry<SkillButton>.entities) {
 		assert(entity.has<ClickableCircleComponent>());
 
 		auto& clickableArea = entity.get<ClickableCircleComponent>();
 		if (isClicked(clickableArea, event.mousePos))
 		{
-			auto& skillInfo = entity.get<SkillButtonComponent>();
+			didTriggerTooltip = true;
+			auto& skillInfo = entity.get<SkillInfoComponent>();
 			SkillType skillType = skillInfo.skillType;
 			PlayerType player = skillInfo.player;
-			std::string playerName = "???";
-			std::string skillName = "???";
 
-			switch (player) {
-			case PlayerType::RAOUL:
-				playerName = "raoul";
-				break;
-			case PlayerType::TAJI:
-				playerName = "taji";
-				break;
-			case PlayerType::CHIA:
-				playerName = "chia";
-				break;
-			case PlayerType::EMBER:
-				playerName = "ember";
-				break;
-			default:
-				break;
-			}
+			ECS::Entity& toolTip = getToolTip(player, skillType);
+			auto& vis = toolTip.get<VisibilityComponent>();
+			vis.isVisible = true;
 
-			switch (skillType){
-			case SkillType::MOVE:
-				skillName = "move";
-				break;
-			case SkillType::SKILL1:
-				skillName = "skill 1";
-				break;
-			case SkillType::SKILL2:
-				skillName = "skill 2";
-				break;
-			case SkillType::SKILL3:
-				skillName = "skill 3";
-				break;
-			case SkillType::SKILL4:
-				skillName = "skill 4";
-				break;
-			default:
-				break;
-			}
-			
-			std::cout << "hovering over: " << playerName << "'s " << skillName << " button /n";
+			//printSkillButtonHoverDebug(player, skillType);
 		}
 	}
-}
 
+	if (!didTriggerTooltip)
+	{
+		clearToolTips();
+	}
+}
 
 void UISystem::playMouseClickFX(vec2 position)
 {

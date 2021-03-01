@@ -355,6 +355,11 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 				}
 			}
 		});
+
+	ToolTip::createToolTip(PlayerType::RAOUL, SkillType::MOVE, { 100, frameBufferHeight - 120 });
+	ToolTip::createToolTip(PlayerType::RAOUL, SkillType::SKILL1, { 250, frameBufferHeight - 120 });
+	ToolTip::createToolTip(PlayerType::RAOUL, SkillType::SKILL2, { 400, frameBufferHeight - 120 });
+	ToolTip::createToolTip(PlayerType::RAOUL, SkillType::SKILL3, { 550, frameBufferHeight - 120 });
 }
 
 void WorldSystem::createEffects(int frameBufferWidth, int frameBufferHeight)

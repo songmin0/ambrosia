@@ -15,3 +15,8 @@ struct SkillButton
 {
 	static ECS::Entity createSkillButton(vec2 position, PlayerType player, SkillType skillType, const std::string& texture, void(*callback)());
 };
+
+struct ToolTip
+{
+	static ECS::Entity createToolTip(PlayerType player, SkillType skillType, vec2 position = vec2(0.f));
+};

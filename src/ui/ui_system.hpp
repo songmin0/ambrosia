@@ -35,4 +35,7 @@ private:
 	void onMouseHover(const RawMouseHoverEvent& event);
 
 	void playMouseClickFX(vec2 position);
+
+	void clearToolTips();
+	ECS::Entity& getToolTip(PlayerType player, SkillType skill);
 };

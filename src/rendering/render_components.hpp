@@ -157,3 +157,8 @@ struct ColourShift
 	// other values will do nothing
 	float colour = 0;
 };
+
+struct VisibilityComponent
+{
+	bool isVisible = true;
+};
