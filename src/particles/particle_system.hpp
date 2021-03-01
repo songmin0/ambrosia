@@ -11,10 +11,10 @@ class particle_emitter;
 
 // CPU representation of a particle
 struct Particle {
-		glm::vec3 pos, speed;
-		unsigned char r, g, b, a; // Color
-		float size;
-		float life; // Remaining life of the particle. if < 0 : dead and unused.
+		glm::vec3 pos, speed; //position and speed of the particle
+		unsigned char r, g, b, a; // Color of the particle
+		float size; //The size of the particle
+		float life; // How much remaining time the particle has. if life < 0 then the particle is dead
 };
 
 
@@ -38,8 +38,8 @@ public:
 
 private:
 		// The VBO containing the 4 vertices of the particles.
-
 		GLuint particleVertexBuffer;
+
 		GLuint particlesCenterPositionAndSizeBuffer;
 		GLuint particlesColorBuffer;
 
@@ -49,9 +49,7 @@ private:
 
 		GLuint VertexArrayID;
 
-		GLuint programID;
-
-		GLuint LoadShaders(const char* vertex_file_path, const char* fragment_file_path);
+		Effect shaderProgram;
 		Texture particleTexture;
 
 		//All of the emitters
@@ -73,7 +71,7 @@ private:
 
 };
 
-//This is a base class
+//This is a base class for all particle emitters
 class particle_emitter{
 public:
 		particle_emitter(int particlesPerSecond);

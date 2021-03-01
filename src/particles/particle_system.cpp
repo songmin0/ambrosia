@@ -19,12 +19,21 @@ const GLfloat particle_system::particleVertexBufferData[] = {
 
 particle_system::particle_system()
 {
+		//Initialize all the member variables to stop the compiler from being upset. They are all properly initalized in the initParticles function which is called after all the GL dependencies are done being called.
+		particleVertexBuffer = 0;
+		particlesCenterPositionAndSizeBuffer = 0;
+		particlesColorBuffer = 0;
+		cameraRightWorldspaceID = 0;
+		cameraUpWorldspaceID = 0;
+		projectionMatrixID = 0;
+		VertexArrayID = 0;
+		//Initialize the arrays to 0 to stop the compiler from being upset.
+		memset(particleCenterPositionAndSizeData, 0, sizeof(GLfloat) * MaxParticles * 4);
+		memset(particleColorData, 0, sizeof(GLubyte) * MaxParticles * 4);
 
 		for (int i = 0; i < MaxParticles; i++) {
 				ParticlesContainer[i].life = -1.0f;
-				//ParticlesContainer[i].cameradistance = -1.0f;
 		}
-
 		//TODO make particleContainer a heap variable so that we aren't limited to stack size (use a shared or unique pointer for this)
 
 }
@@ -35,12 +44,12 @@ void particle_system::drawParticles(const mat3& projection)
 {
 
 		// Use the particle shader
-		glUseProgram(programID);
+		glUseProgram(shaderProgram.program);
 
 		// Get the uniform ID's
-		cameraRightWorldspaceID = glGetUniformLocation(programID, "cameraRightWorldspace");
-		cameraUpWorldspaceID = glGetUniformLocation(programID, "cameraUpWorldspace");
-		projectionMatrixID = glGetUniformLocation(programID, "projection");
+		cameraRightWorldspaceID = glGetUniformLocation(shaderProgram.program, "cameraRightWorldspace");
+		cameraUpWorldspaceID = glGetUniformLocation(shaderProgram.program, "cameraUpWorldspace");
+		projectionMatrixID = glGetUniformLocation(shaderProgram.program, "projection");
 
 		// Hardcoded the cameraRight and up direction because we are a 2D game and don't allow camera rotation
 		glUniform3f(cameraRightWorldspaceID, 1.0f, 0.0f, 0.0f);
@@ -50,11 +59,11 @@ void particle_system::drawParticles(const mat3& projection)
 
 		prepRender();
 		//This line make sure that every instance of a particle uses the same 4 verticies
-		glVertexAttribDivisor(0, 0); // particles vertices : always reuse the same 4 vertices -> 0
+		glVertexAttribDivisor(0, 0); // particles vertices : All particles use the same 4 verticies.  The first digit must match the vertex index in the prepRender function
 		//This make sure that every instance of a particle uses a new center position
-		glVertexAttribDivisor(1, 1); // positions : one per quad (its center) -> 1
+		glVertexAttribDivisor(1, 1); // positions : one per particle. The first digit must match the position index in the prepRender function
 		//This make sure that every instance of a particle uses a new colour
-		glVertexAttribDivisor(2, 1); // color : one per quad -> 1
+		glVertexAttribDivisor(2, 1); // color : one per particle.  The first digit must match the color index in the prepRender function
 
 		// Enabling and binding texture to slot 0
 		glActiveTexture(GL_TEXTURE0);
@@ -82,11 +91,11 @@ void particle_system::prepRender() {
 
 
 		GLenum error = glGetError();
-		// 1rst attribute buffer : vertices
+		//particle verticies
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, particleVertexBuffer);
 		glVertexAttribPointer(
-				0, // attribute. No particular reason for 0, but must match the layout in the shader. Also must match the value used in glVertexAttribDivisor
+				0, // index. Must match the shader in variable number, also must match the value used in glVertexAttribDivisor
 				3, // size because each triangle has 3 vertices
 				GL_FLOAT, // type
 				GL_FALSE, // normalized?
@@ -96,11 +105,11 @@ void particle_system::prepRender() {
 		error = glGetError();
 		assert(error == 0);
 
-		// 2nd attribute buffer : positions of particles' centers
+		// particles centers
 		glEnableVertexAttribArray(1);
 		glBindBuffer(GL_ARRAY_BUFFER, particlesCenterPositionAndSizeBuffer);
 		glVertexAttribPointer(
-				1, // attribute. No particular reason for 1, but must match the layout in the shader. Also must match the value used in glVertexAttribDivisor
+				1, // index. Must match the shader in variable number, also must match the value used in glVertexAttribDivisor
 				4, // size: each triangle has an x,y,z location and a size which is a size of 4
 				GL_FLOAT, // type
 				GL_FALSE, // normalized?
@@ -110,14 +119,14 @@ void particle_system::prepRender() {
 		error = glGetError();
 		assert(error == 0);
 
-		// 3rd attribute buffer : particles' colors
+		// particle colours
 		glEnableVertexAttribArray(2);
 		glBindBuffer(GL_ARRAY_BUFFER, particlesColorBuffer);
 		glVertexAttribPointer(
-				2, // attribute. No particular reason for 1, but must match the layout in the shader. Also must match the value used in glVertexAttribDivisor
+				2, // index. Must match the shader in variable number, also must match the value used in glVertexAttribDivisor
 				4, // size: Each triangle has a colour which has values for each rgba which is 4 values.
 				GL_UNSIGNED_BYTE, // type
-				GL_TRUE, // normalized? *** YES, this means that the unsigned char[4] will be accessible with a vec4 (floats) in the shader *** TODO understand why this normalization allows us to use them as floats
+				GL_TRUE, // normalized? *** YES, this means that the unsigned char[4] will be accessible with a vec4 (floats) in the shader *** TODO understand why this normalization allows us to use them as floats or change out colours to floats instead of ubytes
 				0, // stride. this is default value for this function
 				0 // array buffer offset. this is default value for this function
 		);
@@ -184,26 +193,23 @@ void particle_system::step(float elapsed_ms)
 								particleColorData[4 * particlesCount + 3] = p.a;
 
 						}
-						//TODO implement sorting of particles
 						//else {
-								// Particles that just died will be put at the end of the buffer in SortParticles();
-								//p.cameradistance = -1.0f;
+									//TODO sort particles if needed once we add textures to them and they look bad. for now they look fine unsorted but that may change with textures.
 						//}
 
 						particlesCount++;
 
 				}
 		}
-
-		//TODO sort particles if needed once we add textures to them and they look bad. for now they look fine unsorted but that may change with textures.
 }
 
 void particle_system::initParticles()
 {
 		//TODO once the emitters have been built add a for loop that inits all emitters here.
-		// Create and compile our GLSL program from the shaders
-		programID = LoadShaders("data/shaders/Particle.vs", "data/shaders/Particle.fs");
 
+
+		// Create and compile our GLSL program from the shaders
+		shaderProgram.loadFromFile("data/shaders/Particle.vs", "data/shaders/Particle.fs");
 		particleTexture.loadFromFile(objectsPath("candy-fluff-blue.png"));
 
 
@@ -293,102 +299,6 @@ int particle_system::FindUnusedParticle()
 		return 0;
 }
 
-
-
-
-
-
-
-//TODO we probably already have a function for this in the template code so find and use that instead
-//This is from http://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
-GLuint particle_system::LoadShaders(const char* vertex_file_path, const char* fragment_file_path) {
-
-		// Create the shaders
-		GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-		GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-
-		// Read the Vertex Shader code from the file
-		std::string VertexShaderCode;
-		std::ifstream VertexShaderStream(vertex_file_path, std::ios::in);
-		if (VertexShaderStream.is_open()) {
-				std::stringstream sstr;
-				sstr << VertexShaderStream.rdbuf();
-				VertexShaderCode = sstr.str();
-				VertexShaderStream.close();
-		}
-		else {
-				printf("Impossible to open %s. Are you in the right directory ? Don't forget to read the FAQ !\n", vertex_file_path);
-				getchar();
-				return 0;
-		}
-
-		// Read the Fragment Shader code from the file
-		std::string FragmentShaderCode;
-		std::ifstream FragmentShaderStream(fragment_file_path, std::ios::in);
-		if (FragmentShaderStream.is_open()) {
-				std::stringstream sstr;
-				sstr << FragmentShaderStream.rdbuf();
-				FragmentShaderCode = sstr.str();
-				FragmentShaderStream.close();
-		}
-
-		GLint Result = GL_FALSE;
-		int InfoLogLength;
-
-		// Compile Vertex Shader
-		printf("Compiling shader : %s\n", vertex_file_path);
-		char const* VertexSourcePointer = VertexShaderCode.c_str();
-		glShaderSource(VertexShaderID, 1, &VertexSourcePointer, NULL);
-		glCompileShader(VertexShaderID);
-
-		// Check Vertex Shader
-		glGetShaderiv(VertexShaderID, GL_COMPILE_STATUS, &Result);
-		glGetShaderiv(VertexShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-		if (InfoLogLength > 0) {
-				std::vector<char> VertexShaderErrorMessage(InfoLogLength + 1);
-				glGetShaderInfoLog(VertexShaderID, InfoLogLength, NULL, &VertexShaderErrorMessage[0]);
-				printf("%s\n", &VertexShaderErrorMessage[0]);
-		}
-
-		// Compile Fragment Shader
-		printf("Compiling shader : %s\n", fragment_file_path);
-		char const* FragmentSourcePointer = FragmentShaderCode.c_str();
-		glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer, NULL);
-		glCompileShader(FragmentShaderID);
-
-		// Check Fragment Shader
-		glGetShaderiv(FragmentShaderID, GL_COMPILE_STATUS, &Result);
-		glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-		if (InfoLogLength > 0) {
-				std::vector<char> FragmentShaderErrorMessage(InfoLogLength + 1);
-				glGetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0]);
-				printf("%s\n", &FragmentShaderErrorMessage[0]);
-		}
-
-		// Link the program
-		printf("Linking program\n");
-		GLuint ProgramID = glCreateProgram();
-		glAttachShader(ProgramID, VertexShaderID);
-		glAttachShader(ProgramID, FragmentShaderID);
-		glLinkProgram(ProgramID);
-
-		// Check the program
-		glGetProgramiv(ProgramID, GL_LINK_STATUS, &Result);
-		glGetProgramiv(ProgramID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-		if (InfoLogLength > 0) {
-				std::vector<char> ProgramErrorMessage(InfoLogLength + 1);
-				glGetProgramInfoLog(ProgramID, InfoLogLength, NULL, &ProgramErrorMessage[0]);
-				printf("%s\n", &ProgramErrorMessage[0]);
-		}
-
-		glDetachShader(ProgramID, VertexShaderID);
-		glDetachShader(ProgramID, FragmentShaderID);
-
-		glDeleteShader(VertexShaderID);
-		glDeleteShader(FragmentShaderID);
-
-		return ProgramID;
-}
 
 //Everything below here is for emitters
 //TODO if there is time finish transitioning the particle system to use emitters
