@@ -99,9 +99,25 @@ void UISystem::onMouseClick(const RawMouseClickEvent& event)
 	EventSystem<MouseClickEvent>::instance().sendEvent(MouseClickEvent{ event.mousePos });
 }
 
-// Handles highlighting player buttons on player change
+void UISystem::updatePlayerSkillButtons(const PlayerType& player)
+{
+	for (auto skillButton : ECS::registry<SkillButton>.entities)
+	{
+		if (skillButton.has<SkillInfoComponent>())
+		{
+			skillButton.get<SkillInfoComponent>().player = player;
+		}
+	}
+}
+
+// Handles highlighting player buttons on player change and swapping skill buttons
 void UISystem::onPlayerChange(const PlayerChangeEvent& event)
 {
+	// update skill button UI
+	auto newPlayer = event.newActiveEntity;
+	assert(newPlayer.has<PlayerComponent>());
+	updatePlayerSkillButtons(newPlayer.get<PlayerComponent>().player);
+
 	// Go through all the buttons and update their animations
 	for (auto playerButton : ECS::registry<PlayerButtonComponent>.entities)
 	{
@@ -206,6 +222,23 @@ void printSkillButtonHoverDebug(PlayerType player, SkillType skillType)
 {
 	std::string playerName = "???";
 	std::string skillName = "???";
+	switch (player) {
+	case PlayerType::RAOUL:
+		playerName = "raoul";
+		break;
+	case PlayerType::TAJI:
+		playerName = "taji";
+		break;
+	case PlayerType::CHIA:
+		playerName = "chia";
+		break;
+	case PlayerType::EMBER:
+		playerName = "ember";
+		break;
+	default:
+		break;
+	}
+
 	switch (skillType) {
 	case SkillType::MOVE:
 		skillName = "move";

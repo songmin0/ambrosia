@@ -42,6 +42,7 @@ private:
 	void onSkillFinished(const FinishedSkillEvent& event);
 
 	void playMouseClickFX(vec2 position);
+	void updatePlayerSkillButtons(const PlayerType& player);
 
 	void clearToolTips();
 	ECS::Entity& getToolTip(PlayerType player, SkillType skill);

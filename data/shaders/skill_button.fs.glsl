@@ -15,7 +15,6 @@ layout(location = 0) out  vec4 color;
 void main()
 {
 	color = texture(array_sampler, vec3(texcoord, layer));
-	//color = vec4(fcolor, 1.0) * texture(sampler0, vec2(texcoord.x, texcoord.y));
 
 	// procedural dark fade
 	if (isDisabled == 1.0)
