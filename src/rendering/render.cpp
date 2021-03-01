@@ -135,6 +135,14 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	{
 		transform.rotate(glfwGetTime());
 	}
+	
+	// set HP uniform for HP bars
+	GLuint percentHP_uloc = glGetUniformLocation(texmesh.effect.program, "percentHP");
+	if (percentHP_uloc >= 0)
+	{
+		// !!! TODO !!! - pass in the proper HP percentage. The current example renders 20% HP.
+		glUniform1f(percentHP_uloc, 0.2f);
+	}
 
 	// Getting uniform locations for glUniform* calls
 	GLint color_uloc = glGetUniformLocation(texmesh.effect.program, "fcolor");

@@ -54,6 +54,8 @@ SET(SOURCE_FILES
         "src/ui/button.cpp"
         "src/ui/ui_components.cpp"
         "src/ui/ui_system.cpp"
+        "src/ui/effects.hpp"
+        "src/ui/ui_entities.hpp"
         "src/skills/skill.cpp"
         "src/skills/entity_provider.cpp"
         "src/skills/entity_filter.cpp"
@@ -77,7 +79,6 @@ if (IS_OS_MAC)
   link_directories(/usr/local/lib)
 endif()
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES} "src/ui/effects.cpp" "src/ui/effects.hpp")
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 
 # Added this so policy CMP0065 doesn't scream
