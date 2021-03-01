@@ -202,9 +202,9 @@ void particle_system::initParticles()
 {
 		//TODO once the emitters have been built add a for loop that inits all emitters here.
 		// Create and compile our GLSL program from the shaders
-		programID = LoadShaders("data/shaders/Particle.vs", "data/shaders/Particle.fs"); 
-		particleTexture.loadFromFile(texturesPath("fish.png"));
+		programID = LoadShaders("data/shaders/Particle.vs", "data/shaders/Particle.fs");
 
+		particleTexture.loadFromFile(objectsPath("candy-fluff-blue.png"));
 
 
 		//Generate the VAO for this particle system
@@ -258,14 +258,18 @@ void particle_system::createParticles(int numParticles) {
 
 				//TODO we might not need this in the final particle system as we will be using textures
 				// Generate a random colour for each particle
-				ParticlesContainer[particleIndex].r = rand() % 256;
-				ParticlesContainer[particleIndex].g = rand() % 256;
-				ParticlesContainer[particleIndex].b = rand() % 256;
+				//ParticlesContainer[particleIndex].r = rand() % 256;
+				//ParticlesContainer[particleIndex].g = rand() % 256;
+				//ParticlesContainer[particleIndex].b = rand() % 256;
+				ParticlesContainer[particleIndex].r = 255;
+				ParticlesContainer[particleIndex].g = 255;
+				ParticlesContainer[particleIndex].b = 255;
 				//Make them mostly opaque
-				ParticlesContainer[particleIndex].a = (rand() % 125) + 131;
+				//ParticlesContainer[particleIndex].a = (rand() % 125) + 131;
+				ParticlesContainer[particleIndex].a = 200 + rand()% 55;
 
 				//Generate a random size for each particle
-				ParticlesContainer[particleIndex].size = (rand() % 20)  + 10.0f;
+				ParticlesContainer[particleIndex].size = (rand() % 20)  + 20.0f;
 		}
 }
 
