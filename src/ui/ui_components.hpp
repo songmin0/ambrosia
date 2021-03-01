@@ -44,10 +44,6 @@ struct SkillInfoComponent
 	SkillType skillType;
 };
 
-struct ToolTipRef
-{
-	ToolTipRef(ECS::Entity& entity) : toolTip{ entity } {};
-	ECS::Entity& toolTip;
-};
-
+// ECS-style Button Labels
 struct MoveToolTipComponent {};
+struct MoveButtonComponent {};

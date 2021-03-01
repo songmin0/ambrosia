@@ -34,6 +34,7 @@ ECS::Entity ActiveSkillFX::createActiveSkillFX()
 
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<ButtonStateComponent>(true, false, false);
+	entity.emplace<VisibilityComponent>().isVisible = false;
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
 	motion.position = vec2(100, 1024 - 80);

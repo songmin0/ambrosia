@@ -34,6 +34,13 @@ private:
 	EventListenerInfo mouseHoverListener;
 	void onMouseHover(const RawMouseHoverEvent& event);
 
+	EventListenerInfo activateSkillListener;
+	void onSkillActivate(const SetActiveSkillEvent& event);
+	ECS::Entity& getSkillButton(PlayerType player, SkillType skill);
+
+	EventListenerInfo finishedSkillListener;
+	void onSkillFinished(const FinishedSkillEvent& event);
+
 	void playMouseClickFX(vec2 position);
 
 	void clearToolTips();

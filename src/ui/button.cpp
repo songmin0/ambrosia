@@ -107,6 +107,11 @@ ECS::Entity SkillButton::createSkillButton(vec2 position, PlayerType player, Ski
 	entity.emplace<SkillInfoComponent>(player, skillType);
 	entity.emplace<VisibilityComponent>();
 
+	if (skillType == SkillType::MOVE)
+	{
+		entity.emplace<MoveButtonComponent>();
+	}
+
 	entity.emplace<SkillButton>();
 
 	return entity;

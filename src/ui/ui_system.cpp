@@ -11,6 +11,12 @@ UISystem::UISystem()
 
 	mouseHoverListener = EventSystem<RawMouseHoverEvent>::instance().registerListener(
 		std::bind(&UISystem::onMouseHover, this, std::placeholders::_1));
+
+	activateSkillListener = EventSystem<SetActiveSkillEvent>::instance().registerListener(
+		std::bind(&UISystem::onSkillActivate, this, std::placeholders::_1));
+
+	finishedSkillListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
+		std::bind(&UISystem::onSkillFinished, this, std::placeholders::_1));
 }
 
 UISystem::~UISystem()
@@ -21,6 +27,18 @@ UISystem::~UISystem()
 
 	if (playerChangeListener.isValid()) {
 		EventSystem<PlayerChangeEvent>::instance().unregisterListener(playerChangeListener);
+	}
+
+	if (mouseHoverListener.isValid()) {
+		EventSystem<PlayerChangeEvent>::instance().unregisterListener(mouseHoverListener);
+	}
+
+	if (activateSkillListener.isValid()) {
+		EventSystem<PlayerChangeEvent>::instance().unregisterListener(activateSkillListener);
+	}
+
+	if (finishedSkillListener.isValid()) {
+		EventSystem<PlayerChangeEvent>::instance().unregisterListener(finishedSkillListener);
 	}
 }
 
@@ -151,6 +169,28 @@ ECS::Entity& UISystem::getToolTip(PlayerType player, SkillType skill)
 	return ECS::registry<MoveToolTipComponent>.entities.front();
 }
 
+ECS::Entity& UISystem::getSkillButton(PlayerType player, SkillType skill)
+{
+	if (skill == SkillType::MOVE)
+	{
+		assert(ECS::registry<MoveButtonComponent>.size() > 0);
+		return ECS::registry<MoveButtonComponent>.entities.front();
+	}
+
+	for (auto& entity : ECS::registry<SkillButton>.entities)
+	{
+		auto skillInfo = entity.get<SkillInfoComponent>();
+		if (skillInfo.player == player && skillInfo.skillType == skill)
+		{
+			return entity;
+		}
+	}
+
+	// temporary default tooltip
+	assert(ECS::registry<MoveButtonComponent>.size() > 0);
+	return ECS::registry<MoveButtonComponent>.entities.front();
+}
+
 void UISystem::clearToolTips()
 {
 	for (auto entity : ECS::registry<ToolTip>.entities)
@@ -213,6 +253,52 @@ void UISystem::onMouseHover(const RawMouseHoverEvent& event)
 	if (!didTriggerTooltip)
 	{
 		clearToolTips();
+	}
+}
+
+void UISystem::onSkillActivate(const SetActiveSkillEvent& event)
+{
+	auto entity = event.entity;
+	PlayerType player = entity.get<PlayerComponent>().player;
+
+	for (auto& entity : ECS::registry<SkillButton>.entities)
+	{
+		auto skillInfo = entity.get<SkillInfoComponent>();
+		auto& buttonState = entity.get<ButtonStateComponent>();
+		if (skillInfo.player == player && skillInfo.skillType == event.type || event.type == SkillType::MOVE)
+		{
+			if (!buttonState.isDisabled)
+			{
+				buttonState.isActive = true;
+				buttonState.isEnabled = false;
+
+				assert(ECS::registry<ActiveSkillFX>.entities.size() > 0);
+				auto& activeFX = ECS::registry<ActiveSkillFX>.entities.front();
+				activeFX.get<Motion>().position = entity.get<Motion>().position;
+				activeFX.get<VisibilityComponent>().isVisible = true;
+			}
+		}
+		else
+		{
+			buttonState.isActive = false;
+		}
+	}
+}
+
+void UISystem::onSkillFinished(const FinishedSkillEvent& event)
+{
+	for (auto& entity : ECS::registry<SkillButton>.entities)
+	{
+		auto& buttonState = entity.get<ButtonStateComponent>();
+		if (!buttonState.isDisabled)
+		{
+			buttonState.isActive = false;
+			buttonState.isEnabled = true;
+
+			assert(ECS::registry<ActiveSkillFX>.entities.size() > 0);
+			auto& activeFX = ECS::registry<ActiveSkillFX>.entities.front();
+			activeFX.get<VisibilityComponent>().isVisible = false;
+		}
 	}
 }
 
