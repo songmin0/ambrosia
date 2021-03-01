@@ -3,6 +3,11 @@
 #include "entities/tiny_ecs.hpp"
 #include "render_components.hpp"
 
+#include <vector>
+#include <string>
+
+
+class particle_emitter;
 
 // CPU representation of a particle
 struct Particle {
@@ -11,6 +16,8 @@ struct Particle {
 		float size;
 		float life; // Remaining life of the particle. if < 0 : dead and unused.
 };
+
+
 
 //followed this tutorial for most of the initial setup:http://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
 class particle_system 
@@ -24,6 +31,8 @@ public:
 		void initParticles();
 
 		void createParticles(int numParticles);
+
+		static const int MaxParticles = 10000;
 
 
 
@@ -45,9 +54,12 @@ private:
 		GLuint LoadShaders(const char* vertex_file_path, const char* fragment_file_path);
 		Texture particleTexture;
 
+		//All of the emitters
+		std::vector<particle_emitter> emitters;
+
 
 		static const GLfloat particleVertexBufferData[];
-		static const int MaxParticles = 10000;
+		
 		Particle ParticlesContainer[MaxParticles];
 		int lastUsedParticle = 0;
 		int particlesCount = 0;
@@ -59,6 +71,39 @@ private:
 
 		void updateGPU();
 
+};
+
+//This is a base class
+class particle_emitter{
+public:
+		particle_emitter(int particlesPerSecond);
+		void initEmitter(std::string particleTextureFile);
+		virtual void simulateParticles(float elapsedMs, int numNewParticles) = 0;
+		virtual void createParticle(int index) = 0;
+		void step(float elapsedMs);
+protected:
+		GLuint particlesCenterPositionAndSizeBuffer;
+		GLuint particlesColorBuffer;
+		GLuint VertexArrayID;
+		Texture particleTexture;
+		int particlesPerSecond;
+		float msSinceLastParticleSpawn;
+
+
+
+		Particle ParticlesContainer[particle_system::MaxParticles];
+		int lastUsedParticle = 0;
+		int particlesCount = 0;
+
+		GLfloat particleCenterPositionAndSizeData[particle_system::MaxParticles * 4];
+		GLubyte particleColorData[particle_system::MaxParticles * 4];
+
+};
+
+class basic_emitter : public particle_emitter {
+public:
+		void simulateParticles(float elapsedMs, int numNewParticles);
+		void createParticle(int index);
 };
 
 

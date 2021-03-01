@@ -58,7 +58,6 @@ void particle_system::drawParticles(const mat3& projection)
 
 		// Enabling and binding texture to slot 0
 		glActiveTexture(GL_TEXTURE0);
-
 		glBindTexture(GL_TEXTURE_2D, particleTexture.texture_id);
 
 		// Draw the particules
@@ -144,6 +143,11 @@ void particle_system::updateGPU() {
 
 void particle_system::step(float elapsed_ms)
 {
+		//Call the step function for each emitter in the world NOTE this does nothing right now because emitters haven't been fully built
+		for (int i = 0; i < emitters.size(); i ++) {
+				emitters[i].step(elapsed_ms);
+		}
+
 		//TODO add a variable for "timeSinceLastParticle" so that we can create less than like 100 particles per second
 		//Reference http://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
 		float elapsed_time_sec = elapsed_ms / 1000.0f;
@@ -156,7 +160,7 @@ void particle_system::step(float elapsed_ms)
 		particlesCount = 0;
 		for (int i = 0; i < MaxParticles; i++) {
 
-				//Get a reference to the current particle to work with
+				//Get a reference to the current particle
 				Particle& p = ParticlesContainer[i];
 
 				if (p.life > 0.0f) {
@@ -196,6 +200,7 @@ void particle_system::step(float elapsed_ms)
 
 void particle_system::initParticles()
 {
+		//TODO once the emitters have been built add a for loop that inits all emitters here.
 		// Create and compile our GLSL program from the shaders
 		programID = LoadShaders("data/shaders/Particle.vs", "data/shaders/Particle.fs"); 
 		particleTexture.loadFromFile(texturesPath("fish.png"));
@@ -206,11 +211,9 @@ void particle_system::initParticles()
 		glGenVertexArrays(1, &VertexArrayID);
 		glBindVertexArray(VertexArrayID);
 
-		//TODO fill in the particles container with default particles Look at the tutorial code
-		//memset(ParticlesContainer, 0, sizeof(ParticlesContainer));
 
 		GLenum error = glGetError();
-		//billboard_vertex_buffer;
+		//generate the vertex buffer for the particles. This should be used for all particle emitters
 		glGenBuffers(1, &particleVertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, particleVertexBuffer);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(particleVertexBufferData), particleVertexBufferData, GL_STATIC_DRAW);
@@ -381,4 +384,120 @@ GLuint particle_system::LoadShaders(const char* vertex_file_path, const char* fr
 		glDeleteShader(FragmentShaderID);
 
 		return ProgramID;
+}
+
+//Everything below here is for emitters
+//TODO if there is time finish transitioning the particle system to use emitters
+void basic_emitter::simulateParticles(float elapsedMs, int numNewParticles)
+{
+		//TODO spawn new particles in the for loop
+		float elapsedTimeSec = elapsedMs / 1000.0f;
+		particlesCount = 0;
+		for (int i = 0; i < particle_system::MaxParticles; i++) {
+
+				//Get a reference to the current particle to work with
+				Particle& p = ParticlesContainer[i];
+
+				if (p.life > 0.0f) {
+
+						// Decrease life
+						p.life -= elapsedMs;
+						if (p.life > 0.0f) {
+
+								p.pos += p.speed * ((float)elapsedTimeSec);
+
+								// Fill the GPU buffer
+								particleCenterPositionAndSizeData[4 * particlesCount + 0] = p.pos.x;
+								particleCenterPositionAndSizeData[4 * particlesCount + 1] = p.pos.y;
+								particleCenterPositionAndSizeData[4 * particlesCount + 2] = p.pos.z;
+
+								particleCenterPositionAndSizeData[4 * particlesCount + 3] = p.size;
+
+								particleColorData[4 * particlesCount + 0] = p.r;
+								particleColorData[4 * particlesCount + 1] = p.g;
+								particleColorData[4 * particlesCount + 2] = p.b;
+								particleColorData[4 * particlesCount + 3] = p.a;
+
+						}
+						//TODO implement sorting of particles
+						//else {
+								// Particles that just died will be put at the end of the buffer in SortParticles();
+								//p.cameradistance = -1.0f;
+						//}
+
+						particlesCount++;
+
+				}
+		}
+}
+
+void basic_emitter::createParticle(int index)
+{
+		ParticlesContainer[index].life = rand() % 5 * 1000 + 10000;   // This particle will live 5 seconds.
+		ParticlesContainer[index].pos = glm::vec3(-640.0f, rand() % 200 - 412, 0.0f);
+
+		//The main velocity of every particle
+		glm::vec3 mainVelocity = glm::vec3(100.0f, 0.0f, 0.0f);
+		//Genertate a random velocity so not all particles follow the same direction
+		glm::vec3 randomVelocity = glm::vec3(
+				rand() % 25,
+				rand() % 5,
+				0.0f
+		);
+
+		ParticlesContainer[index].speed = mainVelocity + randomVelocity;
+
+		//TODO we might not need this in the final particle system as we will be using textures
+		// Generate a random colour for each particle
+		ParticlesContainer[index].r = rand() % 256;
+		ParticlesContainer[index].g = rand() % 256;
+		ParticlesContainer[index].b = rand() % 256;
+		//Make them mostly opaque
+		ParticlesContainer[index].a = (rand() % 125) + 131;
+
+		//Generate a random size for each particle
+		ParticlesContainer[index].size = (rand() % 20) + 10.0f;
+}
+
+particle_emitter::particle_emitter(int particlesPerSecond)
+{
+		this->particlesPerSecond = particlesPerSecond;
+		msSinceLastParticleSpawn = 0;
+}
+
+void particle_emitter::initEmitter(std::string particleTextureFile)
+{
+
+		particleTexture.loadFromFile(texturesPath(particleTextureFile));
+
+
+
+		//Generate the VAO for this particle system
+		glGenVertexArrays(1, &VertexArrayID);
+		glBindVertexArray(VertexArrayID);
+
+
+		GLenum error = glGetError();
+
+		error = glGetError();
+		// The VBO containing the positions and sizes of the particles
+		glGenBuffers(1, &particlesCenterPositionAndSizeBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, particlesCenterPositionAndSizeBuffer);
+		// Initialize with empty (NULL) buffer : it will be updated later, each frame.
+		glBufferData(GL_ARRAY_BUFFER, particle_system::MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
+		// The VBO containing the colors of the particles
+		//particles_color_buffer;
+		glGenBuffers(1, &particlesColorBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, particlesColorBuffer);
+		// Initialize with empty (NULL) buffer : it will be updated later, each frame.
+		glBufferData(GL_ARRAY_BUFFER, particle_system::MaxParticles * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
+
+
+}
+
+void particle_emitter::step(float elapsedMs)
+{
+		msSinceLastParticleSpawn += elapsedMs;
+		int numNewParticles = (elapsedMs / 1000.0f) * particlesPerSecond;
+		this->simulateParticles(elapsedMs, numNewParticles);
 }
