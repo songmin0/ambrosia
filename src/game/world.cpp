@@ -202,9 +202,9 @@ void WorldSystem::restart()
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
 	createMap(frameBufferWidth, frameBufferHeight);
-	createButtons(frameBufferWidth, frameBufferHeight);
 	createPlayers(frameBufferWidth, frameBufferHeight);
 	createMobs(frameBufferWidth, frameBufferHeight);
+	createButtons(frameBufferWidth, frameBufferHeight);
 	createEffects(frameBufferWidth, frameBufferHeight);
 } 
 
@@ -462,6 +462,4 @@ void WorldSystem::onMouseHover(double xpos, double ypos) const
 	RawMouseHoverEvent event;
 	event.mousePos = { xpos, ypos };
 	EventSystem<RawMouseHoverEvent>::instance().sendEvent(event);
-	//std::cout << "xpos: " << xpos;
-	//std::cout << "ypos: " << ypos;
 }

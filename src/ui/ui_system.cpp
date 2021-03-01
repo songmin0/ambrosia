@@ -112,8 +112,10 @@ void UISystem::onPlayerChange(const PlayerChangeEvent& event)
 {
 	// update skill UI
 	auto newPlayer = event.newActiveEntity;
-	assert(newPlayer.has<PlayerComponent>());
-	updatePlayerSkillButtons(newPlayer.get<PlayerComponent>().player);
+	if (newPlayer.has<PlayerComponent>())
+	{
+		updatePlayerSkillButtons(newPlayer.get<PlayerComponent>().player);
+	}
 
 	// Go through all the buttons and update their animations
 	for (auto playerButton : ECS::registry<PlayerButtonComponent>.entities)
