@@ -43,6 +43,14 @@ struct Transform {
 	void translate(vec2 offset);
 };
 
+enum CollisionGroup
+{
+	NONE = 0,
+	PLAYER = 1 << 0,
+	MOB = 1 << 1,
+	ALL = ~NONE
+};
+
 // All data relevant to the shape and motion of entities
 struct Motion {
 	vec2 position = { 0, 0 };
@@ -56,6 +64,9 @@ struct Motion {
 	float orientation = 1;
 
 	std::stack<vec2> path;
+
+	CollisionGroup colliderType = CollisionGroup::NONE;
+	CollisionGroup collidesWith = CollisionGroup::NONE;
 };
 
 //PlaceHolder please replace with the real one once someone has made them or continue to use these but rename

@@ -32,10 +32,13 @@ SET(SOURCE_FILES
         "src/animation/animation_system.cpp"
         "src/entities/egg.cpp"
         "src/entities/raoul.cpp"
+        "src/entities/taji.cpp"
         "src/entities/tiny_ecs.cpp"
         "src/game/common.cpp"
         "src/game/turn_system.cpp"
         "src/game/world.cpp"
+        "src/game/stats_component.cpp"
+        "src/game/stats_system.cpp"
         "src/maps/map.cpp"
         "src/maps/map_objects.cpp"
         "src/maps/path_finding_system.cpp"
@@ -49,7 +52,11 @@ SET(SOURCE_FILES
         "src/ui/button.cpp"
         "src/ui/ui_components.cpp"
         "src/ui/ui_system.cpp"
-        "src/particles/particle_system.cpp")
+        "src/particles/particle_system.cpp"
+        "src/skills/skill.cpp"
+        "src/skills/entity_provider.cpp"
+        "src/skills/entity_filter.cpp"
+        "src/skills/skill_system.cpp")
 
 # Add the directories that the compiler has to search for #include files
 INCLUDE_DIRECTORIES(

@@ -35,6 +35,8 @@ ECS::Entity Egg::createEgg(vec2 pos)
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ 0.8f, 0.8f });
 	motion.orientation = -1;
+	motion.colliderType = CollisionGroup::MOB;
+	motion.collidesWith = CollisionGroup::PLAYER;
 
 
 	// hitbox scaling
@@ -69,6 +71,24 @@ ECS::Entity Egg::createEgg(vec2 pos)
 
 	// start off moving
 	anims.changeAnimation(AnimationType::MOVE);
+
+	// Initialize stats
+	auto& statsComponent = entity.emplace<StatsComponent>();
+	statsComponent.stats[StatType::HP] = 100.f;
+	statsComponent.stats[StatType::AMBROSIA] = 0.f;
+	statsComponent.stats[StatType::STRENGTH] = 1.f;
+
+	// Initialize skills
+	auto& skillComponent = entity.emplace<SkillComponent>();
+
+	// Egg shell projectile
+	SkillParams eggShellParams;
+	eggShellParams.instigator = entity;
+	eggShellParams.animationType = AnimationType::ATTACK1;
+	eggShellParams.delay = 0.6f;
+	eggShellParams.damage = 10.f;
+	eggShellParams.collidesWith = CollisionGroup::PLAYER;
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(eggShellParams, ProjectileType::EGG_SHELL));
 
 	return entity;
 };

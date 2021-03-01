@@ -26,8 +26,14 @@ public:
 		// Stucture to store turn information
 		struct TurnComponent
 		{
+			inline bool canStartMoving() {return !hasMoved && !isMoving;}
+			inline bool canStartSkill() {return hasMoved && !hasUsedSkill && !isUsingSkill;}
+
+			bool isMoving = false;
+			bool isUsingSkill = false;
+
 			bool hasMoved = false;
-			bool hasUsedSKill = false;
+			bool hasUsedSkill = false;
 		};
 
 		struct TurnComponentIsActive
@@ -45,4 +51,10 @@ private:
 
 	void onPlayerButtonClick(const PlayerButtonEvent& event);
 	EventListenerInfo playerButtonListener;
+
+	void onFinishedMovement(const FinishedMovementEvent& event);
+	EventListenerInfo finishedMovementListener;
+
+	void onFinishedSkill(const FinishedSkillEvent& event);
+	EventListenerInfo finishedSkillListener;
 };

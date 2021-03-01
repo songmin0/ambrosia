@@ -19,6 +19,8 @@
 #include "maps/path_finding_system.hpp"
 #include "ui/ui_system.hpp"
 #include "particle_system.hpp"
+#include "skills/skill_system.hpp"
+#include "game/stats_system.hpp"
 
 
 using Clock = std::chrono::high_resolution_clock;
@@ -47,8 +49,8 @@ int main()
 	AnimationSystem animations;
 	UISystem ui;
 	ProjectileSystem projectileSystem;
-	
-
+	SkillSystem skillSystem;
+	StatsSystem statsSystem;
 
 	// Set all states to default
 	world.restart();
@@ -59,9 +61,6 @@ int main()
 	// Variable timestep loop
 	while (!world.isOver())
 	{
-		// Processes system messages, if this wasn't present the window would become unresponsive
-		glfwPollEvents();
-
 		// Calculating elapsed times in milliseconds from the previous iteration
 		auto now = Clock::now();
 		float elapsed_ms = static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count()) / 1000.f;
@@ -72,12 +71,17 @@ int main()
 			// Reference: https://gafferongames.com/post/fix_your_timestep/#semi-fixed-timestep
 			float deltaTime = std::min(elapsed_ms, dtMax);
 
+			// Processes system messages, if this wasn't present the window would become unresponsive
+			glfwPollEvents();
+
 			DebugSystem::clearDebugComponents();
 			ai.step(deltaTime, window_size_in_game_units);
 			world.step(deltaTime, window_size_in_game_units);
 			physics.step(deltaTime, window_size_in_game_units);
 			world.handleCollisions();
 			projectileSystem.step(deltaTime);
+			skillSystem.step(deltaTime);
+			statsSystem.step(deltaTime);
 			animations.step();
 			turnSystem.step(deltaTime);
 			particleSystem.step(deltaTime);
