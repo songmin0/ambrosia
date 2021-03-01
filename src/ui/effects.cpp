@@ -5,6 +5,15 @@ ECS::Entity MouseClickFX::createMouseClickFX()
 {
 	auto entity = ECS::Entity();
 
+	ShadedMesh& resource = cacheResource("mouseclick_static");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, uiPath("mouseclick_fx/mouseclick_fx_005.png"), "textured");
+	}
+
+	entity.emplace<ShadedMeshRef>(resource);
+
+
 	auto& motion = ECS::registry<Motion>.emplace(entity);
 	motion.position = vec2(0.f);
 	motion.angle = 0.f;
