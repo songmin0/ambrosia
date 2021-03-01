@@ -101,12 +101,9 @@ void UISystem::onMouseClick(const RawMouseClickEvent& event)
 
 void UISystem::updatePlayerSkillButtons(const PlayerType& player)
 {
-	for (auto skillButton : ECS::registry<SkillButton>.entities)
+	for (auto& buttonInfo : ECS::registry<SkillInfoComponent>.components)
 	{
-		if (skillButton.has<SkillInfoComponent>())
-		{
-			skillButton.get<SkillInfoComponent>().player = player;
-		}
+		buttonInfo.player = player;
 	}
 }
 

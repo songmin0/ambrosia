@@ -146,27 +146,28 @@ ECS::Entity SkillButton::createMoveButton(vec2 position, const std::string& text
 ECS::Entity ToolTip::createToolTip(PlayerType player, SkillType skillType, vec2 position)
 {
 	auto entity = ECS::Entity();
-	std::string texture = "move_tooltip";
+
+	std::string skillString = "skill1";
 
 	switch (skillType) {
 	case SkillType::SKILL1:
-		texture = "raoul_skill1";
+		skillString = "skill1";
 		break;
 	case SkillType::SKILL2:
-		texture = "raoul_skill2";
+		skillString = "skill2";
 		break;
 	case SkillType::SKILL3:
-		texture = "raoul_skill3";
+		skillString = "skill3";
 		break;
 	default:
 		entity.emplace<MoveToolTipComponent>();
 		break;
 	}
 
-	ShadedMesh& resource = cacheResource(texture);
+	ShadedMesh& resource = cacheResource(skillString + "_tooltip");
 	if (resource.effect.program.resource == 0)
 	{
-		RenderSystem::createSprite(resource, uiPath("tooltips/" + texture + ".png"), "textured");
+		RenderSystem::createPlayerSpecificMesh(resource, uiPath("tooltips/" + skillString), "skill_button");
 	}
 
 	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
