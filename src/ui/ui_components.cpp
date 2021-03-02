@@ -1,4 +1,5 @@
 #include "ui_components.hpp"
+#include "animation/animation_components.hpp"
 
 ClickableCircleComponent::ClickableCircleComponent(vec2 position, float radius, void (*callback)())
 {

@@ -1,5 +1,8 @@
 #pragma once
 #include "game/common.hpp"
+#include "entities/tiny_ecs.hpp"
+#include "skills/skill_component.hpp"
+#include "button.hpp"
 
 struct ClickableCircleComponent
 {
@@ -23,3 +26,24 @@ struct PlayerButtonComponent
 	PlayerType player;
 	PlayerButtonComponent(PlayerType player);
 };
+
+struct ButtonStateComponent
+{
+	ButtonStateComponent() : isActive{ false }, isDisabled{ false }, isEnabled{ true } {}
+	ButtonStateComponent(bool active, bool disabled, bool enabled) : isActive{ active }, isDisabled{ disabled }, isEnabled{ enabled } {}
+	bool isActive;
+	bool isDisabled;
+	bool isEnabled;
+};
+
+struct SkillInfoComponent
+{
+	SkillInfoComponent() : player{ PlayerType::RAOUL }, skillType{ SkillType::SKILL1 } {}
+	SkillInfoComponent(PlayerType playerType, SkillType skill) : player{ playerType }, skillType{ skill } {}
+	PlayerType player;
+	SkillType skillType;
+};
+
+// ECS-style Button Labels
+struct MoveToolTipComponent {};
+struct MoveButtonComponent {};
