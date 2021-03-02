@@ -62,7 +62,7 @@ ECS::Entity Chia::createChia(vec2 position)
 	meleeParams.animationType = AnimationType::ATTACK1;
 	meleeParams.delay = 1.f;
 	meleeParams.damage = 20.f;
-	meleeParams.range = 300.f;
+	meleeParams.range = 200.f;
 	meleeParams.collideWithMultipleEntities = false;
 	meleeParams.collidesWith = CollisionGroup::MOB;
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<MeleeSkill>(meleeParams));
