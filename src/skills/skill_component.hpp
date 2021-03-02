@@ -8,7 +8,8 @@ enum class SkillType
 	SKILL1,
 	SKILL2,
 	SKILL3,
-	SKILL4
+	SKILL4,
+	MOVE
 };
 
 class SkillComponent
@@ -20,6 +21,7 @@ public:
 	inline void addSkill(SkillType type, const std::shared_ptr<Skill>& skill) {skills[type] = skill;};
 	inline void setActiveSkill(SkillType type) {activeType = type;}
 	inline std::shared_ptr<Skill> getActiveSkill() {return skills[activeType];}
+	inline SkillType getActiveSkillType() { return activeType; }
 
 private:
 	std::unordered_map<SkillType, std::shared_ptr<Skill>> skills;

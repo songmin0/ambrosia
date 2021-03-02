@@ -43,10 +43,12 @@ private:
 	void createButtons(int frameBufferWidth, int frameBufferHeight);
 	void createPlayers(int frameBufferWidth, int frameBufferHeight);
 	void createMobs(int frameBufferWidth, int frameBufferHeight);
+	void createEffects(int frameBufferWidth, int frameBufferHeight);
 
 	// Input callback functions
 	void onKey(int key, int, int action, int mod);
 	void onMouseClick(int button, int action, int mods) const;
+	void onMouseHover(double xpos, double ypos) const;
 
 	// Loads the audio
 	void initAudio();
@@ -58,10 +60,10 @@ private:
 	float current_speed;
 
 	// Player test
-	ECS::Entity player_raoul;
-	ECS::Entity player_taji;
-	ECS::Entity player_ember;
-	ECS::Entity player_chia;
+	ECS::Entity playerRaoul;
+	ECS::Entity playerTaji;
+	ECS::Entity playerEmber;
+	ECS::Entity playerChia;
 	
 	// music references
 	Mix_Music* background_music;

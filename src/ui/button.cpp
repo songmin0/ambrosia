@@ -35,7 +35,7 @@ ECS::Entity Button::createButton(ButtonShape shape, vec2 position, const std::st
 		break;
 	}
 
-	ECS::registry<Button>.emplace(entity);
+	entity.emplace<Button>();
 
 	return entity;
 }
@@ -77,6 +77,65 @@ ECS::Entity Button::createPlayerButton(PlayerType player, vec2 position, void(*c
 	auto disabled_anim = new AnimationData(
 		playerName + "button_disabled", uiPath("player_buttons/" + playerName + "/" + playerName + "_disabled"), 1);
 	anims.addAnimation(AnimationType::DISABLED, *disabled_anim);
+
+	return entity;
+}
+
+ECS::Entity SkillButton::createSkillButton(vec2 position, PlayerType player, SkillType skillType, const std::string& texture, void(*callback)())
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource(texture);
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createPlayerSpecificMesh(resource, uiPath("skill_buttons/" + texture), "skill_button");
+	}
+
+	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = vec2({ 1.f, 1.f });
+	motion.boundingBox = motion.scale * vec2({ resource.texture.size.x, resource.texture.size.y });
+
+	entity.emplace<ClickableCircleComponent>(position, resource.texture.size.x / 2, callback);
+	entity.emplace<ButtonStateComponent>();
+	entity.emplace<SkillInfoComponent>(player, skillType);
+	entity.emplace<VisibilityComponent>();
+
+	entity.emplace<SkillButton>();
+
+	return entity;
+}
+
+ECS::Entity SkillButton::createMoveButton(vec2 position, const std::string& texture, void(*callback)())
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource("move_button");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, uiPath(texture + ".png"), "dynamic_texture");
+	}
+
+	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = vec2({ 1.f, 1.f });
+	motion.boundingBox = motion.scale * vec2({ resource.texture.size.x, resource.texture.size.y });
+
+	entity.emplace<ClickableCircleComponent>(position, resource.texture.size.x / 2, callback);
+	entity.emplace<ButtonStateComponent>();
+	entity.emplace<VisibilityComponent>();
+	entity.emplace<MoveButtonComponent>();
+	entity.emplace<SkillInfoComponent>(PlayerType::RAOUL, SkillType::MOVE);
+
+	entity.emplace<SkillButton>();
 
 	return entity;
 }
