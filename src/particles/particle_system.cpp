@@ -31,6 +31,8 @@ ParticleSystem::ParticleSystem()
 		memset(particleCenterPositionAndSizeData, 0, sizeof(GLfloat) * MaxParticles * 4);
 		memset(particleColorData, 0, sizeof(GLubyte) * MaxParticles * 4);
 
+		secSinceLastParticleSpawn = 0.0f;
+
 		for (int i = 0; i < MaxParticles; i++) {
 				ParticlesContainer[i].life = -1.0f;
 		}
@@ -160,7 +162,12 @@ void ParticleSystem::step(float elapsed_ms)
 		//TODO add a variable for "timeSinceLastParticle" so that we can create less than like 100 particles per second
 		//Reference http://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
 		float elapsed_time_sec = elapsed_ms / 1000.0f;
-		int newParticles = (int)(elapsed_time_sec * 80.0f);
+
+		secSinceLastParticleSpawn += elapsed_time_sec;
+		int newParticles = (int)(secSinceLastParticleSpawn * 1);
+		if (!newParticles == 0) {
+				secSinceLastParticleSpawn = 0.0f;
+		}
 
 		//TODO change particle creation logic so that it happens in the simulate phase and if there is no room for new particles then just don't create them.
 		createParticles(newParticles);
@@ -248,11 +255,11 @@ void ParticleSystem::createParticles(int numParticles) {
 
 		for (int i = 0; i < numParticles; i++) {
 				int particleIndex = FindUnusedParticle();
-				ParticlesContainer[particleIndex].life = rand() % 5 *1000 + 10000;   // This particle will live 5 seconds.
-				ParticlesContainer[particleIndex].pos = glm::vec3(-640.0f, rand()%200 - 412, 0.0f);
+				ParticlesContainer[particleIndex].life = rand() % 10 *1000 + 60000;   // This particle will live at least 60 seconds.
+				ParticlesContainer[particleIndex].pos = glm::vec3(rand()%1280 -640.0f, -512.0f, 0.0f);
 				
 				//The main velocity of every particle
-				glm::vec3 mainVelocity = glm::vec3(100.0f, 0.0f, 0.0f);
+				glm::vec3 mainVelocity = glm::vec3(2.0f, 10.0f, 0.0f);
 				//Genertate a random velocity so not all particles follow the same direction
 				glm::vec3 randomVelocity = glm::vec3(
 						rand() % 25,

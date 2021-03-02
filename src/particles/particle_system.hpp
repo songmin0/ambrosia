@@ -65,6 +65,8 @@ private:
 		GLfloat particleCenterPositionAndSizeData[MaxParticles * 4];
 		GLubyte particleColorData[MaxParticles * 4];
 
+		float secSinceLastParticleSpawn;
+
 		int FindUnusedParticle();
 
 		void updateGPU();
