@@ -19,9 +19,9 @@ public:
 	// Holds information
 	struct MobComponent
 	{
-		ECS::Entity target;	// the (player) target of the mob
-		ECS::Entity getTargetEntity();
-		void setTargetEntity(ECS::Entity);
+		ECS::Entity closestPlayer;	// the closest player to mob
+		ECS::Entity getClosestPlayer();
+		void setClosestPlayer(ECS::Entity);
 	};
 
 private:

@@ -35,14 +35,14 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	(void)window_size_in_game_units; // placeholder to silence unused warning until implemented
 }
 
-ECS::Entity AISystem::MobComponent::getTargetEntity()
+ECS::Entity AISystem::MobComponent::getClosestPlayer()
 {
-	return this->target;
+	return this->closestPlayer;
 }
 
-void AISystem::MobComponent::setTargetEntity(ECS::Entity target)
+void AISystem::MobComponent::setClosestPlayer(ECS::Entity target)
 {
-	this->target = target;
+	this->closestPlayer = target;
 }
 
 bool AISystem::getClosestPlayer(ECS::Entity& mob)
@@ -79,7 +79,7 @@ bool AISystem::getClosestPlayer(ECS::Entity& mob)
 			}
 		}
 	}
-	mobComponent.setTargetEntity(closestPlayer);
+	mobComponent.setClosestPlayer(closestPlayer);
 	return closestDistance != float_max;
 }
 
@@ -93,7 +93,7 @@ void AISystem::startMobMovement(ECS::Entity entity)
 	std::cout << "finding path\n";
 
 	if (getClosestPlayer(entity)) {
-		ECS::Entity closestPlayer = entity.get<MobComponent>().target;
+		ECS::Entity closestPlayer = entity.get<MobComponent>().getClosestPlayer();
 		//Find the direction to travel towards the player
 		vec2 direction = normalize(closestPlayer.get<Motion>().position - motion.position);
 
@@ -115,7 +115,7 @@ void AISystem::startMobSkill(ECS::Entity entity)
 
 	// Skill currently targets the closest player
 	// TODO: This can change with cooperative actions like buffing between mobs
-	ECS::Entity closestPlayer = mobComponent.target;
+	ECS::Entity closestPlayer = mobComponent.getClosestPlayer();
 	// Get position of closest player
 	assert(closestPlayer.has<Motion>());
 	vec2 closestPlayerPosition = closestPlayer.get<Motion>().position;
