@@ -241,7 +241,7 @@ void RenderSystem::drawToScreen()
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	gl_has_errors();
-	
+
 	// Disable alpha channel for mapping the screen texture onto the real screen
 	glDisable(GL_BLEND); // we have a single texture without transparency. Areas with alpha <1 cab arise around the texture transparency boundary, enabling blending would make them visible.
 	glDisable(GL_DEPTH_TEST);
@@ -278,6 +278,9 @@ void RenderSystem::drawToScreen()
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr); // two triangles = 6 vertices; nullptr indicates that there is no offset from the bound index buffer
 	glBindVertexArray(0);
 	gl_has_errors();
+
+	//part->drawParticles(projection_2D);
+	
 }
 
 // Render our game world
@@ -335,7 +338,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 		drawAnimatedMesh(entity, projection_2D);
 		gl_has_errors();
 	}
-
+	particleSystem->drawParticles(projection_2D);
 	// Truely render to the screen
 	drawToScreen();
 

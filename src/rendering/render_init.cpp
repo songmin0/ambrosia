@@ -4,10 +4,13 @@
 #include <iostream>
 #include <fstream>
 
+
 // World initialization
-RenderSystem::RenderSystem(GLFWwindow& window) :
+RenderSystem::RenderSystem(GLFWwindow& window, ParticleSystem* particle) :
 	window(window)
 {
+		particleSystem = particle;
+
 	glfwMakeContextCurrent(&window);
 	glfwSwapInterval(1); // vsync
 
@@ -20,6 +23,7 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 
 	initScreenTexture();
+	this->particleSystem->initParticles();
 }
 
 RenderSystem::~RenderSystem()
