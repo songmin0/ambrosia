@@ -238,21 +238,6 @@ void WorldSystem::handleCollisions()
 				EventSystem<HitEvent>::instance().sendEvent(event);
 			}
 		}
-
-		// Check for collisions between player and mobs
-		if (ECS::registry<PlayerComponent>.has(entity))
-		{
-			if (ECS::registry<AISystem::MobComponent>.has(entity_other))
-			{
-				// initiate death unless already dying
-				if (!ECS::registry<DeathTimer>.has(entity))
-				{
-					// Scream and set timer
-					ECS::registry<DeathTimer>.emplace(entity);
-					Mix_PlayChannel(-1, salmon_dead_sound, 0);
-				}
-			}
-		}
 	}
 
 	// Remove all collisions from this simulation step
