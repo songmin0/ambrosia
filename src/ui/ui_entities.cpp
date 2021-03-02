@@ -59,7 +59,7 @@ ECS::Entity ToolTip::createToolTip(PlayerType player, SkillType skillType, vec2 
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ 1.f, 1.f });
-	motion.boundingBox = motion.scale * vec2({ resource.texture.size.x, resource.texture.size.y });
+	motion.boundingBox = vec2(0.f);
 
 	entity.emplace<SkillInfoComponent>(player, skillType);
 	entity.emplace<VisibilityComponent>().isVisible = false;
@@ -87,7 +87,7 @@ ECS::Entity ToolTip::createMoveToolTip(vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ 1.f, 1.f });
-	motion.boundingBox = motion.scale * vec2({ resource.texture.size.x, resource.texture.size.y });
+	motion.boundingBox = vec2(0.f);
 
 	entity.emplace<SkillInfoComponent>(PlayerType::RAOUL, SkillType::MOVE);
 	entity.emplace<VisibilityComponent>().isVisible = false;
