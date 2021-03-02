@@ -54,6 +54,7 @@ SET(SOURCE_FILES
         "src/ui/button.cpp"
         "src/ui/ui_components.cpp"
         "src/ui/ui_system.cpp"
+        "src/particles/particle_system.cpp"
         "src/skills/skill.cpp"
         "src/skills/entity_provider.cpp"
         "src/skills/entity_filter.cpp"
@@ -69,7 +70,8 @@ INCLUDE_DIRECTORIES(
         "src/maps"
         "src/physics"
         "src/rendering"
-        "src/ui")
+        "src/ui"
+        "src/particles")
 
 # external libraries will be installed into /usr/local/include and /usr/local/lib but that folder is not automatically included in the search on MACs
 if (IS_OS_MAC)
@@ -77,7 +79,7 @@ if (IS_OS_MAC)
   link_directories(/usr/local/lib)
 endif()
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+add_executable(${PROJECT_NAME} ${SOURCE_FILES} "src/ui/ui_entities.cpp" "src/ui/ui_entities.hpp")
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 
 # Added this so policy CMP0065 doesn't scream
