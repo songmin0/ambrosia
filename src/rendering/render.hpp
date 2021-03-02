@@ -4,6 +4,8 @@
 #include "game/common.hpp"
 #include "entities/tiny_ecs.hpp"
 
+#include "particle_system.hpp"
+
 struct InstancedMesh;
 struct ShadedMesh;
 
@@ -16,7 +18,7 @@ class RenderSystem
 {
 public:
 	// Initialize the window
-	RenderSystem(GLFWwindow& window);
+	RenderSystem(GLFWwindow& window, ParticleSystem *particle);
 
 	// Destroy resources associated to one or all entities created by the system
 	~RenderSystem();
@@ -42,6 +44,9 @@ private:
 	void drawTexturedMesh(ECS::Entity entity, const mat3& projection);
 	void drawToScreen();
 	void drawAnimatedMesh(ECS::Entity entity, const mat3& projection);
+
+	ParticleSystem *particleSystem;
+
 
 	// Window handle
 	GLFWwindow& window;
