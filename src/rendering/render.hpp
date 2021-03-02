@@ -4,7 +4,7 @@
 #include "game/common.hpp"
 #include "entities/tiny_ecs.hpp"
 
-#include "particle_system.hpp"
+#include "particles/particle_system.hpp"
 
 struct InstancedMesh;
 struct ShadedMesh;
