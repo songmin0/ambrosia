@@ -18,7 +18,7 @@ class RenderSystem
 {
 public:
 	// Initialize the window
-	RenderSystem(GLFWwindow& window, particle_system *particle);
+	RenderSystem(GLFWwindow& window, ParticleSystem *particle);
 
 	// Destroy resources associated to one or all entities created by the system
 	~RenderSystem();
@@ -44,7 +44,7 @@ private:
 	void drawToScreen();
 	void drawAnimatedMesh(ECS::Entity entity, const mat3& projection);
 
-	particle_system *particleSystem;
+	ParticleSystem *particleSystem;
 
 
 	// Window handle

@@ -10,14 +10,14 @@
 
 
 
-const GLfloat particle_system::particleVertexBufferData[] = {
+const GLfloat ParticleSystem::particleVertexBufferData[] = {
 				-0.5f, -0.5f, 0.0f,
 				0.5f, -0.5f, 0.0f,
 				-0.5f, 0.5f, 0.0f,
 				0.5f, 0.5f, 0.0f,
 };
 
-particle_system::particle_system()
+ParticleSystem::ParticleSystem()
 {
 		//Initialize all the member variables to stop the compiler from being upset. They are all properly initalized in the initParticles function which is called after all the GL dependencies are done being called.
 		particleVertexBuffer = 0;
@@ -40,7 +40,7 @@ particle_system::particle_system()
 
 
 //http://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
-void particle_system::drawParticles(const mat3& projection)
+void ParticleSystem::drawParticles(const mat3& projection)
 {
 
 		// Use the particle shader
@@ -80,7 +80,7 @@ void particle_system::drawParticles(const mat3& projection)
 		glBindVertexArray(0);
 }
 
-void particle_system::prepRender() {
+void ParticleSystem::prepRender() {
 		glBindVertexArray(VertexArrayID);
 		updateGPU();
 
@@ -136,7 +136,7 @@ void particle_system::prepRender() {
 
 
 // from http://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
-void particle_system::updateGPU() {
+void ParticleSystem::updateGPU() {
 		//These two blocks of code reallocate the buffers to stop the program from having to stop and wait for the previous draw calls to be done with the previous data in the buffer. This allows us to now add our new data to the buffers without waiting.
 		glBindBuffer(GL_ARRAY_BUFFER, particlesCenterPositionAndSizeBuffer);
 		glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW); // Buffer orphaning
@@ -150,7 +150,7 @@ void particle_system::updateGPU() {
 		assert(glGetError() == 0);
 }
 
-void particle_system::step(float elapsed_ms)
+void ParticleSystem::step(float elapsed_ms)
 {
 		//Call the step function for each emitter in the world NOTE this does nothing right now because emitters haven't been fully built
 		for (int i = 0; i < emitters.size(); i ++) {
@@ -203,7 +203,7 @@ void particle_system::step(float elapsed_ms)
 		}
 }
 
-void particle_system::initParticles()
+void ParticleSystem::initParticles()
 {
 		//TODO once the emitters have been built add a for loop that inits all emitters here.
 
@@ -243,7 +243,7 @@ void particle_system::initParticles()
 }
 
 
-void particle_system::createParticles(int numParticles) {
+void ParticleSystem::createParticles(int numParticles) {
 
 
 		for (int i = 0; i < numParticles; i++) {
@@ -280,7 +280,7 @@ void particle_system::createParticles(int numParticles) {
 }
 
 // Finds a Particle in ParticlesContainer which isn't used yet or has "died".
-int particle_system::FindUnusedParticle()
+int ParticleSystem::FindUnusedParticle()
 {
 		// from http://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
 		for (int i = lastUsedParticle; i < MaxParticles; i++) {
@@ -302,12 +302,12 @@ int particle_system::FindUnusedParticle()
 
 //Everything below here is for emitters
 //TODO if there is time finish transitioning the particle system to use emitters
-void basic_emitter::simulateParticles(float elapsedMs, int numNewParticles)
+void BasicEmitter::simulateParticles(float elapsedMs, int numNewParticles)
 {
 		//TODO spawn new particles in the for loop
 		float elapsedTimeSec = elapsedMs / 1000.0f;
 		particlesCount = 0;
-		for (int i = 0; i < particle_system::MaxParticles; i++) {
+		for (int i = 0; i < ParticleSystem::MaxParticles; i++) {
 
 				//Get a reference to the current particle to work with
 				Particle& p = ParticlesContainer[i];
@@ -345,7 +345,7 @@ void basic_emitter::simulateParticles(float elapsedMs, int numNewParticles)
 		}
 }
 
-void basic_emitter::createParticle(int index)
+void BasicEmitter::createParticle(int index)
 {
 		ParticlesContainer[index].life = rand() % 5 * 1000 + 10000;   // This particle will live 5 seconds.
 		ParticlesContainer[index].pos = glm::vec3(-640.0f, rand() % 200 - 412, 0.0f);
@@ -373,13 +373,13 @@ void basic_emitter::createParticle(int index)
 		ParticlesContainer[index].size = (rand() % 20) + 10.0f;
 }
 
-particle_emitter::particle_emitter(int particlesPerSecond)
+ParticleEmitter::ParticleEmitter(int particlesPerSecond)
 {
 		this->particlesPerSecond = particlesPerSecond;
 		msSinceLastParticleSpawn = 0;
 }
 
-void particle_emitter::initEmitter(std::string particleTextureFile)
+void ParticleEmitter::initEmitter(std::string particleTextureFile)
 {
 
 		particleTexture.loadFromFile(texturesPath(particleTextureFile));
@@ -398,18 +398,18 @@ void particle_emitter::initEmitter(std::string particleTextureFile)
 		glGenBuffers(1, &particlesCenterPositionAndSizeBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, particlesCenterPositionAndSizeBuffer);
 		// Initialize with empty (NULL) buffer : it will be updated later, each frame.
-		glBufferData(GL_ARRAY_BUFFER, particle_system::MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, ParticleSystem::MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
 		// The VBO containing the colors of the particles
 		//particles_color_buffer;
 		glGenBuffers(1, &particlesColorBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, particlesColorBuffer);
 		// Initialize with empty (NULL) buffer : it will be updated later, each frame.
-		glBufferData(GL_ARRAY_BUFFER, particle_system::MaxParticles * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, ParticleSystem::MaxParticles * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
 
 
 }
 
-void particle_emitter::step(float elapsedMs)
+void ParticleEmitter::step(float elapsedMs)
 {
 		msSinceLastParticleSpawn += elapsedMs;
 		int numNewParticles = (elapsedMs / 1000.0f) * particlesPerSecond;

@@ -7,7 +7,7 @@
 #include <string>
 
 
-class particle_emitter;
+class ParticleEmitter;
 
 // CPU representation of a particle
 struct Particle {
@@ -20,11 +20,11 @@ struct Particle {
 
 
 //followed this tutorial for most of the initial setup:http://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
-class particle_system 
+class ParticleSystem 
 {
 		
 public:
-		particle_system();
+		ParticleSystem();
 		void prepRender();
 		void drawParticles(const mat3& projection);
 		void step(float elapsed_ms);
@@ -53,7 +53,7 @@ private:
 		Texture particleTexture;
 
 		//All of the emitters
-		std::vector<particle_emitter> emitters;
+		std::vector<ParticleEmitter> emitters;
 
 
 		static const GLfloat particleVertexBufferData[];
@@ -72,9 +72,9 @@ private:
 };
 
 //This is a base class for all particle emitters
-class particle_emitter{
+class ParticleEmitter{
 public:
-		particle_emitter(int particlesPerSecond);
+		ParticleEmitter(int particlesPerSecond);
 		void initEmitter(std::string particleTextureFile);
 		virtual void simulateParticles(float elapsedMs, int numNewParticles) = 0;
 		virtual void createParticle(int index) = 0;
@@ -89,16 +89,16 @@ protected:
 
 
 
-		Particle ParticlesContainer[particle_system::MaxParticles];
+		Particle ParticlesContainer[ParticleSystem::MaxParticles];
 		int lastUsedParticle = 0;
 		int particlesCount = 0;
 
-		GLfloat particleCenterPositionAndSizeData[particle_system::MaxParticles * 4];
-		GLubyte particleColorData[particle_system::MaxParticles * 4];
+		GLfloat particleCenterPositionAndSizeData[ParticleSystem::MaxParticles * 4];
+		GLubyte particleColorData[ParticleSystem::MaxParticles * 4];
 
 };
 
-class basic_emitter : public particle_emitter {
+class BasicEmitter : public ParticleEmitter {
 public:
 		void simulateParticles(float elapsedMs, int numNewParticles);
 		void createParticle(int index);

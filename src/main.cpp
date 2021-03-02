@@ -40,7 +40,7 @@ int main()
 {
 	// Initialize the main systems
 	WorldSystem world(window_size_in_px);
-	particle_system particleSystem;
+	ParticleSystem particleSystem;
 	RenderSystem renderer(*world.window, &particleSystem);
 	PhysicsSystem physics;
 	PathFindingSystem pathFindingSystem;

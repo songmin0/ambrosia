@@ -4,8 +4,9 @@
 #include <iostream>
 #include <fstream>
 
+
 // World initialization
-RenderSystem::RenderSystem(GLFWwindow& window, particle_system *particle) :
+RenderSystem::RenderSystem(GLFWwindow& window, ParticleSystem* particle) :
 	window(window)
 {
 		particleSystem = particle;
@@ -22,7 +23,7 @@ RenderSystem::RenderSystem(GLFWwindow& window, particle_system *particle) :
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 
 	initScreenTexture();
-	particleSystem->initParticles();
+	this->particleSystem->initParticles();
 }
 
 RenderSystem::~RenderSystem()
