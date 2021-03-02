@@ -8,12 +8,15 @@
 #include "physics/debug.hpp"
 #include "entities/raoul.hpp"
 #include "entities/taji.hpp"
+#include "entities/ember.hpp"
+#include "entities/chia.hpp"
 #include "entities/egg.hpp"
 #include "rendering/render_components.hpp"
 #include "animation/animation_components.hpp"
 #include "maps/map_objects.hpp"
 #include "ui/button.hpp"
 #include "ui/ui_system.hpp"
+#include "ui/ui_entities.hpp"
 #include "ai/ai.hpp"
 
 // stlib
@@ -267,6 +270,9 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 
 void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 {
+	// HP bar test
+	HPBar::createHPBar({ frameBufferWidth / 4, 120 });
+
 	// Create UI buttons
 	auto player_button_1 = Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth / 4, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::RAOUL }); });
@@ -274,8 +280,8 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 	auto player_button_2 = Button::createPlayerButton(PlayerType::TAJI, { frameBufferWidth / 4 + 200, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::TAJI }); });
 
-	auto player_button_3 = Button::createPlayerButton(PlayerType::SPICY, { frameBufferWidth / 4 + 400, 60 },
-		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::SPICY }); });
+	auto player_button_3 = Button::createPlayerButton(PlayerType::EMBER, { frameBufferWidth / 4 + 400, 60 },
+		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::EMBER }); });
 
 	auto player_button_4 = Button::createPlayerButton(PlayerType::CHIA, { frameBufferWidth / 4 + 600, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::CHIA }); });
@@ -363,13 +369,10 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 
 void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 {
-	// Create a new Raoul
-	player_raoul = Raoul::createRaoul({ 640, 512 }, PlayerType::RAOUL);
+	player_raoul = Raoul::createRaoul({ 640, 512 });
 	player_taji = Taji::createTaji({ 200,700 });
-
-	//TODO replace these with the real other characters
-	auto raoul_3 = Raoul::createRaoul({ 400,700 }, PlayerType::SPICY, 1.f);
-	auto raoul_4 = Raoul::createRaoul({ 400,400 }, PlayerType::CHIA, 2.f);
+	player_ember = Ember::createEmber({ 400,700 });
+	player_chia = Chia::createChia({ 400,400 });
 }
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
@@ -384,7 +387,7 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 {
 	// Animation Test
 	if (action == GLFW_PRESS && key == GLFW_KEY_3) {
-		auto& anim = player_raoul.get<AnimationsComponent>();
+		auto& anim = player_taji.get<AnimationsComponent>();
 		anim.changeAnimation(AnimationType::HIT);
 	}
 	if (action == GLFW_PRESS && key == GLFW_KEY_4) {

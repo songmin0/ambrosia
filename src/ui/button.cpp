@@ -58,9 +58,9 @@ ECS::Entity Button::createPlayerButton(PlayerType player, vec2 position, void(*c
 		playerName = "chia";
 		entity.emplace<PlayerButtonComponent>(PlayerType::CHIA);
 		break;
-	case PlayerType::SPICY:
+	case PlayerType::EMBER:
 		playerName = "spicy";
-		entity.emplace<PlayerButtonComponent>(PlayerType::SPICY);
+		entity.emplace<PlayerButtonComponent>(PlayerType::EMBER);
 		break;
 	default:
 		break;

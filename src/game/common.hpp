@@ -32,7 +32,7 @@ inline std::string mapsPath(const std::string& name) { return dataPath() + "/map
 inline std::string objectsPath(const std::string& name) { return dataPath() + "/objects/" + name; };
 inline std::string uiPath(const std::string& name) { return dataPath() + "/ui/" + name; };
 
-enum class PlayerType { RAOUL, TAJI, CHIA, SPICY };
+enum class PlayerType { RAOUL, TAJI, CHIA, EMBER };
 
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)

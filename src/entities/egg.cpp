@@ -40,7 +40,7 @@ ECS::Entity Egg::createEgg(vec2 pos)
 
 
 	// hitbox scaling
-	auto hitboxScale = vec2({ 0.7f, 0.8f });
+	auto hitboxScale = vec2({ 0.65f, 0.7f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 
 	// Animations

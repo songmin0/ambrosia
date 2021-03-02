@@ -33,6 +33,8 @@ SET(SOURCE_FILES
         "src/entities/egg.cpp"
         "src/entities/raoul.cpp"
         "src/entities/taji.cpp"
+        "src/entities/ember.cpp"
+        "src/entities/chia.cpp"
         "src/entities/tiny_ecs.cpp"
         "src/game/common.cpp"
         "src/game/turn_system.cpp"
@@ -77,7 +79,7 @@ if (IS_OS_MAC)
   link_directories(/usr/local/lib)
 endif()
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+add_executable(${PROJECT_NAME} ${SOURCE_FILES} "src/ui/ui_entities.cpp" "src/ui/ui_entities.hpp")
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 
 # Added this so policy CMP0065 doesn't scream

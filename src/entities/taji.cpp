@@ -27,7 +27,7 @@ ECS::Entity Taji::createTaji(vec2 position, float colourShift)
 	motion.collidesWith = CollisionGroup::MOB;
 
 	// hitbox scaling
-	auto hitboxScale = vec2({ 0.6f, 0.9f });
+	auto hitboxScale = vec2({ 0.5f, 0.85f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 
 	// Animations
@@ -38,6 +38,14 @@ ECS::Entity Taji::createTaji(vec2 position, float colourShift)
 	auto move_anim = new AnimationData(
 			"taji_move", spritePath("players/taji/move/move"), 32);
 	anims.addAnimation(AnimationType::MOVE, *move_anim);
+
+	auto hit = new AnimationData(
+		"taji_hit", spritePath("players/taji/hit/hit"), 49, 1, true, false);
+	anims.addAnimation(AnimationType::HIT, *hit);
+
+	auto defeat = new AnimationData(
+		"taji_defeat", spritePath("players/taji/defeat/defeat"), 61, 1, true, false);
+	anims.addAnimation(AnimationType::DEFEAT, *defeat);
 
 	entity.emplace<Taji>();
 
