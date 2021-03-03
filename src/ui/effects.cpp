@@ -42,7 +42,7 @@ ECS::Entity ActiveSkillFX::createActiveSkillFX()
 	}
 
 	entity.emplace<ShadedMeshRef>(resource);
-	entity.emplace<RenderableComponent>(RenderLayer::BUTTON_FX);
+	entity.emplace<RenderableComponent>(RenderLayer::UI_ACTIVE_SKILL_FX);
 	entity.emplace<ButtonStateComponent>(true, false, false);
 	entity.emplace<VisibilityComponent>().isVisible = false;
 
