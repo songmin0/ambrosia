@@ -216,7 +216,7 @@ void ParticleSystem::initParticles()
 
 
 		// Create and compile our GLSL program from the shaders
-		shaderProgram.loadFromFile("data/shaders/Particle.vs", "data/shaders/Particle.fs");
+		shaderProgram.loadFromFile("data/shaders/Particle.vs.glsl", "data/shaders/Particle.fs.glsl");
 		particleTexture.loadFromFile(objectsPath("candy-fluff-blue.png"));
 
 

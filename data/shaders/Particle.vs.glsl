@@ -1,9 +1,9 @@
-#version 330 core
+#version 330
 
 // Input data for verticies,
-in vec3 squareVertices;
-in vec4 xyzs; // Position of the center of the particule and size of the square
-in vec4 color; // Position of the center of the particule and size of the square
+layout(location = 0) in vec3 squareVertices;
+layout(location = 1) in vec4 xyzs; // Position of the center of the particule and size of the square
+layout(location = 2) in vec4 color; // Position of the center of the particule and size of the square
 
 // Passed to fragment shader
 out vec2 UV;
@@ -25,6 +25,8 @@ void main()
 
 	// Output position of the vertex
 	gl_Position = vec4(projection * vertexPositionWorldspace, 1.0f);
+
+	//gl_Position = vec4(squareVertices, 1.0f);
 	
 	// UV TODO pass this in like in the TA tutorial
 	UV = squareVertices.xy + vec2(0.5, 0.5);
