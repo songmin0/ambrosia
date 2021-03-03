@@ -165,7 +165,7 @@ void ParticleSystem::step(float elapsed_ms)
 
 		secSinceLastParticleSpawn += elapsed_time_sec;
 		int newParticles = (int)(secSinceLastParticleSpawn * 1);
-		if (!newParticles == 0) {
+		if (newParticles != 0) {
 				secSinceLastParticleSpawn = 0.0f;
 		}
 
