@@ -26,7 +26,8 @@ void main()
 
 	// Output position of the vertex
 	gl_Position = vec4(projection * vertexPositionWorldspace, 1.0f);
-//	gl_Position = vec4(squareVertices, 1.0f);
+
+	//gl_Position = vec4(squareVertices, 1.0f);
 	
 	// UV TODO pass this in like in the TA tutorial
 	UV = squareVertices.xy + vec2(0.5, 0.5);
