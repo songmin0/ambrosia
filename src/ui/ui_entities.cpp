@@ -12,6 +12,7 @@ ECS::Entity HPBar::createHPBar(vec2 position)
 	}
 
 	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::UI);
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
 	motion.position = position;
@@ -53,6 +54,7 @@ ECS::Entity ToolTip::createToolTip(PlayerType player, SkillType skillType, vec2 
 	}
 
 	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+	entity.emplace<RenderableComponent>(RenderLayer::UI_TOOLTIP);
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
 	motion.position = position + vec2(resource.texture.size.x / 2.f, -resource.texture.size.y) / 2.f;
@@ -81,6 +83,7 @@ ECS::Entity ToolTip::createMoveToolTip(vec2 position)
 	}
 
 	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+	entity.emplace<RenderableComponent>(RenderLayer::UI_TOOLTIP);
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
 	motion.position = position + vec2(resource.texture.size.x / 2.f, -resource.texture.size.y) / 2.f;

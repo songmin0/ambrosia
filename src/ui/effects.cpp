@@ -12,7 +12,7 @@ ECS::Entity MouseClickFX::createMouseClickFX()
 	}
 
 	entity.emplace<ShadedMeshRef>(resource);
-
+	entity.emplace<RenderableComponent>(RenderLayer::CLICK_FX);
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
 	motion.position = vec2(0.f);
@@ -42,6 +42,7 @@ ECS::Entity ActiveSkillFX::createActiveSkillFX()
 	}
 
 	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::BUTTON_FX);
 	entity.emplace<ButtonStateComponent>(true, false, false);
 	entity.emplace<VisibilityComponent>().isVisible = false;
 

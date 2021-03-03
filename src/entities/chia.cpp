@@ -16,6 +16,7 @@ ECS::Entity Chia::createChia(vec2 position)
 	}
 
 	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
 
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
