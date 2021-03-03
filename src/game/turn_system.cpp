@@ -147,21 +147,14 @@ void TurnSystem::step(float elapsed_ms)
 						// For mobs, need to tell them when its time to move and to perform a skill
 						else if (activeEntity.has<AISystem::MobComponent>())
 						{
-								if (turnComponent.canStartMoving())
+								if (turnComponent.canStartMoving() && turnComponent.canStartSkill())
 								{
 										turnComponent.isMoving = true;
-
-										StartMobMovementEvent event;
-										event.entity = activeEntity;
-										EventSystem<StartMobMovementEvent>::instance().sendEvent(event);
-								}
-								else if (turnComponent.canStartSkill())
-								{
 										turnComponent.isUsingSkill = true;
 
-										StartMobSkillEvent event;
+										StartMobTurnEvent event;
 										event.entity = activeEntity;
-										EventSystem<StartMobSkillEvent>::instance().sendEvent(event);
+										EventSystem<StartMobTurnEvent>::instance().sendEvent(event);
 								}
 						}
 				}

@@ -9,23 +9,15 @@
 AISystem::AISystem(const PathFindingSystem& pfs)
 	: pathFindingSystem(pfs)
 {
-	startMobMovementListener = EventSystem<StartMobMovementEvent>::instance().registerListener(
-			std::bind(&AISystem::onStartMobMovementEvent, this, std::placeholders::_1));
-
-	startMobSkillListener = EventSystem<StartMobSkillEvent>::instance().registerListener(
-			std::bind(&AISystem::onStartMobSkillEvent, this, std::placeholders::_1));
+	startMobTurnListener = EventSystem<StartMobTurnEvent>::instance().registerListener(
+			std::bind(&AISystem::onStartMobTurnEvent, this, std::placeholders::_1));
 }
 
 AISystem::~AISystem()
 {
-	if (startMobMovementListener.isValid())
+	if (startMobTurnListener.isValid())
 	{
-		EventSystem<StartMobMovementEvent>::instance().unregisterListener(startMobMovementListener);
-	}
-
-	if (startMobSkillListener.isValid())
-	{
-		EventSystem<StartMobSkillEvent>::instance().unregisterListener(startMobSkillListener);
+		EventSystem<StartMobTurnEvent>::instance().unregisterListener(startMobTurnListener);
 	}
 }
 
@@ -83,17 +75,22 @@ bool AISystem::getClosestPlayer(ECS::Entity& mob)
 	return closestDistance != float_max;
 }
 
-void AISystem::startMobMovement(ECS::Entity entity)
+void AISystem::startMobTurn(ECS::Entity entity)
 {
 	assert(entity.has<MobComponent>());
-	// Motion component is mandatory
 	assert(entity.has<Motion>());
 	auto& motion = entity.get<Motion>();
+	auto& mobComponent = entity.get<MobComponent>();
+	startMobMovement(entity, motion, mobComponent);
 
+}
+
+void AISystem::startMobMovement(ECS::Entity entity, Motion& motion, MobComponent& mobComponent)
+{
 	std::cout << "finding path\n";
 
 	if (getClosestPlayer(entity)) {
-		ECS::Entity closestPlayer = entity.get<MobComponent>().getClosestPlayer();
+		ECS::Entity closestPlayer = mobComponent.getClosestPlayer();
 		//Find the direction to travel towards the player
 		vec2 direction = normalize(closestPlayer.get<Motion>().position - motion.position);
 
@@ -105,14 +102,8 @@ void AISystem::startMobMovement(ECS::Entity entity)
 	}
 }
 
-void AISystem::startMobSkill(ECS::Entity entity)
+void AISystem::startMobSkill(ECS::Entity entity, Motion& motion, MobComponent& mobComponent)
 {
-	// Motion component is mandatory
-	assert(entity.has<Motion>());
-	assert(entity.has<MobComponent>());
-	auto& motion = entity.get<Motion>();
-	auto& mobComponent = entity.get<MobComponent>();
-
 	// Skill currently targets the closest player
 	// TODO: This can change with cooperative actions like buffing between mobs
 	ECS::Entity closestPlayer = mobComponent.getClosestPlayer();
@@ -126,12 +117,7 @@ void AISystem::startMobSkill(ECS::Entity entity)
 	EventSystem<PerformActiveSkillEvent>::instance().sendEvent(performActiveSkillEvent);
 }
 
-void AISystem::onStartMobMovementEvent(const StartMobMovementEvent& event)
+void AISystem::onStartMobTurnEvent(const StartMobTurnEvent& event)
 {
-	startMobMovement(event.entity);
-}
-
-void AISystem::onStartMobSkillEvent(const StartMobSkillEvent& event)
-{
-	startMobSkill(event.entity);
+	startMobTurn(event.entity);
 }

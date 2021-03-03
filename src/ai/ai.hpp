@@ -34,14 +34,13 @@ public:
 private:
 	bool getClosestPlayer(ECS::Entity& mob);
 
-	void startMobMovement(ECS::Entity entity);
-	void startMobSkill(ECS::Entity entity);
+	void startMobTurn(ECS::Entity entity);
+	void startMobMovement(ECS::Entity entity, Motion& motion, MobComponent& mobComponent);
+	void startMobSkill(ECS::Entity entity, Motion& motion, MobComponent& mobComponent);
 
-	void onStartMobMovementEvent(const StartMobMovementEvent& event);
-	void onStartMobSkillEvent(const StartMobSkillEvent& event);
+	void onStartMobTurnEvent(const StartMobTurnEvent& event);
 
-	EventListenerInfo startMobMovementListener;
-	EventListenerInfo startMobSkillListener;
+	EventListenerInfo startMobTurnListener;
 
 	const PathFindingSystem& pathFindingSystem;
 };

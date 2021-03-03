@@ -32,3 +32,27 @@ struct MoveCloserTask : public Task
 		return returnStatus;
 	}
 };
+
+struct MoveCloserNode : public Node
+{
+	virtual void destroy(Task*) {};
+	virtual Task* create()
+	{
+		task = new MoveCloserTask(*this);
+		return task;
+	}
+	virtual ~MoveCloserNode() { delete task; };
+	MockNode() : task(NULL) {}
+
+	MoveCloserTask* task;
+};
+
+template <class TASK>
+class MoveComposite : public Composite
+{
+public:
+	MoveComposite()
+	{
+
+	}
+};
