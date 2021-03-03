@@ -183,6 +183,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 // Reset the world state to its initial state
 void WorldSystem::restart()
 {
+	std::cout << glGetString(GL_VERSION);
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::listAllComponents();
 	std::cout << "Restarting\n";

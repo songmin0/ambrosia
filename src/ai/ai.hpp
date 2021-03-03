@@ -7,6 +7,12 @@
 
 #include <vector>
 
+enum class MobType
+{
+	MOB,
+	BOSS
+};
+
 // A simple AI system that moves the enemies (mobs and bosses)
 class AISystem
 {
@@ -22,6 +28,7 @@ public:
 		ECS::Entity closestPlayer;	// the closest player to mob
 		ECS::Entity getClosestPlayer();
 		void setClosestPlayer(ECS::Entity);
+		MobType type;
 	};
 
 private:

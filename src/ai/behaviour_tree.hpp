@@ -7,12 +7,6 @@
 
 using namespace std;
 
-enum class MobType
-{
-	MOB,
-	BOSS
-};
-
 enum class Status
 {
 	RUNNING,
@@ -21,58 +15,83 @@ enum class Status
 	INVALID
 };
 
-// Refers to a tree node which stores shared data
-class Task
-{
-protected:
-	Node* node;
-public:
-	Task(Node& node);
-	virtual void onInitilize() {};
-	virtual Status update() = 0;
-	virtual void onTerminate(Status) {};
-};
-
 // Factory for creating tasks
 class Node
 {
 public:
 	virtual Task* create() = 0;
 	virtual void destroy(Task*) = 0;
+	virtual ~Node() {};
 };
 
-class BehaviourTree
+// Refers to a tree node which stores shared data
+class Task
 {
 protected:
-	Behaviour* root;
+	Node* node;
 public:
-	void tick();
+	Task(Node& node) {};
+	virtual ~Task() {};
+	virtual void onInitilize() {};
+	virtual Status update() = 0;
+	virtual void onTerminate(Status) {};
 };
 
 class Behaviour
 {
 protected:
-	virtual void onInitilize() {};
-	virtual Status update() = 0;
-	virtual void onTerminate(Status) {};
-private:
 	Status status;
-	// TODO: Needed to link Node and Task classes to Behaviour
-	Node node;
-	Task task;
+	Node* node;
+	Task* task;
 public:
-	Behaviour() : status(Status::INVALID) {};
-	~Behaviour() {};
+	Behaviour() : task(NULL), node(NULL), status(Status::INVALID) {};
+	Behaviour(Nide& node) : task(NULL), node(NULL), status(Status::INVALID)
+	{
+		setup(node);
+	};
+	~Behaviour()
+	{
+		status = Status::INVALID;
+		teardown();
+	};
+	void setup(Node& node)
+	{
+		teardown();
+		node = &node;
+		task = node.create();
+	}
+	void teardown()
+	{
+		if (task == NULL)
+			return;
+		assert(status != Status::RUNNING);
+		node->destroy(task);
+		task = NULL;
+	}
 	Status tick()
 	{
-		if (status != Status::RUNNING)
-			onInitilize();
+		if (status = Status::INVALID)
+			task->onInitilize();
 		status = update();
 		if (status != Status::RUNNING)
-			onTerminate(status);
+			task->onTerminate(status);
 		return status;
 	}
+
+	template <class TASK>
+	TASK* get() const
+	{
+		return dynamic_cast<TASK*>(task);
+	}
 };
+
+//class BehaviourTree
+//{
+//protected:
+//	Behaviour* root;
+//public:
+//	void tick();
+//};
 
 class Decorator : public Behaviour
 {
@@ -82,73 +101,87 @@ public:
 	Decorator(Behaviour* child) : root_child(child) {};
 };
 
-class Composite : public Behaviour
+// ==============================================================
+
+typedef vector<Node*> Nodes;
+
+class Composite : public Node
 {
-protected:
-	typedef vector<Behaviour*> Behaviours;
-	Behaviours children;
 public:
-	void addChild(Behaviour*);
-	void removeChild(Behaviour*);
-	void clearChildren();
+	Nodes children;
 };
 
-class Sequence : public Composite
+class Sequence : public Task
 {
 protected:
-	Behaviours::iterator currentChild;
-	virtual void onInitialize() override
+	Nodes::iterator currentChild;
+	Behaviour currentBehaviour;
+public:
+	Sequence(Composite& node) : Task(node) {};
+	Composite& getNode()
 	{
-		currentChild = children.begin();
+		return *static_cast<Composite*>(node);
 	}
-	virtual Status update() override
+	virtual void onInitialize()
 	{
-		while (true)
+		currentChild = getNode().children.begin();
+		currentBehaviour.setup(**currentChild);
+	}
+	virtual Status update()
+	{
+		for (;;)
 		{
-			Status s = (*currentChild)->tick();
+			Status s = currentBehaviour.tick();
 			if (s != Status::SUCCESS)
 				return s;
 			// If all nodes return success, sequence operation is a success
-			if (++currentChild == children.end())
+			if (++currentChild == getNode().children.end())
 				return Status::SUCCESS;
 		}
-		return Status::INVALID;
+		currentBehaviour.setup(**currentChild);
 	}
 };
 
-// Comment: May need for attack cooldown filtration?
-class Filter : public Sequence
-{
-public:
-	void addCondition(Behaviour* condition)
-	{
-		children.insert(condition);
-	}
-	void addAction(Behaviour* action)
-	{
-		children.push_back(action);
-	}
-};
-
-class Selector : public Composite
+class Selector : public Task
 {
 protected:
-	Behaviours::iterator currentChild;
+	Nodes::iterator currentChild;
+	Behaviour behaviour;
+public:
+	Selector(Composite& node) : Task(node) {};
+	Composite& getNode() { return *static_cast<Composite*>(node); };
+
 	virtual void onInitialize() override
 	{
-		currentChild = children.begin();
+		currentChild = getNode().children.begin();
+		behaviour.setup(**currentChild);
 	}
 	virtual Status update() override
 	{
-		while (true)
+		for (;;)
 		{
-			Status s = (*currentChild)->tick();
+			Status s = behaviour.tick();
 			if (s != Status::FAILURE)
 				return s;
 			// If all nodes return success, sequence operation is a success
-			if (++currentChild == children.end())
+			if (++currentChild == getNode().children.end())
 				return Status::FAILURE;
 		}
-		return Status::INVALID;
+		behaviour.setup(**currentChild);
+	}
+};
+
+struct 
+
+template <class TASK>
+class MockComposite : public Composite
+{
+public:
+	MockComposite(size_t size)
+	{
+		for (size_t i = 0; i < size; i++)
+		{
+			children.push_back(new MockNode);
+		}
 	}
 };

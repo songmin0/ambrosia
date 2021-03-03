@@ -22,7 +22,8 @@ ECS::Entity Egg::createEgg(vec2 pos)
 	entity.emplace<ShadedMeshRef>(resource);
 
 	// Give it a Mob component
-	entity.emplace<AISystem::MobComponent>();
+	AISystem::MobComponent& mobComponent = entity.emplace<AISystem::MobComponent>();
+	mobComponent.type = MobType::MOB;
 
 	entity.emplace<Egg>();
 
