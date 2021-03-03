@@ -47,6 +47,14 @@ ECS::Entity Taji::createTaji(vec2 position, float colourShift)
 		"taji_defeat", spritePath("players/taji/defeat/defeat"), 61, 1, true, false);
 	anims.addAnimation(AnimationType::DEFEAT, *defeat);
 
+	auto attack1 = new AnimationData(
+		"taji_attack1", spritePath("players/taji/attack1/attack1"), 83, 1, true, false);
+	anims.addAnimation(AnimationType::ATTACK1, *attack1);
+
+	// temporary
+	anims.addAnimation(AnimationType::ATTACK2, *attack1);
+	anims.addAnimation(AnimationType::ATTACK3, *attack1);
+
 	entity.emplace<Taji>();
 
 	//Add the turn component

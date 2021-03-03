@@ -377,7 +377,7 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	// Animation Test
 	if (action == GLFW_PRESS && key == GLFW_KEY_3) {
 		auto& anim = playerTaji.get<AnimationsComponent>();
-		anim.changeAnimation(AnimationType::HIT);
+		anim.changeAnimation(AnimationType::ATTACK1);
 	}
 	if (action == GLFW_PRESS && key == GLFW_KEY_4) {
 		for (auto entity : ECS::registry<Egg>.entities)
