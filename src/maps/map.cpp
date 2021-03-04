@@ -12,6 +12,7 @@ ECS::Entity MapComponent::createMap(const std::string& name, vec2 screenSize)
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::MAP);
 
 	// Initialize the position and scale
 	auto& motion = entity.emplace<Motion>();

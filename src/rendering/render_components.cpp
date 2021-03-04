@@ -416,3 +416,7 @@ ShadedMesh& cacheResource(std::string key)
 ShadedMeshRef::ShadedMeshRef(ShadedMesh& mesh) : 
 	reference_to_cache(&mesh) 
 {};
+
+RenderableComponent::RenderableComponent(RenderLayer layer) {
+	this->layer = layer;
+}

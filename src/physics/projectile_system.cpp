@@ -154,6 +154,7 @@ void ProjectileSystem::launchProjectile(LaunchEvent launchEvent, const Projectil
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::SKILL);
 
 	// Projectile component setup
 	auto& projComponent = entity.emplace<ProjectileComponent>();
