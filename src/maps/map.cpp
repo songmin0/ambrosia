@@ -14,9 +14,9 @@ ECS::Entity MapComponent::createMap(const std::string& name, vec2 screenSize)
 {
 	auto entity = ECS::Entity();
 
-	std::string navmeshPath = mapsPath(name + "-navmesh-alpha" + ".png");
-	std::string debugPath = mapsPath(name + "-debug" + ".png");
-
+	std::string navmeshPath = mapsPath(name + "/" + name + "-navmesh-alpha" + ".png");
+	std::string debugPath = mapsPath(name + "/" + name + "-debug" + ".png");
+	std::cout << navmeshPath;
 	// Create rendering primitives
 	ShadedMesh& resource = cacheResource(name);
 	if (resource.effect.program.resource == 0)

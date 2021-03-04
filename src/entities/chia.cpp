@@ -4,7 +4,7 @@
 #include "animation/animation_components.hpp"
 #include "game/turn_system.hpp"
 
-ECS::Entity Chia::createChia(vec2 position)
+ECS::Entity Chia::createChia(json configValues)
 {
 	auto entity = ECS::Entity();
 
@@ -19,7 +19,7 @@ ECS::Entity Chia::createChia(vec2 position)
 
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
-	motion.position = position;
+	motion.position = vec2(configValues.at("position")[0], configValues.at("position")[1]);
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2(1.f);
@@ -49,9 +49,10 @@ ECS::Entity Chia::createChia(vec2 position)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::HP] = 100.f;
-	statsComponent.stats[StatType::AMBROSIA] = 0.f;
-	statsComponent.stats[StatType::STRENGTH] = 1.f;
+	json stats = configValues.at("stats");
+	statsComponent.stats[StatType::HP] = stats.at("hp");
+	statsComponent.stats[StatType::AMBROSIA] = stats.at("ambrosia");
+	statsComponent.stats[StatType::STRENGTH] = stats.at("strength");
 
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();

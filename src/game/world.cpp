@@ -16,13 +16,14 @@
 #include "maps/map_objects.hpp"
 #include "ui/button.hpp"
 #include "ui/ui_system.hpp"
-#include "ai/ai.hpp"
+#include "ai/ai.hpp""
 
 // stlib
 #include <string.h>
 #include <cassert>
 #include <sstream>
 #include <iostream>
+#include <levels/levels.hpp>
 
 // Game configuration
 const size_t MAX_EGGS = 3;
@@ -137,19 +138,6 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 	}
 
-	/*
-	// Spawning new eggs
-	while (ECS::registry<Egg>.components.size() < MAX_EGGS)
-	{
-		// Create egg mob
-		ECS::Entity entity = Egg::createEgg({0, 0});
-		// Setting random initial position and constant velocity
-		auto& motion = entity.get<Motion>();
-		motion.position = vec2(window_size_in_game_units.x - 150.f, 50.f + uniform_dist(rng) * (window_size_in_game_units.y - 100.f));
-		motion.velocity = vec2(-100.f, 0.f );
-	}
-	*/
-
 	// Check for player defeat
 	assert(ECS::registry<ScreenState>.components.size() == 1);
 	auto& screen = ECS::registry<ScreenState>.components[0];
@@ -195,6 +183,9 @@ void WorldSystem::restart()
 	// Get screen/buffer size
 	int frameBufferWidth, frameBufferHeight;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
+
+	LevelComponent lc;
+	config = lc.readLevel("pizza-arena");
 
 	createMap(frameBufferWidth, frameBufferHeight);
 	createButtons(frameBufferWidth, frameBufferHeight);
@@ -260,7 +251,7 @@ bool WorldSystem::isOver() const
 void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 {
 	// Create the map
-	MapComponent::createMap("pizza-arena/pizza-arena", {frameBufferWidth, frameBufferHeight});
+	MapComponent::createMap(config.at("map"), {frameBufferWidth, frameBufferHeight});
 
 	// Create a deforming blob
 	CheeseBlob::createCheeseBlob({ 700, 950 });
@@ -364,10 +355,14 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 
 void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 {
-	player_raoul = Raoul::createRaoul({ 640, 512 });
-	player_taji = Taji::createTaji({ 200,700 });
-	player_ember = Ember::createEmber({ 400,700 });
-	player_chia = Chia::createChia({ 400,400 });
+	std::cout << "hi";
+	player_raoul = Raoul::createRaoul(config.at("raoul"));
+	std::cout << "hi";
+	player_taji = Taji::createTaji(config.at("taji"));
+	std::cout << "hi";
+	player_ember = Ember::createEmber(config.at("ember"));
+	std::cout << "hi";
+	player_chia = Chia::createChia(config.at("chia"));
 }
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)

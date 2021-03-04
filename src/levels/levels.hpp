@@ -1,7 +1,17 @@
 #pragma once
 #include <string>
-struct LevelComponent
+#include "json.hpp"
+using json = nlohmann::json;
+class LevelComponent
 {
-	// Creates all the associated render resources
-	static void readLevel(const std::string& levelPath);
+	public:
+
+		struct configObject {        // Declare a local structure 
+			std::string map_path;
+
+		};
+
+		// Creates all the associated render resources
+		json readLevel(const std::string& levelName);
+
 };

@@ -4,8 +4,9 @@
 #include "animation/animation_components.hpp"
 #include "game/turn_system.hpp"
 #include "skills/skill_component.hpp"
+#include <iostream>
 
-ECS::Entity Raoul::createRaoul(vec2 position, float colourShift)
+ECS::Entity Raoul::createRaoul(json configValues, float colourShift)
 {
 	auto entity = ECS::Entity();
 
@@ -22,7 +23,9 @@ ECS::Entity Raoul::createRaoul(vec2 position, float colourShift)
 
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
-	motion.position = position;
+
+	std::cout << configValues;
+	motion.position = vec2(configValues.at("position")[0], configValues.at("position")[1]);
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ 1.f, 1.f });
@@ -86,9 +89,10 @@ ECS::Entity Raoul::createRaoul(vec2 position, float colourShift)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::HP] = 100.f;
-	statsComponent.stats[StatType::AMBROSIA] = 0.f;
-	statsComponent.stats[StatType::STRENGTH] = 1.f;
+	json stats = configValues.at("stats");
+	statsComponent.stats[StatType::HP] = stats.at("hp");
+	statsComponent.stats[StatType::AMBROSIA] = stats.at("ambrosia");
+	statsComponent.stats[StatType::STRENGTH] = stats.at("strength");
 
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
