@@ -3,6 +3,7 @@
 #include "rendering/render.hpp"
 #include "animation/animation_components.hpp"
 #include "game/turn_system.hpp"
+#include "ui/ui_entities.hpp"
 
 ECS::Entity Taji::createTaji(json configValues, float colourShift)
 {
@@ -73,6 +74,11 @@ ECS::Entity Taji::createTaji(json configValues, float colourShift)
 	statsComponent.stats[StatType::HP] = stats.at("hp");
 	statsComponent.stats[StatType::AMBROSIA] = stats.at("ambrosia");
 	statsComponent.stats[StatType::STRENGTH] = stats.at("strength");
+
+	//Add HP bar
+	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 225.0f });
+	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f,-225.0f };
+	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
 
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
