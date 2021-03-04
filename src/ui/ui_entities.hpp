@@ -7,6 +7,8 @@
 struct HPBar
 {
 	static ECS::Entity createHPBar(vec2 position);
+	vec2 offset;
+	ECS::Entity statsCompEntity;
 };
 
 struct ToolTip

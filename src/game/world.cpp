@@ -169,6 +169,10 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		// Remove player/mob once death timer expires
 		if (counter.counter_ms < 0)
 		{
+				//If the entity has a stats component get rid of the health bar too
+			if (entity.has<StatsComponent>()) {
+						ECS::ContainerInterface::removeAllComponentsOf(entity.get<StatsComponent>().healthBar);
+			}
 			ECS::ContainerInterface::removeAllComponentsOf(entity);
 			// Check if there are no more players left, restart game
 			if (ECS::registry<PlayerComponent>.entities.empty())
@@ -263,8 +267,6 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 {
 	// Temporarily here so it renders behind the buttons
 	ActiveSkillFX::createActiveSkillFX();
-	// HP bar test
-	HPBar::createHPBar({ frameBufferWidth / 4, 120 });
 
 	// Create UI buttons
 	auto player_button_1 = Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth / 4, 60 },
