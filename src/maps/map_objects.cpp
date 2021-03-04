@@ -23,6 +23,7 @@ ECS::Entity CheeseBlob::createCheeseBlob(vec2 position)
 	//}
 
 	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
 
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();

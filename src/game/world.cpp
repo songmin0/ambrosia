@@ -267,6 +267,8 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 {
 	// Temporarily here so it renders behind the buttons
 	ActiveSkillFX::createActiveSkillFX();
+	// HP bar test
+	HPBar::createHPBar({ frameBufferWidth / 4, 120 });
 
 	// Create UI buttons
 	auto player_button_1 = Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth / 4, 60 },
@@ -355,7 +357,7 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 void WorldSystem::createEffects(int frameBufferWidth, int frameBufferHeight)
 {
 	MouseClickFX::createMouseClickFX();
-	/*ActiveSkillFX::createActiveSkillFX();*/
+	ActiveSkillFX::createActiveSkillFX();
 }
 
 void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)

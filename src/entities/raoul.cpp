@@ -20,6 +20,7 @@ ECS::Entity Raoul::createRaoul(vec2 position, float colourShift)
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	// note ShadedMeshRefs will only be rendered if there is no AnimationComponent attached to the entity
 	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
 
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
