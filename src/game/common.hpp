@@ -38,6 +38,7 @@ inline std::string uiPath(const std::string& name) { return dataPath() + "/ui/" 
 inline std::string levelsPath(const std::string& name) { return dataPath() + "/levels/" + name; };
 
 enum class PlayerType { RAOUL, TAJI, CHIA, EMBER };
+float playerToFloat(const PlayerType& player);
 
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)

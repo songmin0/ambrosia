@@ -20,6 +20,7 @@ ECS::Entity Raoul::createRaoul(json configValues, float colourShift)
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	// note ShadedMeshRefs will only be rendered if there is no AnimationComponent attached to the entity
 	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
 
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
@@ -103,7 +104,7 @@ ECS::Entity Raoul::createRaoul(json configValues, float colourShift)
 	meleeParams.animationType = AnimationType::ATTACK1;
 	meleeParams.delay = 1.f;
 	meleeParams.damage = 20.f;
-	meleeParams.range = 300.f;
+	meleeParams.range = 200.f;
 	meleeParams.collideWithMultipleEntities = false;
 	meleeParams.collidesWith = CollisionGroup::MOB;
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<MeleeSkill>(meleeParams));

@@ -76,6 +76,67 @@ void Texture::loadFromFile(const std::string& path)
 	gl_has_errors();
 }
 
+void Texture::loadPlayerSpecificTextures(const std::string& path)
+{
+	stbi_uc* data;
+	const std::vector<std::string> players { "raoul", "taji", "chia", "ember" };
+	std::string placeholder = path + "/raoul.png";
+
+	// load initial texture to define texture size
+	if (texture_cache.count(placeholder) > 0)
+	{
+		data = texture_cache[placeholder];
+	}
+	else
+	{
+		data = stbi_load(placeholder.c_str(), &size.x, &size.y, nullptr, 4);
+	}
+	if (data == nullptr)
+	{
+		throw std::runtime_error("data == NULL, failed to load texture");
+	}
+	gl_has_errors();
+
+	glActiveTexture(GL_TEXTURE1);
+	glGenTextures(1, texture_id.data());
+
+	// 2D Array Texture
+	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_id);
+
+	// Allocate the storage
+	glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, size.x, size.y, players.size(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+	// put each frame into a sub image
+	for (int i = 0; i < players.size(); ++i)
+	{
+		std::string imagePath = path + "/" + players[i] + ".png";
+
+		if (texture_cache.count(imagePath) > 0)
+		{
+			data = texture_cache[imagePath];
+		}
+		else
+		{
+			data = stbi_load(imagePath.c_str(), &size.x, &size.y, nullptr, 4);
+		}
+		if (data == nullptr)
+		{
+			throw std::runtime_error("data == NULL, failed to load texture");
+		}
+
+		gl_has_errors();
+		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, size.x, size.y, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
+
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	stbi_image_free(data);
+	gl_has_errors();
+}
+
 void Texture::loadArrayFromFile(const std::string& path, int maxFrames)
 {
 	// path is expected to include up to each animation frame's name, not including the "_{frame-count}.png"
@@ -355,3 +416,7 @@ ShadedMesh& cacheResource(std::string key)
 ShadedMeshRef::ShadedMeshRef(ShadedMesh& mesh) : 
 	reference_to_cache(&mesh) 
 {};
+
+RenderableComponent::RenderableComponent(RenderLayer layer) {
+	this->layer = layer;
+}

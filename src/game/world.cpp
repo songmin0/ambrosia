@@ -16,6 +16,8 @@
 #include "maps/map_objects.hpp"
 #include "ui/button.hpp"
 #include "ui/ui_system.hpp"
+#include "ui/effects.hpp"
+#include "ui/ui_entities.hpp"
 #include "ai/ai.hpp"
 #include <level_loader/level_loader.hpp>
 
@@ -65,6 +67,10 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	auto mouseClickRedirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->onMouseClick(_0, _1, _2); };
 	glfwSetKeyCallback(window, keyRedirect);
 	glfwSetMouseButtonCallback(window, mouseClickRedirect);
+
+	auto mouseHoverRedirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->onMouseHover(_0, _1); };
+	glfwSetCursorPosCallback(window, mouseHoverRedirect);
+
 
 	LevelLoader lc;
 	config = lc.readLevel("pizza-arena");
@@ -187,10 +193,12 @@ void WorldSystem::restart()
 	
 
 	createMap(frameBufferWidth, frameBufferHeight);
-	createButtons(frameBufferWidth, frameBufferHeight);
 	createPlayers(frameBufferWidth, frameBufferHeight);
 	createMobs(frameBufferWidth, frameBufferHeight);
-}
+	createButtons(frameBufferWidth, frameBufferHeight);
+	createEffects(frameBufferWidth, frameBufferHeight);
+} 
+
 // Compute collisions between entities
 void WorldSystem::handleCollisions()
 {
@@ -220,21 +228,6 @@ void WorldSystem::handleCollisions()
 				EventSystem<HitEvent>::instance().sendEvent(event);
 			}
 		}
-
-		// Check for collisions between player and mobs
-		if (ECS::registry<PlayerComponent>.has(entity))
-		{
-			if (ECS::registry<AISystem::MobComponent>.has(entity_other))
-			{
-				// initiate death unless already dying
-				if (!ECS::registry<DeathTimer>.has(entity))
-				{
-					// Scream and set timer
-					ECS::registry<DeathTimer>.emplace(entity);
-					Mix_PlayChannel(-1, salmon_dead_sound, 0);
-				}
-			}
-		}
 	}
 
 	// Remove all collisions from this simulation step
@@ -261,6 +254,9 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 
 void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 {
+	// HP bar test
+	HPBar::createHPBar({ frameBufferWidth / 4, 120 });
+
 	// Create UI buttons
 	auto player_button_1 = Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth / 4, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::RAOUL }); });
@@ -274,7 +270,12 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 	auto player_button_4 = Button::createPlayerButton(PlayerType::CHIA, { frameBufferWidth / 4 + 600, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::CHIA }); });
 
-	Button::createButton(ButtonShape::CIRCLE, { 100, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
+	SkillButton::createMoveButton({ 100, frameBufferHeight - 80 }, "skill_buttons/skill_generic_move",
+		[]() {
+		std::cout << "Move button clicked!" << std::endl;
+	});
+
+	SkillButton::createSkillButton({ 250, frameBufferHeight - 80 }, PlayerType::RAOUL, SkillType::SKILL1, "skill1",
 		[]() {
 			std::cout << "Skill one button clicked!" << std::endl;
 
@@ -292,9 +293,9 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
 				}
 			}
-	});
+		});
 
-	Button::createButton(ButtonShape::CIRCLE, { 250, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
+	SkillButton::createSkillButton({ 400, frameBufferHeight - 80 }, PlayerType::RAOUL, SkillType::SKILL2, "skill2",
 		[]() {
 			std::cout << "Skill two button clicked!" << std::endl;
 
@@ -312,9 +313,9 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
 				}
 			}
-	});
+		});
 
-	Button::createButton(ButtonShape::CIRCLE, { 400, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
+	SkillButton::createSkillButton({ 550, frameBufferHeight - 80 }, PlayerType::RAOUL, SkillType::SKILL3, "skill3",
 		[]() {
 			std::cout << "Skill three button clicked!" << std::endl;
 
@@ -332,35 +333,26 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
 				}
 			}
-	});
+		});
 
-	Button::createButton(ButtonShape::CIRCLE, { 550, frameBufferHeight - 80 }, "skill_buttons/placeholder_skill",
-		[]() {
-			std::cout << "Skill four button clicked!" << std::endl;
+	ToolTip::createMoveToolTip({ 100, frameBufferHeight - 120 });
+	ToolTip::createToolTip(PlayerType::RAOUL, SkillType::SKILL1, { 250, frameBufferHeight - 120 });
+	ToolTip::createToolTip(PlayerType::RAOUL, SkillType::SKILL2, { 400, frameBufferHeight - 120 });
+	ToolTip::createToolTip(PlayerType::RAOUL, SkillType::SKILL3, { 550, frameBufferHeight - 120 });
+}
 
-			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
-			{
-				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-
-				// Skill buttons should only affect players
-				if (activeEntity.has<PlayerComponent>())
-				{
-					SetActiveSkillEvent event;
-					event.entity = activeEntity;
-					event.type = SkillType::SKILL4;
-
-					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
-				}
-			}
-	});
+void WorldSystem::createEffects(int frameBufferWidth, int frameBufferHeight)
+{
+	MouseClickFX::createMouseClickFX();
+	ActiveSkillFX::createActiveSkillFX();
 }
 
 void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 {
-	player_raoul = Raoul::createRaoul(config.at("raoul"));
-	player_taji = Taji::createTaji(config.at("taji"));
-	player_ember = Ember::createEmber(config.at("ember"));
-	player_chia = Chia::createChia(config.at("chia"));
+	playerRaoul = Raoul::createRaoul(config.at("raoul"));
+	playerTaji = Taji::createTaji(config.at("taji"));
+	playerEmber = Ember::createEmber(config.at("ember"));
+	playerChia = Chia::createChia(config.at("chia"));
 }
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
@@ -381,8 +373,8 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 {
 	// Animation Test
 	if (action == GLFW_PRESS && key == GLFW_KEY_3) {
-		auto& anim = player_taji.get<AnimationsComponent>();
-		anim.changeAnimation(AnimationType::HIT);
+		auto& anim = playerTaji.get<AnimationsComponent>();
+		anim.changeAnimation(AnimationType::ATTACK1);
 	}
 	if (action == GLFW_PRESS && key == GLFW_KEY_4) {
 		for (auto entity : ECS::registry<Egg>.entities)
@@ -460,4 +452,11 @@ void WorldSystem::onMouseClick(int button, int action, int mods) const
 		event.mousePos = {mousePosX, mousePosY};
 		EventSystem<RawMouseClickEvent>::instance().sendEvent(event);
 	}
+}
+
+void WorldSystem::onMouseHover(double xpos, double ypos) const
+{
+	RawMouseHoverEvent event;
+	event.mousePos = { xpos, ypos };
+	EventSystem<RawMouseHoverEvent>::instance().sendEvent(event);
 }

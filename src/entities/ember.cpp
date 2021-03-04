@@ -16,6 +16,7 @@ ECS::Entity Ember::createEmber(json configValues)
 	}
 
 	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
 
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
@@ -63,7 +64,7 @@ ECS::Entity Ember::createEmber(json configValues)
 	meleeParams.animationType = AnimationType::ATTACK1;
 	meleeParams.delay = 1.f;
 	meleeParams.damage = 20.f;
-	meleeParams.range = 300.f;
+	meleeParams.range = 200.f;
 	meleeParams.collideWithMultipleEntities = false;
 	meleeParams.collidesWith = CollisionGroup::MOB;
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<MeleeSkill>(meleeParams));

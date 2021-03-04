@@ -16,6 +16,7 @@ ECS::Entity Taji::createTaji(json configValues, float colourShift)
 	}
 
 	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
 
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
@@ -46,6 +47,14 @@ ECS::Entity Taji::createTaji(json configValues, float colourShift)
 	auto defeat = new AnimationData(
 		"taji_defeat", spritePath("players/taji/defeat/defeat"), 61, 1, true, false);
 	anims.addAnimation(AnimationType::DEFEAT, *defeat);
+
+	auto attack1 = new AnimationData(
+		"taji_attack1", spritePath("players/taji/attack1/attack1"), 83, 1, true, false);
+	anims.addAnimation(AnimationType::ATTACK1, *attack1);
+
+	// temporary
+	anims.addAnimation(AnimationType::ATTACK2, *attack1);
+	anims.addAnimation(AnimationType::ATTACK3, *attack1);
 
 	entity.emplace<Taji>();
 

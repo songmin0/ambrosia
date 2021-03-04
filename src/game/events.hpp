@@ -19,6 +19,11 @@ struct MouseClickEvent
 	vec2 mousePos;
 };
 
+struct RawMouseHoverEvent
+{
+	vec2 mousePos;
+};
+
 struct LaunchEvent
 {
 	ProjectileType projectileType;
