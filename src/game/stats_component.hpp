@@ -1,5 +1,6 @@
 #pragma once
 #include "common.hpp"
+#include "tiny_ecs.hpp"
 
 #include <unordered_map>
 
@@ -28,4 +29,6 @@ struct StatsComponent
 	// 1.f and the modifier's value is 0.1f, then getStatValue would return 1.1f. Also, this initial implementation only
 	// supports one stat modifier per stat, as you can see in this map
 	std::unordered_map<StatType, StatModifier> statModifiers;
+
+	ECS::Entity healthBar;
 };
