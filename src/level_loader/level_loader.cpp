@@ -1,11 +1,9 @@
 #include "level_loader.hpp"
-#include "json.hpp"
 #include <game/common.hpp>
 #include <iostream>
 #include <fstream>
-#include  <sys/stat.h> 
+#include <sys/stat.h> 
 
-using json = nlohmann::json;
 bool is_file_exist(const std::string& name)
 {
 	struct stat buffer;

@@ -16,17 +16,14 @@
 #include "maps/map_objects.hpp"
 #include "ui/button.hpp"
 #include "ui/ui_system.hpp"
-#include "ai/ai.hpp""
+#include "ai/ai.hpp"
+#include <level_loader/level_loader.hpp>
 
 // stlib
 #include <string.h>
 #include <cassert>
 #include <sstream>
 #include <iostream>
-#include <level_loader/level_loader.hpp>
-
-// Game configuration
-const size_t MAX_EGGS = 3;
 
 // Create the world
 // Note, this has a lot of OpenGL specific things, could be moved to the renderer; but it also defines the callbacks to the mouse and keyboard. That is why it is called here.

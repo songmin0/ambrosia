@@ -6,7 +6,7 @@
       "strength": 1,
       "ambrosia" : 0
     },
-    "position": [300,200]
+    "position": [300,600]
   },
   "chia": {
     "stats": {
@@ -14,7 +14,7 @@
       "strength": 1,
       "ambrosia" : 0
     },
-    "position": [800, 500]
+    "position": [500,400]
   },
   "raoul": {
     "stats": {
@@ -22,7 +22,7 @@
       "strength": 1,
       "ambrosia" : 0
     },
-    "position": [640, 512]
+    "position": [600, 550]
   },
   "ember": {
     "stats": {
@@ -36,6 +36,10 @@
     {
       "type": "egg",
 	  "position": [750, 800]
+    },
+	{
+      "type": "egg",
+	  "position": [600, 700]
     }
   ]
 }
