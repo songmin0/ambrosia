@@ -5,6 +5,7 @@
 #include "entities/tiny_ecs.hpp"
 #include "game/turn_system.hpp"
 #include "animation/animation_components.hpp"
+#include "ui/ui_entities.hpp"
 
 #include <iostream>
 
@@ -109,6 +110,18 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
 		motion.position += step_seconds * motion.velocity;
+
+		//If the entity also has a stats component then move their HP bar
+		if (entity.has<StatsComponent>()) {
+				auto& statsComp = ECS::registry<StatsComponent>.get(entity);
+				//make sure the stats component's hpbar has a motion component and is valid
+				if (statsComp.healthBar.has<Motion>()) {
+						auto& hpBarMotion = ECS::registry<Motion>.get(statsComp.healthBar);
+						auto& hpBar = ECS::registry<HPBar>.get(statsComp.healthBar);
+						hpBarMotion.position = motion.position + hpBar.offset;
+				}
+		}
+
 	}
 
 	// Visualization for debugging the position and scale of objects
