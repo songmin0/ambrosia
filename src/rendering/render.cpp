@@ -4,11 +4,15 @@
 #include "entities/tiny_ecs.hpp"
 #include "animation/animation_components.hpp"
 #include "ai/ai.hpp"
+#include "ui/ui_components.hpp"
+#include "ui/effects.hpp"
+#include "ui/ui_entities.hpp"
 
 #include <iostream>
 
 void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 {
+	assert(entity.has<Motion>());
 	auto& motion = ECS::registry<Motion>.get(entity);
 	auto& texmesh = *ECS::registry<ShadedMeshRef>.get(entity).reference_to_cache;
 	// Transformation code, see Rendering and Transformation in the template specification for more info
@@ -46,6 +50,8 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	GLint in_position_loc = glGetAttribLocation(texmesh.effect.program, "in_position");
 	GLint in_texcoord_loc = glGetAttribLocation(texmesh.effect.program, "in_texcoord");
 	GLint in_color_loc = glGetAttribLocation(texmesh.effect.program, "in_color");
+
+	// Textures
 	if (in_texcoord_loc >= 0)
 	{
 		transform.scale(motion.scale * static_cast<vec2>(texmesh.texture.size));
@@ -53,14 +59,39 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(0));
 		
 		glEnableVertexAttribArray(in_texcoord_loc);
-		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(sizeof(vec3))); // note the stride to skip the preceeding vertex position
+		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(sizeof(vec3)));
 		
-		// Enabling and binding texture to slot 0
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texmesh.texture.texture_id);
-		gl_has_errors();
-		
+		// Non-animated Layered 2D Texture Arrays
+		if ((entity.has<SkillButton>() || entity.has<ToolTip>()) 
+			&& !entity.has<MoveButtonComponent>() && !entity.has<MoveToolTipComponent>())
+		{
+			// bind texture as 2d array
+			GLint arraySamplerLoc = glGetUniformLocation(texmesh.effect.program, "array_sampler");
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D_ARRAY, texmesh.texture.texture_id);
+			glUniform1i(arraySamplerLoc, 1);
+
+			// set the layer uniform
+			GLint layer_uloc = glGetUniformLocation(texmesh.effect.program, "layer");
+			float layer = 0.f; // default layer
+
+			if (entity.has<SkillInfoComponent>())
+			{
+				layer = playerToFloat(entity.get<SkillInfoComponent>().player);
+			}
+			glUniform1f(layer_uloc, layer);
+
+			gl_has_errors();
+		}
+		else // Normal Texture
+		{
+			// Enabling and binding texture to slot 0
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texmesh.texture.texture_id);
+			gl_has_errors();
+		}
 	}
+	// Coloured Meshes
 	else if (in_color_loc >= 0)
 	{
 		transform.scale(texmesh.mesh.original_size * motion.scale);
@@ -90,6 +121,30 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 		glUniform1f(colourshift_uloc, colour);
 	}
 
+	if (entity.has<ButtonStateComponent>())
+	{
+		const auto& component = entity.get<ButtonStateComponent>();
+		GLuint isActive_uloc = glGetUniformLocation(texmesh.effect.program, "isActive");
+		glUniform1f(isActive_uloc, component.isActive ? 1.f : 0.f);
+		GLuint isDisabled_uloc = glGetUniformLocation(texmesh.effect.program, "isDisabled");
+		glUniform1f(isDisabled_uloc, component.isDisabled ? 1.f : 0.f);
+		GLuint isEnabled_uloc = glGetUniformLocation(texmesh.effect.program, "isEnabled");
+		glUniform1f(isEnabled_uloc, component.isDisabled ? 1.f : 0.f);
+	}
+
+	if (entity.has<ActiveSkillFX>())
+	{
+		transform.rotate(glfwGetTime());
+	}
+	
+	// set HP uniform for HP bars
+	GLuint percentHP_uloc = glGetUniformLocation(texmesh.effect.program, "percentHP");
+	if (percentHP_uloc >= 0)
+	{
+		// !!! TODO !!! - pass in the proper HP percentage. The current example renders 20% HP.
+		glUniform1f(percentHP_uloc, 0.2f);
+	}
+
 	// Getting uniform locations for glUniform* calls
 	GLint color_uloc = glGetUniformLocation(texmesh.effect.program, "fcolor");
 	glUniform3fv(color_uloc, 1, (float*)&texmesh.texture.color);
@@ -115,6 +170,7 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 
 void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 {
+	assert(entity.has<Motion>() && entity.has<AnimationsComponent>());
 	auto& motion = entity.get<Motion>();
 	auto& anims = entity.get<AnimationsComponent>();
 	auto& texmesh = *anims.referenceToCache;
@@ -233,7 +289,7 @@ void RenderSystem::drawToScreen()
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	gl_has_errors();
-	
+
 	// Disable alpha channel for mapping the screen texture onto the real screen
 	glDisable(GL_BLEND); // we have a single texture without transparency. Areas with alpha <1 cab arise around the texture transparency boundary, enabling blending would make them visible.
 	glDisable(GL_DEPTH_TEST);
@@ -270,7 +326,31 @@ void RenderSystem::drawToScreen()
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr); // two triangles = 6 vertices; nullptr indicates that there is no offset from the bound index buffer
 	glBindVertexArray(0);
 	gl_has_errors();
+
+	//part->drawParticles(projection_2D);
+	
 }
+
+struct CompareRenderableEntity
+{
+	bool operator()(ECS::Entity entity1, ECS::Entity entity2) {
+		assert(entity1.has<RenderableComponent>());
+		assert(entity2.has<RenderableComponent>());
+		auto& renderable1 = entity1.get<RenderableComponent>();
+		auto& renderable2 = entity2.get<RenderableComponent>();
+
+		// Compare players and mob by their y-position
+		if (renderable1.layer == RenderLayer::PLAYER_AND_MOB && renderable2.layer == RenderLayer::PLAYER_AND_MOB) {
+			assert(entity1.has<Motion>());
+			assert(entity2.has<Motion>());
+			auto& motion1 = entity1.get<Motion>();
+			auto& motion2 = entity2.get<Motion>();
+			return motion1.position.y < motion2.position.y;
+		}
+
+		return renderable1.layer > renderable2.layer;
+	}
+};
 
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
@@ -304,30 +384,38 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 	float ty = -(top + bottom) / (top - bottom);
 	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
 
-	// Draw all textured meshes that have a position and size component and NOT an animation component
-	for (ECS::Entity entity : ECS::registry<ShadedMeshRef>.entities)
-	{
-		if (!entity.has<Motion>() || entity.has<AnimationsComponent>())
-		{
-			continue;
-		}
-		// Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
-		drawTexturedMesh(entity, projection_2D);
-		gl_has_errors();
-	}
+	// List of entities to render
+	std::vector<ECS::Entity> entities = ECS::registry<ShadedMeshRef>.entities;
+	// Sort the entities depending on their render layer
+	std::sort(entities.begin(), entities.end(), CompareRenderableEntity());
 
-	// Draw all animated meshes that have a position and size component
-	for (ECS::Entity entity : ECS::registry<AnimationsComponent>.entities)
+	for (ECS::Entity entity : entities)
 	{
 		if (!entity.has<Motion>())
 		{
 			continue;
 		}
+		if (entity.has<VisibilityComponent>())
+		{
+			if (!entity.get<VisibilityComponent>().isVisible)
+			{
+				continue;
+			}
+		}
 
-		drawAnimatedMesh(entity, projection_2D);
+		// Animated Meshes
+		if (entity.has<AnimationsComponent>())
+		{ 
+			drawAnimatedMesh(entity, projection_2D);
+		}
+		else // normal textured mesh
+		{
+			drawTexturedMesh(entity, projection_2D);
+		}
+
 		gl_has_errors();
 	}
-
+	particleSystem->drawParticles(projection_2D);
 	// Truely render to the screen
 	drawToScreen();
 

@@ -4,6 +4,8 @@
 #include "game/common.hpp"
 #include "entities/tiny_ecs.hpp"
 
+#include "particles/particle_system.hpp"
+
 struct InstancedMesh;
 struct ShadedMesh;
 
@@ -16,7 +18,7 @@ class RenderSystem
 {
 public:
 	// Initialize the window
-	RenderSystem(GLFWwindow& window);
+	RenderSystem(GLFWwindow& window, ParticleSystem *particle);
 
 	// Destroy resources associated to one or all entities created by the system
 	~RenderSystem();
@@ -28,6 +30,7 @@ public:
 	static void createSprite(ShadedMesh& mesh_container, const std::string& texture_path, const std::string& shader_name);
 	static void createColoredMesh(ShadedMesh& mesh_container, const std::string& shader_name);
 	static void createTexturedMesh(ShadedMesh& mesh_container, const std::string& texture_path, const std::string& shader_name);
+	static void createPlayerSpecificMesh(ShadedMesh& sprite, const std::string& texture_path, const std::string& shader_name);
 
 	// Animations
 	static void createAnimatedSprite(ShadedMesh& sprite, int maxFrames, const std::string& texture_path, const std::string& shader_name);
@@ -41,6 +44,9 @@ private:
 	void drawTexturedMesh(ECS::Entity entity, const mat3& projection);
 	void drawToScreen();
 	void drawAnimatedMesh(ECS::Entity entity, const mat3& projection);
+
+	ParticleSystem *particleSystem;
+
 
 	// Window handle
 	GLFWwindow& window;

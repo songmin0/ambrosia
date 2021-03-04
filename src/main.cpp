@@ -18,6 +18,7 @@
 #include "animation/animation_system.hpp"
 #include "maps/path_finding_system.hpp"
 #include "ui/ui_system.hpp"
+#include "particle_system.hpp"
 #include "skills/skill_system.hpp"
 #include "game/stats_system.hpp"
 
@@ -39,7 +40,8 @@ int main()
 {
 	// Initialize the main systems
 	WorldSystem world(window_size_in_px);
-	RenderSystem renderer(*world.window);
+	ParticleSystem particleSystem;
+	RenderSystem renderer(*world.window, &particleSystem);
 	PhysicsSystem physics;
 	PathFindingSystem pathFindingSystem;
 	AISystem ai(pathFindingSystem);
@@ -82,7 +84,9 @@ int main()
 			statsSystem.step(deltaTime);
 			animations.step();
 			turnSystem.step(deltaTime);
+			particleSystem.step(deltaTime);
 			renderer.draw(window_size_in_game_units);
+
 
 			elapsed_ms -= deltaTime;
 		}

@@ -7,6 +7,19 @@
 
 enum GLResourceType {BUFFER, RENDER_BUFFER, SHADER, PROGRAM, TEXTURE, VERTEX_ARRAY};
 
+// Enum for rendering layer order (first element is rendered on top, last is on bottom)
+enum class RenderLayer {
+	DEBUG,
+	CLICK_FX,
+	UI_TOOLTIP,
+	UI,
+	UI_ACTIVE_SKILL_FX,
+	SKILL,
+	PLAYER_AND_MOB,
+	MAP_OBJECT,
+	MAP
+};
+
 // This class is a wrapper around OpenGL resources that deletes allocated memory on destruction.
 // Moreover, copy constructors are disabled to ensure that the resource is only deleted when the original object is destroyed, not its copies.
 template <GLResourceType Resource>
@@ -88,6 +101,7 @@ struct Texture
 	void createFromScreen(GLFWwindow const * const window, GLuint* depth_render_buffer_id); // Screen texture
 
 	void loadArrayFromFile(const std::string& path, int maxFrames);
+	void loadPlayerSpecificTextures(const std::string& path);
 
 	std::unordered_map<std::string, stbi_uc*> texture_cache;
 };
@@ -156,4 +170,15 @@ struct ColourShift
 	// values 1-4 will set colours
 	// other values will do nothing
 	float colour = 0;
+};
+
+struct VisibilityComponent
+{
+	bool isVisible = true;
+};
+
+struct RenderableComponent
+{
+	RenderLayer layer;
+	RenderableComponent(RenderLayer layer);
 };

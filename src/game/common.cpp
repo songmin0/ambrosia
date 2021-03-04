@@ -20,3 +20,26 @@ void Transform::translate(vec2 offset)
 	mat3 T = { { 1.f, 0.f, 0.f },{ 0.f, 1.f, 0.f },{ offset.x, offset.y, 1.f } };
 	mat = mat * T;
 }
+
+float playerToFloat(const PlayerType& player)
+{
+	float output = 0.f;
+	switch (player) {
+	case PlayerType::RAOUL:
+		output = 0.f;
+		break;
+	case PlayerType::TAJI:
+		output = 1.f;
+		break;
+	case PlayerType::CHIA:
+		output = 2.f;
+		break;
+	case PlayerType::EMBER:
+		output = 3.f;
+		break;
+	default:
+		break;
+	}
+
+	return output;
+}
