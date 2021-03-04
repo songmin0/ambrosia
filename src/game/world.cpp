@@ -265,8 +265,6 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 
 void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 {
-	// Temporarily here so it renders behind the buttons
-	ActiveSkillFX::createActiveSkillFX();
 
 	// Create UI buttons
 	auto player_button_1 = Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth / 4, 60 },
