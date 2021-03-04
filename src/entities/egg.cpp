@@ -5,6 +5,7 @@
 #include "animation/animation_components.hpp"
 #include "ai/ai.hpp"
 #include "game/turn_system.hpp"
+#include "ui/ui_entities.hpp"
 
 ECS::Entity Egg::createEgg(vec2 pos)
 {
@@ -78,6 +79,12 @@ ECS::Entity Egg::createEgg(vec2 pos)
 	statsComponent.stats[StatType::HP] = 100.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
+
+	//Add HP bar
+	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
+	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f,-150.0f };
+	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
+
 
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();

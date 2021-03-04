@@ -3,6 +3,7 @@
 #include "rendering/render.hpp"
 #include "animation/animation_components.hpp"
 #include "game/turn_system.hpp"
+#include "ui/ui_entities.hpp"
 
 ECS::Entity Chia::createChia(json configValues)
 {

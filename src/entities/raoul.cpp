@@ -4,7 +4,7 @@
 #include "animation/animation_components.hpp"
 #include "game/turn_system.hpp"
 #include "skills/skill_component.hpp"
-#include <iostream>
+#include "ui/ui_entities.hpp"
 
 ECS::Entity Raoul::createRaoul(json configValues, float colourShift)
 {
