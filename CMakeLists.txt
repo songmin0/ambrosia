@@ -41,7 +41,7 @@ SET(SOURCE_FILES
         "src/game/world.cpp"
         "src/game/stats_component.cpp"
         "src/game/stats_system.cpp"
-        "src/levels/levels.cpp"
+        "src/level_loader/level_loader.cpp"
         "src/maps/map.cpp"
         "src/maps/map_objects.cpp"
         "src/maps/path_finding_system.cpp"

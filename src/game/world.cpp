@@ -23,7 +23,7 @@
 #include <cassert>
 #include <sstream>
 #include <iostream>
-#include <levels/levels.hpp>
+#include <level_loader/level_loader.hpp>
 
 // Game configuration
 const size_t MAX_EGGS = 3;
@@ -68,6 +68,9 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	auto mouseClickRedirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->onMouseClick(_0, _1, _2); };
 	glfwSetKeyCallback(window, keyRedirect);
 	glfwSetMouseButtonCallback(window, mouseClickRedirect);
+
+	LevelLoader lc;
+	config = lc.readLevel("pizza-arena");
 
 	// Playing background music indefinitely
 	initAudio();
@@ -184,8 +187,7 @@ void WorldSystem::restart()
 	int frameBufferWidth, frameBufferHeight;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
-	LevelComponent lc;
-	config = lc.readLevel("pizza-arena");
+	
 
 	createMap(frameBufferWidth, frameBufferHeight);
 	createButtons(frameBufferWidth, frameBufferHeight);
@@ -253,8 +255,11 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 	// Create the map
 	MapComponent::createMap(config.at("map"), {frameBufferWidth, frameBufferHeight});
 
-	// Create a deforming blob
-	CheeseBlob::createCheeseBlob({ 700, 950 });
+	// Create a deforming blob for pizza arena
+	// maybe add own section in level file we have more of these
+	if (config.at("map") == "pizza-arena") {
+		CheeseBlob::createCheeseBlob({ 700, 950 });
+	}
 }
 
 void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
@@ -355,21 +360,23 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 
 void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 {
-	std::cout << "hi";
 	player_raoul = Raoul::createRaoul(config.at("raoul"));
-	std::cout << "hi";
 	player_taji = Taji::createTaji(config.at("taji"));
-	std::cout << "hi";
 	player_ember = Ember::createEmber(config.at("ember"));
-	std::cout << "hi";
 	player_chia = Chia::createChia(config.at("chia"));
 }
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 {
-	//This is not the final way to add eggs just put them here for testing purposes.
-	Egg::createEgg({750, 800});
-	Egg::createEgg({1000, 800});
+	// TODO: come back and expand this when we have multiple mobs
+	auto mobs = config.at("mobs");
+
+	for (json mob : mobs) {
+		auto type = mob["type"];
+		if (type == "egg") {
+			Egg::createEgg({ mob.at("position")[0], mob["position"][1] });
+		}
+	}
 }
 
 // On key callback
@@ -429,6 +436,18 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		std::cout << "Current speed = " << current_speed << std::endl;
 	}
 	current_speed = std::max(0.f, current_speed);
+
+	LevelLoader lc;
+	// swap maps
+	if (action == GLFW_PRESS && key == GLFW_KEY_M) {
+		config = lc.readLevel("dessert-arena");
+		restart();
+	}
+
+	if (action == GLFW_PRESS && key == GLFW_KEY_N) {
+		config = lc.readLevel("pizza-arena");
+		restart();
+	}
 }
 
 void WorldSystem::onMouseClick(int button, int action, int mods) const

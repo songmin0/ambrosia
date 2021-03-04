@@ -14,13 +14,14 @@ ECS::Entity MapComponent::createMap(const std::string& name, vec2 screenSize)
 {
 	auto entity = ECS::Entity();
 
-	std::string navmeshPath = mapsPath(name + "/" + name + "-navmesh-alpha" + ".png");
+	std::string navmeshPath = mapsPath(name + "/" + name + "-navmesh" + ".png");
 	std::string debugPath = mapsPath(name + "/" + name + "-debug" + ".png");
-	std::cout << navmeshPath;
+	std::string mapPath = mapsPath(name + "/" + name + ".png");
+
 	// Create rendering primitives
 	ShadedMesh& resource = cacheResource(name);
 	if (resource.effect.program.resource == 0)
-		RenderSystem::createSprite(resource, debugPath, "textured");
+		RenderSystem::createSprite(resource, mapPath, "textured");
 	// TODO: change to normal map after done with debug map
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	entity.emplace<ShadedMeshRef>(resource);
@@ -60,7 +61,7 @@ ECS::Entity MapComponent::createMap(const std::string& name, vec2 screenSize)
 
 			getPixel(data, width, pixelX, pixelY, &r, &g, &b, &a);
 
-			if (a < 100) {
+			if (r < 100) {
 				matrix[y][x] = 0; // for all darkness values above 100, consider filled
 			}
 			else {

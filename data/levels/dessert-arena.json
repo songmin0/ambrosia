@@ -1,12 +1,12 @@
 {
-  "map": "pizza-arena",
+  "map": "dessert-arena",
   "taji": {
     "stats": {
       "hp": 100,
       "strength": 1,
       "ambrosia" : 0
     },
-    "position": [500,400]
+    "position": [300,200]
   },
   "chia": {
     "stats": {
@@ -14,7 +14,7 @@
       "strength": 1,
       "ambrosia" : 0
     },
-    "position": [200, 700]
+    "position": [800, 500]
   },
   "raoul": {
     "stats": {

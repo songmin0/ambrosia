@@ -11,7 +11,7 @@ using json = nlohmann::json;
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <SDL_mixer.h>
-#include <levels/levels.hpp>
+#include <level_loader/level_loader.hpp>
 
 // Container for all our entities and game logic. Individual rendering / update is 
 // deferred to the relative update() methods
