@@ -5,4 +5,5 @@
 struct Chia
 {
 	static ECS::Entity createChia(json initialStats);
+	static ECS::Entity Chia::createChia(vec2 position);
 };

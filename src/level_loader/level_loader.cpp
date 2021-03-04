@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <sys/stat.h> 
- 
+
 bool is_file_exist(const std::string& name)
 {
 	struct stat buffer;
