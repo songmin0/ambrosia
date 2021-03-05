@@ -170,7 +170,14 @@ void ProjectileSystem::launchProjectile(LaunchEvent launchEvent, const Projectil
 	motion.angle = 0.f;
 	motion.velocity = {0.f, 0.f};
 	motion.scale = params.spriteScale;
-	motion.boundingBox = motion.scale * vec2(resource.texture.size.x, resource.texture.size.y);
+
+	// Since we rotate the projectile while it's flying, the bounding box should be big enough to contain the entire
+	// projectile. This is especially important for the bone projectile because its normal bounding box is a wide,
+	// flat rectangle, so when it spins, it goes way out of its bounding box.
+	vec2 normalBoundingBox = motion.scale * vec2(resource.texture.size.x, resource.texture.size.y);
+	float maxDimension = std::max(normalBoundingBox.x, normalBoundingBox.y);
+	motion.boundingBox = {maxDimension, maxDimension};
+
 	motion.collidesWith = launchEvent.collisionMask;
 }
 
