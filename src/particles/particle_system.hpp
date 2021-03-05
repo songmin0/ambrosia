@@ -77,19 +77,20 @@ private:
 class ParticleEmitter{
 public:
 		ParticleEmitter(int particlesPerSecond);
-		void initEmitter(std::string particleTextureFile);
+		void initEmitter();
 		virtual void simulateParticles(float elapsedMs, int numNewParticles) = 0;
 		virtual void createParticle(int index) = 0;
 		void step(float elapsedMs);
-		//void drawParticles(GLuint vertexBuffer);
+		void drawParticles(GLuint vertexBuffer, GLuint cameraRightWorldspaceID, GLuint cameraUpWorldspaceID,GLuint projectionMatrixID, const mat3& projection);
 protected:
 		GLuint particlesCenterPositionAndSizeBuffer;
 		GLuint particlesColorBuffer;
 		GLuint VertexArrayID;
+		Effect shaderProgram;
 		Texture particleTexture;
+		std::string particleTextureFile;
 		int particlesPerSecond;
 		float msSinceLastParticleSpawn;
-
 
 
 		Particle ParticlesContainer[ParticleSystem::MaxParticles];
@@ -98,6 +99,13 @@ protected:
 
 		GLfloat particleCenterPositionAndSizeData[ParticleSystem::MaxParticles * 4];
 		GLubyte particleColorData[ParticleSystem::MaxParticles * 4];
+
+private:
+		void updateGPU();
+		void prepRender(GLuint vertexBuffer);
+
+
+
 
 };
 
