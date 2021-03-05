@@ -79,3 +79,36 @@ struct Motion {
 struct PlayerComponent {
 	PlayerType player;
 };
+
+enum MusicType
+{
+	MAIN_MENU,
+	SHOP,
+	VICTORY,
+	BOSS,
+	PIZZA_ARENA,
+	DESSERT_ARENA,
+	PLACEHOLDER1,
+	PLACEHOLDER2,
+	PLACEHOLDER3,
+	PLACEHOLDER4,
+
+	// The `LAST` value is only needed because WorldSystem::playNextAudioTrack_DEBUG()
+	// needs to be able to loop through the music.
+	LAST
+};
+
+enum class SoundEffect
+{
+	NONE,
+	MOUSE_CLICK,
+	TURN_START,
+	GAME_OVER,
+	HIT_PLAYER,
+	HIT_MOB,
+	DEFEAT,
+	MELEE,
+	PROJECTILE,
+	BUFF,
+	DEBUFF
+};

@@ -73,6 +73,7 @@ ECS::Entity Chia::createChia(json configValues)
 	meleeParams.range = 200.f;
 	meleeParams.collideWithMultipleEntities = false;
 	meleeParams.collidesWith = CollisionGroup::MOB;
+	meleeParams.soundEffect = SoundEffect::MELEE;
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<MeleeSkill>(meleeParams));
 
 	// Strength buff for nearby players (the instigator will also be buffed)
@@ -89,6 +90,7 @@ ECS::Entity Chia::createChia(json configValues)
 	strengthBuffParams.ignoreInstigator = false;
 	strengthBuffParams.collideWithMultipleEntities = true;
 	strengthBuffParams.collidesWith = CollisionGroup::PLAYER;
+	strengthBuffParams.soundEffect = SoundEffect::BUFF;
 	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<BuffProximitySkill>(strengthBuffParams, strengthBuffModifier));
 
 	// Bone throw projectile attack
@@ -98,6 +100,7 @@ ECS::Entity Chia::createChia(json configValues)
 	boneThrowParams.delay = 0.6f;
 	boneThrowParams.damage = 50.f;
 	boneThrowParams.collidesWith = CollisionGroup::MOB;
+	boneThrowParams.soundEffect = SoundEffect::PROJECTILE;
 	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<ProjectileSkill>(boneThrowParams, ProjectileType::BONE));
 
 	// Placeholder, just for fun, debuff an enemy by clicking on the enemy (doesn't matter how far away they are from the player)
@@ -114,6 +117,7 @@ ECS::Entity Chia::createChia(json configValues)
 	strengthDebuffParams.ignoreInstigator = true;
 	strengthDebuffParams.collideWithMultipleEntities = false;
 	strengthDebuffParams.collidesWith = CollisionGroup::MOB;
+	strengthDebuffParams.soundEffect = SoundEffect::DEBUFF;
 	skillComponent.addSkill(SkillType::SKILL4, std::make_shared<BuffMouseClickSkill>(strengthDebuffParams, strengthDebuffModifier));
 
 	return entity;
@@ -186,6 +190,7 @@ ECS::Entity Chia::createChia(vec2 position)
 	meleeParams.range = 200.f;
 	meleeParams.collideWithMultipleEntities = false;
 	meleeParams.collidesWith = CollisionGroup::MOB;
+	meleeParams.soundEffect = SoundEffect::MELEE;
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<MeleeSkill>(meleeParams));
 
 	// Strength buff for nearby players (the instigator will also be buffed)
@@ -202,6 +207,7 @@ ECS::Entity Chia::createChia(vec2 position)
 	strengthBuffParams.ignoreInstigator = false;
 	strengthBuffParams.collideWithMultipleEntities = true;
 	strengthBuffParams.collidesWith = CollisionGroup::PLAYER;
+	strengthBuffParams.soundEffect = SoundEffect::BUFF;
 	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<BuffProximitySkill>(strengthBuffParams, strengthBuffModifier));
 
 	// Bone throw projectile attack
@@ -211,6 +217,7 @@ ECS::Entity Chia::createChia(vec2 position)
 	boneThrowParams.delay = 0.6f;
 	boneThrowParams.damage = 50.f;
 	boneThrowParams.collidesWith = CollisionGroup::MOB;
+	boneThrowParams.soundEffect = SoundEffect::PROJECTILE;
 	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<ProjectileSkill>(boneThrowParams, ProjectileType::BONE));
 
 	// Placeholder, just for fun, debuff an enemy by clicking on the enemy (doesn't matter how far away they are from the player)
@@ -227,6 +234,7 @@ ECS::Entity Chia::createChia(vec2 position)
 	strengthDebuffParams.ignoreInstigator = true;
 	strengthDebuffParams.collideWithMultipleEntities = false;
 	strengthDebuffParams.collidesWith = CollisionGroup::MOB;
+	strengthDebuffParams.soundEffect = SoundEffect::DEBUFF;
 	skillComponent.addSkill(SkillType::SKILL4, std::make_shared<BuffMouseClickSkill>(strengthDebuffParams, strengthDebuffModifier));
 
 	return entity;
