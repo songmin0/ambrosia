@@ -41,6 +41,15 @@ ECS::Entity Ember::createEmber(json configValues)
 			"ember_move", spritePath("players/ember/move/move"), 32);
 	anims.addAnimation(AnimationType::MOVE, *move_anim);
 
+	auto attack1 = new AnimationData(
+		"ember_attack1", spritePath("players/ember/attack1/attack1"), 71, 1, true, false, vec2({ 0.042f, 0.39f })
+	);
+	anims.addAnimation(AnimationType::ATTACK1, *attack1);
+
+	// Temporary
+	anims.addAnimation(AnimationType::ATTACK2, *attack1);
+	anims.addAnimation(AnimationType::ATTACK3, *attack1);
+
 	entity.emplace<Ember>();
 
 	//Add the turn component
@@ -69,9 +78,9 @@ ECS::Entity Ember::createEmber(json configValues)
 	meleeParams.instigator = entity;
 	meleeParams.animationType = AnimationType::ATTACK1;
 	meleeParams.delay = 1.f;
-	meleeParams.damage = 20.f;
-	meleeParams.range = 200.f;
-	meleeParams.collideWithMultipleEntities = false;
+	meleeParams.damage = 30.f;
+	meleeParams.range = 300.f;
+	meleeParams.collideWithMultipleEntities = true;
 	meleeParams.collidesWith = CollisionGroup::MOB;
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<MeleeSkill>(meleeParams));
 
