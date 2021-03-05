@@ -59,6 +59,11 @@ ECS::Entity Ember::createEmber(json configValues)
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
 
+	//Add HP bar
+	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 225.0f });
+	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f,-225.0f };
+	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
+
 	// Melee hit
 	SkillParams meleeParams;
 	meleeParams.instigator = entity;

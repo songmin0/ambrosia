@@ -94,6 +94,11 @@ ECS::Entity Raoul::createRaoul(json configValues, float colourShift)
 	statsComponent.stats[StatType::AMBROSIA] = stats.at("ambrosia");
 	statsComponent.stats[StatType::STRENGTH] = stats.at("strength");
 
+	//Add HP bar
+	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 225.0f });
+	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f,-225.0f };
+	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
+
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
 
