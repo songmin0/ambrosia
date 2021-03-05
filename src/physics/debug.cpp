@@ -59,6 +59,71 @@ namespace DebugSystem
 		ECS::registry<DebugComponent>.emplace(entity);
 	}
 
+	void createBox(vec2 position, vec2 size)
+	{
+		constexpr float LINE_THICKNESS = 5.f;
+
+		const vec2 line_scale_horizontal(size.x, LINE_THICKNESS);
+		const vec2 line_scale_vertical(LINE_THICKNESS, size.y);
+
+		const float size_half_x = size.x / 2.f;
+		const float size_half_y = size.y / 2.f;
+
+		vec2 left_line_pos = position + vec2(-size_half_x, 0.f);
+		createLine(left_line_pos, line_scale_vertical);
+
+		vec2 right_line_pos = position + vec2(size_half_x, 0.f);
+		createLine(right_line_pos, line_scale_vertical);
+
+		vec2 top_line_pos = position + vec2(0.f, -size_half_y);
+		createLine(top_line_pos, line_scale_horizontal);
+
+		vec2 bottom_line_pos = position + vec2(0.f, size_half_y);
+		createLine(bottom_line_pos, line_scale_horizontal);
+	}
+
+	void createDottedLine(vec2 position1, vec2 position2)
+	{
+		const vec2 SIZE(5.f, 5.f);
+		constexpr int DOT_SPACING = 20;
+
+		vec2 pos1_to_pos2 = position2 - position1;
+
+		vec2 direction = normalize(pos1_to_pos2);
+		float distance = length(pos1_to_pos2);
+
+		int num_dots = (int)floor((distance / DOT_SPACING) + 1.f);
+
+		for (int i = 0; i < num_dots; i++)
+		{
+			float distance_to_dot = DOT_SPACING * i;
+			vec2 dot_position = position1 + (direction * distance_to_dot);
+
+			createLine(dot_position, SIZE);
+		}
+	}
+
+	void createPath(std::stack<vec2> path)
+	{
+		if (path.empty())
+		{
+			return;
+		}
+
+		vec2 prevPoint = path.top();
+		path.pop();
+
+		while (!path.empty())
+		{
+			vec2 currPoint = path.top();
+			path.pop();
+
+			createDottedLine(prevPoint, currPoint);
+
+			prevPoint = currPoint;
+		}
+	}
+
 	void clearDebugComponents() {
 		// Clear old debugging visualizations
 		while (!ECS::registry<DebugComponent>.entities.empty()) {
