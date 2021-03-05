@@ -36,6 +36,7 @@ SET(SOURCE_FILES
         "src/entities/ember.cpp"
         "src/entities/chia.cpp"
         "src/entities/tiny_ecs.cpp"
+        "src/game/camera.cpp"
         "src/game/common.cpp"
         "src/game/turn_system.cpp"
         "src/game/world.cpp"
