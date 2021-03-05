@@ -92,7 +92,7 @@ enum MusicType
 	PLACEHOLDER2,
 	PLACEHOLDER3,
 	PLACEHOLDER4,
-	
+
 	// The `LAST` value is only needed because WorldSystem::playNextAudioTrack_DEBUG()
 	// needs to be able to loop through the music.
 	LAST

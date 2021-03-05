@@ -30,7 +30,8 @@
 // Create the world
 // Note, this has a lot of OpenGL specific things, could be moved to the renderer; but it also defines the callbacks to the mouse and keyboard. That is why it is called here.
 WorldSystem::WorldSystem(ivec2 window_size_px) :
-	points(0)
+	points(0),
+	shouldPlayAudioAtStartOfTurn(false)
 {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
@@ -171,6 +172,7 @@ void WorldSystem::restart()
 	createEffects(frameBufferWidth, frameBufferHeight);
 
 	playAudio();
+	shouldPlayAudioAtStartOfTurn = false;
 } 
 
 // Compute collisions between entities
@@ -598,5 +600,9 @@ void WorldSystem::onPlaySoundEffectEvent(const PlaySoundEffectEvent& event)
 
 void WorldSystem::onPlayerChangeEvent(const PlayerChangeEvent& event)
 {
-	Mix_PlayChannel(-1, soundEffects[SoundEffect::TURN_START], 0);
+	if (shouldPlayAudioAtStartOfTurn)
+	{
+		Mix_PlayChannel(-1, soundEffects[SoundEffect::TURN_START], 0);
+	}
+	shouldPlayAudioAtStartOfTurn = true;
 }
