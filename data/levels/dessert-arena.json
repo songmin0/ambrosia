@@ -1,0 +1,45 @@
+{
+  "map": "dessert-arena",
+  "taji": {
+    "stats": {
+      "hp": 100,
+      "strength": 1,
+      "ambrosia" : 0
+    },
+    "position": [300,600]
+  },
+  "chia": {
+    "stats": {
+      "hp": 100,
+      "strength": 1,
+      "ambrosia" : 0
+    },
+    "position": [500,500]
+  },
+  "raoul": {
+    "stats": {
+      "hp": 100,
+      "strength": 1,
+      "ambrosia" : 0
+    },
+    "position": [600, 550]
+  },
+  "ember": {
+    "stats": {
+      "hp": 100,
+      "strength": 1,
+      "ambrosia" : 0
+    },
+    "position": [400,700]
+  },
+  "mobs": [
+    {
+      "type": "egg",
+	  "position": [750, 800]
+    },
+	{
+      "type": "egg",
+	  "position": [600, 700]
+    }
+  ]
+}

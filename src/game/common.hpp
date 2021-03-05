@@ -18,6 +18,10 @@
 #include <glm/vec3.hpp>             // vec3
 #include <glm/mat3x3.hpp>           // mat3
 
+// JSON Library 
+#include "json.hpp"
+using json = nlohmann::json;
+
 using namespace glm;
 static const float PI = 3.14159265359f;
 
@@ -31,6 +35,7 @@ inline std::string spritePath(const std::string& name) { return dataPath() + "/s
 inline std::string mapsPath(const std::string& name) { return dataPath() + "/maps/" + name; };
 inline std::string objectsPath(const std::string& name) { return dataPath() + "/objects/" + name; };
 inline std::string uiPath(const std::string& name) { return dataPath() + "/ui/" + name; };
+inline std::string levelsPath(const std::string& name) { return dataPath() + "/levels/" + name; };
 
 enum class PlayerType { RAOUL, TAJI, CHIA, EMBER };
 float playerToFloat(const PlayerType& player);

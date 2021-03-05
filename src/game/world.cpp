@@ -19,15 +19,13 @@
 #include "ui/effects.hpp"
 #include "ui/ui_entities.hpp"
 #include "ai/ai.hpp"
+#include <level_loader/level_loader.hpp>
 
 // stlib
 #include <string.h>
 #include <cassert>
 #include <sstream>
 #include <iostream>
-
-// Game configuration
-const size_t MAX_EGGS = 3;
 
 // Create the world
 // Note, this has a lot of OpenGL specific things, could be moved to the renderer; but it also defines the callbacks to the mouse and keyboard. That is why it is called here.
@@ -73,6 +71,9 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	auto mouseHoverRedirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->onMouseHover(_0, _1); };
 	glfwSetCursorPosCallback(window, mouseHoverRedirect);
 
+
+	LevelLoader lc;
+	config = lc.readLevel("pizza-arena");
 
 	// Playing background music indefinitely
 	initAudio();
@@ -143,19 +144,6 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 	}
 
-	/*
-	// Spawning new eggs
-	while (ECS::registry<Egg>.components.size() < MAX_EGGS)
-	{
-		// Create egg mob
-		ECS::Entity entity = Egg::createEgg({0, 0});
-		// Setting random initial position and constant velocity
-		auto& motion = entity.get<Motion>();
-		motion.position = vec2(window_size_in_game_units.x - 150.f, 50.f + uniform_dist(rng) * (window_size_in_game_units.y - 100.f));
-		motion.velocity = vec2(-100.f, 0.f );
-	}
-	*/
-
 	// Check for player defeat
 	assert(ECS::registry<ScreenState>.components.size() == 1);
 	auto& screen = ECS::registry<ScreenState>.components[0];
@@ -169,6 +157,10 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		// Remove player/mob once death timer expires
 		if (counter.counter_ms < 0)
 		{
+				//If the entity has a stats component get rid of the health bar too
+			if (entity.has<StatsComponent>()) {
+						ECS::ContainerInterface::removeAllComponentsOf(entity.get<StatsComponent>().healthBar);
+			}
 			ECS::ContainerInterface::removeAllComponentsOf(entity);
 			// Check if there are no more players left, restart game
 			if (ECS::registry<PlayerComponent>.entities.empty())
@@ -201,6 +193,8 @@ void WorldSystem::restart()
 	// Get screen/buffer size
 	int frameBufferWidth, frameBufferHeight;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
+
+	
 
 	createMap(frameBufferWidth, frameBufferHeight);
 	createPlayers(frameBufferWidth, frameBufferHeight);
@@ -253,18 +247,17 @@ bool WorldSystem::isOver() const
 void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 {
 	// Create the map
-	MapComponent::createMap("pizza-arena/pizza-arena-debug", {frameBufferWidth, frameBufferHeight});
+	MapComponent::createMap(config.at("map"), {frameBufferWidth, frameBufferHeight});
 
-	// Create a deforming blob
-	CheeseBlob::createCheeseBlob({ 700, 950 });
+	// Create a deforming blob for pizza arena
+	// maybe add own section in level file we have more of these
+	if (config.at("map") == "pizza-arena") {
+		CheeseBlob::createCheeseBlob({ 700, 950 });
+	}
 }
 
 void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 {
-	// Temporarily here so it renders behind the buttons
-	ActiveSkillFX::createActiveSkillFX();
-	// HP bar test
-	HPBar::createHPBar({ frameBufferWidth / 4, 120 });
 
 	// Create UI buttons
 	auto player_button_1 = Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth / 4, 60 },
@@ -353,22 +346,32 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 void WorldSystem::createEffects(int frameBufferWidth, int frameBufferHeight)
 {
 	MouseClickFX::createMouseClickFX();
-	/*ActiveSkillFX::createActiveSkillFX();*/
+	ActiveSkillFX::createActiveSkillFX();
 }
 
 void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
-{
-	playerRaoul = Raoul::createRaoul({ 640, 512 });
-	playerTaji = Taji::createTaji({ 200,700 });
-	playerEmber = Ember::createEmber({ 400,700 });
-	playerChia = Chia::createChia({ 400,400 });
+{ 
+	// you can also createPlayers using the old method 
+	// eg: playerRaoul = Raoul::createRaoul(vec2( 640, 512 ));
+	// please specify vec2(x, y), as {x , y} is also valid json
+
+	playerRaoul = Raoul::createRaoul(config.at("raoul"));
+	playerTaji = Taji::createTaji(config.at("taji"));
+	playerEmber = Ember::createEmber(config.at("ember"));
+	playerChia = Chia::createChia(config.at("chia"));
 }
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 {
-	//This is not the final way to add eggs just put them here for testing purposes.
-	Egg::createEgg({750, 800});
-	Egg::createEgg({1000, 800});
+	// TODO: come back and expand this when we have multiple mobs
+	auto mobs = config.at("mobs");
+
+	for (json mob : mobs) {
+		auto type = mob["type"];
+		if (type == "egg") {
+			Egg::createEgg({ mob.at("position")[0], mob["position"][1] });
+		}
+	}
 }
 
 // On key callback
@@ -376,7 +379,7 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 {
 	// Animation Test
 	if (action == GLFW_PRESS && key == GLFW_KEY_3) {
-		auto& anim = playerTaji.get<AnimationsComponent>();
+		auto& anim = playerEmber.get<AnimationsComponent>();
 		anim.changeAnimation(AnimationType::ATTACK1);
 	}
 	if (action == GLFW_PRESS && key == GLFW_KEY_4) {
@@ -428,6 +431,18 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		std::cout << "Current speed = " << current_speed << std::endl;
 	}
 	current_speed = std::max(0.f, current_speed);
+
+	LevelLoader lc;
+	// swap maps
+	if (action == GLFW_PRESS && key == GLFW_KEY_M) {
+		config = lc.readLevel("dessert-arena");
+		restart();
+	}
+
+	if (action == GLFW_PRESS && key == GLFW_KEY_N) {
+		config = lc.readLevel("pizza-arena");
+		restart();
+	}
 }
 
 void WorldSystem::onMouseClick(int button, int action, int mods) const

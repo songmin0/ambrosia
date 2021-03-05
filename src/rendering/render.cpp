@@ -141,8 +141,11 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	GLuint percentHP_uloc = glGetUniformLocation(texmesh.effect.program, "percentHP");
 	if (percentHP_uloc >= 0)
 	{
-		// !!! TODO !!! - pass in the proper HP percentage. The current example renders 20% HP.
-		glUniform1f(percentHP_uloc, 0.2f);
+			if (entity.has<HPBar>()) {
+					auto& statsComp = entity.get<HPBar>().statsCompEntity.get<StatsComponent>();
+					//This assumes all entities have a max health of 100
+					glUniform1f(percentHP_uloc, statsComp.getStatValue(StatType::HP) / 100.0f);
+			}
 	}
 
 	// Getting uniform locations for glUniform* calls
@@ -331,6 +334,27 @@ void RenderSystem::drawToScreen()
 	
 }
 
+struct CompareRenderableEntity
+{
+	bool operator()(ECS::Entity entity1, ECS::Entity entity2) {
+		assert(entity1.has<RenderableComponent>());
+		assert(entity2.has<RenderableComponent>());
+		auto& renderable1 = entity1.get<RenderableComponent>();
+		auto& renderable2 = entity2.get<RenderableComponent>();
+
+		// Compare players and mob by their y-position
+		if (renderable1.layer == RenderLayer::PLAYER_AND_MOB && renderable2.layer == RenderLayer::PLAYER_AND_MOB) {
+			assert(entity1.has<Motion>());
+			assert(entity2.has<Motion>());
+			auto& motion1 = entity1.get<Motion>();
+			auto& motion2 = entity2.get<Motion>();
+			return motion1.position.y < motion2.position.y;
+		}
+
+		return renderable1.layer > renderable2.layer;
+	}
+};
+
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 void RenderSystem::draw(vec2 window_size_in_game_units)
@@ -363,7 +387,12 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 	float ty = -(top + bottom) / (top - bottom);
 	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
 
-	for (ECS::Entity entity : ECS::registry<ShadedMeshRef>.entities)
+	// List of entities to render
+	std::vector<ECS::Entity> entities = ECS::registry<ShadedMeshRef>.entities;
+	// Sort the entities depending on their render layer
+	std::sort(entities.begin(), entities.end(), CompareRenderableEntity());
+
+	for (ECS::Entity entity : entities)
 	{
 		if (!entity.has<Motion>())
 		{

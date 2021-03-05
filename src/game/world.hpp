@@ -1,6 +1,8 @@
 #pragma once
 #include "common.hpp"
 #include "entities/tiny_ecs.hpp"
+#include "json.hpp"
+using json = nlohmann::json;
 
 // stlib
 #include <vector>
@@ -9,6 +11,7 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <SDL_mixer.h>
+#include <level_loader/level_loader.hpp>
 
 // Container for all our entities and game logic. Individual rendering / update is 
 // deferred to the relative update() methods
@@ -73,4 +76,7 @@ private:
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
+
+	//config obj
+	json config;
 };

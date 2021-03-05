@@ -7,6 +7,19 @@
 
 enum GLResourceType {BUFFER, RENDER_BUFFER, SHADER, PROGRAM, TEXTURE, VERTEX_ARRAY};
 
+// Enum for rendering layer order (first element is rendered on top, last is on bottom)
+enum class RenderLayer {
+	DEBUG,
+	CLICK_FX,
+	UI_TOOLTIP,
+	UI,
+	UI_ACTIVE_SKILL_FX,
+	SKILL,
+	PLAYER_AND_MOB,
+	MAP_OBJECT,
+	MAP
+};
+
 // This class is a wrapper around OpenGL resources that deletes allocated memory on destruction.
 // Moreover, copy constructors are disabled to ensure that the resource is only deleted when the original object is destroyed, not its copies.
 template <GLResourceType Resource>
@@ -162,4 +175,10 @@ struct ColourShift
 struct VisibilityComponent
 {
 	bool isVisible = true;
+};
+
+struct RenderableComponent
+{
+	RenderLayer layer;
+	RenderableComponent(RenderLayer layer);
 };
