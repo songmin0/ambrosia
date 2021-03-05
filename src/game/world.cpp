@@ -469,10 +469,10 @@ void WorldSystem::initAudio()
 	music[MusicType::VICTORY] = Mix_LoadMUS(audioPath("music/Victory_Fanfare_Loop.wav").c_str());
 	music[MusicType::BOSS] = Mix_LoadMUS(audioPath("music/Boss_Battle_Loop.wav").c_str());
 	music[MusicType::PIZZA_ARENA] = Mix_LoadMUS(audioPath("music/Battle_Theme_Loop.wav").c_str());
-	music[MusicType::DESSERT_ARENA] = Mix_LoadMUS(audioPath("music/Deep_Forest.wav").c_str());
+	music[MusicType::DESSERT_ARENA] = Mix_LoadMUS(audioPath("music/Lullaby_Loop.wav").c_str());
 	music[MusicType::PLACEHOLDER1] = Mix_LoadMUS(audioPath("music/Town_Theme.wav").c_str());
 	music[MusicType::PLACEHOLDER2] = Mix_LoadMUS(audioPath("music/Evil_Gloating_Loop.wav").c_str());
-	music[MusicType::PLACEHOLDER3] = Mix_LoadMUS(audioPath("music/Lullaby_Loop.wav").c_str());
+	music[MusicType::PLACEHOLDER3] = Mix_LoadMUS(audioPath("music/Deep_Forest.wav").c_str());
 	music[MusicType::PLACEHOLDER4] = Mix_LoadMUS(audioPath("music/Time_Cave.wav").c_str());
 
 	// Check that all music was loaded
