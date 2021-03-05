@@ -366,21 +366,35 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 // On key callback
 void WorldSystem::onKey(int key, int, int action, int mod)
 {
-	// TODO add safety checks for get camera
+	// Handles inputs for camera movement
+	assert(!ECS::registry<CameraComponent>.entities.empty());
 	auto camera = ECS::registry<CameraComponent>.entities[0];
 	auto& cameraComponent = camera.get<CameraComponent>();
-	// Camera Movement (Temporarily hardcoded to match tile size)
-	if (action == GLFW_PRESS && key == GLFW_KEY_UP) {
-		cameraComponent.position.y = cameraComponent.position.y - 32;
+	if (action == GLFW_PRESS) {
+		if (key == GLFW_KEY_UP) {
+			cameraComponent.velocity.y = -cameraComponent.speed;
+		} else if (key == GLFW_KEY_DOWN) {
+			cameraComponent.velocity.y = cameraComponent.speed;
+		}
+		if (key == GLFW_KEY_LEFT) {
+			cameraComponent.velocity.x = -cameraComponent.speed;
+		} else if (key == GLFW_KEY_RIGHT) {
+			cameraComponent.velocity.x = cameraComponent.speed;
+		}
 	}
-	if (action == GLFW_PRESS && key == GLFW_KEY_DOWN) {
-		cameraComponent.position.y = cameraComponent.position.y + 32;
-	}
-	if (action == GLFW_PRESS && key == GLFW_KEY_LEFT) {
-		cameraComponent.position.x = cameraComponent.position.x - 32;
-	}
-	if (action == GLFW_PRESS && key == GLFW_KEY_RIGHT) {
-		cameraComponent.position.x = cameraComponent.position.x + 32;
+	else if (action == GLFW_RELEASE) {
+		if (key == GLFW_KEY_LEFT && cameraComponent.velocity.x <= 0) {
+			cameraComponent.velocity.x = 0;
+		}
+		else if (key == GLFW_KEY_RIGHT && cameraComponent.velocity.x >= 0) {
+			cameraComponent.velocity.x = 0;
+		}
+		else if (key == GLFW_KEY_UP && cameraComponent.velocity.y <= 0) {
+			cameraComponent.velocity.y = 0;
+		}
+		else if (key == GLFW_KEY_DOWN && cameraComponent.velocity.y >= 0) {
+			cameraComponent.velocity.y = 0;
+		}
 	}
 
 	// Animation Test

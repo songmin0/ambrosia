@@ -103,8 +103,8 @@ void UISystem::onMouseClick(const RawMouseClickEvent& event)
 		}
 	}
 
-	// Sends a MouseClickEvent to event system if no buttons are clicked
-	// TODO add safety checks for get camera
+	// Sends a MouseClickEvent to event system if no buttons are clicked, takes into account the camera position
+	assert(!ECS::registry<CameraComponent>.entities.empty());
 	auto camera = ECS::registry<CameraComponent>.entities[0];
 	auto& cameraPos = camera.get<CameraComponent>().position;
 	EventSystem<MouseClickEvent>::instance().sendEvent(MouseClickEvent{ event.mousePos + cameraPos });
