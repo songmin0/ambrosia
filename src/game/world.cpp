@@ -243,6 +243,10 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 	if (config.at("map") == "pizza-arena") {
 		CheeseBlob::createCheeseBlob({ 700, 950 });
 	}
+
+	if (config.at("map") == "dessert-arena") {
+		DessertForeground::createDessertForeground({ 1920, 672 });
+	}
 }
 
 void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)

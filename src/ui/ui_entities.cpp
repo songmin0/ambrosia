@@ -18,7 +18,7 @@ ECS::Entity HPBar::createHPBar(vec2 position)
 	motion.position = position;
 	motion.angle = 0.f;
 	motion.velocity = vec2(0.f);
-	motion.scale = vec2(0.7f);
+	motion.scale = vec2(0.5f, 0.4f);
 	motion.boundingBox = vec2(0.f);
 
 	ECS::registry<HPBar>.emplace(entity);
