@@ -21,7 +21,7 @@ ECS::Entity MapComponent::createMap(const std::string& name, vec2 screenSize)
 	// Create rendering primitives
 	ShadedMesh& resource = cacheResource(name);
 	if (resource.effect.program.resource == 0)
-		RenderSystem::createSprite(resource, mapPath, "textured");
+		RenderSystem::createSprite(resource, debugPath, "textured");
 	// TODO: change to normal map after done with debug map
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	entity.emplace<ShadedMeshRef>(resource);
