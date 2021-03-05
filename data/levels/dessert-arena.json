@@ -1,7 +1,7 @@
 {
   "map": "dessert-arena",
   "camera": {
-    "position": [1400, 150]
+    "position": [1400, 350]
   },
   "taji": {
     "stats": {
