@@ -29,7 +29,7 @@ ParticleSystem::ParticleSystem()
 		VertexArrayID = 0;
 		//Initialize the arrays to 0 to stop the compiler from being upset.
 		memset(particleCenterPositionAndSizeData, 0, sizeof(GLfloat) * MaxParticles * 4);
-		memset(particleColorData, 0, sizeof(GLubyte) * MaxParticles * 4);
+		memset(particleColorData, 0, sizeof(GLfloat) * MaxParticles * 4);
 
 		secSinceLastParticleSpawn = 0.0f;
 
@@ -127,8 +127,8 @@ void ParticleSystem::prepRender() {
 		glVertexAttribPointer(
 				2, // index. Must match the shader in variable number, also must match the value used in glVertexAttribDivisor
 				4, // size: Each triangle has a colour which has values for each rgba which is 4 values.
-				GL_UNSIGNED_BYTE, // type
-				GL_TRUE, // normalized? *** YES, this means that the unsigned char[4] will be accessible with a vec4 (floats) in the shader *** TODO understand why this normalization allows us to use them as floats or change out colours to floats instead of ubytes
+				GL_FLOAT, // type
+				GL_FALSE, // normalized? *** YES, this means that the unsigned char[4] will be accessible with a vec4 (floats) in the shader *** TODO understand why this normalization allows us to use them as floats or change out colours to floats instead of ubytes
 				0, // stride. this is default value for this function
 				0 // array buffer offset. this is default value for this function
 		);
@@ -146,9 +146,9 @@ void ParticleSystem::updateGPU() {
 		glBufferSubData(GL_ARRAY_BUFFER, 0, particlesCount * sizeof(GLfloat) * 4, particleCenterPositionAndSizeData);
 
 		glBindBuffer(GL_ARRAY_BUFFER, particlesColorBuffer);
-		glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW); // Buffer orphaning
+		glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW); // Buffer orphaning
 		//This allows us to use the already allocated buffer from the previous line rather than reallocating a new buffer
-		glBufferSubData(GL_ARRAY_BUFFER, 0, particlesCount * sizeof(GLubyte) * 4, particleColorData);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, particlesCount * sizeof(GLfloat) * 4, particleColorData);
 		assert(glGetError() == 0);
 }
 
@@ -242,7 +242,7 @@ void ParticleSystem::initParticles()
 		glGenBuffers(1, &particlesColorBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, particlesColorBuffer);
 		// Initialize with empty (NULL) buffer : it will be updated later, each frame.
-		glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
 
 
 
@@ -274,12 +274,12 @@ void ParticleSystem::createParticles(int numParticles) {
 				//ParticlesContainer[particleIndex].r = rand() % 256;
 				//ParticlesContainer[particleIndex].g = rand() % 256;
 				//ParticlesContainer[particleIndex].b = rand() % 256;
-				ParticlesContainer[particleIndex].r = 255;
-				ParticlesContainer[particleIndex].g = 255;
-				ParticlesContainer[particleIndex].b = 255;
+				ParticlesContainer[particleIndex].r = 1.0;
+				ParticlesContainer[particleIndex].g = 1.0;
+				ParticlesContainer[particleIndex].b = 1.0;
 				//Make them mostly opaque
 				//ParticlesContainer[particleIndex].a = (rand() % 125) + 131;
-				ParticlesContainer[particleIndex].a = 200 + rand()% 55;
+				ParticlesContainer[particleIndex].a = 1.0;
 
 				//Generate a random size for each particle
 				ParticlesContainer[particleIndex].size = (rand() % 20)  + 20.0f;

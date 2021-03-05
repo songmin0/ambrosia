@@ -1,7 +1,7 @@
 #pragma once
 #include "common.hpp"
 #include "entities/tiny_ecs.hpp"
-#include "render_components.hpp"
+#include "rendering/render_components.hpp"
 
 #include <vector>
 #include <string>
@@ -12,7 +12,7 @@ class ParticleEmitter;
 // CPU representation of a particle
 struct Particle {
 		glm::vec3 pos, speed; //position and speed of the particle
-		unsigned char r, g, b, a; // Color of the particle
+		float r, g, b, a; // Color of the particle
 		float size; //The size of the particle
 		float life; // How much remaining time the particle has. if life < 0 then the particle is dead
 };
@@ -63,7 +63,7 @@ private:
 		int particlesCount = 0;
 
 		GLfloat particleCenterPositionAndSizeData[MaxParticles * 4];
-		GLubyte particleColorData[MaxParticles * 4];
+		GLfloat particleColorData[MaxParticles * 4];
 
 		float secSinceLastParticleSpawn;
 
@@ -81,6 +81,7 @@ public:
 		virtual void simulateParticles(float elapsedMs, int numNewParticles) = 0;
 		virtual void createParticle(int index) = 0;
 		void step(float elapsedMs);
+		//void drawParticles(GLuint vertexBuffer);
 protected:
 		GLuint particlesCenterPositionAndSizeBuffer;
 		GLuint particlesColorBuffer;
