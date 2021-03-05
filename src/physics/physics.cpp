@@ -121,11 +121,13 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			auto& motion = ECS::registry<Motion>.components[i];
 			vec2 position = motion.position;
 
-			// Draw this entity's path using dotted lines
-			if (DebugSystem::in_debug_mode)
+			if (entity.has<DebugComponent>())
 			{
-				DebugSystem::createPath(motion.path);
+				continue;
 			}
+
+			// Draw this entity's path using dotted lines
+			DebugSystem::createPath(motion.path);
 
 			if (entity.has<PlayerComponent>() || entity.has<AISystem::MobComponent>())
 			{
