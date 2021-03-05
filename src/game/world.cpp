@@ -126,6 +126,12 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			}
 		}
 	}
+
+	if (ECS::registry<Egg>.entities.size() == 0) {
+		LevelLoader lc;
+		config = lc.readLevel("dessert-arena");
+		restart();
+	}
 }
 
 // Reset the world state to its initial state
