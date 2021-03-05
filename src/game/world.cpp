@@ -351,6 +351,10 @@ void WorldSystem::createEffects(int frameBufferWidth, int frameBufferHeight)
 
 void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 {
+	// you can also createPlayers using the old method 
+	// eg: playerRaoul = Raoul::createRaoul(vec2( 640, 512 ));
+	// please specify vec2(x, y), as {x , y} is also valid json
+
 	playerRaoul = Raoul::createRaoul(config.at("raoul"));
 	playerTaji = Taji::createTaji(config.at("taji"));
 	playerEmber = Ember::createEmber(config.at("ember"));
