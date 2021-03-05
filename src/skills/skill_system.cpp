@@ -49,6 +49,9 @@ void SkillSystem::step(float elapsed_ms)
 			queuedSkill.skill->performSkill(queuedSkill.target);
 			toRemove.push_back(i);
 
+			// Play sound effect
+			EventSystem<PlaySoundEffectEvent>::instance().sendEvent({queuedSkill.skill->getSoundEffect()});
+
 			// AreaOfEffect skills happen immediately, so we can notify the TurnSystem that the skill is done right away.
 			// Projectile skills are not done until the projectile reaches the end of its trajectory, so we don't send a
 			// FinishedSkillEvent for those ones here. The ProjectileSystem handles that.

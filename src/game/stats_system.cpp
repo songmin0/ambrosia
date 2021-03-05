@@ -74,6 +74,8 @@ void StatsSystem::onHitEvent(const HitEvent &event)
 		statsComponent.stats[StatType::HP] -= actualDamage;
 
 		AnimationType animationToPerform = AnimationType::HIT;
+		SoundEffect soundEffect = target.has<PlayerComponent>() ? SoundEffect::HIT_PLAYER
+																														: SoundEffect::HIT_MOB;
 
 		// Check whether the target has died
 		if (statsComponent.stats[StatType::HP] <= 0.f)
@@ -83,6 +85,7 @@ void StatsSystem::onHitEvent(const HitEvent &event)
 			if (!ECS::registry<DeathTimer>.has(target))
 			{
 				ECS::registry<DeathTimer>.emplace(target);
+				soundEffect = SoundEffect::DEFEAT;
 			}
 		}
 
@@ -92,6 +95,8 @@ void StatsSystem::onHitEvent(const HitEvent &event)
 			auto& animationsComponent = target.get<AnimationsComponent>();
 			animationsComponent.changeAnimation(animationToPerform);
 		}
+
+		EventSystem<PlaySoundEffectEvent>::instance().sendEvent({soundEffect});
 	}
 
 

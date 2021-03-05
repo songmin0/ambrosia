@@ -96,6 +96,7 @@ ECS::Entity Egg::createEgg(vec2 pos)
 	eggShellParams.delay = 0.6f;
 	eggShellParams.damage = 10.f;
 	eggShellParams.collidesWith = CollisionGroup::PLAYER;
+	eggShellParams.soundEffect = SoundEffect::PROJECTILE;
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(eggShellParams, ProjectileType::EGG_SHELL));
 
 	return entity;
