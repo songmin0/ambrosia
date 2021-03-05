@@ -31,12 +31,12 @@ ECS::Entity MapComponent::createMap(const std::string& name, vec2 screenSize)
 	auto& motion = entity.emplace<Motion>();
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
-	motion.position = screenSize / 2.f;
-	motion.scale = screenSize / static_cast<vec2>(resource.texture.size);
+	motion.position = { 0.f, 0.f };
+	motion.scale = { 1.f, 1.f };
 
 	auto& mapComponent = entity.emplace<MapComponent>();
 	mapComponent.name = name;
-
+	mapComponent.mapSize = static_cast<vec2>(resource.texture.size);
 	// Temporarily hardcoded until we implement a function to load this from the data file
 	mapComponent.tileSize = 32;
 

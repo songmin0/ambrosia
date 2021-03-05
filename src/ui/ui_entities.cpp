@@ -54,6 +54,7 @@ ECS::Entity ToolTip::createToolTip(PlayerType player, SkillType skillType, vec2 
 	}
 
 	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+	entity.emplace<UIComponent>();
 	entity.emplace<RenderableComponent>(RenderLayer::UI_TOOLTIP);
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
@@ -83,6 +84,7 @@ ECS::Entity ToolTip::createMoveToolTip(vec2 position)
 	}
 
 	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+	entity.emplace<UIComponent>();
 	entity.emplace<RenderableComponent>(RenderLayer::UI_TOOLTIP);
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);

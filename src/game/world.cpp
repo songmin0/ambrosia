@@ -1,4 +1,5 @@
 #include "world.hpp"
+#include "camera.hpp"
 #include "event_system.hpp"
 #include "events.hpp"
 #include "turn_system.hpp"
@@ -127,22 +128,6 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	std::stringstream title_ss;
 	title_ss << "Points: " << points;
 	glfwSetWindowTitle(window, title_ss.str().c_str());
-	
-	// Removing out of screen entities
-	auto& registry = ECS::registry<Motion>;
-
-	// Remove entities that leave the screen on the left side
-	// Iterate backwards to be able to remove without unterfering with the next object to visit
-	// (the containers exchange the last element with the current upon delete)
-	for (int i = static_cast<int>(registry.components.size())-1; i >= 0; --i)
-	{
-		auto& motion = registry.components[i];
-		if (motion.position.x < -200.f || motion.position.x > (window_size_in_game_units.x + 200.f)
-		    || motion.position.y < -200.f || motion.position.y > (window_size_in_game_units.y + 200.f))
-		{
-			ECS::ContainerInterface::removeAllComponentsOf(registry.entities[i]);
-		}
-	}
 
 	// Check for player defeat
 	assert(ECS::registry<ScreenState>.components.size() == 1);
@@ -187,6 +172,11 @@ void WorldSystem::restart()
 	while (!ECS::registry<Motion>.entities.empty())
 		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Motion>.entities.back());
 
+	// Remove camera entity
+	while (!ECS::registry<CameraComponent>.entities.empty()) {
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<CameraComponent>.entities.back());
+	}
+
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::listAllComponents();
 
@@ -194,8 +184,7 @@ void WorldSystem::restart()
 	int frameBufferWidth, frameBufferHeight;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
-	
-
+	Camera::createCamera(config.at("camera"));
 	createMap(frameBufferWidth, frameBufferHeight);
 	createPlayers(frameBufferWidth, frameBufferHeight);
 	createMobs(frameBufferWidth, frameBufferHeight);
@@ -377,6 +366,23 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 // On key callback
 void WorldSystem::onKey(int key, int, int action, int mod)
 {
+	// TODO add safety checks for get camera
+	auto camera = ECS::registry<CameraComponent>.entities[0];
+	auto& cameraComponent = camera.get<CameraComponent>();
+	// Camera Movement (Temporarily hardcoded to match tile size)
+	if (action == GLFW_PRESS && key == GLFW_KEY_UP) {
+		cameraComponent.position.y = cameraComponent.position.y - 32;
+	}
+	if (action == GLFW_PRESS && key == GLFW_KEY_DOWN) {
+		cameraComponent.position.y = cameraComponent.position.y + 32;
+	}
+	if (action == GLFW_PRESS && key == GLFW_KEY_LEFT) {
+		cameraComponent.position.x = cameraComponent.position.x - 32;
+	}
+	if (action == GLFW_PRESS && key == GLFW_KEY_RIGHT) {
+		cameraComponent.position.x = cameraComponent.position.x + 32;
+	}
+
 	// Animation Test
 	if (action == GLFW_PRESS && key == GLFW_KEY_3) {
 		auto& anim = playerEmber.get<AnimationsComponent>();

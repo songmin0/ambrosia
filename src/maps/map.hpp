@@ -8,6 +8,7 @@ struct MapComponent
 	static ECS::Entity createMap(const std::string& name, vec2 screenSize);
 
 	std::string name;
+	vec2 mapSize;
 	float tileSize;
 	std::vector<std::vector<int>> grid;
 };

@@ -1,12 +1,15 @@
 {
   "map": "dessert-arena",
+  "camera": {
+    "position": [1400, 150]
+  },
   "taji": {
     "stats": {
       "hp": 100,
       "strength": 1,
       "ambrosia" : 0
     },
-    "position": [300,600]
+    "position": [1600, 950]
   },
   "chia": {
     "stats": {
@@ -14,7 +17,7 @@
       "strength": 1,
       "ambrosia" : 0
     },
-    "position": [500,500]
+    "position": [1750, 700]
   },
   "raoul": {
     "stats": {
@@ -22,7 +25,7 @@
       "strength": 1,
       "ambrosia" : 0
     },
-    "position": [600, 550]
+    "position": [1950, 800]
   },
   "ember": {
     "stats": {
@@ -30,16 +33,16 @@
       "strength": 1,
       "ambrosia" : 0
     },
-    "position": [400,700]
+    "position": [1800, 1000]
   },
   "mobs": [
     {
       "type": "egg",
-	  "position": [750, 800]
+	  "position": [2400, 1100]
     },
 	{
       "type": "egg",
-	  "position": [600, 700]
+	  "position": [2550, 900]
     }
   ]
 }
