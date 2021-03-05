@@ -42,10 +42,10 @@ public:
 class BehaviourTree
 {
 public:
-	Node* root;
+	std::shared_ptr<Node> root;
 	//public:
 	BehaviourTree() : root(new Node) {};
-	BehaviourTree(Node* root) : root(root) {};
+	BehaviourTree(std::shared_ptr<Node> root) : root(root) {};
 	void run() { root->run(); };
 };
 
@@ -55,13 +55,13 @@ class StateSystem
 public:
 	EventListenerInfo startMobTurnListener;
 	//static ECS::Entity currentMobEntity;
-	BehaviourTree* activeTree;
+	std::shared_ptr<BehaviourTree> activeTree;
 //public:
 	StateSystem()
 	{
 		startMobTurnListener = EventSystem<StartMobTurnEvent>::instance().registerListener(
 			std::bind(&StateSystem::onStartMobTurnEvent, this, std::placeholders::_1));
-		activeTree = NULL;
+		activeTree = nullptr;
 		//currentMobEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 	};
 
@@ -74,12 +74,12 @@ public:
 class Composite : public Node
 {
 public:
-	vector<Node*> children;
+	vector<std::shared_ptr<Node>> children;
 	// Current node index to run
 	int i = 0;
 //public:
 	//vector<Node*> getChildren() { return children; };
-	void addChild(Node*);
+	void addChild(std::shared_ptr<Node>);
 };
 
 // Type of composite node; tries to run one task

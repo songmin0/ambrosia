@@ -78,7 +78,6 @@ int main()
 
 			DebugSystem::clearDebugComponents();
 			ai.step(deltaTime, window_size_in_game_units);
-			stateSystem.step(deltaTime);
 			world.step(deltaTime, window_size_in_game_units);
 			physics.step(deltaTime, window_size_in_game_units);
 			world.handleCollisions();
@@ -87,6 +86,7 @@ int main()
 			statsSystem.step(deltaTime);
 			animations.step();
 			turnSystem.step(deltaTime);
+			stateSystem.step(deltaTime);
 			particleSystem.step(deltaTime);
 			renderer.draw(window_size_in_game_units);
 

@@ -7,14 +7,14 @@ void StateSystem::onStartMobTurnEvent(const StartMobTurnEvent& event)
 	assert(mob.has<BehaviourTreeType>());
 	if (mob.get<BehaviourTreeType>().mobType == MobType::EGG)
 	{
-		activeTree = &EggBehaviourTree::EggBehaviourTree();
+		activeTree = std::make_shared<BehaviourTree>(EggBehaviourTree::EggBehaviourTree());
 		//EggBehaviourTree::EggBehaviourTree().run();
 	}
 }
 
 void StateSystem::step(float elapsed_ms)
 {
-	if (activeTree != NULL)
+	if (activeTree != nullptr && activeTree->root != nullptr)
 	{
 		if (activeTree->root->status == Status::INVALID)
 			activeTree->root->run();
@@ -25,7 +25,7 @@ void StateSystem::step(float elapsed_ms)
 	}
 }
 
-void Composite::addChild(Node* n)
+void Composite::addChild(std::shared_ptr<Node> n)
 {
 	children.push_back(n);
 }
@@ -34,7 +34,7 @@ void Selector::run()
 {
 	Node::run();
 	// Check nodes, success if even one of them succeeds
-	Node* current = children[i];
+	std::shared_ptr<Node> current = children[i];
 	switch (current->status)
 	{
 	case Status::INVALID:
@@ -68,7 +68,7 @@ void Sequence::run()
 {
 	Node::run();
 	// Check all nodes, success if all of them succeed
-	Node* current = children[i];
+	std::shared_ptr<Node> current = children[i];
 	switch (current->status)
 	{
 	case Status::INVALID: 
@@ -110,9 +110,9 @@ MobTurnSequence::MobTurnSequence()
 	ECS::Entity mob = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 	float hp = mob.get<StatsComponent>().getStatValue(StatType::HP);
 	MoveSelector moveSelector(hp);
-	addChild(&moveSelector);
+	addChild(std::make_shared<MoveSelector>(moveSelector));
 	AttackTask attack;
-	addChild(&attack);
+	addChild(std::make_shared<AttackTask>(attack));
 }
 
 // MOVING
@@ -121,9 +121,9 @@ MoveSelector::MoveSelector(float hp)
 	: hp(hp)
 {
 	MoveCloserTask moveCloser;
-	addChild(&moveCloser);
+	addChild(std::make_shared<MoveCloserTask>(moveCloser));
 	RunAwayTask runAway;
-	addChild(&runAway);
+	addChild(std::make_shared<RunAwayTask>(runAway));
 }
 
 void MoveSelector::run()
@@ -132,18 +132,19 @@ void MoveSelector::run()
 	if (hp < 25.f)
 	{
 		// Last node should be RunAwayTask
-		Node* runAway = children.back();
+		std::shared_ptr<Node> runAway = children.back();
 		runAway->run();
 		return;
 	}
 	// Otherwise, MoveCloserTask
-	Node* moveCloser = children.front();
+	std::shared_ptr<Node> moveCloser = children.front();
 	moveCloser->run();
 }
 
 void MoveCloserTask::onFinishedMoveCloserEvent(const FinishedMovementEvent& event)
 {
 	this->onTerminate(Status::SUCCESS);
+	EventSystem<FinishedMovementEvent>::instance().unregisterListener(taskCompletedListener);
 }
 
 void MoveCloserTask::run()
@@ -160,6 +161,7 @@ void MoveCloserTask::run()
 void RunAwayTask::onFinishedRunAwayEvent(const FinishedMovementEvent& event)
 {
 	this->onTerminate(Status::SUCCESS);
+	EventSystem<FinishedMovementEvent>::instance().unregisterListener(taskCompletedListener);
 }
 
 void RunAwayTask::run()
@@ -179,6 +181,7 @@ void RunAwayTask::run()
 void AttackTask::onFinishedAttackEvent(const FinishedSkillEvent& event)
 {
 	this->onTerminate(Status::SUCCESS);
+	EventSystem<FinishedSkillEvent>::instance().unregisterListener(taskCompletedListener);
 }
 
 void AttackTask::run()
@@ -195,5 +198,6 @@ void AttackTask::run()
 EggBehaviourTree::EggBehaviourTree()
 {
 	//BehaviourTree::BehaviourTree(new &MobTurnSequence);
-	root = &MobTurnSequence::MobTurnSequence();
+	root = std::make_shared<MobTurnSequence>(MobTurnSequence::MobTurnSequence());
+	//BehaviourTree(new MobTurnSequence);
 }
