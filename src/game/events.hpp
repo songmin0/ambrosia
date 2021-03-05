@@ -74,6 +74,21 @@ struct BuffEvent
 
 struct StartMobTurnEvent
 {
+
+};
+
+struct StartMobMoveCloserEvent
+{
+	ECS::Entity entity;
+};
+
+struct StartMobRunAwayEvent
+{
+	ECS::Entity entity;
+};
+
+struct StartMobSkillEvent
+{
 	ECS::Entity entity;
 };
 

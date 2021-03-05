@@ -4,12 +4,11 @@
 #include "entities/tiny_ecs.cpp"
 
 #include "behaviour_tree.hpp"
+#include "ai.hpp"
 
 class StateSystem 
 {
 public:
-	StateSystem() = default;
+	StateSystem();
 	~StateSystem() = default;
-
-	void step(float elapsed_ms);
 };

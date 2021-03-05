@@ -9,15 +9,26 @@
 AISystem::AISystem(const PathFindingSystem& pfs)
 	: pathFindingSystem(pfs)
 {
-	startMobTurnListener = EventSystem<StartMobTurnEvent>::instance().registerListener(
-			std::bind(&AISystem::onStartMobTurnEvent, this, std::placeholders::_1));
+	startMobMoveCloserListener = EventSystem<StartMobMoveCloserEvent>::instance().registerListener(
+			std::bind(&AISystem::onStartMobMoveCloserEvent, this, std::placeholders::_1));
+
+	startMobRunAwayListener = EventSystem<StartMobRunAwayEvent>::instance().registerListener(
+		std::bind(&AISystem::onStartMobRunAwayEvent, this, std::placeholders::_1));
+
+	startMobSkillListener = EventSystem<StartMobSkillEvent>::instance().registerListener(
+			std::bind(&AISystem::onStartMobSkillEvent, this, std::placeholders::_1));
 }
 
 AISystem::~AISystem()
 {
-	if (startMobTurnListener.isValid())
+	if (startMobMoveCloserListener.isValid())
 	{
-		EventSystem<StartMobTurnEvent>::instance().unregisterListener(startMobTurnListener);
+		EventSystem<StartMobMoveCloserEvent>::instance().unregisterListener(startMobMoveCloserListener);
+	}
+
+	if (startMobSkillListener.isValid())
+	{
+		EventSystem<StartMobSkillEvent>::instance().unregisterListener(startMobSkillListener);
 	}
 }
 
@@ -75,22 +86,17 @@ bool AISystem::getClosestPlayer(ECS::Entity& mob)
 	return closestDistance != float_max;
 }
 
-void AISystem::startMobTurn(ECS::Entity entity)
+void AISystem::startMobMoveCloser(ECS::Entity entity)
 {
 	assert(entity.has<MobComponent>());
+	// Motion component is mandatory
 	assert(entity.has<Motion>());
 	auto& motion = entity.get<Motion>();
-	auto& mobComponent = entity.get<MobComponent>();
-	startMobMovement(entity, motion, mobComponent);
 
-}
-
-void AISystem::startMobMovement(ECS::Entity entity, Motion& motion, MobComponent& mobComponent)
-{
-	std::cout << "finding path\n";
+	std::cout << "Moving towards player\n";
 
 	if (getClosestPlayer(entity)) {
-		ECS::Entity closestPlayer = mobComponent.getClosestPlayer();
+		ECS::Entity closestPlayer = entity.get<MobComponent>().getClosestPlayer();
 		//Find the direction to travel towards the player
 		vec2 direction = normalize(closestPlayer.get<Motion>().position - motion.position);
 
@@ -102,8 +108,33 @@ void AISystem::startMobMovement(ECS::Entity entity, Motion& motion, MobComponent
 	}
 }
 
-void AISystem::startMobSkill(ECS::Entity entity, Motion& motion, MobComponent& mobComponent)
+void AISystem::startMobRunAway(ECS::Entity entity)
 {
+	assert(entity.has<MobComponent>());
+	assert(entity.has<Motion>());
+	auto& motion = entity.get<Motion>();
+
+	std::cout << "Running away from player\n";
+
+	if (getClosestPlayer(entity)) {
+		ECS::Entity closestPlayer = entity.get<MobComponent>().getClosestPlayer();
+		//Find the direction to travel away from the player
+		vec2 direction = normalize(closestPlayer.get<Motion>().position - motion.position) * -1.f;
+
+		float movementDistance = 100.0f;
+		vec2 destintation = motion.position + (direction * movementDistance);
+		motion.path = pathFindingSystem.getShortestPath(motion.position, destintation);
+	}
+}
+
+void AISystem::startMobSkill(ECS::Entity entity)
+{
+	// Motion component is mandatory
+	assert(entity.has<Motion>());
+	assert(entity.has<MobComponent>());
+	auto& motion = entity.get<Motion>();
+	auto& mobComponent = entity.get<MobComponent>();
+
 	// Skill currently targets the closest player
 	// TODO: This can change with cooperative actions like buffing between mobs
 	ECS::Entity closestPlayer = mobComponent.getClosestPlayer();
@@ -117,7 +148,17 @@ void AISystem::startMobSkill(ECS::Entity entity, Motion& motion, MobComponent& m
 	EventSystem<PerformActiveSkillEvent>::instance().sendEvent(performActiveSkillEvent);
 }
 
-void AISystem::onStartMobTurnEvent(const StartMobTurnEvent& event)
+void AISystem::onStartMobMoveCloserEvent(const StartMobMoveCloserEvent& event)
 {
-	startMobTurn(event.entity);
+	startMobMoveCloser(event.entity);
+}
+
+void AISystem::onStartMobRunAwayEvent(const StartMobRunAwayEvent& event)
+{
+	startMobRunAway(event.entity);
+}
+
+void AISystem::onStartMobSkillEvent(const StartMobSkillEvent& event)
+{
+	startMobSkill(event.entity);
 }

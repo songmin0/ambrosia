@@ -2,6 +2,9 @@
 
 #include "game/common.hpp"
 #include "entities/tiny_ecs.hpp"
+#include "game/events.hpp"
+#include "game/event_system.hpp"
+#include "game/turn_system.hpp"
 #include <vector>
 #include <iostream>
 
@@ -15,173 +18,135 @@ enum class Status
 	INVALID
 };
 
-// Factory for creating tasks
+enum class MobType
+{
+	EGG
+};
+
+struct BehaviourTreeType
+{
+	MobType mobType;
+};
+
+// Nodes of a BehaviourTree; Either a task or composite node
 class Node
 {
 public:
-	virtual Task* create() = 0;
-	virtual void destroy(Task*) = 0;
-	virtual ~Node() {};
+	Status status = Status::INVALID;
+	//public:
+	virtual void run() { status = Status::RUNNING; };
+	virtual void onTerminate(Status s) { status = s; };
 };
 
-// Refers to a tree node which stores shared data
-class Task
+// Parent class for all mob BehaviourTrees
+class BehaviourTree
 {
-protected:
-	Node* node;
 public:
-	Task(Node& node) {};
-	virtual ~Task() {};
-	virtual void onInitilize() {};
-	virtual Status update() = 0;
-	virtual void onTerminate(Status) {};
+	Node* root;
+	//public:
+	BehaviourTree() : root(new Node) {};
+	BehaviourTree(Node* root) : root(root) {};
+	void run() { root->run(); };
 };
 
-class Behaviour
+// Runs through BehaviourTree of active mob entity
+class StateSystem
 {
-protected:
-	Status status;
-	Node* node;
-	Task* task;
 public:
-	Behaviour() : task(NULL), node(NULL), status(Status::INVALID) {};
-	Behaviour(Nide& node) : task(NULL), node(NULL), status(Status::INVALID)
-	{
-		setup(node);
-	};
-	~Behaviour()
-	{
-		status = Status::INVALID;
-		teardown();
-	};
-	void setup(Node& node)
-	{
-		teardown();
-		node = &node;
-		task = node.create();
-	}
-	void teardown()
-	{
-		if (task == NULL)
-			return;
-		assert(status != Status::RUNNING);
-		node->destroy(task);
-		task = NULL;
-	}
-	Status tick()
-	{
-		if (status = Status::INVALID)
-			task->onInitilize();
-		status = update();
-		if (status != Status::RUNNING)
-			task->onTerminate(status);
-		return status;
-	}
-
-	template <class TASK>
-	TASK* get() const
-	{
-		return dynamic_cast<TASK*>(task);
-	}
-};
-
-//class BehaviourTree
-//{
-//protected:
-//	Behaviour* root;
+	EventListenerInfo startMobTurnListener;
+	//static ECS::Entity currentMobEntity;
+	BehaviourTree* activeTree;
 //public:
-//	void tick();
-//};
+	StateSystem()
+	{
+		startMobTurnListener = EventSystem<StartMobTurnEvent>::instance().registerListener(
+			std::bind(&StateSystem::onStartMobTurnEvent, this, std::placeholders::_1));
+		activeTree = NULL;
+		//currentMobEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+	};
 
-class Decorator : public Behaviour
-{
-protected:
-	Behaviour* root_child;
-public:
-	Decorator(Behaviour* child) : root_child(child) {};
+	void onStartMobTurnEvent(const StartMobTurnEvent& event);
+	//static ECS::Entity getCurrentMobEntity() { return currentMobEntity; };
+	void step(float elapsed_ms);
 };
 
-// ==============================================================
-
-typedef vector<Node*> Nodes;
-
+// Parent class for all composite nodes
 class Composite : public Node
 {
 public:
-	Nodes children;
+	vector<Node*> children;
+	// Current node index to run
+	int i = 0;
+//public:
+	//vector<Node*> getChildren() { return children; };
+	void addChild(Node*);
 };
 
-class Sequence : public Task
+// Type of composite node; tries to run one task
+class Selector : public Composite
 {
-protected:
-	Nodes::iterator currentChild;
-	Behaviour currentBehaviour;
 public:
-	Sequence(Composite& node) : Task(node) {};
-	Composite& getNode()
-	{
-		return *static_cast<Composite*>(node);
-	}
-	virtual void onInitialize()
-	{
-		currentChild = getNode().children.begin();
-		currentBehaviour.setup(**currentChild);
-	}
-	virtual Status update()
-	{
-		for (;;)
-		{
-			Status s = currentBehaviour.tick();
-			if (s != Status::SUCCESS)
-				return s;
-			// If all nodes return success, sequence operation is a success
-			if (++currentChild == getNode().children.end())
-				return Status::SUCCESS;
-		}
-		currentBehaviour.setup(**currentChild);
-	}
+	virtual void run();
 };
 
-class Selector : public Task
+// Type of composite node; tries to run all children tasks
+class Sequence : public Composite
 {
-protected:
-	Nodes::iterator currentChild;
-	Behaviour behaviour;
 public:
-	Selector(Composite& node) : Task(node) {};
-	Composite& getNode() { return *static_cast<Composite*>(node); };
-
-	virtual void onInitialize() override
-	{
-		currentChild = getNode().children.begin();
-		behaviour.setup(**currentChild);
-	}
-	virtual Status update() override
-	{
-		for (;;)
-		{
-			Status s = behaviour.tick();
-			if (s != Status::FAILURE)
-				return s;
-			// If all nodes return success, sequence operation is a success
-			if (++currentChild == getNode().children.end())
-				return Status::FAILURE;
-		}
-		behaviour.setup(**currentChild);
-	}
+	virtual void run();
 };
 
-struct 
-
-template <class TASK>
-class MockComposite : public Composite
+// Composite sequence of moving (selection) and attacking
+class MobTurnSequence : public Sequence
 {
 public:
-	MockComposite(size_t size)
-	{
-		for (size_t i = 0; i < size; i++)
-		{
-			children.push_back(new MockNode);
-		}
-	}
+	MobTurnSequence::MobTurnSequence();
+};
+
+// Make mob move closer to player or run away (if low HP)
+class MoveSelector : public Selector
+{
+private:
+	// HP of active mob entity
+	float hp;
+public:
+	MoveSelector(float);
+	void run();
+};
+
+struct Task : public Node
+{
+	EventListenerInfo taskCompletedListener;
+};
+
+// Task to move closer to closest player
+class MoveCloserTask : public Task
+{
+public:
+	void onFinishedMoveCloserEvent(const FinishedMovementEvent& event);
+	void run();
+};
+
+// Task to run away from closest player
+class RunAwayTask : public Task
+{
+public:
+	void onFinishedRunAwayEvent(const FinishedMovementEvent& event);
+	void run();
+};
+
+// Task to attack closest player
+class AttackTask : public Task
+{
+public:
+	void onFinishedAttackEvent(const FinishedSkillEvent& event);
+	void run();
+};
+
+// Egg mob Behaviour Tree
+// Root node is a MobTurnSequence
+struct EggBehaviourTree : public BehaviourTree
+{
+public:
+	EggBehaviourTree();
 };

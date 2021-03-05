@@ -4,14 +4,9 @@
 #include "game/event_system.hpp"
 #include "entities/tiny_ecs.hpp"
 #include "maps/path_finding_system.hpp"
+#include "ai/behaviour_tree.hpp"
 
 #include <vector>
-
-enum class MobType
-{
-	MOB,
-	BOSS
-};
 
 // A simple AI system that moves the enemies (mobs and bosses)
 class AISystem
@@ -28,19 +23,22 @@ public:
 		ECS::Entity closestPlayer;	// the closest player to mob
 		ECS::Entity getClosestPlayer();
 		void setClosestPlayer(ECS::Entity);
-		MobType type;
 	};
 
 private:
 	bool getClosestPlayer(ECS::Entity& mob);
 
-	void startMobTurn(ECS::Entity entity);
-	void startMobMovement(ECS::Entity entity, Motion& motion, MobComponent& mobComponent);
-	void startMobSkill(ECS::Entity entity, Motion& motion, MobComponent& mobComponent);
+	void startMobMoveCloser(ECS::Entity entity);
+	void startMobRunAway(ECS::Entity entity);
+	void startMobSkill(ECS::Entity entity);
 
-	void onStartMobTurnEvent(const StartMobTurnEvent& event);
+	void onStartMobMoveCloserEvent(const StartMobMoveCloserEvent& event);
+	void onStartMobRunAwayEvent(const StartMobRunAwayEvent& event);
+	void onStartMobSkillEvent(const StartMobSkillEvent& event);
 
-	EventListenerInfo startMobTurnListener;
+	EventListenerInfo startMobMoveCloserListener;
+	EventListenerInfo startMobRunAwayListener;
+	EventListenerInfo startMobSkillListener;
 
 	const PathFindingSystem& pathFindingSystem;
 };

@@ -15,6 +15,7 @@
 #include "physics/debug.hpp"
 #include "physics/projectile_system.hpp"
 #include "ai/ai.hpp"
+#include "ai/behaviour_tree.hpp"
 #include "animation/animation_system.hpp"
 #include "maps/path_finding_system.hpp"
 #include "ui/ui_system.hpp"
@@ -45,6 +46,7 @@ int main()
 	PhysicsSystem physics;
 	PathFindingSystem pathFindingSystem;
 	AISystem ai(pathFindingSystem);
+	StateSystem stateSystem;
 	TurnSystem turnSystem(pathFindingSystem);
 	AnimationSystem animations;
 	UISystem ui;
@@ -76,6 +78,7 @@ int main()
 
 			DebugSystem::clearDebugComponents();
 			ai.step(deltaTime, window_size_in_game_units);
+			stateSystem.step(deltaTime);
 			world.step(deltaTime, window_size_in_game_units);
 			physics.step(deltaTime, window_size_in_game_units);
 			world.handleCollisions();

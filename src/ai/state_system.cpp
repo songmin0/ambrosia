@@ -1,5 +1,12 @@
 #include "state_system.hpp"
 
-void StateSystem::step(float elapsed_ms)
+StateSystem::StateSystem()
 {
+	for (ECS::Entity entity : ECS::registry<AISystem::MobComponent>.entities)
+	{
+		auto& mobComponent = entity.get<AISystem::MobComponent>();
+		if (mobComponent.mobType == MobType::MOB)
+		{
+		}
+	}
 }
