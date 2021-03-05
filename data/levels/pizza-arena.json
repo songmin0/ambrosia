@@ -1,5 +1,8 @@
 {
   "map": "pizza-arena",
+  "camera": {
+    "position": [0,0]
+  },
   "taji": {
     "stats": {
       "hp": 100,

@@ -15,6 +15,7 @@ ECS::Entity Button::createButton(ButtonShape shape, vec2 position, const std::st
 	}
 
 	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+	entity.emplace<UIComponent>();
 	entity.emplace<RenderableComponent>(RenderLayer::UI);
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
@@ -93,6 +94,7 @@ ECS::Entity SkillButton::createSkillButton(vec2 position, PlayerType player, Ski
 	}
 
 	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+	entity.emplace<UIComponent>();
 	entity.emplace<RenderableComponent>(RenderLayer::UI);
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
@@ -123,6 +125,7 @@ ECS::Entity SkillButton::createMoveButton(vec2 position, const std::string& text
 	}
 
 	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+	entity.emplace<UIComponent>();
 	entity.emplace<RenderableComponent>(RenderLayer::UI);
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
