@@ -1,7 +1,7 @@
 #pragma once
 #include "common.hpp"
 #include "entities/tiny_ecs.hpp"
-#include "json.hpp"
+#include "../ext/nlohmann/json.hpp"
 #include "event_system.hpp"
 #include "events.hpp"
 

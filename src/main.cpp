@@ -18,7 +18,7 @@
 #include "animation/animation_system.hpp"
 #include "maps/path_finding_system.hpp"
 #include "ui/ui_system.hpp"
-#include "particle_system.hpp"
+#include "particles/particle_system.hpp"
 #include "skills/skill_system.hpp"
 #include "game/stats_system.hpp"
 

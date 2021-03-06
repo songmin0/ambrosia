@@ -19,7 +19,7 @@
 #include <glm/mat3x3.hpp>           // mat3
 
 // JSON Library 
-#include "json.hpp"
+#include "../ext/nlohmann/json.hpp"
 using json = nlohmann::json;
 
 using namespace glm;

@@ -1,6 +1,6 @@
 #pragma once
 #include "common.hpp"
-#include "tiny_ecs.hpp"
+#include "entities/tiny_ecs.hpp"
 
 #include <unordered_map>
 
