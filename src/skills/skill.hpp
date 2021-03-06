@@ -22,12 +22,12 @@ public:
 	Skill(SkillParams params);
 	~Skill() = default;
 
-	void performAnimation();
 	void performSkill(vec2 target);
 
 	inline float getDelay() const {return params.delay;}
 	inline ECS::Entity getInstigator() const {return params.instigator;}
 	inline SoundEffect getSoundEffect() const {return params.soundEffect;}
+	inline AnimationType getAnimationType() const { return params.animationType; }
 
 private:
 	virtual void performSkillInternal() = 0;

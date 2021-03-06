@@ -145,7 +145,11 @@ void UISystem::updatePlayerSkillButton(ECS::Entity& entity)
 void UISystem::onMoveFinished(const FinishedMovementEvent& event)
 {
 	auto entity = event.entity;
-	updatePlayerSkillButton(entity);
+	if (entity.has<SkillComponent>())
+	{
+		const auto& skillType = entity.get<SkillComponent>().getActiveSkillType();
+		activateSkillButton(skillType);
+	}
 }
 
 // Handles highlighting player buttons on player change and swapping skill UI
