@@ -6,6 +6,7 @@
 #include <chrono>
 
 // internal
+#include "game/camera_system.hpp"
 #include "game/common.hpp"
 #include "game/world.hpp"
 #include "game/turn_system.hpp"
@@ -41,6 +42,7 @@ int main()
 	// Initialize the main systems
 	WorldSystem world(window_size_in_px);
 	ParticleSystem particleSystem;
+	CameraSystem camera(window_size_in_px);
 	RenderSystem renderer(*world.window, &particleSystem);
 	PhysicsSystem physics;
 	PathFindingSystem pathFindingSystem;
@@ -77,6 +79,7 @@ int main()
 			DebugSystem::clearDebugComponents();
 			ai.step(deltaTime, window_size_in_game_units);
 			world.step(deltaTime, window_size_in_game_units);
+			camera.step(deltaTime);
 			physics.step(deltaTime, window_size_in_game_units);
 			world.handleCollisions();
 			projectileSystem.step(deltaTime);

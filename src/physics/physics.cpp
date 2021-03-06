@@ -4,6 +4,7 @@
 
 #include "entities/tiny_ecs.hpp"
 #include "game/camera.hpp"
+#include "game/camera_system.hpp"
 #include "game/turn_system.hpp"
 #include "animation/animation_components.hpp"
 #include "ui/ui_entities.hpp"
@@ -52,34 +53,6 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
 	// Move entities based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
-
-	// Move camera entity
-	assert(!ECS::registry<MapComponent>.entities.empty());
-	auto mapSize = ECS::registry<MapComponent>.entities[0].get<MapComponent>().mapSize;
-	for (auto camera : ECS::registry<CameraComponent>.entities) {
-		auto& cameraComponent = camera.get<CameraComponent>();
-
-		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
-		cameraComponent.position += step_seconds * cameraComponent.velocity;
-
-		// Prevent camera from moving out of map texture
-		// Prevent moving camera out of top
-		if (cameraComponent.position.y <= 0) {
-			cameraComponent.position.y = 0;
-		}
-		// Prevent moving camera out of bottom
-		else if (cameraComponent.position.y >= mapSize.y - window_size_in_game_units.y) {
-			cameraComponent.position.y = mapSize.y - window_size_in_game_units.y;
-		}
-		// Prevent moving camera out of left
-		if (cameraComponent.position.x <= 0) {
-			cameraComponent.position.x = 0;
-		}
-		// Prevent moving camera out of right
-		else if (cameraComponent.position.x >= mapSize.x - window_size_in_game_units.x) {
-			cameraComponent.position.x = mapSize.x - window_size_in_game_units.x;
-		}
-	}
 	
 	for (auto entity : ECS::registry<Motion>.entities)
 	{
@@ -125,6 +98,16 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
 		motion.position += step_seconds * motion.velocity;
+
+		// Camera follows the moving entity
+		if (entity.has<PlayerComponent>() || entity.has<AISystem::MobComponent>()) {
+			// Move camera to the entity's position if entity is out of view and is moving
+			if (!CameraSystem::isPositionInView(motion.position, window_size_in_game_units) && (motion.velocity.x != 0 && motion.velocity.y != 0)) {
+				CameraSystem::viewPosition(motion.position, window_size_in_game_units);
+			}
+			// Move camera to follow moving entity
+			CameraSystem::moveCamera(step_seconds * motion.velocity, window_size_in_game_units);
+		}
 
 		//If the entity also has a stats component then move their HP bar
 		if (entity.has<StatsComponent>()) {

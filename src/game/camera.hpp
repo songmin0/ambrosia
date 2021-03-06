@@ -11,5 +11,5 @@ struct Camera
 struct CameraComponent {
 	vec2 position = { 0, 0 };
 	vec2 velocity = { 0, 0 };
-	float speed = 300.f;
+	float speed = 400.f;
 };
