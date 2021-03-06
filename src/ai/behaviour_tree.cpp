@@ -39,6 +39,7 @@ void Selector::run()
 	{
 	case Status::INVALID:
 		current->run();
+		break;
 	case Status::SUCCESS:
 		i = 0;
 		onTerminate(Status::SUCCESS);
@@ -73,6 +74,7 @@ void Sequence::run()
 	{
 	case Status::INVALID: 
 		current->run();
+		break;
 	case Status::FAILURE: 
 		i = 0;
 		onTerminate(Status::FAILURE);
@@ -109,10 +111,8 @@ MobTurnSequence::MobTurnSequence()
 	//ECS::Entity mob = StateSystem::getCurrentMobEntity();
 	ECS::Entity mob = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 	float hp = mob.get<StatsComponent>().getStatValue(StatType::HP);
-	MoveSelector moveSelector(hp);
-	addChild(std::make_shared<MoveSelector>(moveSelector));
-	AttackTask attack;
-	addChild(std::make_shared<AttackTask>(attack));
+	addChild(std::make_shared<MoveSelector>(MoveSelector(hp)));
+	addChild(std::make_shared<AttackTask>(AttackTask()));
 }
 
 // MOVING
@@ -120,10 +120,8 @@ MobTurnSequence::MobTurnSequence()
 MoveSelector::MoveSelector(float hp)
 	: hp(hp)
 {
-	MoveCloserTask moveCloser;
-	addChild(std::make_shared<MoveCloserTask>(moveCloser));
-	RunAwayTask runAway;
-	addChild(std::make_shared<RunAwayTask>(runAway));
+	addChild(std::make_shared<MoveCloserTask>(MoveCloserTask()));
+	addChild(std::make_shared<RunAwayTask>(RunAwayTask()));
 }
 
 void MoveSelector::run()
