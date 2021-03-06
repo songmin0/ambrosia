@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 
 class ParticleEmitter;
@@ -32,7 +33,9 @@ public:
 
 		void createParticles(int numParticles);
 
-		static const int MaxParticles = 10000;
+		static const int MaxParticles = 100;
+		//All of the emitters
+		std::vector<std::shared_ptr<ParticleEmitter>> emitters;
 
 
 
@@ -52,8 +55,7 @@ private:
 		Effect shaderProgram;
 		Texture particleTexture;
 
-		//All of the emitters
-		std::vector<ParticleEmitter> emitters;
+
 
 
 		static const GLfloat particleVertexBufferData[];
@@ -76,10 +78,10 @@ private:
 //This is a base class for all particle emitters
 class ParticleEmitter{
 public:
-		ParticleEmitter(int particlesPerSecond);
-		void initEmitter();
-		virtual void simulateParticles(float elapsedMs, int numNewParticles) = 0;
-		virtual void createParticle(int index) = 0;
+		ParticleEmitter();
+		virtual void initEmitter()=0;
+		virtual void simulateParticles(float elapsedMs, int numNewParticles)=0;
+		virtual void createParticle(int index)=0;
 		void step(float elapsedMs);
 		void drawParticles(GLuint vertexBuffer, GLuint cameraRightWorldspaceID, GLuint cameraUpWorldspaceID,GLuint projectionMatrixID, const mat3& projection);
 protected:
@@ -88,9 +90,9 @@ protected:
 		GLuint VertexArrayID;
 		Effect shaderProgram;
 		Texture particleTexture;
-		std::string particleTextureFile;
+		//std::string particleTextureFile;
 		int particlesPerSecond;
-		float msSinceLastParticleSpawn;
+		float secSinceLastParticleSpawn;
 
 
 		Particle ParticlesContainer[ParticleSystem::MaxParticles];
@@ -98,7 +100,7 @@ protected:
 		int particlesCount = 0;
 
 		GLfloat particleCenterPositionAndSizeData[ParticleSystem::MaxParticles * 4];
-		GLubyte particleColorData[ParticleSystem::MaxParticles * 4];
+		GLfloat particleColorData[ParticleSystem::MaxParticles * 4];
 
 private:
 		void updateGPU();
@@ -111,7 +113,9 @@ private:
 
 class BasicEmitter : public ParticleEmitter {
 public:
-		void simulateParticles(float elapsedMs, int numNewParticles);
+		BasicEmitter(int particlesPerSecond);
+	 void initEmitter();
+	 void simulateParticles(float elapsedMs, int numNewParticles);
 		void createParticle(int index);
 };
 
