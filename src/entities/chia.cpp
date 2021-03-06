@@ -41,6 +41,15 @@ ECS::Entity Chia::createChia(json configValues)
 			"chia_move", spritePath("players/chia/move/move"), 32);
 	anims.addAnimation(AnimationType::MOVE, *move_anim);
 
+	auto attack1 = new AnimationData(
+		"chia_attack1", spritePath("players/chia/attack1/attack1"), 72, 1, true, false, vec2({ 0.f, 0.037f })
+	);
+	anims.addAnimation(AnimationType::ATTACK1, *attack1);
+
+	// Temporary
+	anims.addAnimation(AnimationType::ATTACK2, *attack1);
+	anims.addAnimation(AnimationType::ATTACK3, *attack1);
+
 	entity.emplace<Chia>();
 
 	//Add the turn component

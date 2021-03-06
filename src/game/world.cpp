@@ -383,7 +383,7 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 
 	// Animation Test
 	if (action == GLFW_RELEASE && key == GLFW_KEY_3) {
-		auto& anim = playerEmber.get<AnimationsComponent>();
+		auto& anim = playerChia.get<AnimationsComponent>();
 		anim.changeAnimation(AnimationType::ATTACK1);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_4) {
