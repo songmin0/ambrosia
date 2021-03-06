@@ -147,7 +147,6 @@ void TurnSystem::step(float elapsed_ms)
 			// For mobs, need to tell them when its time to move and to perform a skill
 			else if (activeEntity.has<AISystem::MobComponent>())
 			{
-				std::cout << "Going through mob turns\n";
 				// Start behaviour tree for active mob entity
 				// Event should be heard by StateSystem in behaviour_tree.hpp
 				if (turnComponent.canStartMoving())

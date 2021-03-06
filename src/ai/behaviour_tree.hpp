@@ -46,6 +46,7 @@ public:
 	//public:
 	BehaviourTree() : root(new Node) {};
 	BehaviourTree(std::shared_ptr<Node> root) : root(root) {};
+	~BehaviourTree() { root = nullptr; };
 	void run() { root->run(); };
 };
 
@@ -100,7 +101,8 @@ public:
 class MobTurnSequence : public Sequence
 {
 public:
-	MobTurnSequence::MobTurnSequence();
+	MobTurnSequence();
+	void run();
 };
 
 // Make mob move closer to player or run away (if low HP)
@@ -123,6 +125,7 @@ struct Task : public Node
 class MoveCloserTask : public Task
 {
 public:
+	~MoveCloserTask();
 	void onFinishedMoveCloserEvent(const FinishedMovementEvent& event);
 	void run();
 };
@@ -131,6 +134,7 @@ public:
 class RunAwayTask : public Task
 {
 public:
+	~RunAwayTask();
 	void onFinishedRunAwayEvent(const FinishedMovementEvent& event);
 	void run();
 };
@@ -139,6 +143,7 @@ public:
 class AttackTask : public Task
 {
 public:
+	~AttackTask();
 	void onFinishedAttackEvent(const FinishedSkillEvent& event);
 	void run();
 };

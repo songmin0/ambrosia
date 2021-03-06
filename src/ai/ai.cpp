@@ -26,6 +26,11 @@ AISystem::~AISystem()
 		EventSystem<StartMobMoveCloserEvent>::instance().unregisterListener(startMobMoveCloserListener);
 	}
 
+	if (startMobRunAwayListener.isValid())
+	{
+		EventSystem<StartMobRunAwayEvent>::instance().unregisterListener(startMobRunAwayListener);
+	}
+
 	if (startMobSkillListener.isValid())
 	{
 		EventSystem<StartMobSkillEvent>::instance().unregisterListener(startMobSkillListener);
@@ -119,7 +124,7 @@ void AISystem::startMobRunAway(ECS::Entity entity)
 	if (getClosestPlayer(entity)) {
 		ECS::Entity closestPlayer = entity.get<MobComponent>().getClosestPlayer();
 		//Find the direction to travel away from the player
-		vec2 direction = normalize(closestPlayer.get<Motion>().position - motion.position) * -1.f;
+		vec2 direction = normalize(motion.position - closestPlayer.get<Motion>().position);
 
 		float movementDistance = 100.0f;
 		vec2 destintation = motion.position + (direction * movementDistance);
@@ -134,6 +139,8 @@ void AISystem::startMobSkill(ECS::Entity entity)
 	assert(entity.has<MobComponent>());
 	auto& motion = entity.get<Motion>();
 	auto& mobComponent = entity.get<MobComponent>();
+
+	std::cout << "Attacking player\n";
 
 	// Skill currently targets the closest player
 	// TODO: This can change with cooperative actions like buffing between mobs

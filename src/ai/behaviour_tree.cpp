@@ -1,13 +1,15 @@
 #include "behaviour_tree.hpp"
 #include "stats_component.hpp"
 
+const float MOB_LOW_HEALTH = 25.f;
+
 void StateSystem::onStartMobTurnEvent(const StartMobTurnEvent& event)
 {
 	ECS::Entity mob = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 	assert(mob.has<BehaviourTreeType>());
 	if (mob.get<BehaviourTreeType>().mobType == MobType::EGG)
 	{
-		activeTree = std::make_shared<BehaviourTree>(EggBehaviourTree::EggBehaviourTree());
+		activeTree = std::make_shared<BehaviourTree>(EggBehaviourTree());
 		//EggBehaviourTree::EggBehaviourTree().run();
 	}
 }
@@ -21,7 +23,7 @@ void StateSystem::step(float elapsed_ms)
 		else if (activeTree->root->status == Status::RUNNING)
 			activeTree->root->run();
 		else
-			activeTree = NULL;
+			activeTree = nullptr;
 	}
 }
 
@@ -43,6 +45,7 @@ void Selector::run()
 	case Status::SUCCESS:
 		i = 0;
 		onTerminate(Status::SUCCESS);
+		std::cout << "Finished selector task\n";
 		break;
 	case Status::FAILURE:
 		i++;
@@ -80,14 +83,18 @@ void Sequence::run()
 		onTerminate(Status::FAILURE);
 		break;
 	case Status::SUCCESS: 
+		// Go to the next node
 		i++;
+		// If at end, terminate with SUCCESS
 		if (i == children.size())
 		{
 			i = 0;
 			onTerminate(Status::SUCCESS);
+			std::cout << "Finished sequence task\n";
 		}
 		break;
 	case Status::RUNNING:
+		current->run();
 		break;
 	}
 	//if (current.status == Status::INVALID)
@@ -115,6 +122,12 @@ MobTurnSequence::MobTurnSequence()
 	addChild(std::make_shared<AttackTask>(AttackTask()));
 }
 
+void MobTurnSequence::run()
+{
+	Node::run();
+	Sequence::run();
+}
+
 // MOVING
 
 MoveSelector::MoveSelector(float hp)
@@ -127,75 +140,110 @@ MoveSelector::MoveSelector(float hp)
 void MoveSelector::run()
 {
 	Node::run();
-	if (hp < 25.f)
-	{
-		// Last node should be RunAwayTask
-		std::shared_ptr<Node> runAway = children.back();
-		runAway->run();
-		return;
-	}
-	// Otherwise, MoveCloserTask
 	std::shared_ptr<Node> moveCloser = children.front();
-	moveCloser->run();
+	std::shared_ptr<Node> runAway = children.back();
+	if (hp < MOB_LOW_HEALTH)
+	{
+		// Want to run away; set move closer to FAILURE
+		moveCloser->onTerminate(Status::FAILURE);
+	}
+	else
+	{
+		// Want to move closer; set running away to FAILURE
+		runAway->onTerminate(Status::FAILURE);
+	}
+	Selector::run();
+}
+
+MoveCloserTask::~MoveCloserTask()
+{
+	if (taskCompletedListener.isValid())
+	{
+		EventSystem<FinishedMovementEvent>::instance().unregisterListener(taskCompletedListener);
+	}
 }
 
 void MoveCloserTask::onFinishedMoveCloserEvent(const FinishedMovementEvent& event)
 {
 	this->onTerminate(Status::SUCCESS);
-	EventSystem<FinishedMovementEvent>::instance().unregisterListener(taskCompletedListener);
 }
 
 void MoveCloserTask::run()
 {
-	taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
-		std::bind(&MoveCloserTask::onFinishedMoveCloserEvent, this, std::placeholders::_1));
-	Node::run();
-	StartMobMoveCloserEvent event;
-	//event.entity = StateSystem::getCurrentMobEntity();
-	event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
-	EventSystem<StartMobMoveCloserEvent>::instance().sendEvent(event);
+	if (this->status == Status::INVALID)
+	{
+		Node::run();
+		taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
+			std::bind(&MoveCloserTask::onFinishedMoveCloserEvent, this, std::placeholders::_1));
+		StartMobMoveCloserEvent event;
+		//event.entity = StateSystem::getCurrentMobEntity();
+		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+		EventSystem<StartMobMoveCloserEvent>::instance().sendEvent(event);
+	}
+	
+}
+
+RunAwayTask::~RunAwayTask()
+{
+	if (taskCompletedListener.isValid())
+	{
+		EventSystem<FinishedMovementEvent>::instance().unregisterListener(taskCompletedListener);
+	}
 }
 
 void RunAwayTask::onFinishedRunAwayEvent(const FinishedMovementEvent& event)
 {
+	std::cout << "Heard run away event finished\n";
 	this->onTerminate(Status::SUCCESS);
-	EventSystem<FinishedMovementEvent>::instance().unregisterListener(taskCompletedListener);
 }
 
 void RunAwayTask::run()
 {
-	taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
-		std::bind(&RunAwayTask::onFinishedRunAwayEvent, this, std::placeholders::_1));
-	Node::run();
+	if (this->status == Status::INVALID) {
+		Node::run();
+		taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
+			std::bind(&RunAwayTask::onFinishedRunAwayEvent, this, std::placeholders::_1));
 
-	StartMobRunAwayEvent event;
-	//event.entity = StateSystem::getCurrentMobEntity();
-	event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
-	EventSystem<StartMobRunAwayEvent>::instance().sendEvent(event);
+		StartMobRunAwayEvent event;
+		//event.entity = StateSystem::getCurrentMobEntity();
+		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+		EventSystem<StartMobRunAwayEvent>::instance().sendEvent(event);
+	}
 }
 
 // ATTACKING
 
+AttackTask::~AttackTask()
+{
+	if (taskCompletedListener.isValid())
+	{
+		EventSystem<FinishedSkillEvent>::instance().unregisterListener(taskCompletedListener);
+	}
+}
+
 void AttackTask::onFinishedAttackEvent(const FinishedSkillEvent& event)
 {
 	this->onTerminate(Status::SUCCESS);
-	EventSystem<FinishedSkillEvent>::instance().unregisterListener(taskCompletedListener);
 }
 
 void AttackTask::run()
 {
-	taskCompletedListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
-		std::bind(&AttackTask::onFinishedAttackEvent, this, std::placeholders::_1));
-	Node::run();
-	StartMobSkillEvent event;
-	//event.entity = StateSystem::getCurrentMobEntity();
-	event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
-	EventSystem<StartMobSkillEvent>::instance().sendEvent(event);
+	if (this->status == Status::INVALID)
+	{
+		Node::run();
+		taskCompletedListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
+			std::bind(&AttackTask::onFinishedAttackEvent, this, std::placeholders::_1));
+		Node::run();
+		StartMobSkillEvent event;
+		//event.entity = StateSystem::getCurrentMobEntity();
+		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+		EventSystem<StartMobSkillEvent>::instance().sendEvent(event);
+	}
 }
 
 EggBehaviourTree::EggBehaviourTree()
 {
 	//BehaviourTree::BehaviourTree(new &MobTurnSequence);
-	root = std::make_shared<MobTurnSequence>(MobTurnSequence::MobTurnSequence());
+	root = std::make_shared<MobTurnSequence>(MobTurnSequence());
 	//BehaviourTree(new MobTurnSequence);
 }
