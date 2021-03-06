@@ -233,16 +233,16 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 {
 
 	// Create UI buttons
-	auto player_button_1 = Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth * (1.f / 5.f), 60 },
+	auto player_button_1 = Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth / 2.f - 100, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::RAOUL }); });
 
-	auto player_button_2 = Button::createPlayerButton(PlayerType::TAJI, { frameBufferWidth * (2.f / 5.f), 60 },
+	auto player_button_2 = Button::createPlayerButton(PlayerType::TAJI, { frameBufferWidth / 2.f - 300, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::TAJI }); });
 
-	auto player_button_3 = Button::createPlayerButton(PlayerType::EMBER, { frameBufferWidth * (3.f / 5.f), 60 },
+	auto player_button_3 = Button::createPlayerButton(PlayerType::EMBER, { frameBufferWidth / 2.f + 100, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::EMBER }); });
 
-	auto player_button_4 = Button::createPlayerButton(PlayerType::CHIA, { frameBufferWidth * (4.f / 5.f), 60 },
+	auto player_button_4 = Button::createPlayerButton(PlayerType::CHIA, { frameBufferWidth / 2.f + 300, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::CHIA }); });
 
 	SkillButton::createMoveButton({ 100, frameBufferHeight - 80 }, "skill_buttons/skill_generic_move",
