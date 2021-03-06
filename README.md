@@ -83,6 +83,11 @@ After all players have ended their turns, the mobs will use their turns. The tur
 
 In this milestone, the game begins in the Pizza arena. Defeating all mobs in the Pizza arena will automatically load the Dessert arena. All subsequent victories reload the Dessert arena. This behaviour is temporary for gameplay and level-loading purposes, and will be improved in future milestones.
 
+
+#### Notes
+Some animations have not been implemented yet. The following animations are currently not available:
+- Chia (green) and Ember (red)'s damaged and defeat animations
+
 ---
 
 ## Milestone 1
