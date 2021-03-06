@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "json.hpp"
+#include "../ext/nlohmann/json.hpp"
 using json = nlohmann::json;
 class LevelLoader
 {

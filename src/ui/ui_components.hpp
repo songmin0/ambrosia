@@ -45,5 +45,6 @@ struct SkillInfoComponent
 };
 
 // ECS-style Button Labels
+struct UIComponent {};
 struct MoveToolTipComponent {};
 struct MoveButtonComponent {};

@@ -19,7 +19,7 @@
 #include <glm/mat3x3.hpp>           // mat3
 
 // JSON Library 
-#include "json.hpp"
+#include "../ext/nlohmann/json.hpp"
 using json = nlohmann::json;
 
 using namespace glm;
@@ -78,4 +78,37 @@ struct Motion {
 //PlaceHolder please replace with the real one once someone has made them or continue to use these but rename
 struct PlayerComponent {
 	PlayerType player;
+};
+
+enum MusicType
+{
+	MAIN_MENU,
+	SHOP,
+	VICTORY,
+	BOSS,
+	PIZZA_ARENA,
+	DESSERT_ARENA,
+	PLACEHOLDER1,
+	PLACEHOLDER2,
+	PLACEHOLDER3,
+	PLACEHOLDER4,
+
+	// The `LAST` value is only needed because WorldSystem::playNextAudioTrack_DEBUG()
+	// needs to be able to loop through the music.
+	LAST
+};
+
+enum class SoundEffect
+{
+	NONE,
+	MOUSE_CLICK,
+	TURN_START,
+	GAME_OVER,
+	HIT_PLAYER,
+	HIT_MOB,
+	DEFEAT,
+	MELEE,
+	PROJECTILE,
+	BUFF,
+	DEBUFF
 };

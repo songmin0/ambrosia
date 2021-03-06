@@ -26,8 +26,8 @@
 
 using Clock = std::chrono::high_resolution_clock;
 
-const ivec2 window_size_in_px = {1280, 1024};
-const vec2 window_size_in_game_units = { 1280, 1024};
+const ivec2 window_size_in_px = { 1366, 900 };
+const vec2 window_size_in_game_units = { 1366, 900 };
 // Note, here the window will show a width x height part of the game world, measured in px. 
 // You could also define a window to show 1.5 x 1 part of your game world, where the aspect ratio depends on your window size.
 

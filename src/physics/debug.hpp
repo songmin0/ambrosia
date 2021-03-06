@@ -8,7 +8,14 @@ namespace DebugSystem {
 	// draw a red line for debugging purposes
 	void createLine(vec2 position, vec2 size);
 
+	// draw a box, centered at the given position
 	void createBox(vec2 position, vec2 size);
+
+	// draw a dotted line between two points
+	void createDottedLine(vec2 position1, vec2 position2);
+
+	// draw a dotted path along the given points
+	void createPath(std::stack<vec2> path);
 
 	// Removes all debugging graphics in ECS, called at every iteration of the game loop
 	void clearDebugComponents();
