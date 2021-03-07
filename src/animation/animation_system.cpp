@@ -2,6 +2,45 @@
 #include "animation_system.hpp"
 #include "animation_components.hpp"
 
+AnimationSystem::AnimationSystem()
+{
+	performSkillListener = EventSystem<PerformActiveSkillEvent>::instance().registerListener(
+		std::bind(&AnimationSystem::onPerformSkillEvent, this, std::placeholders::_1));
+}
+
+AnimationSystem::~AnimationSystem()
+{
+	if (performSkillListener.isValid())
+	{
+		EventSystem<PerformActiveSkillEvent>::instance().unregisterListener(performSkillListener);
+	}
+}
+
+void AnimationSystem::updateOrientation(Motion& motion, const vec2 direction)
+{
+	// orientation should always be -1 or 1
+	assert(abs(motion.orientation) == 1);
+
+	// orientation check
+	// left <--
+	if (direction.x < 0)
+	{
+		// flip if they're facing right
+		if (motion.scale.x * motion.orientation > 0)
+		{
+			motion.scale.x *= -1;
+		}
+	}
+	// right -->
+	else
+	{
+		// flip if they're facing left
+		if (motion.scale.x * motion.orientation < 0)
+		{
+			motion.scale.x *= -1;
+		}
+	}
+}
 
 // call this every frame
 void AnimationSystem::step()
@@ -73,32 +112,28 @@ void AnimationSystem::checkAnimation(ECS::Entity& entity)
 	if (abs(motion.velocity.x) > 5.0 || abs(motion.velocity.y) > 5.0)
 	{
 		anim.changeAnimation(AnimationType::MOVE);
-
-		// orientation should always be -1 or 1
-		assert(abs(motion.orientation) == 1);
-
-		// orientation check
-		// left <--
-		if (motion.velocity.x < 0)
-		{
-			// flip if they're facing right
-			if (motion.scale.x * motion.orientation > 0)
-			{
-				motion.scale.x *= motion.orientation * -1;
-			}
-		}
-		// right -->
-		else
-		{
-			// flip if they're facing left
-			if (motion.scale.x * motion.orientation < 0)
-			{
-				motion.scale.x *= motion.orientation * -1;
-			}
-		}
+		updateOrientation(motion, motion.velocity);
 	}
 	else
 	{
 		anim.changeAnimation(AnimationType::IDLE);
+	}
+}
+
+void AnimationSystem::onPerformSkillEvent(const PerformActiveSkillEvent& event)
+{
+	auto entity = event.entity;
+
+	if (entity.has<SkillComponent>())
+	{
+		auto& motion = entity.get<Motion>();
+		updateOrientation(motion, event.target - motion.position);
+
+		if (entity.has<AnimationsComponent>())
+		{
+			auto& anim = entity.get<AnimationsComponent>();
+			std::shared_ptr<Skill> activeSkill = entity.get<SkillComponent>().getActiveSkill();
+			anim.changeAnimation(activeSkill->getAnimationType());
+		}
 	}
 }

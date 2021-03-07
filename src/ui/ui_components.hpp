@@ -29,11 +29,10 @@ struct PlayerButtonComponent
 
 struct ButtonStateComponent
 {
-	ButtonStateComponent() : isActive{ false }, isDisabled{ false }, isEnabled{ true } {}
-	ButtonStateComponent(bool active, bool disabled, bool enabled) : isActive{ active }, isDisabled{ disabled }, isEnabled{ enabled } {}
+	ButtonStateComponent() : isActive{ false }, isDisabled{ false } {}
+	ButtonStateComponent(bool active, bool disabled, bool enabled) : isActive{ active }, isDisabled{ disabled } {}
 	bool isActive;
 	bool isDisabled;
-	bool isEnabled;
 };
 
 struct SkillInfoComponent

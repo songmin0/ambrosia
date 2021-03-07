@@ -11,7 +11,7 @@ class EntityFilter
 {
 public:
 	EntityFilter() = default;
-	~EntityFilter() = default;
+	virtual ~EntityFilter() = default;
 
 	virtual std::vector<ECS::Entity> process(const SkillParams& params, const std::vector<ECS::Entity>& entities) = 0;
 };
@@ -21,7 +21,7 @@ class InstigatorFilter : public EntityFilter
 {
 public:
 	InstigatorFilter() = default;
-	~InstigatorFilter() = default;
+	~InstigatorFilter() override = default;
 
 	std::vector<ECS::Entity> process(const SkillParams& params, const std::vector<ECS::Entity>& entities) override;
 };
@@ -31,7 +31,7 @@ class CollisionFilter : public EntityFilter
 {
 public:
 	CollisionFilter() = default;
-	~CollisionFilter() = default;
+	~CollisionFilter() override = default;
 
 	std::vector<ECS::Entity> process(const SkillParams& params, const std::vector<ECS::Entity>& entities) override;
 };

@@ -143,8 +143,6 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 		glUniform1f(isActive_uloc, component.isActive ? 1.f : 0.f);
 		GLuint isDisabled_uloc = glGetUniformLocation(texmesh.effect.program, "isDisabled");
 		glUniform1f(isDisabled_uloc, component.isDisabled ? 1.f : 0.f);
-		GLuint isEnabled_uloc = glGetUniformLocation(texmesh.effect.program, "isEnabled");
-		glUniform1f(isEnabled_uloc, component.isDisabled ? 1.f : 0.f);
 	}
 
 	if (entity.has<ActiveSkillFX>())

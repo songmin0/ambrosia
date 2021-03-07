@@ -11,15 +11,6 @@ Skill::Skill(SkillParams params)
 	: params(params)
 {}
 
-void Skill::performAnimation()
-{
-	if (params.instigator.has<AnimationsComponent>())
-	{
-		auto& anim = params.instigator.get<AnimationsComponent>();
-		anim.changeAnimation(params.animationType);
-	}
-}
-
 void Skill::performSkill(vec2 target)
 {
 	assert(params.instigator.has<Motion>());

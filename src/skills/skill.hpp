@@ -20,14 +20,14 @@ class Skill
 {
 public:
 	Skill(SkillParams params);
-	~Skill() = default;
+	virtual ~Skill() = default;
 
-	void performAnimation();
 	void performSkill(vec2 target);
 
 	inline float getDelay() const {return params.delay;}
 	inline ECS::Entity getInstigator() const {return params.instigator;}
 	inline SoundEffect getSoundEffect() const {return params.soundEffect;}
+	inline AnimationType getAnimationType() const { return params.animationType; }
 
 private:
 	virtual void performSkillInternal() = 0;
@@ -51,7 +51,7 @@ class AreaOfEffectSkill : public Skill
 {
 public:
 	AreaOfEffectSkill(SkillParams params);
-	~AreaOfEffectSkill() = default;
+	~AreaOfEffectSkill() override = default;
 
 private:
 	void performSkillInternal() override;
@@ -75,7 +75,7 @@ class ProjectileSkill : public Skill
 {
 public:
 	ProjectileSkill(SkillParams params, ProjectileType projectileType);
-	~ProjectileSkill() = default;
+	~ProjectileSkill() override = default;
 
 	void performSkillInternal() override;
 
@@ -105,7 +105,7 @@ class MeleeSkill : public AreaOfEffectSkill
 {
 public:
 	MeleeSkill(SkillParams params);
-	~MeleeSkill() = default;
+	~MeleeSkill() override = default;
 
 private:
 	void process(ECS::Entity entity) override;
@@ -123,7 +123,7 @@ class BuffSkill : public AreaOfEffectSkill
 {
 public:
 	BuffSkill(SkillParams params, StatModifier statModifier);
-	~BuffSkill() = default;
+	~BuffSkill() override = default;
 
 private:
 	void process(ECS::Entity entity) override;
@@ -141,7 +141,7 @@ class BuffProximitySkill : public BuffSkill
 {
 public:
 	BuffProximitySkill(SkillParams params, StatModifier statModifier);
-	~BuffProximitySkill() = default;
+	~BuffProximitySkill() override = default;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -153,5 +153,5 @@ class BuffMouseClickSkill : public BuffSkill
 {
 public:
 	BuffMouseClickSkill(SkillParams params, StatModifier statModifier);
-	~BuffMouseClickSkill() = default;
+	~BuffMouseClickSkill() override = default;
 };
