@@ -117,7 +117,7 @@ ECS::Entity Taji::createTaji(json configValues, float colourShift)
 	boneThrowParams.instigator = entity;
 	boneThrowParams.animationType = AnimationType::ATTACK3;
 	boneThrowParams.delay = 0.6f;
-	boneThrowParams.damage = 50.f;
+	boneThrowParams.damage = 30.f;
 	boneThrowParams.collidesWith = CollisionGroup::MOB;
 	boneThrowParams.soundEffect = SoundEffect::PROJECTILE;
 	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<ProjectileSkill>(boneThrowParams, ProjectileType::BONE));
@@ -253,7 +253,7 @@ ECS::Entity Taji::createTaji(vec2 position, float colourShift)
 	boneThrowParams.instigator = entity;
 	boneThrowParams.animationType = AnimationType::ATTACK3;
 	boneThrowParams.delay = 0.6f;
-	boneThrowParams.damage = 50.f;
+	boneThrowParams.damage = 30.f;
 	boneThrowParams.collidesWith = CollisionGroup::MOB;
 	boneThrowParams.soundEffect = SoundEffect::PROJECTILE;
 	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<ProjectileSkill>(boneThrowParams, ProjectileType::BONE));
