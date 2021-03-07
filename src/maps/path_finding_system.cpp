@@ -24,18 +24,53 @@ std::stack<vec2> PathFindingSystem::getShortestPath(vec2 source, vec2 destinatio
 	vec2 gridSource = round(source / map.tileSize);
 	vec2 gridDestination = round(destination / map.tileSize);
 
+	// The current data structure of our pizza-arena map is a 2D array of size 40x32. Each element in the array represents
+	// one tile, and the tile size is 32. When doing pathfinding, I'm using the full size of the map. This is an easy way
+	// to do it because each position on the screen corresponds to a position in these vectors:
+	int gridWidth = map.grid[0].size();
+	int gridHeight = map.grid.size();
+
+	// If given destination is unwalkable, compute the closest walkable point
+	if (!isWalkablePoint(map, gridDestination))
+	{
+		vec2 currentLocation = gridSource;
+		vec2 newGridDestination = gridSource;
+		vec2 direction = (normalize(gridDestination - gridSource));
+		direction.x = direction.x > 0.f ? 1.f : -1.f;
+		direction.y = direction.y > 0.f ? 1.f : -1.f;
+		while (isWalkablePoint(map, newGridDestination))
+		{
+			if (newGridDestination.x != gridDestination.x)
+			{
+				newGridDestination.x += direction.x;
+				// Set x direction to 0 once destination x position is reached
+				// Required for when we subtract direction from newGridPosition below
+				if (newGridDestination.x == gridDestination.x)
+					direction.x = 0.f;
+			}
+			if (newGridDestination.y != gridHeight)
+			{
+				newGridDestination.y += direction.y;
+				// Set y direction to 0 once destination y position is reached
+				// Required for when we subtract direction from newGridPosition below
+				if (newGridDestination.y == gridDestination.y)
+					direction.y = 0.f;
+			}
+		}
+		// Make sure to bring gridDestination into walkableRegion since while loop goes on until not walkable
+		newGridDestination -= direction;
+		gridDestination = newGridDestination;
+		destination = gridDestination * map.tileSize;
+	}
+
+	// Destination point should always be walkable because of above computation
+	assert(isWalkablePoint(map, gridDestination));
 	// If the destination is not on the map, not walkable, or too close to the source, return an empty path
 	if (!isValidPoint(map, gridDestination) || !isWalkablePoint(map, gridDestination)
 			|| gridSource == gridDestination || !isWalkablePoint(map, gridSource))
 	{
 		return shortestPath;
 	}
-
-	// The current data structure of our pizza-arena map is a 2D array of size 40x32. Each element in the array represents
-	// one tile, and the tile size is 32. When doing pathfinding, I'm using the full size of the map. This is an easy way
-	// to do it because each position on the screen corresponds to a position in these vectors:
-	int gridWidth = map.grid[0].size();
-	int gridHeight = map.grid.size();
 
 	std::vector<std::vector<bool>> visited(gridHeight, std::vector<bool>(gridWidth));
 	std::vector<std::vector<int>> distance(gridHeight, std::vector<int>(gridWidth));

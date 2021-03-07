@@ -183,6 +183,9 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		{
 			Motion& motion_j = motion_container.components[j];
 			ECS::Entity entity_j = motion_container.entities[j];
+			// Collide only if both entities are alive
+			if (entity_i.has<DeathTimer>() || entity_j.has<DeathTimer>())
+				break;
 
 			if (collides(motion_i, motion_j))
 			{
