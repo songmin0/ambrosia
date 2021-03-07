@@ -100,7 +100,7 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		motion.position += step_seconds * motion.velocity;
 
 		// Camera follows the moving entity
-		if (entity.has<PlayerComponent>() || entity.has<AISystem::MobComponent>()) {
+		if ((entity.has<PlayerComponent>() || entity.has<AISystem::MobComponent>()) && ECS::registry<CameraDelayedMoveComponent>.entities.empty()) {
 			// Move camera to the entity's position if entity is out of view and is moving
 			if (!CameraSystem::isPositionInView(motion.position, window_size_in_game_units) && (motion.velocity.x != 0 && motion.velocity.y != 0)) {
 				CameraSystem::viewPosition(motion.position, window_size_in_game_units);

@@ -1,6 +1,7 @@
 #include "turn_system.hpp"
 
 #include "ai/ai.hpp"
+#include "game/camera.hpp"
 #include "rendering/render_components.hpp"
 
 #include <string.h>
@@ -142,6 +143,10 @@ void TurnSystem::step(float elapsed_ms)
 
 			if (hasCompletedTurn(turnComponent))
 			{
+				// Add a hardcoded delay before moving the camera so player can see animations
+				assert(!ECS::registry<CameraComponent>.entities.empty());
+				auto camera = ECS::registry<CameraComponent>.entities[0];
+				camera.emplace<CameraDelayedMoveComponent>(0.5f);
 				nextActiveEntity();
 			}
 			// For mobs, need to tell them when its time to move and to perform a skill

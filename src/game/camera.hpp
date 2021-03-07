@@ -13,3 +13,9 @@ struct CameraComponent {
 	vec2 velocity = { 0, 0 };
 	float speed = 400.f;
 };
+
+struct CameraDelayedMoveComponent {
+	CameraDelayedMoveComponent(float delay) : delay{ delay } {}
+	float delay = 0.f;
+	vec2 position = { 0, 0 };
+};

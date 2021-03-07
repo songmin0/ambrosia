@@ -21,6 +21,17 @@ void CameraSystem::step(float elapsed_ms) {
 		auto& cameraComponent = camera.get<CameraComponent>();
 
 		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
+
+		// Handle delayed camera move
+		if (camera.has<CameraDelayedMoveComponent>()) {
+			auto& cameraDelayedMoveComponent = camera.get<CameraDelayedMoveComponent>();
+			cameraDelayedMoveComponent.delay -= step_seconds;
+			if (cameraDelayedMoveComponent.delay <= 0) {
+				viewPosition(cameraDelayedMoveComponent.position, window_size_in_px);
+				camera.remove<CameraDelayedMoveComponent>();
+			}
+		}
+
 		cameraComponent.position += step_seconds * cameraComponent.velocity;
 		preventViewingOutOfBounds(camera, window_size_in_px);
 	}
@@ -76,7 +87,15 @@ bool CameraSystem::isPositionInView(vec2 position, vec2 window_size_in_px) {
 void CameraSystem::onPlayerChange(const PlayerChangeEvent& event) {
 	auto entity = event.newActiveEntity;
 	auto& motion = entity.get<Motion>();
-	viewPosition(motion.position, window_size_in_px);
+	// If camera has a delay component, set the position to move to after the delay
+	if (!ECS::registry<CameraDelayedMoveComponent>.entities.empty()) {
+		auto camera = ECS::registry<CameraDelayedMoveComponent>.entities[0];
+		auto& cameraDelayedMoveComponent = camera.get<CameraDelayedMoveComponent>();
+		cameraDelayedMoveComponent.position = motion.position;
+	}
+	else {
+		viewPosition(motion.position, window_size_in_px);
+	}
 }
 
 // Prevent camera from moving out of map texture
