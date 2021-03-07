@@ -17,6 +17,7 @@ struct SkillParams
 		, collidesWith(CollisionGroup::NONE)
 		, sourcePosition(0.f)
 		, targetPosition(0.f)
+		, soundEffect(SoundEffect::NONE)
 	{}
 
 	ECS::Entity instigator;
@@ -40,4 +41,6 @@ struct SkillParams
 
 	vec2 sourcePosition; // To be filled when the skill is executed
 	vec2 targetPosition; // To be filled when the skill is executed
+
+	SoundEffect soundEffect;
 };

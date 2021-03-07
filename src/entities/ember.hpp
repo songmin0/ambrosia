@@ -4,5 +4,6 @@
 
 struct Ember
 {
-	static ECS::Entity createEmber(vec2 pos);
+	static ECS::Entity createEmber(json initialStats);
+	static ECS::Entity createEmber(vec2 position);
 };

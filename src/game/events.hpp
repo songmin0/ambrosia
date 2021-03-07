@@ -91,3 +91,8 @@ struct FinishedSkillEvent
 {
 	ECS::Entity entity;
 };
+
+struct PlaySoundEffectEvent
+{
+	SoundEffect effect = SoundEffect::NONE;
+};

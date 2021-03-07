@@ -15,6 +15,7 @@ ECS::Entity Button::createButton(ButtonShape shape, vec2 position, const std::st
 	}
 
 	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+	entity.emplace<UIComponent>();
 	entity.emplace<RenderableComponent>(RenderLayer::UI);
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
@@ -22,7 +23,7 @@ ECS::Entity Button::createButton(ButtonShape shape, vec2 position, const std::st
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ 1.f, 1.f });
-	motion.boundingBox = motion.scale * vec2({ resource.texture.size.x, resource.texture.size.y });
+	motion.boundingBox = vec2(0.f);
 
 	// Add clickable component to button depending on shape
 	switch (shape) {
@@ -93,6 +94,7 @@ ECS::Entity SkillButton::createSkillButton(vec2 position, PlayerType player, Ski
 	}
 
 	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+	entity.emplace<UIComponent>();
 	entity.emplace<RenderableComponent>(RenderLayer::UI);
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
@@ -100,7 +102,7 @@ ECS::Entity SkillButton::createSkillButton(vec2 position, PlayerType player, Ski
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ 1.f, 1.f });
-	motion.boundingBox = motion.scale * vec2({ resource.texture.size.x, resource.texture.size.y });
+	motion.boundingBox = vec2(0.f);
 
 	entity.emplace<ClickableCircleComponent>(position, resource.texture.size.x / 2, callback);
 	entity.emplace<ButtonStateComponent>();
@@ -123,6 +125,7 @@ ECS::Entity SkillButton::createMoveButton(vec2 position, const std::string& text
 	}
 
 	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+	entity.emplace<UIComponent>();
 	entity.emplace<RenderableComponent>(RenderLayer::UI);
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
@@ -130,7 +133,7 @@ ECS::Entity SkillButton::createMoveButton(vec2 position, const std::string& text
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ 1.f, 1.f });
-	motion.boundingBox = motion.scale * vec2({ resource.texture.size.x, resource.texture.size.y });
+	motion.boundingBox = vec2(0.f);
 
 	entity.emplace<ClickableCircleComponent>(position, resource.texture.size.x / 2, callback);
 	entity.emplace<ButtonStateComponent>();

@@ -7,6 +7,7 @@
 #include "ui/ui_components.hpp"
 #include "ui/effects.hpp"
 #include "ui/ui_entities.hpp"
+#include "game/camera.hpp"
 
 #include <iostream>
 
@@ -18,8 +19,22 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	// Transformation code, see Rendering and Transformation in the template specification for more info
 	// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
 	Transform transform;
-	transform.translate(motion.position);
+	if (entity.has<UIComponent>()) {
+		transform.translate(motion.position);
+	}
+	else {
+		auto camera = ECS::registry<CameraComponent>.entities[0];
+		auto& cameraComponent = camera.get<CameraComponent>();
+		transform.translate(motion.position - cameraComponent.position);
+	}
 	transform.rotate(motion.angle);
+
+	// Adjust position of map texture so that top left is at { 0.f, 0.f }
+	if (entity.has<MapComponent>())
+	{
+		auto& mapComponent = entity.get<MapComponent>();
+		transform.translate(vec2(mapComponent.mapSize.x / 2, mapComponent.mapSize.y / 2));
+	}
 
 	// Adjust root position of pathfinding entities
 	if (entity.has<PlayerComponent>() || entity.has<AISystem::MobComponent>())
@@ -178,7 +193,14 @@ void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 	auto& anims = entity.get<AnimationsComponent>();
 	auto& texmesh = *anims.referenceToCache;
 	Transform transform;
-	transform.translate(motion.position);
+	if (entity.has<UIComponent>()) {
+		transform.translate(motion.position);
+	}
+	else {
+		auto camera = ECS::registry<CameraComponent>.entities[0];
+		auto& cameraComponent = camera.get<CameraComponent>();
+		transform.translate(motion.position - cameraComponent.position);
+	}
 	transform.rotate(motion.angle);
 	transform.scale(motion.scale * static_cast<vec2>(texmesh.texture.size));
 

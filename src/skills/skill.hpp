@@ -27,6 +27,7 @@ public:
 
 	inline float getDelay() const {return params.delay;}
 	inline ECS::Entity getInstigator() const {return params.instigator;}
+	inline SoundEffect getSoundEffect() const {return params.soundEffect;}
 
 private:
 	virtual void performSkillInternal() = 0;

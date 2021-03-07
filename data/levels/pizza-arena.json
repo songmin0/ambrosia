@@ -1,0 +1,48 @@
+{
+  "map": "pizza-arena",
+  "camera": {
+    "position": [0,100]
+  },
+  "taji": {
+    "stats": {
+      "hp": 100,
+      "strength": 1,
+      "ambrosia" : 0
+    },
+    "position": [500,400]
+  },
+  "chia": {
+    "stats": {
+      "hp": 100,
+      "strength": 1,
+      "ambrosia" : 0
+    },
+    "position": [200, 700]
+  },
+  "raoul": {
+    "stats": {
+      "hp": 100,
+      "strength": 1,
+      "ambrosia" : 0
+    },
+    "position": [640, 512]
+  },
+  "ember": {
+    "stats": {
+      "hp": 100,
+      "strength": 1,
+      "ambrosia" : 0
+    },
+    "position": [400,700]
+  },
+  "mobs": [
+    {
+        "type": "egg",
+        "position": [ 850, 800 ]
+    },
+    {
+        "type": "egg",
+        "position": [ 1000, 650 ]
+    }
+  ]
+}

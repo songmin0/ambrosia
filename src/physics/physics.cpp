@@ -3,9 +3,11 @@
 #include "debug.hpp"
 
 #include "entities/tiny_ecs.hpp"
+#include "game/camera.hpp"
 #include "game/turn_system.hpp"
 #include "animation/animation_components.hpp"
 #include "ui/ui_entities.hpp"
+#include <ai/ai.hpp>
 
 #include <iostream>
 
@@ -15,21 +17,6 @@ vec2 getBoundingBox(const Motion& motion)
 	// fabs is to avoid negative scale due to the facing direction.
 	return { abs(motion.boundingBox.x), abs(motion.boundingBox.y) };
 }
-
-// This is a SUPER APPROXIMATE check that puts a circle around the bounding boxes and sees
-// if the center point of either object is inside the other's bounding-box-circle. You don't
-// need to try to use this technique.
-//bool collides(const Motion& motion1, const Motion& motion2)
-//{
-//	auto dp = motion1.position - motion2.position;
-//	float dist_squared = dot(dp,dp);
-//	float other_r = std::sqrt(std::pow(get_bounding_box(motion1).x/2.0f, 2.f) + std::pow(get_bounding_box(motion1).y/2.0f, 2.f));
-//	float my_r = std::sqrt(std::pow(get_bounding_box(motion2).x/2.0f, 2.f) + std::pow(get_bounding_box(motion2).y/2.0f, 2.f));
-//	float r = max(other_r, my_r);
-//	if (dist_squared < r * r)
-//		return true;
-//	return false;
-//}
 
 bool collides(const Motion& motion1, const Motion& motion2)
 {
@@ -65,6 +52,34 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
 	// Move entities based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
+
+	// Move camera entity
+	assert(!ECS::registry<MapComponent>.entities.empty());
+	auto mapSize = ECS::registry<MapComponent>.entities[0].get<MapComponent>().mapSize;
+	for (auto camera : ECS::registry<CameraComponent>.entities) {
+		auto& cameraComponent = camera.get<CameraComponent>();
+
+		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
+		cameraComponent.position += step_seconds * cameraComponent.velocity;
+
+		// Prevent camera from moving out of map texture
+		// Prevent moving camera out of top
+		if (cameraComponent.position.y <= 0) {
+			cameraComponent.position.y = 0;
+		}
+		// Prevent moving camera out of bottom
+		else if (cameraComponent.position.y >= mapSize.y - window_size_in_game_units.y) {
+			cameraComponent.position.y = mapSize.y - window_size_in_game_units.y;
+		}
+		// Prevent moving camera out of left
+		if (cameraComponent.position.x <= 0) {
+			cameraComponent.position.x = 0;
+		}
+		// Prevent moving camera out of right
+		else if (cameraComponent.position.x >= mapSize.x - window_size_in_game_units.x) {
+			cameraComponent.position.x = mapSize.x - window_size_in_game_units.x;
+		}
+	}
 	
 	for (auto entity : ECS::registry<Motion>.entities)
 	{
@@ -133,25 +148,27 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		{
 			auto& entity = ECS::registry<Motion>.entities[i];
 			auto& motion = ECS::registry<Motion>.components[i];
-
 			vec2 position = motion.position;
 
-			if (entity.has<AnimationsComponent>())
+			if (entity.has<DebugComponent>())
 			{
-				// For entities with an AnimationsComponent, we translate the sprite upward by half the texture size so that the
+				continue;
+			}
+
+			// Draw this entity's path using dotted lines
+			DebugSystem::createPath(motion.path);
+
+			if (entity.has<PlayerComponent>() || entity.has<AISystem::MobComponent>())
+			{
+				// For pathfinding entities , we translate the sprite upward by half the texture size so that the
 				// entity's position refers to their feet instead of the middle of the sprite. This happens in
-				// RenderSystem::drawAnimatedMesh. See `transform.translate(vec2(0.f, -0.5f))`. The line of code below this
-				// comment just aligns the debug lines properly for those entities.
+				// RenderSystem::drawAnimatedMesh. See `transform.translate(vec2(0.f, -0.5f))`. The line of code
+				// below this comment just aligns the debug lines properly for those entities.
 				position.y -= motion.boundingBox.y / 2;
 			}
 
-			// draw a cross at the position of all objects
-			auto scale_horizontal_line = motion.boundingBox;
-			scale_horizontal_line.y *= 0.1f;
-			auto scale_vertical_line = motion.boundingBox;
-			scale_vertical_line.x *= 0.1f;
-			DebugSystem::createLine(position, scale_horizontal_line);
-			DebugSystem::createLine(position, scale_vertical_line);
+			// Draw the entity's bounding box
+			DebugSystem::createBox(position, getBoundingBox(motion));
 		}
 	}
 
