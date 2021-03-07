@@ -38,6 +38,7 @@ SET(SOURCE_FILES
         "src/entities/chia.cpp"
         "src/entities/tiny_ecs.cpp"
         "src/game/camera.cpp"
+        "src/game/camera_system.cpp"
         "src/game/common.cpp"
         "src/game/turn_system.cpp"
         "src/game/world.cpp"
