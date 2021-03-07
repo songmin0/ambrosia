@@ -51,8 +51,10 @@ Our work is consistent with our development plan, and we are using one grace day
 - Added visual feedback for Skill buttons
 - Added visual feedback for mouse clicks
 
-#### Camera Controls
+#### Camera System
 - Implemented movable camera, controlled via arrow keys
+- Camera will center on the active entity
+- Camera follows the active moving entity
 
 #### Particle System
 - Created particle system
