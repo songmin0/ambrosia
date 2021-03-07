@@ -18,6 +18,7 @@ uniform mat3 projection;
 void main()
 {
 	float particleSize = xyzs.w; //Get the size of this particle
+//	float particleSize = 1.0f;
 	vec3 particleCenterWorldspace = xyzs.xyz;
 	
 	//Transform the pixels into world location. Not using a passed in transform matrix because that would require calculating one for every singe particle on the cpu and passing that to the GPU. This is easier.
@@ -31,5 +32,13 @@ void main()
 	// UV TODO pass this in like in the TA tutorial
 	UV = squareVertices.xy + vec2(0.5, 0.5);
 	particlecolor = color;
+//	if (xyzs.w == 1.f)
+//	{
+//		particlecolor = vec4(1.0, 0.0, 0.0, 1.0);
+//	}
+//	if (xyzs.x < 0.f)
+//	{
+//		particlecolor = vec4(0.0, 0.0, 1.0, 1.0);
+//	}
 }
 
