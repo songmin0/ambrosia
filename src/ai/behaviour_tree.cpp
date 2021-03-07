@@ -10,7 +10,6 @@ void StateSystem::onStartMobTurnEvent(const StartMobTurnEvent& event)
 	if (mob.get<BehaviourTreeType>().mobType == MobType::EGG)
 	{
 		activeTree = std::make_shared<BehaviourTree>(EggBehaviourTree());
-		//EggBehaviourTree::EggBehaviourTree().run();
 	}
 }
 
@@ -18,9 +17,9 @@ void StateSystem::step(float elapsed_ms)
 {
 	if (activeTree != nullptr && activeTree->root != nullptr)
 	{
-		if (activeTree->root->status == Status::INVALID)
+		if (activeTree->root->getStatus() == Status::INVALID)
 			activeTree->root->run();
-		else if (activeTree->root->status == Status::RUNNING)
+		else if (activeTree->root->getStatus() == Status::RUNNING)
 			activeTree->root->run();
 		else
 			activeTree = nullptr;
@@ -37,7 +36,7 @@ void Selector::run()
 	Node::run();
 	// Check nodes, success if even one of them succeeds
 	std::shared_ptr<Node> current = children[i];
-	switch (current->status)
+	switch (current->getStatus())
 	{
 	case Status::INVALID:
 		current->run();
@@ -58,14 +57,6 @@ void Selector::run()
 	case Status::RUNNING:
 		break;
 	}
-	/*for (Node* n : getChildren())
-	{
-		n->run();
-		if (n->status == Status::SUCCESS)
-			onTerminate(Status::SUCCESS);
-		return;
-	}
-	onTerminate(Status::FAILURE);*/
 }
 
 void Sequence::run()
@@ -73,16 +64,16 @@ void Sequence::run()
 	Node::run();
 	// Check all nodes, success if all of them succeed
 	std::shared_ptr<Node> current = children[i];
-	switch (current->status)
+	switch (current->getStatus())
 	{
-	case Status::INVALID: 
+	case Status::INVALID:
 		current->run();
 		break;
-	case Status::FAILURE: 
+	case Status::FAILURE:
 		i = 0;
 		onTerminate(Status::FAILURE);
 		break;
-	case Status::SUCCESS: 
+	case Status::SUCCESS:
 		// Go to the next node
 		i++;
 		// If at end, terminate with SUCCESS
@@ -97,17 +88,6 @@ void Sequence::run()
 		current->run();
 		break;
 	}
-	//if (current.status == Status::INVALID)
-	//	current.run();
-	//else if (current.status == Status::FAILURE)
-	//	onTerminate(Status::FAILURE);
-	//if (current.status == Status::SUCCESS)
-	//{
-	//	i++;
-	//	// If all succeeded, succeed
-	//	if (i == getChildren().size())
-	//		onTerminate(Status::SUCCESS);
-	//}
 }
 
 // MOB AI
@@ -115,7 +95,6 @@ void Sequence::run()
 
 MobTurnSequence::MobTurnSequence()
 {
-	//ECS::Entity mob = StateSystem::getCurrentMobEntity();
 	ECS::Entity mob = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 	float hp = mob.get<StatsComponent>().getStatValue(StatType::HP);
 	addChild(std::make_shared<MoveSelector>(MoveSelector(hp)));
@@ -176,7 +155,6 @@ void MoveCloserTask::run()
 		taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
 			std::bind(&MoveCloserTask::onFinishedMoveCloserEvent, this, std::placeholders::_1));
 		StartMobMoveCloserEvent event;
-		//event.entity = StateSystem::getCurrentMobEntity();
 		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 		EventSystem<StartMobMoveCloserEvent>::instance().sendEvent(event);
 	}
@@ -205,7 +183,6 @@ void RunAwayTask::run()
 			std::bind(&RunAwayTask::onFinishedRunAwayEvent, this, std::placeholders::_1));
 
 		StartMobRunAwayEvent event;
-		//event.entity = StateSystem::getCurrentMobEntity();
 		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 		EventSystem<StartMobRunAwayEvent>::instance().sendEvent(event);
 	}
@@ -233,9 +210,7 @@ void AttackTask::run()
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
 			std::bind(&AttackTask::onFinishedAttackEvent, this, std::placeholders::_1));
-		Node::run();
 		StartMobSkillEvent event;
-		//event.entity = StateSystem::getCurrentMobEntity();
 		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 		EventSystem<StartMobSkillEvent>::instance().sendEvent(event);
 	}
@@ -243,7 +218,5 @@ void AttackTask::run()
 
 EggBehaviourTree::EggBehaviourTree()
 {
-	//BehaviourTree::BehaviourTree(new &MobTurnSequence);
 	root = std::make_shared<MobTurnSequence>(MobTurnSequence());
-	//BehaviourTree(new MobTurnSequence);
 }

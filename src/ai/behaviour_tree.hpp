@@ -31,11 +31,12 @@ struct BehaviourTreeType
 // Nodes of a BehaviourTree; Either a task or composite node
 class Node
 {
-public:
+protected:
 	Status status = Status::INVALID;
-	//public:
+public:
 	virtual void run() { status = Status::RUNNING; };
 	virtual void onTerminate(Status s) { status = s; };
+	virtual Status getStatus() { return status; };
 };
 
 // Parent class for all mob BehaviourTrees
@@ -43,7 +44,6 @@ class BehaviourTree
 {
 public:
 	std::shared_ptr<Node> root;
-	//public:
 	BehaviourTree() : root(new Node) {};
 	BehaviourTree(std::shared_ptr<Node> root) : root(root) {};
 	~BehaviourTree() { root = nullptr; };
@@ -53,17 +53,15 @@ public:
 // Runs through BehaviourTree of active mob entity
 class StateSystem
 {
-public:
+protected:
 	EventListenerInfo startMobTurnListener;
-	//static ECS::Entity currentMobEntity;
 	std::shared_ptr<BehaviourTree> activeTree;
-//public:
+public:
 	StateSystem()
 	{
 		startMobTurnListener = EventSystem<StartMobTurnEvent>::instance().registerListener(
 			std::bind(&StateSystem::onStartMobTurnEvent, this, std::placeholders::_1));
 		activeTree = nullptr;
-		//currentMobEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 	};
 
 	void onStartMobTurnEvent(const StartMobTurnEvent& event);
@@ -78,8 +76,6 @@ public:
 	vector<std::shared_ptr<Node>> children;
 	// Current node index to run
 	int i = 0;
-//public:
-	//vector<Node*> getChildren() { return children; };
 	void addChild(std::shared_ptr<Node>);
 };
 
