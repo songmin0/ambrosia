@@ -12,7 +12,7 @@
 class AISystem
 {
 public:
-	AISystem(const PathFindingSystem& pfs);
+	AISystem(PathFindingSystem& pfs);
 	~AISystem();
 
 	void step(float elapsed_ms, vec2 window_size_in_game_units);
@@ -40,5 +40,5 @@ private:
 	EventListenerInfo startMobRunAwayListener;
 	EventListenerInfo startMobSkillListener;
 
-	const PathFindingSystem& pathFindingSystem;
+	PathFindingSystem& pathFindingSystem;
 };

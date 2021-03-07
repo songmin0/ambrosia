@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-AISystem::AISystem(const PathFindingSystem& pfs)
+AISystem::AISystem(PathFindingSystem& pfs)
 	: pathFindingSystem(pfs)
 {
 	startMobMoveCloserListener = EventSystem<StartMobMoveCloserEvent>::instance().registerListener(
@@ -109,7 +109,7 @@ void AISystem::startMobMoveCloser(ECS::Entity entity)
 		//TODO properly define and decide how far a mob can move in a turn
 		float movementDistance = 100.0f;
 		vec2 destintation = motion.position + (direction * movementDistance);
-		motion.path = pathFindingSystem.getShortestPath(motion.position, destintation);
+		motion.path = pathFindingSystem.getShortestPath(entity, destintation);
 	}
 }
 
@@ -128,7 +128,7 @@ void AISystem::startMobRunAway(ECS::Entity entity)
 
 		float movementDistance = 100.0f;
 		vec2 destintation = motion.position + (direction * movementDistance);
-		motion.path = pathFindingSystem.getShortestPath(motion.position, destintation);
+		motion.path = pathFindingSystem.getShortestPath(entity, destintation);
 	}
 }
 

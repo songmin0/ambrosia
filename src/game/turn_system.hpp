@@ -13,7 +13,7 @@ class TurnSystem
 {
 
 public:
-		TurnSystem(const PathFindingSystem& pfs);
+		TurnSystem(PathFindingSystem& pfs);
 		~TurnSystem();
 
 		void nextActiveEntity();
@@ -44,7 +44,7 @@ public:
 		static bool hasCompletedTurn(TurnComponent tc);
 
 private:
-	const PathFindingSystem& pathFindingSystem;
+	PathFindingSystem& pathFindingSystem;
 
 	void onMouseClick(const MouseClickEvent& event);
 	EventListenerInfo mouseClickListener;
