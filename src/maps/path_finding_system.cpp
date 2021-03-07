@@ -107,17 +107,8 @@ std::stack<vec2> PathFindingSystem::getShortestPath(ECS::Entity sourceEntity, ve
 	// destination) and find the shortest path back to the source
 	if (closestDistance < float_max)
 	{
-		// If the actual destination was reached, then we can use the exact destination (i.e., if this is for the player,
-		// then the exact destination would be the mouse click position) as the last point in the path
-		if (visited[gridDestination.y][gridDestination.x])
-		{
-			shortestPath.push(destination);
-		}
-		// Otherwise, the last point in the path will be whichever walkable point was found to be closest to the destination
-		else
-		{
-			shortestPath.push(getWorldPosition(closestTile));
-		}
+		// Add the destination tile as the last point in the path
+		shortestPath.push(getWorldPosition(closestTile));
 
 		// Start working backward from the best neighbouring point
 		vec2 currentPoint = getCheapestAdjacentPoint(map, distance, visited, closestTile);
