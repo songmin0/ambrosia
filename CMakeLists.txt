@@ -28,6 +28,7 @@ endif()
 SET(SOURCE_FILES
         "src/main.cpp"
         "src/ai/ai.cpp"
+        "src/ai/behaviour_tree.cpp"
         "src/animation/animation_components.cpp"
         "src/animation/animation_system.cpp"
         "src/entities/egg.cpp"

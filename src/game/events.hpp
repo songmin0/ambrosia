@@ -72,7 +72,17 @@ struct BuffEvent
 	StatModifier statModifier;
 };
 
-struct StartMobMovementEvent
+struct StartMobTurnEvent
+{
+
+};
+
+struct StartMobMoveCloserEvent
+{
+	ECS::Entity entity;
+};
+
+struct StartMobRunAwayEvent
 {
 	ECS::Entity entity;
 };

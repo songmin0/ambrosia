@@ -4,6 +4,7 @@
 #include "rendering/render.hpp"
 #include "animation/animation_components.hpp"
 #include "ai/ai.hpp"
+#include "ai/behaviour_tree.hpp"
 #include "game/turn_system.hpp"
 #include "ui/ui_entities.hpp"
 
@@ -25,8 +26,14 @@ ECS::Entity Egg::createEgg(vec2 pos)
 
 	// Give it a Mob component
 	entity.emplace<AISystem::MobComponent>();
+	// Set appropriate Behaviour Tree
+	//entity.emplace<EggBehaviourTree>();
+	//EggBehaviourTree bt;
 
 	entity.emplace<Egg>();
+
+	auto& btType = entity.emplace<BehaviourTreeType>();
+	btType.mobType = MobType::EGG;
 
 	entity.emplace<TurnSystem::TurnComponent>();
 
