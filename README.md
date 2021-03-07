@@ -17,7 +17,7 @@
 ## Milestone 2
 ### Summary - Milestone 2:
 
-Our work is consistent with our development plan for this milestone.
+Our work is consistent with our development plan, and we are using one grace day for this milestone.
 
 #### Gameplay:
 - Created SkillSystem supporting a wide variety of skills such as projectile attacks, melee attacks, buffs, and debuffs using the template pattern
