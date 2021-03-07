@@ -24,10 +24,12 @@ Our work is consistent with our development plan for this milestone.
 - Added skills to the players and egg mobs
 - Implemented buffs and debuffs as time-based stat modifiers in the StatsSystem
 - Adjusted player death logic (delayed world restart after all players die)
+- PathFindingSystem: update logic to find closest valid point if given invalid path destination
 
 #### AI:
 - Created a state system
 - Implemented behaviour trees for mob AI (currently just the Egg)
+- Hooked up with EventSystem and TurnSystem
 
 #### Rendering:
 - Created debugging graphics for pathfinding and bounding boxes
