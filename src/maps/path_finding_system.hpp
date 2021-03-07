@@ -9,7 +9,7 @@ public:
 	~PathFindingSystem() = default;
 
 	// Uses BFS to find the shortest path from source to destination in a grid
-	std::stack<vec2> getShortestPath(vec2 source, vec2 destination) const;
+	std::stack<vec2> getShortestPath(ECS::Entity sourceEntity, vec2 destination);
 
 private:
 	// Checks that the point is within the bounds of the map
@@ -24,5 +24,23 @@ private:
 															 	const std::vector<std::vector<int>>& distance,
 															 	std::vector<std::vector<bool>>& visited,
 															 	vec2 p) const;
+
+	// Returns a reference to the current map. This function should only be called after the
+	// getShortestPath function has checked that a valid map exists
+	inline const MapComponent& getMap() {return ECS::registry<MapComponent>.components.front();}
+
+	// Takes a world position and converts it to the position of a tile in the grid
+	inline vec2 getGridPosition(vec2 worldPosition) {return round(worldPosition / getMap().tileSize);}
+
+	// Takes the position of a tile in the grid and returns the world position on the actual map
+	inline vec2 getWorldPosition(vec2 gridPosition) {return gridPosition * getMap().tileSize;}
+
+
+	// Updates the current obstacles before pathfinding runs. The sourceEntity is
+	// the entity whose path is being generated
+	void setCurrentObstacles(ECS::Entity sourceEntity);
+
+	// Player and mob positions (gets updated before pathfinding starts)
+	std::vector<vec2> obstacles;
 };
 

@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-AISystem::AISystem(const PathFindingSystem& pfs)
+AISystem::AISystem(PathFindingSystem& pfs)
 	: pathFindingSystem(pfs)
 {
 	startMobMovementListener = EventSystem<StartMobMovementEvent>::instance().registerListener(
@@ -98,7 +98,7 @@ void AISystem::startMobMovement(ECS::Entity entity)
 		float movementDistance = 100.0f;
 		vec2 destintation = motion.position + (direction * movementDistance);
 		//motion.path = pathFindingSystem.GetShortestPath(motion.position, closestPlayer.get<Motion>().position);
-		motion.path = pathFindingSystem.getShortestPath(motion.position, destintation);
+		motion.path = pathFindingSystem.getShortestPath(entity, destintation);
 		//motion.velocity = normalize(closestPlayer.get<Motion>().position - motion.position) * 100.f; // Temp - matches player's deafult speed above
 	}
 }

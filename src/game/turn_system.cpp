@@ -8,7 +8,7 @@
 #include <sstream>
 #include <iostream>
 
-TurnSystem::TurnSystem(const PathFindingSystem& pfs)
+TurnSystem::TurnSystem(PathFindingSystem& pfs)
 		: pathFindingSystem(pfs)
 {
 		EventSystem<MouseClickEvent>::instance().registerListener(
@@ -198,7 +198,7 @@ void TurnSystem::onMouseClick(const MouseClickEvent &event)
 				assert(activeEntity.has<Motion>());
 
 				auto& motion = activeEntity.get<Motion>();
-				motion.path = pathFindingSystem.getShortestPath(motion.position, event.mousePos);
+				motion.path = pathFindingSystem.getShortestPath(activeEntity, event.mousePos);
 
 				// Only set isMoving to true if a path was actually generated. If the user clicked too close to their character,
 				// then no path would be generated, for example
