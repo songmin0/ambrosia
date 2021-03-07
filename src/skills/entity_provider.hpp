@@ -10,7 +10,7 @@ class EntityProvider
 {
 public:
 	EntityProvider() = default;
-	~EntityProvider() = default;
+	virtual ~EntityProvider() = default;
 
 	virtual std::vector<ECS::Entity> getEntities(const SkillParams& params) = 0;
 
@@ -23,7 +23,7 @@ class CircularProvider : public EntityProvider
 {
 public:
 	CircularProvider() = default;
-	~CircularProvider() = default;
+	~CircularProvider() override = default;
 
 	std::vector<ECS::Entity> getEntities(const SkillParams& params) override;
 };
@@ -33,7 +33,7 @@ class ConicalProvider : public EntityProvider
 {
 public:
 	ConicalProvider() = default;
-	~ConicalProvider() = default;
+	~ConicalProvider() override = default;
 
 	std::vector<ECS::Entity> getEntities(const SkillParams& params) override;
 };
@@ -44,7 +44,7 @@ class MouseClickProvider : public EntityProvider
 {
 public:
 	MouseClickProvider() = default;
-	~MouseClickProvider() = default;
+	~MouseClickProvider() override = default;
 
 	std::vector<ECS::Entity> getEntities(const SkillParams& params) override;
 };
