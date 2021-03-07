@@ -90,7 +90,6 @@ protected:
 		GLuint VertexArrayID;
 		Effect shaderProgram;
 		Texture particleTexture;
-		//std::string particleTextureFile;
 		int particlesPerSecond;
 		float secSinceLastParticleSpawn;
 

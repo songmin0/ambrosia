@@ -16,7 +16,7 @@ const GLfloat ParticleSystem::particleVertexBufferData[] = {
 				-0.5f, 0.5f, 0.0f,
 				0.5f, 0.5f, 0.0f,
 };
-
+//TODO delete the emitter logic from the particle system so that the only way to have particles is through an emitter.
 ParticleSystem::ParticleSystem()
 {
 		//Initialize all the member variables to stop the compiler from being upset. They are all properly initalized in the initParticles function which is called after all the GL dependencies are done being called.
@@ -162,7 +162,6 @@ void ParticleSystem::step(float elapsed_ms)
 				emitters[i]->step(elapsed_ms);
 		}
 
-		//TODO add a variable for "timeSinceLastParticle" so that we can create less than like 100 particles per second
 		//Reference http://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
 		float elapsed_time_sec = elapsed_ms / 1000.0f;
 
@@ -172,7 +171,6 @@ void ParticleSystem::step(float elapsed_ms)
 				secSinceLastParticleSpawn = 0.0f;
 		}
 
-		//TODO change particle creation logic so that it happens in the simulate phase and if there is no room for new particles then just don't create them.
 		createParticles(newParticles);
 
 		// Simulate all particles
@@ -203,9 +201,6 @@ void ParticleSystem::step(float elapsed_ms)
 								particleColorData[4 * particlesCount + 3] = p.a;
 
 						}
-						//else {
-									//TODO sort particles if needed once we add textures to them and they look bad. for now they look fine unsorted but that may change with textures.
-						//}
 
 						particlesCount++;
 
@@ -320,8 +315,6 @@ ParticleEmitter::ParticleEmitter()
 
 void ParticleEmitter::step(float elapsedMs)
 {
-		//msSinceLastParticleSpawn += elapsedMs;
-		//int numNewParticles = (elapsedMs / 1000.0f) * particlesPerSecond;
 		float elapsed_time_sec = elapsedMs / 1000.0f;
 
 		secSinceLastParticleSpawn += elapsed_time_sec;
@@ -450,7 +443,6 @@ void ParticleEmitter::prepRender(GLuint vertexBuffer)
 
 
 //Everything below here is for emitters
-//TODO if there is time finish transitioning the particle system to use emitters
 
 BasicEmitter::BasicEmitter(int particlesPerSecond){
 		this->particlesPerSecond = particlesPerSecond;
@@ -487,15 +479,10 @@ void BasicEmitter::simulateParticles(float elapsedMs, int numNewParticles)
 								particleColorData[4 * particlesCount + 3] = p.a;
 
 						}
-						//Spawn new particles if there is an empty index and we need to spawn a new particle
-
-						//TODO implement sorting of particles
-						//else {
-								// Particles that just died will be put at the end of the buffer in SortParticles();
-								//p.cameradistance = -1.0f;
-						//}
+						
 						particlesCount++;
 				}
+				//Spawn new particles if there is an empty index and we need to spawn a new particle
 				else if (numNewParticles > 0) {
 						createParticle(i);
 						numNewParticles--;
