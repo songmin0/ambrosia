@@ -12,7 +12,7 @@ uniform mat3 transform;
 uniform mat3 projection;
 uniform float time;
 uniform float isActive;
-uniform float isEnabled;
+uniform float isDisabled;
 
 void main()
 {
@@ -20,8 +20,8 @@ void main()
 	texcoord = in_texcoord;
 	vec3 pos = projection * transform * vec3(in_position.xy, 1.0);
 
-	// add active effects, enabled takes presidence
-	if (isActive == 1.0 && isEnabled != 1.0)
+	// add active effects if active and not disabled
+	if (isActive == 1.0 && isDisabled != 1.0)
 	{
 		float amplitude = 0.05;
 		float frequency = 0.4; 

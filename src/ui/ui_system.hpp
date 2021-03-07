@@ -47,6 +47,8 @@ private:
 	void playMouseClickFX(vec2 position);
 	void updatePlayerSkillButton(ECS::Entity& entity);
 	void activateSkillButton(const SkillType& skillType);
+	void enableMoveButton(bool doEnable = true);
+	void enableSkillButtons(bool doEnable = true);
 
 	void clearToolTips();
 	ECS::Entity& getToolTip(SkillType skill);
