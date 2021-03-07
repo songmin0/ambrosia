@@ -26,9 +26,8 @@ std::stack<vec2> PathFindingSystem::getShortestPath(ECS::Entity sourceEntity, ve
 	// Not totally needed, but I'm just grabbing a reference to the map here
 	const MapComponent& map = getMap();
 
-	// If the destination is not on the map, not walkable, or too close to the source, return an empty path
-	if (!isValidPoint(map, gridDestination) || !isWalkablePoint(map, gridDestination)
-			|| gridSource == gridDestination || !isWalkablePoint(map, gridSource))
+	// If the destination is too close to the source, return an empty path
+	if (gridSource == gridDestination || !isWalkablePoint(map, gridSource))
 	{
 		return shortestPath;
 	}
@@ -48,6 +47,12 @@ std::stack<vec2> PathFindingSystem::getShortestPath(ECS::Entity sourceEntity, ve
 
 	visited[gridSource.y][gridSource.x] = true;
 	distance[gridSource.y][gridSource.x] = 0;
+
+	// If it's not possible to walk all the way to the destination, then it navigates to the walkable tile which is
+	// closest to the source.
+	constexpr auto float_max = std::numeric_limits<float>::max();
+	vec2 closestTile = gridSource;
+	float closestDistance = float_max;
 
 	// Keep searching until destination is reached or the queue is empty (i.e., no possible way to reach destination)
 	while (!queue.empty())
@@ -75,6 +80,13 @@ std::stack<vec2> PathFindingSystem::getShortestPath(ECS::Entity sourceEntity, ve
 				{
 					distance[adjacentPoint.y][adjacentPoint.x] = distance[currentPoint.y][currentPoint.x] + 1;
 					queue.push(adjacentPoint);
+
+					float distanceToDest = glm::distance(adjacentPoint, gridDestination);
+					if (distanceToDest < closestDistance)
+					{
+						closestDistance = distanceToDest;
+						closestTile = adjacentPoint;
+					}
 				}
 					// Otherwise, invalidate the distance, just to be safe
 				else
@@ -91,14 +103,24 @@ std::stack<vec2> PathFindingSystem::getShortestPath(ECS::Entity sourceEntity, ve
 		checkPoint(vec2(currentPoint.x, currentPoint.y + 1));
 	}
 
-	// If destination was visited, then a path exists. Go backward (from destination to source) to find shortest path
-	if (visited[gridDestination.y][gridDestination.x])
+	// Go backward from the point that was reached (which might be the destination or might be the closest point to the
+	// destination) and find the shortest path back to the source
+	if (closestDistance < float_max)
 	{
-		// Add the actual destination to the path
-		shortestPath.push(destination);
+		// If the actual destination was reached, then we can use the exact destination (i.e., if this is for the player,
+		// then the exact destination would be the mouse click position) as the last point in the path
+		if (visited[gridDestination.y][gridDestination.x])
+		{
+			shortestPath.push(destination);
+		}
+		// Otherwise, the last point in the path will be whichever walkable point was found to be closest to the destination
+		else
+		{
+			shortestPath.push(getWorldPosition(closestTile));
+		}
 
 		// Start working backward from the best neighbouring point
-		vec2 currentPoint = getCheapestAdjacentPoint(map, distance, visited, gridDestination);
+		vec2 currentPoint = getCheapestAdjacentPoint(map, distance, visited, closestTile);
 
 		// Keep going until we're back at the source
 		while (currentPoint != gridSource)
