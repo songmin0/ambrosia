@@ -28,6 +28,7 @@ endif()
 SET(SOURCE_FILES
         "src/main.cpp"
         "src/ai/ai.cpp"
+        "src/ai/behaviour_tree.cpp"
         "src/animation/animation_components.cpp"
         "src/animation/animation_system.cpp"
         "src/entities/egg.cpp"
@@ -37,6 +38,7 @@ SET(SOURCE_FILES
         "src/entities/chia.cpp"
         "src/entities/tiny_ecs.cpp"
         "src/game/camera.cpp"
+        "src/game/camera_system.cpp"
         "src/game/common.cpp"
         "src/game/turn_system.cpp"
         "src/game/world.cpp"

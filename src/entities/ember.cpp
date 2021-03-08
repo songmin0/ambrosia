@@ -107,7 +107,7 @@ ECS::Entity Ember::createEmber(json configValues)
 	boneThrowParams.instigator = entity;
 	boneThrowParams.animationType = AnimationType::ATTACK3;
 	boneThrowParams.delay = 0.6f;
-	boneThrowParams.damage = 50.f;
+	boneThrowParams.damage = 35.f;
 	boneThrowParams.collidesWith = CollisionGroup::MOB;
 	boneThrowParams.soundEffect = SoundEffect::PROJECTILE;
 	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<ProjectileSkill>(boneThrowParams, ProjectileType::BONE));
@@ -195,7 +195,7 @@ ECS::Entity Ember::createEmber(vec2 position)
 	meleeParams.instigator = entity;
 	meleeParams.animationType = AnimationType::ATTACK1;
 	meleeParams.delay = 1.f;
-	meleeParams.damage = 20.f;
+	meleeParams.damage = 30.f;
 	meleeParams.range = 200.f;
 	meleeParams.collideWithMultipleEntities = false;
 	meleeParams.collidesWith = CollisionGroup::MOB;
@@ -224,7 +224,7 @@ ECS::Entity Ember::createEmber(vec2 position)
 	boneThrowParams.instigator = entity;
 	boneThrowParams.animationType = AnimationType::ATTACK3;
 	boneThrowParams.delay = 0.6f;
-	boneThrowParams.damage = 50.f;
+	boneThrowParams.damage = 35.f;
 	boneThrowParams.collidesWith = CollisionGroup::MOB;
 	boneThrowParams.soundEffect = SoundEffect::PROJECTILE;
 	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<ProjectileSkill>(boneThrowParams, ProjectileType::BONE));

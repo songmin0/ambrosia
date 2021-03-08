@@ -4,6 +4,7 @@
 #include "game/event_system.hpp"
 #include "entities/tiny_ecs.hpp"
 #include "maps/path_finding_system.hpp"
+#include "ai/behaviour_tree.hpp"
 
 #include <vector>
 
@@ -11,7 +12,7 @@
 class AISystem
 {
 public:
-	AISystem(const PathFindingSystem& pfs);
+	AISystem(PathFindingSystem& pfs);
 	~AISystem();
 
 	void step(float elapsed_ms, vec2 window_size_in_game_units);
@@ -19,22 +20,25 @@ public:
 	// Holds information
 	struct MobComponent
 	{
-		ECS::Entity target;	// the (player) target of the mob
-		ECS::Entity getTargetEntity();
-		void setTargetEntity(ECS::Entity);
+		ECS::Entity closestPlayer;	// the closest player to mob
+		ECS::Entity getClosestPlayer();
+		void setClosestPlayer(ECS::Entity);
 	};
 
 private:
-	bool getClosestPlayer(vec2 position, ECS::Entity& closestPlayerOut);
+	bool getClosestPlayer(ECS::Entity& mob);
 
-	void startMobMovement(ECS::Entity entity);
+	void startMobMoveCloser(ECS::Entity entity);
+	void startMobRunAway(ECS::Entity entity);
 	void startMobSkill(ECS::Entity entity);
 
-	void onStartMobMovementEvent(const StartMobMovementEvent& event);
+	void onStartMobMoveCloserEvent(const StartMobMoveCloserEvent& event);
+	void onStartMobRunAwayEvent(const StartMobRunAwayEvent& event);
 	void onStartMobSkillEvent(const StartMobSkillEvent& event);
 
-	EventListenerInfo startMobMovementListener;
+	EventListenerInfo startMobMoveCloserListener;
+	EventListenerInfo startMobRunAwayListener;
 	EventListenerInfo startMobSkillListener;
 
-	const PathFindingSystem& pathFindingSystem;
+	PathFindingSystem& pathFindingSystem;
 };

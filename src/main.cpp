@@ -6,6 +6,7 @@
 #include <chrono>
 
 // internal
+#include "game/camera_system.hpp"
 #include "game/common.hpp"
 #include "game/world.hpp"
 #include "game/turn_system.hpp"
@@ -15,6 +16,7 @@
 #include "physics/debug.hpp"
 #include "physics/projectile_system.hpp"
 #include "ai/ai.hpp"
+#include "ai/behaviour_tree.hpp"
 #include "animation/animation_system.hpp"
 #include "maps/path_finding_system.hpp"
 #include "ui/ui_system.hpp"
@@ -42,10 +44,12 @@ int main()
 	WorldSystem world(window_size_in_px);
 	ParticleSystem particleSystem;
 	particleSystem.emitters.push_back(std::make_shared<BasicEmitter>(BasicEmitter(5)));
+	CameraSystem camera(window_size_in_px);
 	RenderSystem renderer(*world.window, &particleSystem);
 	PhysicsSystem physics;
 	PathFindingSystem pathFindingSystem;
 	AISystem ai(pathFindingSystem);
+	StateSystem stateSystem;
 	TurnSystem turnSystem(pathFindingSystem);
 	AnimationSystem animations;
 	UISystem ui;
@@ -79,6 +83,7 @@ int main()
 			DebugSystem::clearDebugComponents();
 			ai.step(deltaTime, window_size_in_game_units);
 			world.step(deltaTime, window_size_in_game_units);
+			camera.step(deltaTime);
 			physics.step(deltaTime, window_size_in_game_units);
 			world.handleCollisions();
 			projectileSystem.step(deltaTime);
@@ -86,6 +91,7 @@ int main()
 			statsSystem.step(deltaTime);
 			animations.step();
 			turnSystem.step(deltaTime);
+			stateSystem.step(deltaTime);
 			particleSystem.step(deltaTime);
 			renderer.draw(window_size_in_game_units);
 

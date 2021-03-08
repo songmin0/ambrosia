@@ -110,6 +110,27 @@ void UISystem::onMouseClick(const RawMouseClickEvent& event)
 	EventSystem<MouseClickEvent>::instance().sendEvent(MouseClickEvent{ event.mousePos + cameraPos });
 }
 
+void UISystem::enableMoveButton(bool doEnable)
+{
+	auto& moveButtonState = ECS::registry<MoveButtonComponent>.entities.front().get<ButtonStateComponent>();
+	moveButtonState.isDisabled = !doEnable;
+	moveButtonState.isActive = doEnable;
+}
+
+void UISystem::enableSkillButtons(bool doEnable)
+{
+	for (auto& entity : ECS::registry<SkillButton>.entities)
+	{
+		assert(entity.has<ButtonStateComponent>() && entity.has<SkillInfoComponent>());
+		auto& buttonState = entity.get<ButtonStateComponent>();
+		if (entity.get<SkillInfoComponent>().skillType != SkillType::MOVE)
+		{
+			buttonState.isActive = doEnable;
+			buttonState.isDisabled = !doEnable;
+		}
+	}
+}
+
 void UISystem::updatePlayerSkillButton(ECS::Entity& entity)
 {
 	if (entity.has<PlayerComponent>() && entity.has< TurnSystem::TurnComponent>())
@@ -132,20 +153,35 @@ void UISystem::updatePlayerSkillButton(ECS::Entity& entity)
 		// sync buttons to current action
 		if (turnComponent.canStartMoving()) // for now, this means they can't use skills yet
 		{
+			enableMoveButton(true);
+			enableSkillButtons(false);
 			activateSkillButton(SkillType::MOVE);
 		}
 		else if (turnComponent.canStartSkill())
 		{
+			enableMoveButton(false);
+			enableSkillButtons(true);
 			const auto& skillType = entity.get<SkillComponent>().getActiveSkillType();
 			activateSkillButton(skillType);
 		}
+	}
+	else
+	{
+		enableMoveButton(false);
+		enableSkillButtons(false);
 	}
 }
 
 void UISystem::onMoveFinished(const FinishedMovementEvent& event)
 {
 	auto entity = event.entity;
-	updatePlayerSkillButton(entity);
+	if (entity.has<SkillComponent>() && entity.has<PlayerComponent>())
+	{
+		enableMoveButton(false);
+		enableSkillButtons(true);
+		const auto& skillType = entity.get<SkillComponent>().getActiveSkillType();
+		activateSkillButton(skillType);
+	}
 }
 
 // Handles highlighting player buttons on player change and swapping skill UI
@@ -311,18 +347,14 @@ void UISystem::activateSkillButton(const SkillType& skillType)
 		assert(entity.has<SkillInfoComponent>() && entity.has<ButtonStateComponent>());
 		auto skillInfo = entity.get<SkillInfoComponent>();
 		auto& buttonState = entity.get<ButtonStateComponent>();
-		if (skillInfo.skillType == skillType)
+		if (skillInfo.skillType == skillType && !buttonState.isDisabled)
 		{
-			if (!buttonState.isDisabled)
-			{
-				buttonState.isActive = true;
-				buttonState.isEnabled = false;
+			buttonState.isActive = true;
 
-				assert(ECS::registry<ActiveSkillFX>.entities.size() > 0);
-				auto& activeFX = ECS::registry<ActiveSkillFX>.entities.front();
-				activeFX.get<Motion>().position = entity.get<Motion>().position;
-				activeFX.get<VisibilityComponent>().isVisible = true;
-			}
+			assert(ECS::registry<ActiveSkillFX>.entities.size() > 0);
+			auto& activeFX = ECS::registry<ActiveSkillFX>.entities.front();
+			activeFX.get<Motion>().position = entity.get<Motion>().position;
+			activeFX.get<VisibilityComponent>().isVisible = true;
 		}
 		else
 		{
@@ -334,6 +366,11 @@ void UISystem::activateSkillButton(const SkillType& skillType)
 void UISystem::onSkillActivate(const SetActiveSkillEvent& event)
 {
 	auto player = event.entity;
+	if (!player.has<PlayerComponent>())
+	{
+		return;
+	}
+
 	auto& turnComponent = player.get<TurnSystem::TurnComponent>();
 	if (turnComponent.canStartSkill())
 	{
@@ -343,6 +380,12 @@ void UISystem::onSkillActivate(const SetActiveSkillEvent& event)
 
 void UISystem::onSkillFinished(const FinishedSkillEvent& event)
 {
+	auto player = event.entity;
+	if (!player.has<PlayerComponent>())
+	{
+		return;
+	}
+
 	for (auto& entity : ECS::registry<SkillButton>.entities)
 	{
 		assert(entity.has<ButtonStateComponent>());
@@ -350,7 +393,6 @@ void UISystem::onSkillFinished(const FinishedSkillEvent& event)
 		if (!buttonState.isDisabled)
 		{
 			buttonState.isActive = false;
-			buttonState.isEnabled = true;
 
 			assert(ECS::registry<ActiveSkillFX>.entities.size() > 0);
 			auto& activeFX = ECS::registry<ActiveSkillFX>.entities.front();

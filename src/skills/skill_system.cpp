@@ -93,9 +93,6 @@ void SkillSystem::onPerformSkillEvent(const PerformActiveSkillEvent &event)
 
 		if (activeSkill)
 		{
-			// Start the animation immediately
-			activeSkill->performAnimation();
-
 			// Queue the skill so that it gets executed once the timer reaches zero (to allow for syncing up the animation
 			// with the execution of the skill)
 			QueuedSkill queuedSkill;

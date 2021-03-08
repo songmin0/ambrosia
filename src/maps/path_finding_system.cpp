@@ -1,32 +1,33 @@
 #include "path_finding_system.hpp"
+#include "ai/ai.hpp"
 
 #include <queue>
 
-std::stack<vec2> PathFindingSystem::getShortestPath(vec2 source, vec2 destination) const
+std::stack<vec2> PathFindingSystem::getShortestPath(ECS::Entity sourceEntity, vec2 destination)
 {
 	// This will be the final result
 	std::stack<vec2> shortestPath;
 
-	// Make sure that the map exists
-	if (ECS::registry<MapComponent>.components.empty())
-	{
-		return shortestPath;
-	}
+	// It would be a bug if we don't have exactly one map loaded
+	assert(ECS::registry<MapComponent>.components.size() == 1);
 
-	// For now, just take the first/only map in the registry
-	// Check happens in if statement above
-	const MapComponent& map = ECS::registry<MapComponent>.components.front();
+	// It would be a bug if the current map has an empty grid
+	assert(!ECS::registry<MapComponent>.components.front().grid.empty());
 
-	// Should always have a valid map
-	assert(!map.grid.empty());
+	assert(sourceEntity.has<Motion>());
+	vec2 source = sourceEntity.get<Motion>().position;
+
+	setCurrentObstacles(sourceEntity);
 
 	// Convert the source and destination points to grid coordinates
-	vec2 gridSource = round(source / map.tileSize);
-	vec2 gridDestination = round(destination / map.tileSize);
+	vec2 gridSource = getGridPosition(source);
+	vec2 gridDestination = getGridPosition(destination);
 
-	// If the destination is not on the map, not walkable, or too close to the source, return an empty path
-	if (!isValidPoint(map, gridDestination) || !isWalkablePoint(map, gridDestination)
-			|| gridSource == gridDestination || !isWalkablePoint(map, gridSource))
+	// Not totally needed, but I'm just grabbing a reference to the map here
+	const MapComponent& map = getMap();
+
+	// If the destination is too close to the source, return an empty path
+	if (gridSource == gridDestination || !isWalkablePoint(map, gridSource))
 	{
 		return shortestPath;
 	}
@@ -46,6 +47,12 @@ std::stack<vec2> PathFindingSystem::getShortestPath(vec2 source, vec2 destinatio
 
 	visited[gridSource.y][gridSource.x] = true;
 	distance[gridSource.y][gridSource.x] = 0;
+
+	// If it's not possible to walk all the way to the destination, then it navigates to the walkable tile which is
+	// closest to the source.
+	constexpr auto float_max = std::numeric_limits<float>::max();
+	vec2 closestTile = gridSource;
+	float closestDistance = float_max;
 
 	// Keep searching until destination is reached or the queue is empty (i.e., no possible way to reach destination)
 	while (!queue.empty())
@@ -73,6 +80,13 @@ std::stack<vec2> PathFindingSystem::getShortestPath(vec2 source, vec2 destinatio
 				{
 					distance[adjacentPoint.y][adjacentPoint.x] = distance[currentPoint.y][currentPoint.x] + 1;
 					queue.push(adjacentPoint);
+
+					float distanceToDest = glm::distance(adjacentPoint, gridDestination);
+					if (distanceToDest < closestDistance)
+					{
+						closestDistance = distanceToDest;
+						closestTile = adjacentPoint;
+					}
 				}
 					// Otherwise, invalidate the distance, just to be safe
 				else
@@ -89,27 +103,28 @@ std::stack<vec2> PathFindingSystem::getShortestPath(vec2 source, vec2 destinatio
 		checkPoint(vec2(currentPoint.x, currentPoint.y + 1));
 	}
 
-	// If destination was visited, then a path exists. Go backward (from destination to source) to find shortest path
-	if (visited[gridDestination.y][gridDestination.x])
+	// Go backward from the point that was reached (which might be the destination or might be the closest point to the
+	// destination) and find the shortest path back to the source
+	if (closestDistance < float_max)
 	{
-		// Add the actual destination to the path
-		shortestPath.push(destination);
+		// Add the destination tile as the last point in the path
+		shortestPath.push(getWorldPosition(closestTile));
 
 		// Start working backward from the best neighbouring point
-		vec2 currentPoint = getCheapestAdjacentPoint(map, distance, visited, gridDestination);
+		vec2 currentPoint = getCheapestAdjacentPoint(map, distance, visited, closestTile);
 
 		// Keep going until we're back at the source
 		while (currentPoint != gridSource)
 		{
 			// Add the current point to the path, putting it back into the proper coordinate system
-			shortestPath.push(currentPoint * map.tileSize);
+			shortestPath.push(getWorldPosition(currentPoint));
 
 			// Get the neighbour with the shortest distance to the source
 			currentPoint = getCheapestAdjacentPoint(map, distance, visited, currentPoint);
 		}
 
 		// Add the source point to the path
-		shortestPath.push(currentPoint * map.tileSize);
+		shortestPath.push(getWorldPosition(currentPoint));
 	}
 
 	return shortestPath;
@@ -124,8 +139,9 @@ bool PathFindingSystem::isValidPoint(const MapComponent& map, vec2 point) const
 
 bool PathFindingSystem::isWalkablePoint(const MapComponent& map, vec2 point) const
 {
-	// Check that the point is marked as walkable
-	return map.grid[point.y][point.x] == 3;
+	// Check that the point is marked as walkable and there's no obstacle at that position
+	return map.grid[point.y][point.x] == 3 &&
+		std::find(obstacles.begin(), obstacles.end(), point) == obstacles.end();
 }
 
 vec2 PathFindingSystem::getCheapestAdjacentPoint(const MapComponent& map,
@@ -180,4 +196,27 @@ vec2 PathFindingSystem::getCheapestAdjacentPoint(const MapComponent& map,
 	visited[point.y][point.x] = false;
 
 	return bestPoint;
+}
+
+void PathFindingSystem::setCurrentObstacles(ECS::Entity sourceEntity)
+{
+	obstacles.clear();
+
+	for (auto entity : ECS::registry<Motion>.entities)
+	{
+		if (entity.has<PlayerComponent>() || entity.has<AISystem::MobComponent>())
+		{
+			// The entity whose path we are generating can't be an obstacle
+			if (entity.id == sourceEntity.id)
+			{
+				continue;
+			}
+
+			if (entity.has<Motion>())
+			{
+				// Store this entity as an obstacle in the grid
+				obstacles.push_back(getGridPosition(entity.get<Motion>().position));
+			}
+		}
+	}
 }

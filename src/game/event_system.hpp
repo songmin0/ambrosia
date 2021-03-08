@@ -43,10 +43,17 @@ public:
 	// Send an event to all who are listening for that event
 	void sendEvent(T event)
 	{
+   //Make sure that if we are looping through all the listeners that if someone decideds to unlisten it doesn't break everything because if we allow deletes while we are iterating over the map it breaks.
+   sendingEvents = true;
 		for (const auto& listener : eventListeners)
 		{
 			listener.second(event);
 		}
+  sendingEvents = false;
+  for (auto info : listenersToDelete) {
+    unregisterListener(info);
+  }
+  listenersToDelete.clear();
 	}
 
 	// Register a callback for events
@@ -64,8 +71,13 @@ public:
 	// when registering it
 	void unregisterListener(EventListenerInfo& info)
 	{
-		eventListeners.erase(info.getID());
-		info.uninitialize();
+   if (!sendingEvents) {
+     eventListeners.erase(info.getID());
+     info.uninitialize();
+   }
+   else {
+     listenersToDelete.push_back(info);
+   }
 	}
 
 private:
@@ -86,6 +98,11 @@ private:
 
 	// Event listeners
 	std::unordered_map<int, EventListener> eventListeners;
+
+ //listeners to be deleted
+ std::vector<EventListenerInfo> listenersToDelete;
+
+ bool sendingEvents = false;
 };
 
 /**
