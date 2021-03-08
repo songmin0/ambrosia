@@ -1,10 +1,11 @@
 #pragma once
 #include "common.hpp"
 #include "entities/tiny_ecs.hpp"
-#include "render_components.hpp"
+#include "rendering/render_components.hpp"
 
 #include <vector>
 #include <string>
+#include <memory>
 
 
 class ParticleEmitter;
@@ -12,7 +13,7 @@ class ParticleEmitter;
 // CPU representation of a particle
 struct Particle {
 		glm::vec3 pos, speed; //position and speed of the particle
-		unsigned char r, g, b, a; // Color of the particle
+		float r, g, b, a; // Color of the particle
 		float size; //The size of the particle
 		float life; // How much remaining time the particle has. if life < 0 then the particle is dead
 };
@@ -32,7 +33,9 @@ public:
 
 		void createParticles(int numParticles);
 
-		static const int MaxParticles = 10000;
+		static const int MaxParticles = 100;
+		//All of the emitters
+		std::vector<std::shared_ptr<ParticleEmitter>> emitters;
 
 
 
@@ -52,8 +55,7 @@ private:
 		Effect shaderProgram;
 		Texture particleTexture;
 
-		//All of the emitters
-		std::vector<ParticleEmitter> emitters;
+
 
 
 		static const GLfloat particleVertexBufferData[];
@@ -63,7 +65,7 @@ private:
 		int particlesCount = 0;
 
 		GLfloat particleCenterPositionAndSizeData[MaxParticles * 4];
-		GLubyte particleColorData[MaxParticles * 4];
+		GLfloat particleColorData[MaxParticles * 4];
 
 		float secSinceLastParticleSpawn;
 
@@ -76,19 +78,20 @@ private:
 //This is a base class for all particle emitters
 class ParticleEmitter{
 public:
-		ParticleEmitter(int particlesPerSecond);
-		void initEmitter(std::string particleTextureFile);
-		virtual void simulateParticles(float elapsedMs, int numNewParticles) = 0;
-		virtual void createParticle(int index) = 0;
+		ParticleEmitter();
+		virtual void initEmitter()=0;
+		virtual void simulateParticles(float elapsedMs, int numNewParticles)=0;
+		virtual void createParticle(int index)=0;
 		void step(float elapsedMs);
+		void drawParticles(GLuint vertexBuffer, GLuint cameraRightWorldspaceID, GLuint cameraUpWorldspaceID,GLuint projectionMatrixID, const mat3& projection);
 protected:
 		GLuint particlesCenterPositionAndSizeBuffer;
 		GLuint particlesColorBuffer;
 		GLuint VertexArrayID;
+		Effect shaderProgram;
 		Texture particleTexture;
 		int particlesPerSecond;
-		float msSinceLastParticleSpawn;
-
+		float secSinceLastParticleSpawn;
 
 
 		Particle ParticlesContainer[ParticleSystem::MaxParticles];
@@ -96,13 +99,22 @@ protected:
 		int particlesCount = 0;
 
 		GLfloat particleCenterPositionAndSizeData[ParticleSystem::MaxParticles * 4];
-		GLubyte particleColorData[ParticleSystem::MaxParticles * 4];
+		GLfloat particleColorData[ParticleSystem::MaxParticles * 4];
+
+private:
+		void updateGPU();
+		void prepRender(GLuint vertexBuffer);
+
+
+
 
 };
 
 class BasicEmitter : public ParticleEmitter {
 public:
-		void simulateParticles(float elapsedMs, int numNewParticles);
+		BasicEmitter(int particlesPerSecond);
+	 void initEmitter();
+	 void simulateParticles(float elapsedMs, int numNewParticles);
 		void createParticle(int index);
 };
 

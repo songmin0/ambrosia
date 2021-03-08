@@ -43,6 +43,7 @@ int main()
 	// Initialize the main systems
 	WorldSystem world(window_size_in_px);
 	ParticleSystem particleSystem;
+	particleSystem.emitters.push_back(std::make_shared<BasicEmitter>(BasicEmitter(5)));
 	CameraSystem camera(window_size_in_px);
 	RenderSystem renderer(*world.window, &particleSystem);
 	PhysicsSystem physics;
@@ -58,6 +59,7 @@ int main()
 
 	// Set all states to default
 	world.restart();
+
 
 	float dtMax = (1.f / 60.f) * 1000.f; // 60 FPS
 
