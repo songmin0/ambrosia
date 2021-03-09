@@ -127,9 +127,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 	}
 
-	//// Temporary Hard-coded Level Restarter
-	if (ECS::registry<Egg>.entities.size() == 0 && ECS::registry<Pepper>.entities.size() == 0 && ECS::registry<Potato>.entities.size() == 0) 
-	{
+	if (ECS::registry<AISystem::MobComponent>.entities.size() == 0) {
 		LevelLoader lc;
 		config = lc.readLevel("dessert-arena");
 		restart();
