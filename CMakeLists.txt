@@ -36,6 +36,7 @@ SET(SOURCE_FILES
         "src/entities/taji.cpp"
         "src/entities/ember.cpp"
         "src/entities/chia.cpp"
+        "src/entities/enemies.cpp"
         "src/entities/tiny_ecs.cpp"
         "src/game/camera.cpp"
         "src/game/camera_system.cpp"

@@ -12,6 +12,7 @@
 #include "entities/ember.hpp"
 #include "entities/chia.hpp"
 #include "entities/egg.hpp"
+#include "entities/enemies.hpp"
 #include "rendering/render_components.hpp"
 #include "animation/animation_components.hpp"
 #include "maps/map_objects.hpp"
@@ -343,6 +344,10 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 		auto type = mob["type"];
 		if (type == "egg") {
 			Egg::createEgg({ mob.at("position")[0], mob["position"][1] });
+		}
+		else if (type == "pepper")
+		{
+			Pepper::createPepper({ mob.at("position")[0], mob["position"][1] });
 		}
 	}
 }
