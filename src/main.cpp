@@ -40,7 +40,7 @@ struct Description {
 // Entry point
 int main()
 {
-	// Initialize the main systems
+	// Initialize the main systems 
 	WorldSystem world(window_size_in_px);
 	ParticleSystem particleSystem;
 	particleSystem.emitters.push_back(std::make_shared<BasicEmitter>(BasicEmitter(5)));
