@@ -40,9 +40,17 @@
       "type": "egg",
 	  "position": [2400, 1100]
     },
-	{
-      "type": "egg",
-	  "position": [2550, 900]
+    {
+        "type": "egg",
+        "position": [ 2550, 900 ]
+    },
+    {
+        "type": "pepper",
+        "position": [ 750, 900 ]
+    },
+    {
+        "type": "pepper",
+        "position": [ 850, 1100 ]
     }
   ]
 }
