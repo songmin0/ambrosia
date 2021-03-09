@@ -11,7 +11,6 @@
 #include "entities/taji.hpp"
 #include "entities/ember.hpp"
 #include "entities/chia.hpp"
-#include "entities/egg.hpp"
 #include "entities/enemies.hpp"
 #include "rendering/render_components.hpp"
 #include "animation/animation_components.hpp"
