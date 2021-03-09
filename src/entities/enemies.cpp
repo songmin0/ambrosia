@@ -75,16 +75,17 @@ ECS::Entity Pepper::createPepper(vec2 pos)
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
 
-	// TODO: Give Pepper its own attack
-	// Egg shell projectile
-	SkillParams eggShellParams;
-	eggShellParams.instigator = entity;
-	eggShellParams.animationType = AnimationType::ATTACK1;
-	eggShellParams.delay = 0.6f;
-	eggShellParams.damage = 30.f;
-	eggShellParams.collidesWith = CollisionGroup::PLAYER;
-	eggShellParams.soundEffect = SoundEffect::PROJECTILE;
-	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(eggShellParams, ProjectileType::EGG_SHELL));
+	// Melee hit
+	SkillParams meleeParams;
+	meleeParams.instigator = entity;
+	meleeParams.animationType = AnimationType::ATTACK1;
+	meleeParams.delay = 1.f;
+	meleeParams.damage = 40.f;
+	meleeParams.range = 200.f;
+	meleeParams.collideWithMultipleEntities = false;
+	meleeParams.collidesWith = CollisionGroup::PLAYER;
+	meleeParams.soundEffect = SoundEffect::MELEE;
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<MeleeSkill>(meleeParams));
 
 	entity.emplace<Pepper>();
 	return entity;
