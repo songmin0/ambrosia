@@ -78,9 +78,6 @@ ECS::Entity Egg::createEgg(vec2 pos)
 	);
 	anims.addAnimation(AnimationType::DEFEAT, *defeat_anim);
 
-	// start off moving
-	anims.changeAnimation(AnimationType::MOVE);
-
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
 	statsComponent.stats[StatType::HP] = 100.f;
