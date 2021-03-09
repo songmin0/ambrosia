@@ -1,7 +1,7 @@
 #include "ui_entities.hpp"
 #include "rendering/render.hpp"
 
-ECS::Entity HPBar::createHPBar(vec2 position)
+ECS::Entity HPBar::createHPBar(vec2 position, vec2 scale)
 {
 	auto entity = ECS::Entity();
 
@@ -18,7 +18,7 @@ ECS::Entity HPBar::createHPBar(vec2 position)
 	motion.position = position;
 	motion.angle = 0.f;
 	motion.velocity = vec2(0.f);
-	motion.scale = vec2(0.5f, 0.4f);
+	motion.scale = scale;
 	motion.boundingBox = vec2(0.f);
 
 	ECS::registry<HPBar>.emplace(entity);

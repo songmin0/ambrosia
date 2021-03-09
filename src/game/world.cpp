@@ -128,7 +128,9 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 	}
 
-	if (ECS::registry<Egg>.entities.size() == 0) {
+	//// Temporary Hard-coded Level Restarter
+	if (ECS::registry<Egg>.entities.size() == 0 && ECS::registry<Pepper>.entities.size() == 0 && ECS::registry<Potato>.entities.size() == 0) 
+	{
 		LevelLoader lc;
 		config = lc.readLevel("dessert-arena");
 		restart();
@@ -337,6 +339,9 @@ void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 {
+	// Potato test
+	//Potato::createPotato({ 900.f, 800.f });
+
 	// TODO: come back and expand this when we have multiple mobs
 	auto mobs = config.at("mobs");
 
@@ -392,10 +397,10 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		anim.changeAnimation(AnimationType::ATTACK1);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_4) {
-		for (auto entity : ECS::registry<Egg>.entities)
+		for (auto entity : ECS::registry<Potato>.entities)
 		{
 			auto& anim = entity.get<AnimationsComponent>();
-			anim.changeAnimation(AnimationType::HIT);
+			anim.changeAnimation(AnimationType::ATTACK2);
 		}
 	}
 

@@ -6,3 +6,9 @@ struct Pepper
 {
 	static ECS::Entity createPepper(vec2 pos);
 };
+
+struct Potato
+{
+	static ECS::Entity createPotato(vec2 pos);
+};
+
