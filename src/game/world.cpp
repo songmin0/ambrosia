@@ -345,10 +345,11 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 		if (type == "egg") {
 			Egg::createEgg({ mob.at("position")[0], mob["position"][1] });
 		}
-		else if (type == "pepper")
-		{
-			Pepper::createPepper({ mob.at("position")[0], mob["position"][1] });
-		}
+		// Commented out for M2 crossplay
+		//else if (type == "pepper")
+		//{
+		//	Pepper::createPepper({ mob.at("position")[0], mob["position"][1] });
+		//}
 	}
 }
 
