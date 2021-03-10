@@ -154,11 +154,16 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	GLuint percentHP_uloc = glGetUniformLocation(texmesh.effect.program, "percentHP");
 	if (percentHP_uloc >= 0)
 	{
-			if (entity.has<HPBar>()) {
-					auto& statsComp = entity.get<HPBar>().statsCompEntity.get<StatsComponent>();
-					//This assumes all entities have a max health of 100
-					glUniform1f(percentHP_uloc, statsComp.getStatValue(StatType::HP) / 100.0f);
-			}
+		GLuint percentShield_uloc = glGetUniformLocation(texmesh.effect.program, "percentShield");
+		float HPshield = 0.f; 
+		// TODO: Pass in correct %HP shield
+		glUniform1f(percentShield_uloc, HPshield);
+
+		if (entity.has<HPBar>()) {
+				auto& statsComp = entity.get<HPBar>().statsCompEntity.get<StatsComponent>();
+				//This assumes all entities have a max health of 100
+				glUniform1f(percentHP_uloc, statsComp.getStatValue(StatType::HP) / 100.0f);
+		}
 	}
 
 	// Getting uniform locations for glUniform* calls
