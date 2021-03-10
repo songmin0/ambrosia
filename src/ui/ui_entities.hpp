@@ -7,7 +7,7 @@
 struct HPBar
 {
 	static ECS::Entity createHPBar(vec2 position, vec2 scale = vec2(0.5f, 0.4f));
-	vec2 offset;
+	vec2 offset = vec2(0.f);
 	ECS::Entity statsCompEntity;
 };
 

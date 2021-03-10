@@ -33,22 +33,26 @@ ECS::Entity Chia::createChia(json configValues)
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 
 	// Animations
-	auto idle_anim = new AnimationData(
-			"chia_idle", spritePath("players/chia/idle/idle"), 61);
+	auto idle_anim = new AnimationData("chia_idle", spritePath("players/chia/idle/idle"), 61);
 	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, *idle_anim);
 
-	auto move_anim = new AnimationData(
-			"chia_move", spritePath("players/chia/move/move"), 32);
+	auto move_anim = new AnimationData("chia_move", spritePath("players/chia/move/move"), 32);
 	anims.addAnimation(AnimationType::MOVE, *move_anim);
 
-	auto attack1 = new AnimationData(
-		"chia_attack1", spritePath("players/chia/attack1/attack1"), 72, 1, true, false, vec2({ 0.f, 0.037f })
-	);
+	auto hit = new AnimationData("chia_hit", spritePath("players/chia/hit/hit"), 34, 1, true, false);
+	anims.addAnimation(AnimationType::HIT, *hit);
+
+	auto defeat = new AnimationData("chia_defeat", spritePath("players/chia/defeat/defeat"), 41, 1, true, false);
+	anims.addAnimation(AnimationType::DEFEAT, *defeat);
+
+	auto attack1 = new AnimationData("chia_attack1", spritePath("players/chia/attack1/attack1"), 41, 1, true, false, vec2({ 0.08f, 0.f }));
 	anims.addAnimation(AnimationType::ATTACK1, *attack1);
 
-	// Temporary
-	anims.addAnimation(AnimationType::ATTACK2, *attack1);
-	anims.addAnimation(AnimationType::ATTACK3, *attack1);
+	auto attack2 = new AnimationData("chia_attack2", spritePath("players/chia/attack2/attack2"), 64, 1, true, false, vec2({ -0.f, 0.04f }));
+	anims.addAnimation(AnimationType::ATTACK2, *attack2);
+
+	auto attack3 = new AnimationData("chia_attack3", spritePath("players/chia/attack3/attack3"), 64, 1, true, false, vec2({ -0.f, 0.04f }));
+	anims.addAnimation(AnimationType::ATTACK3, *attack3);
 
 	entity.emplace<Chia>();
 

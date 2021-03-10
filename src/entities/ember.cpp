@@ -33,22 +33,26 @@ ECS::Entity Ember::createEmber(json configValues)
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 
 	// Animations
-	auto idle_anim = new AnimationData(
-			"ember_idle", spritePath("players/ember/idle/idle"), 60);
+	auto idle_anim = new AnimationData("ember_idle", spritePath("players/ember/idle/idle"), 60);
 	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, *idle_anim);
 
-	auto move_anim = new AnimationData(
-			"ember_move", spritePath("players/ember/move/move"), 32);
+	auto move_anim = new AnimationData("ember_move", spritePath("players/ember/move/move"), 32);
 	anims.addAnimation(AnimationType::MOVE, *move_anim);
 
-	auto attack1 = new AnimationData(
-		"ember_attack1", spritePath("players/ember/attack1/attack1"), 71, 1, true, false, vec2({ 0.042f, 0.39f })
-	);
+	auto attack1 = new AnimationData("ember_attack1", spritePath("players/ember/attack1/attack1"), 50, 1, true, false, vec2({ -0.02f, 0.37f }));
 	anims.addAnimation(AnimationType::ATTACK1, *attack1);
 
-	// Temporary
-	anims.addAnimation(AnimationType::ATTACK2, *attack1);
-	anims.addAnimation(AnimationType::ATTACK3, *attack1);
+	auto attack2 = new AnimationData("ember_attack2", spritePath("players/ember/attack2/attack2"), 61, 1, true, false, vec2({ -0.02f, 0.37f }));
+	anims.addAnimation(AnimationType::ATTACK2, *attack2);
+
+	auto attack3 = new AnimationData("ember_attack3", spritePath("players/ember/attack3/attack3"), 61, 1, true, false, vec2({ -0.02f, 0.3f }));
+	anims.addAnimation(AnimationType::ATTACK3, *attack3);
+
+	auto defeat = new AnimationData("ember_defeat", spritePath("players/ember/defeat/defeat"), 57, 1, true, false, vec2({ -0.1f, 0.06f }));
+	anims.addAnimation(AnimationType::DEFEAT, *defeat);
+
+	auto hit = new AnimationData("ember_hit", spritePath("players/ember/hit/hit"), 34, 1, true, false);
+	anims.addAnimation(AnimationType::HIT, *hit);
 
 	entity.emplace<Ember>();
 

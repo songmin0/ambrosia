@@ -30,7 +30,7 @@ struct PlayerButtonComponent
 struct ButtonStateComponent
 {
 	ButtonStateComponent() : isActive{ false }, isDisabled{ false } {}
-	ButtonStateComponent(bool active, bool disabled, bool enabled) : isActive{ active }, isDisabled{ disabled } {}
+	ButtonStateComponent(bool active, bool disabled) : isActive{ active }, isDisabled{ disabled } {}
 	bool isActive;
 	bool isDisabled;
 };

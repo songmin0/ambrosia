@@ -50,12 +50,16 @@ ECS::Entity Taji::createTaji(json configValues, float colourShift)
 	anims.addAnimation(AnimationType::DEFEAT, *defeat);
 
 	auto attack1 = new AnimationData(
-		"taji_attack1", spritePath("players/taji/attack1/attack1"), 83, 1, true, false);
+		"taji_attack1", spritePath("players/taji/attack1/attack1"), 55, 1, true, false);
 	anims.addAnimation(AnimationType::ATTACK1, *attack1);
 
-	// temporary
-	anims.addAnimation(AnimationType::ATTACK2, *attack1);
-	anims.addAnimation(AnimationType::ATTACK3, *attack1);
+	auto attack2 = new AnimationData(
+		"taji_attack2", spritePath("players/taji/attack2/attack2"), 55, 1, true, false);
+	anims.addAnimation(AnimationType::ATTACK2, *attack2);
+
+	auto attack3 = new AnimationData(
+		"taji_attack3", spritePath("players/taji/attack3/attack3"), 83, 1, true, false);
+	anims.addAnimation(AnimationType::ATTACK3, *attack3);
 
 	entity.emplace<Taji>();
 
