@@ -157,8 +157,9 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	if (percentHP_uloc >= 0)
 	{
 		GLuint percentShield_uloc = glGetUniformLocation(texmesh.effect.program, "percentShield");
-		// 20% HP shield - TODO: Pass in correct %HP shield
-		glUniform1f(percentShield_uloc, 0.2f);
+		float HPshield = 0.f; 
+		// TODO: Pass in correct %HP shield
+		glUniform1f(percentShield_uloc, HPshield);
 
 		if (entity.has<HPBar>()) {
 				auto& statsComp = entity.get<HPBar>().statsCompEntity.get<StatsComponent>();
