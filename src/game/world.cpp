@@ -388,8 +388,8 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 
 	// Animation Test
 	if (action == GLFW_RELEASE && key == GLFW_KEY_3) {
-		auto& anim = playerChia.get<AnimationsComponent>();
-		anim.changeAnimation(AnimationType::HIT);
+		auto& anim = playerEmber.get<AnimationsComponent>();
+		anim.changeAnimation(AnimationType::ATTACK3);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_4) {
 		for (auto entity : ECS::registry<Egg>.entities)
