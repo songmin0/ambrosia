@@ -388,8 +388,8 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 
 	// Animation Test
 	if (action == GLFW_RELEASE && key == GLFW_KEY_3) {
-		auto& anim = playerTaji.get<AnimationsComponent>();
-		anim.changeAnimation(AnimationType::ATTACK1);
+		auto& anim = playerEmber.get<AnimationsComponent>();
+		anim.changeAnimation(AnimationType::ATTACK3);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_4) {
 		for (auto entity : ECS::registry<Egg>.entities)
