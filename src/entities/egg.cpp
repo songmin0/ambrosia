@@ -88,7 +88,7 @@ ECS::Entity Egg::createEgg(vec2 pos)
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
 	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f,-150.0f };
 	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
-
+	ECS::registry<HPBar>.get(statsComponent.healthBar).isMob = true;
 
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
