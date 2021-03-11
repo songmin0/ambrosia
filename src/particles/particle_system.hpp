@@ -27,7 +27,7 @@ class ParticleSystem
 public:
 		ParticleSystem();
 		void prepRender();
-		void drawParticles(const mat3& projection);
+		void drawParticles(const mat3& projection, const vec2& cameraPos);
 		void step(float elapsed_ms);
 		void initParticles();
 
@@ -49,6 +49,7 @@ private:
 		GLuint cameraRightWorldspaceID;
 		GLuint cameraUpWorldspaceID;
 		GLuint projectionMatrixID;
+		GLuint cameraPosID;
 
 		GLuint VertexArrayID;
 
@@ -83,11 +84,12 @@ public:
 		virtual void simulateParticles(float elapsedMs, int numNewParticles)=0;
 		virtual void createParticle(int index)=0;
 		void step(float elapsedMs);
-		void drawParticles(GLuint vertexBuffer, GLuint cameraRightWorldspaceID, GLuint cameraUpWorldspaceID,GLuint projectionMatrixID, const mat3& projection);
+		void drawParticles(GLuint vertexBuffer, GLuint cameraRightWorldspaceID, GLuint cameraUpWorldspaceID,GLuint projectionMatrixID, const mat3& projection, const vec2& cameraPos);
 protected:
 		GLuint particlesCenterPositionAndSizeBuffer;
 		GLuint particlesColorBuffer;
 		GLuint VertexArrayID;
+		GLuint cameraPosID;
 		Effect shaderProgram;
 		Texture particleTexture;
 		int particlesPerSecond;

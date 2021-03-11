@@ -443,7 +443,10 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 
 		gl_has_errors();
 	}
-	particleSystem->drawParticles(projection_2D);
+	auto camera = ECS::registry<CameraComponent>.entities[0];
+	auto& cameraComponent = camera.get<CameraComponent>();
+	assert(!ECS::registry<CameraComponent>.entities.empty());
+	particleSystem->drawParticles(projection_2D,cameraComponent.position);
 	// Truely render to the screen
 	drawToScreen();
 
