@@ -44,6 +44,26 @@ ProjectileParams ProjectileParams::create(ProjectileType type, float damage)
 		params.damage = damage;
 		params.trajectory = Trajectory::LINEAR;
 	}
+	else if (type == ProjectileType::DAMAGE_ORB)
+	{
+		params.spritePath = "enemies/milk/damage-orb";
+		params.spriteScale = vec2(1.f);
+		params.launchOffset = { 0.f, -75.f };
+		params.launchSpeed = 300.f;
+		params.rotationSpeed = 200.f;
+		params.damage = damage;
+		params.trajectory = Trajectory::LINEAR;
+	}
+	else if (type == ProjectileType::HEAL_ORB)
+	{
+		params.spritePath = "enemies/milk/heal-orb";
+		params.spriteScale = vec2(1.f);
+		params.launchOffset = { 0.f, -75.f };
+		params.launchSpeed = 300.f;
+		params.rotationSpeed = 200.f;
+		params.damage = -damage; // hacky heal, won't prevent HP overflow
+		params.trajectory = Trajectory::LINEAR;
+	}
 
 	return params;
 }
