@@ -72,6 +72,7 @@ ECS::Entity Egg::createEgg(vec2 pos)
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
 	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f,-150.0f };
 	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
+	ECS::registry<HPBar>.get(statsComponent.healthBar).isMob = true;
 
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
@@ -151,6 +152,7 @@ ECS::Entity Pepper::createPepper(vec2 pos)
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
 	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f, -250.0f };
 	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
+	ECS::registry<HPBar>.get(statsComponent.healthBar).isMob = true;
 
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
@@ -231,6 +233,7 @@ ECS::Entity Potato::createPotato(vec2 pos)
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f }, { 1.f, 0.55f });
 	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f, -380.0f };
 	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
+	ECS::registry<HPBar>.get(statsComponent.healthBar).isMob = true;
 
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
@@ -321,6 +324,7 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent)
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f }, { 1.f, 0.55f });
 	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f, -380.0f };
 	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
+	ECS::registry<HPBar>.get(statsComponent.healthBar).isMob = true;
 
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
@@ -391,6 +395,7 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
 	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f, -130.0f };
 	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
+	ECS::registry<HPBar>.get(statsComponent.healthBar).isMob = true;
 
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
