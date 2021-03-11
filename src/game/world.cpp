@@ -341,7 +341,7 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 	auto mobs = config.at("mobs");
 	
 	// Milk test
-	//Milk::createMilk(vec2(700.f, 500.f));
+	//Milk::createMilk(vec2(700.f, 500.f), -1.f);
 
 	for (json mob : mobs) {
 		auto type = mob["type"];

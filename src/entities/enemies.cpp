@@ -152,15 +152,17 @@ ECS::Entity Milk::createMilk(vec2 pos, float orientation)
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
 
-	// Heal
-	SkillParams rangedAttackParams;
-	rangedAttackParams.instigator = entity;
-	rangedAttackParams.animationType = AnimationType::ATTACK1;
-	rangedAttackParams.delay = 0.3f;
-	rangedAttackParams.damage = 20.f; // this is "healing"
-	rangedAttackParams.collidesWith = CollisionGroup::MOB;
-	rangedAttackParams.soundEffect = SoundEffect::PROJECTILE;
-	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(rangedAttackParams, ProjectileType::HEAL_ORB));
+	// Hacky Heal TODO: make a better heal
+	SkillParams healParams;
+	healParams.instigator = entity;
+	healParams.animationType = AnimationType::ATTACK1;
+	healParams.delay = 0.3f;
+	healParams.damage = 20.f; // this is "healing"
+	healParams.collidesWith = CollisionGroup::MOB;
+	healParams.collideWithMultipleEntities = false;
+	healParams.ignoreInstigator = false; // TODO: if true it never heals itself, if false it only ever heals itself
+	healParams.soundEffect = SoundEffect::PROJECTILE;
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(healParams, ProjectileType::HEAL_ORB));
 
 	// Use a ranged attack if there's no ally to heal
 	SkillParams rangedAttackParams;
