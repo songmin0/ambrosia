@@ -34,8 +34,6 @@ ECS::Entity Egg::createEgg(vec2 pos)
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = pos;
-	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
 	motion.scale = vec2({ 0.8f, 0.8f });
 	motion.orientation = -1;
 	motion.colliderType = CollisionGroup::MOB;
@@ -115,8 +113,6 @@ ECS::Entity Pepper::createPepper(vec2 pos)
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = pos;
-	motion.angle = 0.f;
-	motion.velocity = vec2(0.f);
 	motion.scale = vec2(0.9f);
 	motion.orientation = -1;
 	auto hitboxScale = vec2({ 0.4f, 0.7f });
@@ -198,8 +194,6 @@ ECS::Entity Potato::createPotato(vec2 pos)
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = pos;
-	motion.angle = 0.f;
-	motion.velocity = vec2(0.f);
 	motion.scale = vec2(1.4f);
 	motion.orientation = -1;
 	auto hitboxScale = vec2({ 0.7f, 1.f });
@@ -258,8 +252,8 @@ ECS::Entity Potato::createPotato(vec2 pos)
 	aoeParams.instigator = entity;
 	aoeParams.animationType = AnimationType::ATTACK2;
 	aoeParams.delay = 1.f;
-	aoeParams.damage = 60.f;
-	aoeParams.range = 600.f;
+	aoeParams.damage = 70.f;
+	aoeParams.range = 800.f;
 	aoeParams.collideWithMultipleEntities = true;
 	aoeParams.collidesWith = CollisionGroup::PLAYER;
 	aoeParams.soundEffect = SoundEffect::MELEE;
@@ -268,3 +262,152 @@ ECS::Entity Potato::createPotato(vec2 pos)
 	entity.emplace<Potato>();
 	return entity;
 };
+
+ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent)
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource("mashedpotato_static");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, spritePath("enemies/mashedpotato/idle/idle_000.png"), "textured");
+	}
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
+
+	// TODO: Figure this out for MashedPotato
+	entity.emplace<AISystem::MobComponent>();
+	auto& btType = entity.emplace<BehaviourTreeType>();
+	btType.mobType = MobType::EGG;
+
+	entity.emplace<TurnSystem::TurnComponent>();
+
+	// Setting initial motion values
+	Motion& motion = entity.emplace<Motion>();
+	motion.position = pos;
+	motion.scale = vec2(1.4f);
+	motion.orientation = -1;
+	auto hitboxScale = vec2({ 0.7f, 1.f });
+	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
+	motion.colliderType = CollisionGroup::MOB;
+	motion.collidesWith = CollisionGroup::PLAYER;
+
+	// Animations
+	auto idle = new AnimationData("mashedpotato_idle", spritePath("enemies/mashedpotato/idle/idle"), 36);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, *idle);
+	anims.addAnimation(AnimationType::MOVE, *idle);
+
+	auto hit_anim = new AnimationData("mashedpotato_hit", spritePath("enemies/mashedpotato/hit/hit"), 15, 1, true, false);
+	anims.addAnimation(AnimationType::HIT, *hit_anim);
+
+	auto attack1_anim = new AnimationData("mashedpotato_attack1", spritePath("enemies/mashedpotato/attack1/attack1"), 25, 1, true, false);
+	anims.addAnimation(AnimationType::ATTACK1, *attack1_anim);
+
+	auto defeat_anim = new AnimationData("mashedpotato_defeat", spritePath("enemies/mashedpotato/defeat/defeat"), 16, 1, true, false);
+	anims.addAnimation(AnimationType::DEFEAT, *defeat_anim);
+
+	// Initialize stats
+	auto& statsComponent = entity.emplace<StatsComponent>();
+	// TODO: MaxHP will be a constant value < x >
+	// however, Mashed Potatoes will spawn with INITIAL HP that depends on how much damage its chunks took
+	// the parameter initHPPercent is a % value from 0 -> 1
+	// ie. if we collectively reduced chunks to 50% HP (or defeated half the chunks), then
+	// Mashed Potatoes spawns with 50% of its Max HP
+	statsComponent.stats[StatType::HP] = 100.f * initHPPercent;
+	statsComponent.stats[StatType::AMBROSIA] = 0.f;
+	statsComponent.stats[StatType::STRENGTH] = 1.f;
+
+	//Add HP bar
+	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f }, { 1.f, 0.55f });
+	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f, -380.0f };
+	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
+
+	// Initialize skills
+	auto& skillComponent = entity.emplace<SkillComponent>();
+
+	// Skill 1, aoe melee hit
+	SkillParams meleeParams;
+	meleeParams.instigator = entity;
+	meleeParams.animationType = AnimationType::ATTACK1;
+	meleeParams.delay = 0.3f;
+	meleeParams.damage = 40.f;
+	meleeParams.range = 400.f;
+	meleeParams.collideWithMultipleEntities = true;
+	meleeParams.collidesWith = CollisionGroup::PLAYER;
+	meleeParams.soundEffect = SoundEffect::MELEE;
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<MeleeSkill>(meleeParams));
+
+	entity.emplace<MashedPotato>();
+	return entity;
+};
+
+ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource("potatochunk_static");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, spritePath("enemies/potatochunk/idle/idle_000.png"), "textured");
+	}
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
+
+	// TODO: Swarm behaviour
+	// ~6 chunks should be spawned in a well-spaced pattern within a certain range of the defeated potato boss
+	// during their turn, the chunks should try to move together to reform into mashed potato
+	entity.emplace<AISystem::MobComponent>();
+	auto& btType = entity.emplace<BehaviourTreeType>();
+	btType.mobType = MobType::EGG;
+
+	entity.emplace<TurnSystem::TurnComponent>();
+
+	Motion& motion = entity.emplace<Motion>();
+	motion.position = pos;
+	motion.orientation = orientation; // which way the chunk faces when spawned
+	auto hitboxScale = vec2({ 0.7f, 1.f });
+	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
+	motion.colliderType = CollisionGroup::MOB;
+	motion.collidesWith = CollisionGroup::PLAYER;
+
+	// Animations
+	auto idle = new AnimationData("potatochunk_idle", spritePath("enemies/potatochunk/idle/idle"), 26);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, *idle);
+	anims.addAnimation(AnimationType::MOVE, *idle);
+
+	auto hit_anim = new AnimationData("potatochunk_hit", spritePath("enemies/potatochunk/hit/hit"), 15, 1, true, false);
+	anims.addAnimation(AnimationType::HIT, *hit_anim);
+
+	auto defeat_anim = new AnimationData("potatochunk_defeat", spritePath("enemies/potatochunk/defeat/defeat"), 16, 1, true, false);
+	anims.addAnimation(AnimationType::DEFEAT, *defeat_anim);
+
+	// Initialize stats
+	auto& statsComponent = entity.emplace<StatsComponent>();
+	statsComponent.stats[StatType::HP] = 100.f;
+	statsComponent.stats[StatType::AMBROSIA] = 0.f;
+	statsComponent.stats[StatType::STRENGTH] = 1.f;
+
+	//Add HP bar
+	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
+	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f, -130.0f };
+	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
+
+	// Initialize skills
+	auto& skillComponent = entity.emplace<SkillComponent>();
+
+	// A fake Skill 1 to keep the turn system happy, but chunks don't actually use skills
+	SkillParams meleeParams;
+	meleeParams.instigator = entity;
+	meleeParams.animationType = AnimationType::IDLE;
+	meleeParams.delay = 0.f;
+	meleeParams.damage = 0.f;
+	meleeParams.range = 0.f;
+	meleeParams.collideWithMultipleEntities = false;
+	meleeParams.collidesWith = CollisionGroup::PLAYER;
+	meleeParams.soundEffect = SoundEffect::MELEE;
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<MeleeSkill>(meleeParams));
+
+	entity.emplace<PotatoChunk>();
+	return entity;
+};
+
