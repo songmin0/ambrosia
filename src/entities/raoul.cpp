@@ -244,6 +244,7 @@ ECS::Entity Raoul::createRaoul(vec2 position, float colourShift)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
+	statsComponent.stats[StatType::MAXHP] = 100.f;
 	statsComponent.stats[StatType::HP] = 100.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;

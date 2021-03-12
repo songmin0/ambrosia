@@ -183,7 +183,8 @@ ECS::Entity Chia::createChia(vec2 position)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::HP] = 100.f;
+	statsComponent.stats[StatType::MAXHP] = 70.f;
+	statsComponent.stats[StatType::HP] = 70.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
 
