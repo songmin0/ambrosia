@@ -91,6 +91,7 @@ ECS::Entity Raoul::createRaoul(json configValues, float colourShift)
 	auto& statsComponent = entity.emplace<StatsComponent>();
 	json stats = configValues.at("stats");
 	statsComponent.stats[StatType::HP] = stats.at("hp");
+	statsComponent.stats[StatType::MAXHP] = stats.at("hp");
 	statsComponent.stats[StatType::AMBROSIA] = stats.at("ambrosia");
 	statsComponent.stats[StatType::STRENGTH] = stats.at("strength");
 
@@ -243,6 +244,7 @@ ECS::Entity Raoul::createRaoul(vec2 position, float colourShift)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
+	statsComponent.stats[StatType::MAXHP] = 100.f;
 	statsComponent.stats[StatType::HP] = 100.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
