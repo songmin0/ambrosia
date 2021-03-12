@@ -31,7 +31,7 @@ SET(SOURCE_FILES
         "src/ai/behaviour_tree.cpp"
         "src/animation/animation_components.cpp"
         "src/animation/animation_system.cpp"
-        "src/entities/egg.cpp"
+        
         "src/entities/raoul.cpp"
         "src/entities/taji.cpp"
         "src/entities/ember.cpp"
