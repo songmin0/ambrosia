@@ -7,6 +7,7 @@
 enum class StatType
 {
 	HP,
+	MAXHP,
 	AMBROSIA,
 	STRENGTH
 };

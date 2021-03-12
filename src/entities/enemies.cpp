@@ -64,7 +64,8 @@ ECS::Entity Egg::createEgg(vec2 pos)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::HP] = 100.f;
+	statsComponent.stats[StatType::MAXHP] = 50.f;
+	statsComponent.stats[StatType::HP] = 50.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
 
@@ -144,7 +145,8 @@ ECS::Entity Pepper::createPepper(vec2 pos)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::HP] = 100.f;
+	statsComponent.stats[StatType::HP] = 40.f;
+	statsComponent.stats[StatType::MAXHP] = 40.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
 
