@@ -340,7 +340,7 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 	// ! It is recommended to comment out all other mobs and test just one enemy at a time
 
 	//Potato::createPotato({ 800.f, 700.f });
-	//MashedPotato::createMashedPotato({ 900.f, 800.f });
+	//MashedPotato::createMashedPotato({ 900.f, 750.f });
 	//PotatoChunk::createPotatoChunk({ 900.f, 800.f });
 
 	// TODO: come back and expand this when we have multiple mobs
