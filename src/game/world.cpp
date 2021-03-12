@@ -11,7 +11,6 @@
 #include "entities/taji.hpp"
 #include "entities/ember.hpp"
 #include "entities/chia.hpp"
-#include "entities/egg.hpp"
 #include "entities/enemies.hpp"
 #include "rendering/render_components.hpp"
 #include "animation/animation_components.hpp"
@@ -337,20 +336,27 @@ void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 {
+	// ! It is recommended to comment out all other mobs and test just one enemy at a time
+
+	// Potato tests
+	Potato::createPotato({ 800.f, 700.f });
+	MashedPotato::createMashedPotato({ 900.f, 750.f });
+	PotatoChunk::createPotatoChunk({ 900.f, 800.f });
+
+	// Milk test
+	Milk::createMilk(vec2(700.f, 500.f), -1.f);
+
 	// TODO: come back and expand this when we have multiple mobs
 	auto mobs = config.at("mobs");
-	
-	// Milk test
-	//Milk::createMilk(vec2(700.f, 500.f), -1.f);
 
 	for (json mob : mobs) {
 		auto type = mob["type"];
 		if (type == "egg") {
-			Egg::createEgg({ mob.at("position")[0], mob["position"][1] });
+			//Egg::createEgg({ mob.at("position")[0], mob["position"][1] });
 		}
 		else if (type == "pepper")
 		{
-			Pepper::createPepper({ mob.at("position")[0], mob["position"][1] });
+			//Pepper::createPepper({ mob.at("position")[0], mob["position"][1] });
 		}
 	}
 }
@@ -395,10 +401,10 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		anim.changeAnimation(AnimationType::ATTACK3);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_4) {
-		for (auto entity : ECS::registry<Egg>.entities)
+		for (auto entity : ECS::registry<PotatoChunk>.entities)
 		{
 			auto& anim = entity.get<AnimationsComponent>();
-			anim.changeAnimation(AnimationType::HIT);
+			anim.changeAnimation(AnimationType::DEFEAT);
 		}
 	}
 
