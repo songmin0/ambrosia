@@ -224,10 +224,10 @@ ECS::Entity Potato::createPotato(vec2 pos)
 	auto defeat_anim = new AnimationData("potato_defeat", spritePath("enemies/potato/defeat/defeat"), 47, 1, true, false, { 0.02f, 0.22f });
 	anims.addAnimation(AnimationType::DEFEAT, *defeat_anim);
 
-	// TODO: Create MaxHP stat. A boss shouldn't have the same max HP as a mob.
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::HP] = 100.f;
+	statsComponent.stats[StatType::MAXHP] = 200.f;
+	statsComponent.stats[StatType::HP] = 200.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
 
@@ -318,7 +318,8 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent)
 	// the parameter initHPPercent is a % value from 0 -> 1
 	// ie. if we collectively reduced chunks to 50% HP (or defeated half the chunks), then
 	// Mashed Potatoes spawns with 50% of its Max HP
-	statsComponent.stats[StatType::HP] = 100.f * initHPPercent;
+	statsComponent.stats[StatType::MAXHP] = 180.f;
+	statsComponent.stats[StatType::HP] = 180.f * initHPPercent;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
 
@@ -389,7 +390,8 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::HP] = 100.f;
+	statsComponent.stats[StatType::MAXHP] = 30.f;
+	statsComponent.stats[StatType::HP] = 30.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
 
