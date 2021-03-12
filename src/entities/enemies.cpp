@@ -1,6 +1,5 @@
 // Header
 #include "enemies.hpp"
-
 #include "rendering/render.hpp"
 #include "animation/animation_components.hpp"
 #include "ai/ai.hpp"
@@ -8,7 +7,7 @@
 #include "game/turn_system.hpp"
 #include "ui/ui_entities.hpp"
 
-ECS::Entity Egg::createEgg(vec2 pos)
+ECS::Entity Egg::createEgg(vec2 pos, float orientation)
 {
 	auto entity = ECS::Entity();
 
@@ -35,7 +34,7 @@ ECS::Entity Egg::createEgg(vec2 pos)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = pos;
 	motion.scale = vec2({ 0.8f, 0.8f });
-	motion.orientation = -1;
+	motion.orientation = orientation;
 	motion.colliderType = CollisionGroup::MOB;
 	motion.collidesWith = CollisionGroup::PLAYER;
 
@@ -92,7 +91,7 @@ ECS::Entity Egg::createEgg(vec2 pos)
 	return entity;
 };
 
-ECS::Entity Pepper::createPepper(vec2 pos)
+ECS::Entity Pepper::createPepper(vec2 pos, float orientation)
 {
 	auto entity = ECS::Entity();
 
@@ -116,7 +115,7 @@ ECS::Entity Pepper::createPepper(vec2 pos)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = pos;
 	motion.scale = vec2(0.9f);
-	motion.orientation = -1;
+	motion.orientation = orientation;
 	auto hitboxScale = vec2({ 0.4f, 0.7f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
@@ -175,7 +174,92 @@ ECS::Entity Pepper::createPepper(vec2 pos)
 	return entity;
 };
 
-ECS::Entity Potato::createPotato(vec2 pos)
+ECS::Entity Milk::createMilk(vec2 pos, float orientation)
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource("milk_static");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, spritePath("enemies/milk/idle/idle_000.png"), "textured");
+	}
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
+
+	// TODO: AI for Milk
+	entity.emplace<AISystem::MobComponent>();
+	auto& btType = entity.emplace<BehaviourTreeType>();
+	btType.mobType = MobType::EGG;
+
+	entity.emplace<TurnSystem::TurnComponent>();
+
+	Motion& motion = entity.emplace<Motion>();
+	motion.position = pos;
+	motion.orientation = orientation;
+	auto hitboxScale = vec2({ 0.4f, 0.7f });
+	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
+	motion.colliderType = CollisionGroup::MOB;
+	motion.collidesWith = CollisionGroup::PLAYER;
+
+	// Animations
+	auto idle = new AnimationData("milk_idle", spritePath("enemies/milk/idle/idle"), 30);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, *idle);
+
+	auto move = new AnimationData("milk_move", spritePath("enemies/milk/move/move"), 20);
+	anims.addAnimation(AnimationType::MOVE, *move);
+
+	auto hit_anim = new AnimationData("milk_hit", spritePath("enemies/milk/hit/hit"), 12, 1, true, false);
+	anims.addAnimation(AnimationType::HIT, *hit_anim);
+
+	auto attack1_anim = new AnimationData("milk_attack1", spritePath("enemies/milk/attack1/attack1"), 27, 1, true, false);
+	anims.addAnimation(AnimationType::ATTACK1, *attack1_anim);
+
+	auto defeat_anim = new AnimationData("milk_defeat", spritePath("enemies/milk/defeat/defeat"), 23, 1, true, false, vec2({ 0.15f, 0.f }));
+	anims.addAnimation(AnimationType::DEFEAT, *defeat_anim);
+
+	// Initialize stats
+	auto& statsComponent = entity.emplace<StatsComponent>();
+	statsComponent.stats[StatType::MAXHP] = 50.f;
+	statsComponent.stats[StatType::HP] = 50.f;
+	statsComponent.stats[StatType::AMBROSIA] = 0.f;
+	statsComponent.stats[StatType::STRENGTH] = 1.f;
+
+	//Add HP bar
+	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
+	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f, -240.0f };
+	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
+	ECS::registry<HPBar>.get(statsComponent.healthBar).isMob = true;
+
+	// Initialize skills
+	auto& skillComponent = entity.emplace<SkillComponent>();
+
+	// Hacky Heal TODO: make a better heal
+	SkillParams healParams;
+	healParams.instigator = entity;
+	healParams.animationType = AnimationType::ATTACK1;
+	healParams.delay = 0.3f;
+	healParams.damage = 20.f; // this is "healing"
+	healParams.collidesWith = CollisionGroup::MOB;
+	healParams.collideWithMultipleEntities = false;
+	healParams.ignoreInstigator = false; // TODO: if true it never heals itself, if false it only ever heals itself
+	healParams.soundEffect = SoundEffect::PROJECTILE;
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(healParams, ProjectileType::HEAL_ORB));
+
+	// Use a ranged attack if there's no ally to heal
+	SkillParams rangedAttackParams;
+	rangedAttackParams.instigator = entity;
+	rangedAttackParams.animationType = AnimationType::ATTACK1;
+	rangedAttackParams.delay = 0.3f;
+	rangedAttackParams.damage = 15.f;
+	rangedAttackParams.collidesWith = CollisionGroup::PLAYER;
+	rangedAttackParams.soundEffect = SoundEffect::PROJECTILE;
+	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<ProjectileSkill>(rangedAttackParams, ProjectileType::DAMAGE_ORB));
+
+	entity.emplace<Milk>();
+	return entity;
+};
+
+ECS::Entity Potato::createPotato(vec2 pos, float orientation)
 {
 	auto entity = ECS::Entity();
 
@@ -199,7 +283,7 @@ ECS::Entity Potato::createPotato(vec2 pos)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = pos;
 	motion.scale = vec2(1.4f);
-	motion.orientation = -1;
+	motion.orientation = orientation;
 	auto hitboxScale = vec2({ 0.7f, 1.f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
@@ -268,7 +352,7 @@ ECS::Entity Potato::createPotato(vec2 pos)
 	return entity;
 };
 
-ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent)
+ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, float orientation)
 {
 	auto entity = ECS::Entity();
 
@@ -291,7 +375,7 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = pos;
 	motion.scale = vec2(1.4f);
-	motion.orientation = -1;
+	motion.orientation = orientation;
 	auto hitboxScale = vec2({ 0.7f, 1.f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
@@ -419,4 +503,3 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
 	entity.emplace<PotatoChunk>();
 	return entity;
 };
-

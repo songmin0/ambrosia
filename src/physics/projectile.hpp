@@ -9,7 +9,9 @@ enum class ProjectileType
 {
 	BULLET,
 	BONE,
-	EGG_SHELL
+	EGG_SHELL,
+	HEAL_ORB,
+	DAMAGE_ORB
 };
 
 enum class Phase
