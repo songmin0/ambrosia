@@ -162,7 +162,7 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 		if (entity.has<HPBar>()) {
 			auto& statsComp = entity.get<HPBar>().statsCompEntity.get<StatsComponent>();
 			//This assumes all entities have a max health of 100
-			glUniform1f(percentHP_uloc, statsComp.getStatValue(StatType::HP) / 100.0f);
+			glUniform1f(percentHP_uloc, statsComp.getStatValue(StatType::HP) / statsComp.getStatValue(StatType::MAXHP));
 
 			GLint isMob_uloc = glGetUniformLocation(texmesh.effect.program, "isMob");
 			glUniform1i(isMob_uloc, entity.get<HPBar>().isMob);
