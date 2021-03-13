@@ -76,6 +76,8 @@ ECS::Entity MapComponent::createMap(const std::string& name, vec2 screenSize)
 	}
 
 	mapComponent.grid = matrix;
+
+	stbi_image_free(data);
 	return entity;
 }
 

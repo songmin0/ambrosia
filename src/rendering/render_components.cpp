@@ -95,6 +95,7 @@ void Texture::loadPlayerSpecificTextures(const std::string& path)
 	{
 		throw std::runtime_error("data == NULL, failed to load texture");
 	}
+	stbi_image_free(data);
 	gl_has_errors();
 
 	glActiveTexture(GL_TEXTURE1);
@@ -110,6 +111,7 @@ void Texture::loadPlayerSpecificTextures(const std::string& path)
 	for (int i = 0; i < players.size(); ++i)
 	{
 		std::string imagePath = path + "/" + players[i] + ".png";
+		stbi_uc* data;
 
 		if (texture_cache.count(imagePath) > 0)
 		{
@@ -123,9 +125,10 @@ void Texture::loadPlayerSpecificTextures(const std::string& path)
 		{
 			throw std::runtime_error("data == NULL, failed to load texture");
 		}
-
-		gl_has_errors();
 		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, size.x, size.y, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		
+		stbi_image_free(data);
+		gl_has_errors();
 	}
 
 	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -133,14 +136,12 @@ void Texture::loadPlayerSpecificTextures(const std::string& path)
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	stbi_image_free(data);
 	gl_has_errors();
 }
 
 void Texture::loadArrayFromFile(const std::string& path, int maxFrames)
 {
 	// path is expected to include up to each animation frame's name, not including the "_{frame-count}.png"
-	// yes, it's a hard-coded hack, for now...
 	stbi_uc* data;
 	std::string firstFrame = path + "_000.png";
 
@@ -157,12 +158,13 @@ void Texture::loadArrayFromFile(const std::string& path, int maxFrames)
 	{
 		throw std::runtime_error("data == NULL, failed to load texture");
 	}
+	stbi_image_free(data);
 	gl_has_errors();
 	
 	glActiveTexture(GL_TEXTURE0);
 	glGenTextures(1, texture_id.data());
 
-	// use a 2D Array Texture cause spritesheets are so old-school
+	// use a 2D Array Texture
 	glBindTexture(GL_TEXTURE_2D_ARRAY, texture_id);
 
 	// Allocate the storage, we're not storing any images in here yet, filling it in later
@@ -171,7 +173,6 @@ void Texture::loadArrayFromFile(const std::string& path, int maxFrames)
 	// put each frame into a sub image
 	for (int i = 0; i < frames; ++i)
 	{
-		// hack this for now
 		std::string framePath = path + "_00" + std::to_string(i) + ".png";
 		if (i >= 10) 
 		{
@@ -182,6 +183,7 @@ void Texture::loadArrayFromFile(const std::string& path, int maxFrames)
 			framePath = path + "_" + std::to_string(i) + ".png";
 		}
 
+		stbi_uc* data;
 		if (texture_cache.count(framePath) > 0)
 		{
 			data = texture_cache[framePath];
@@ -195,8 +197,10 @@ void Texture::loadArrayFromFile(const std::string& path, int maxFrames)
 			throw std::runtime_error("data == NULL, failed to load texture");
 		}
 
-		gl_has_errors();
 		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, size.x, size.y, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+		stbi_image_free(data);
+		gl_has_errors();
 	}
 
 	glTexParameterf(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -204,7 +208,6 @@ void Texture::loadArrayFromFile(const std::string& path, int maxFrames)
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	stbi_image_free(data);
 	gl_has_errors();
 }
 
