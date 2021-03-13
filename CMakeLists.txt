@@ -61,6 +61,7 @@ SET(SOURCE_FILES
         "src/ui/ui_system.cpp"
         "src/ui/effects.cpp"
         "src/ui/ui_entities.cpp"
+        "src/ui/menus.cpp"
         "src/particles/particle_system.cpp"
         "src/skills/skill.cpp"
         "src/skills/entity_provider.cpp"
