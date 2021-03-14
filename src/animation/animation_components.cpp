@@ -29,16 +29,22 @@ AnimationData::AnimationData(const std::string& key, const std::string& path, in
 	updateTexMeshCache(key, path);
 }
 
-AnimationsComponent::AnimationsComponent(AnimationType type, const AnimationData& anim)
+AnimationsComponent::AnimationsComponent(AnimationType type, const std::shared_ptr<AnimationData>& anim)
 {
 	anims[type] = anim;
 	currentAnim = type;
-	currAnimData = anim;
-	referenceToCache = &cacheResource(anim.texture_key);
+	currAnimData = anims[type];
+	referenceToCache = &cacheResource(anim->texture_key);
 }
 
-void AnimationsComponent::addAnimation(AnimationType type, const AnimationData& anim)
+void AnimationsComponent::addAnimation(AnimationType type, const std::shared_ptr<AnimationData>& anim)
 {
+	if (anims.size() == 0)
+	{
+		currAnimData = anim;
+		currentAnim = type;
+		referenceToCache = &cacheResource(anim->texture_key);
+	}
 	anims[type] = anim;
 }
 
@@ -54,11 +60,8 @@ void AnimationsComponent::changeAnimation(AnimationType newAnim)
 	currentAnim = newAnim;
 	currAnimData = anims.at(currentAnim);
 
-	// TODO: add check for exit time
-	//// we probably don't need exit time since it's turn-based but keep it for now in case
-
 	// point the mesh ref to the new texture
-	referenceToCache = &cacheResource(currAnimData.texture_key);
+	referenceToCache = &cacheResource(currAnimData->texture_key);
 }
 
 void AnimationData::updateTexMeshCache(const std::string& key, const std::string& path)

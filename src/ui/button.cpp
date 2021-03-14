@@ -68,17 +68,17 @@ ECS::Entity Button::createPlayerButton(PlayerType player, vec2 position, void(*c
 		break;
 	}
 
-	auto active_anim = new AnimationData(
+	auto active_anim = AnimationData(
 		playerName + "button_active", uiPath("player_buttons/" + playerName + "/active/" + playerName + "_active"), 40);
-	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::ACTIVE, *active_anim);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::ACTIVE, std::make_shared<AnimationData>(active_anim));
 
-	auto inactive_anim = new AnimationData(
+	auto inactive_anim = AnimationData(
 		playerName + "button_inactive", uiPath("player_buttons/" + playerName + "/" + playerName + "_inactive"), 1);
-	anims.addAnimation(AnimationType::INACTIVE, *inactive_anim);
+	anims.addAnimation(AnimationType::INACTIVE, std::make_shared<AnimationData>(inactive_anim));
 
-	auto disabled_anim = new AnimationData(
+	auto disabled_anim = AnimationData(
 		playerName + "button_disabled", uiPath("player_buttons/" + playerName + "/" + playerName + "_disabled"), 1);
-	anims.addAnimation(AnimationType::DISABLED, *disabled_anim);
+	anims.addAnimation(AnimationType::DISABLED, std::make_shared<AnimationData>(disabled_anim));
 
 	return entity;
 }

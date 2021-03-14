@@ -259,9 +259,9 @@ void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 	}
 
 	// add animation offset
-	transform.translate(anims.currAnimData.offset);
+	transform.translate(anims.currAnimData->offset);
 
-	float frame = (float)anims.currAnimData.currFrame;
+	float frame = (float)anims.currAnimData->currFrame;
 	glUniform1f(frame_uloc, frame);
 
 	// texture_id stores a 2d array texture instead
