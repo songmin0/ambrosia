@@ -12,13 +12,6 @@
 
 #include <iostream>
 
-// Returns the local bounding coordinates scaled by the current size of the entity 
-vec2 getBoundingBox(const Motion& motion)
-{
-	// fabs is to avoid negative scale due to the facing direction.
-	return { abs(motion.boundingBox.x), abs(motion.boundingBox.y) };
-}
-
 bool collides(const Motion& motion1, const Motion& motion2)
 {
 	// Before checking the bounding boxes, check whether these entities are allowed
@@ -26,22 +19,17 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	if (motion1.collidesWith & motion2.colliderType ||
 			motion2.collidesWith & motion1.colliderType)
 	{
-		auto boundingBox1 = getBoundingBox(motion1);
-		auto boundingBox2 = getBoundingBox(motion2);
+		auto boundingBox1 = abs(motion1.boundingBox);
+		auto boundingBox2 = abs(motion2.boundingBox);
 
-		bool collisionX = boundingBox1.x + motion1.position.x >= motion2.position.x &&
-											motion1.position.x <= boundingBox2.x + motion2.position.x;
+		float halfWidth1 = boundingBox1.x / 2.f;
+		float halfWidth2 = boundingBox2.x / 2.f;
+
+		bool collisionX = motion1.position.x + halfWidth1 >= motion2.position.x &&
+											motion1.position.x <= motion2.position.x + halfWidth2;
 
 		bool collisionY = motion1.position.y - boundingBox1.y <= motion2.position.y &&
 											motion1.position.y >= motion2.position.y - boundingBox2.y;
-
-		bool debugEnabled = false;
-		if (debugEnabled && collisionX && collisionY) {
-			std::cout << "bounding box 1 x: " << boundingBox1.x;
-			std::cout << "bounding box 1 y: " << boundingBox1.y;
-			std::cout << "bounding box 2 x: " << boundingBox2.x;
-			std::cout << "bounding box 2 y: " << boundingBox2.y;
-		}
 
 		return collisionX && collisionY;
 	}
@@ -147,11 +135,11 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 				// entity's position refers to their feet instead of the middle of the sprite. This happens in
 				// RenderSystem::drawAnimatedMesh. See `transform.translate(vec2(0.f, -0.5f))`. The line of code
 				// below this comment just aligns the debug lines properly for those entities.
-				position.y -= motion.boundingBox.y / 2;
+				position.y -= abs(motion.boundingBox.y / 2.f);
 			}
 
 			// Draw the entity's bounding box
-			DebugSystem::createBox(position, getBoundingBox(motion));
+			DebugSystem::createBox(position, abs(motion.boundingBox));
 		}
 	}
 

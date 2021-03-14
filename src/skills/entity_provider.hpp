@@ -13,9 +13,6 @@ public:
 	virtual ~EntityProvider() = default;
 
 	virtual std::vector<ECS::Entity> getEntities(const SkillParams& params) = 0;
-
-protected:
-	static std::vector<ECS::Entity> getSortedEntities(std::vector<std::pair<ECS::Entity, float>>& entities);
 };
 
 // Collects all entities within a certain radius of the instigator
