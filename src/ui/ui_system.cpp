@@ -408,7 +408,7 @@ void UISystem::playMouseClickFX(vec2 position)
 		if (entity.has<AnimationsComponent>() && entity.has<Motion>())
 		{
 			entity.get<Motion>().position = position;
-			entity.get<AnimationsComponent>().currAnimData.currFrame = 0;
+			entity.get<AnimationsComponent>().currAnimData->currFrame = 0;
 			break;
 		}
 	}

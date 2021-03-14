@@ -22,9 +22,9 @@ ECS::Entity MouseClickFX::createMouseClickFX()
 	motion.scale = vec2(1.f);
 	motion.boundingBox = vec2(0.f);
 
-	auto effect_anim = new AnimationData("fx_mouseclick", uiPath("mouseclick_fx/mouseclick_fx"), 12, 1, false, false);
-	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::EFFECT, *effect_anim);
-	anims.currAnimData.currFrame = 11; // start with the animation finished
+	auto effect_anim = AnimationData("fx_mouseclick", uiPath("mouseclick_fx/mouseclick_fx"), 12, 1, false, false);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::EFFECT, std::make_shared<AnimationData>(effect_anim));
+	anims.currAnimData->currFrame = 11; // start with the animation finished
 
 	entity.emplace<MouseClickFX>();
 

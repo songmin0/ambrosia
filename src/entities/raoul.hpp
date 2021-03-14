@@ -4,6 +4,9 @@
 
 struct Raoul
 {
-	static ECS::Entity createRaoul(json initialStats, float colourShift = 0);
-	static ECS::Entity createRaoul(vec2 position, float colourShift = 0);
+public:
+	static ECS::Entity createRaoul(json initialStats);
+	static ECS::Entity createRaoul(vec2 position);
+private:
+	static ECS::Entity commonInit();
 };

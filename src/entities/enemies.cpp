@@ -44,22 +44,20 @@ ECS::Entity Egg::createEgg(vec2 pos, float orientation)
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 
 	// Animations
-	auto idle_anim = new AnimationData(
-		"egg_idle", spritePath("enemies/egg/idle/idle"), 76);
-	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, *idle_anim);
+	auto idle_anim = AnimationData("egg_idle", spritePath("enemies/egg/idle/idle"), 76);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, std::make_shared<AnimationData>(idle_anim));
 
-	auto move_anim = new AnimationData(
-		"egg_move", spritePath("enemies/egg/move/move"), 51);
-	anims.addAnimation(AnimationType::MOVE, *move_anim);
+	auto move_anim = AnimationData("egg_move", spritePath("enemies/egg/move/move"), 51);
+	anims.addAnimation(AnimationType::MOVE, std::make_shared<AnimationData>(move_anim));
 
-	auto hit_anim = new AnimationData("egg_hit", spritePath("enemies/egg/hit/hit"), 29, 1, true, false);
-	anims.addAnimation(AnimationType::HIT, *hit_anim);
+	auto hit_anim = AnimationData("egg_hit", spritePath("enemies/egg/hit/hit"), 29, 1, true, false);
+	anims.addAnimation(AnimationType::HIT, std::make_shared<AnimationData>(hit_anim));
 
-	auto attack1_anim = new AnimationData("egg_attack1", spritePath("enemies/egg/attack1/attack1"), 36, 1, true, false);
-	anims.addAnimation(AnimationType::ATTACK1, *attack1_anim);
+	auto attack1_anim = AnimationData("egg_attack1", spritePath("enemies/egg/attack1/attack1"), 36, 1, true, false);
+	anims.addAnimation(AnimationType::ATTACK1, std::make_shared<AnimationData>(attack1_anim));
 
-	auto defeat_anim = new AnimationData("egg_defeat", spritePath("enemies/egg/defeat/defeat"), 48, 1, true, false);
-	anims.addAnimation(AnimationType::DEFEAT, *defeat_anim);
+	auto defeat_anim = AnimationData("egg_defeat", spritePath("enemies/egg/defeat/defeat"), 48, 1, true, false);
+	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
@@ -122,25 +120,17 @@ ECS::Entity Pepper::createPepper(vec2 pos, float orientation)
 	motion.collidesWith = CollisionGroup::PLAYER;
 
 	// Animations
-	auto idle_and_run = new AnimationData(
-			"pepper_idle", spritePath("enemies/pepper/idle/idle"), 74);
-	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, *idle_and_run);
-	anims.addAnimation(AnimationType::MOVE, *idle_and_run);
+	auto idle_and_run = AnimationData("pepper_idle", spritePath("enemies/pepper/idle/idle"), 74);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, std::make_shared<AnimationData>(idle_and_run));
 
-	auto hit_anim = new AnimationData(
-			"pepper_hit", spritePath("enemies/pepper/hit/hit"), 24, 1, true, false
-	);
-	anims.addAnimation(AnimationType::HIT, *hit_anim);
+	auto hit_anim = AnimationData("pepper_hit", spritePath("enemies/pepper/hit/hit"), 24, 1, true, false);
+	anims.addAnimation(AnimationType::HIT, std::make_shared<AnimationData>(hit_anim));
 
-	auto attack1_anim = new AnimationData(
-			"pepper_attack1", spritePath("enemies/pepper/attack1/attack1"), 45, 1, true, false
-	);
-	anims.addAnimation(AnimationType::ATTACK1, *attack1_anim);
+	auto attack1_anim = AnimationData("pepper_attack1", spritePath("enemies/pepper/attack1/attack1"), 45, 1, true, false);
+	anims.addAnimation(AnimationType::ATTACK1, std::make_shared<AnimationData>(attack1_anim));
 
-	auto defeat_anim = new AnimationData(
-			"pepper_defeat", spritePath("enemies/pepper/defeat/defeat"), 41, 1, true, false
-	);
-	anims.addAnimation(AnimationType::DEFEAT, *defeat_anim);
+	auto defeat_anim = AnimationData("pepper_defeat", spritePath("enemies/pepper/defeat/defeat"), 41, 1, true, false);
+	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
@@ -202,20 +192,20 @@ ECS::Entity Milk::createMilk(vec2 pos, float orientation)
 	motion.collidesWith = CollisionGroup::PLAYER;
 
 	// Animations
-	auto idle = new AnimationData("milk_idle", spritePath("enemies/milk/idle/idle"), 30);
-	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, *idle);
+	auto idle = AnimationData("milk_idle", spritePath("enemies/milk/idle/idle"), 30);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, std::make_shared<AnimationData>(idle));
 
-	auto move = new AnimationData("milk_move", spritePath("enemies/milk/move/move"), 20);
-	anims.addAnimation(AnimationType::MOVE, *move);
+	auto move = AnimationData("milk_move", spritePath("enemies/milk/move/move"), 20);
+	anims.addAnimation(AnimationType::MOVE, std::make_shared<AnimationData>(move));
 
-	auto hit_anim = new AnimationData("milk_hit", spritePath("enemies/milk/hit/hit"), 12, 1, true, false);
-	anims.addAnimation(AnimationType::HIT, *hit_anim);
+	auto hit_anim = AnimationData("milk_hit", spritePath("enemies/milk/hit/hit"), 12, 1, true, false);
+	anims.addAnimation(AnimationType::HIT, std::make_shared<AnimationData>(hit_anim));
 
-	auto attack1_anim = new AnimationData("milk_attack1", spritePath("enemies/milk/attack1/attack1"), 27, 1, true, false);
-	anims.addAnimation(AnimationType::ATTACK1, *attack1_anim);
+	auto attack1_anim = AnimationData("milk_attack1", spritePath("enemies/milk/attack1/attack1"), 27, 1, true, false);
+	anims.addAnimation(AnimationType::ATTACK1, std::make_shared<AnimationData>(attack1_anim));
 
-	auto defeat_anim = new AnimationData("milk_defeat", spritePath("enemies/milk/defeat/defeat"), 23, 1, true, false, vec2({ 0.15f, 0.f }));
-	anims.addAnimation(AnimationType::DEFEAT, *defeat_anim);
+	auto defeat_anim = AnimationData("milk_defeat", spritePath("enemies/milk/defeat/defeat"), 23, 1, true, false, vec2({ 0.15f, 0.f }));
+	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
@@ -290,23 +280,23 @@ ECS::Entity Potato::createPotato(vec2 pos, float orientation)
 	motion.collidesWith = CollisionGroup::PLAYER;
 
 	// Animations
-	auto idle = new AnimationData("potato_idle", spritePath("enemies/potato/idle/idle"), 43);
-	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, *idle);
+	auto idle = AnimationData("potato_idle", spritePath("enemies/potato/idle/idle"), 43);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, std::make_shared<AnimationData>(idle));
 
-	auto move = new AnimationData("potato_move", spritePath("enemies/potato/move/move"), 36);
-	anims.addAnimation(AnimationType::MOVE, *move);
+	auto move = AnimationData("potato_move", spritePath("enemies/potato/move/move"), 36);
+	anims.addAnimation(AnimationType::MOVE, std::make_shared<AnimationData>(move));
 
-	auto hit_anim = new AnimationData("potato_hit", spritePath("enemies/potato/hit/hit"), 16, 1, true, false);
-	anims.addAnimation(AnimationType::HIT, *hit_anim);
+	auto hit_anim = AnimationData("potato_hit", spritePath("enemies/potato/hit/hit"), 16, 1, true, false);
+	anims.addAnimation(AnimationType::HIT, std::make_shared<AnimationData>(hit_anim));
 
-	auto attack1_anim = new AnimationData("potato_attack1", spritePath("enemies/potato/attack1/attack1"), 30, 1, true, false, { -0.02f, 0.f });
-	anims.addAnimation(AnimationType::ATTACK1, *attack1_anim);
+	auto attack1_anim = AnimationData("potato_attack1", spritePath("enemies/potato/attack1/attack1"), 30, 1, true, false, { -0.02f, 0.f });
+	anims.addAnimation(AnimationType::ATTACK1, std::make_shared<AnimationData>(attack1_anim));
 
-	auto attack2_anim = new AnimationData("potato_attack2", spritePath("enemies/potato/attack2/attack2"), 41, 1, true, false, { 0.02f, 0.22f });
-	anims.addAnimation(AnimationType::ATTACK2, *attack2_anim);
+	auto attack2_anim = AnimationData("potato_attack2", spritePath("enemies/potato/attack2/attack2"), 41, 1, true, false, { 0.02f, 0.22f });
+	anims.addAnimation(AnimationType::ATTACK2, std::make_shared<AnimationData>(attack2_anim));
 
-	auto defeat_anim = new AnimationData("potato_defeat", spritePath("enemies/potato/defeat/defeat"), 47, 1, true, false, { 0.02f, 0.22f });
-	anims.addAnimation(AnimationType::DEFEAT, *defeat_anim);
+	auto defeat_anim = AnimationData("potato_defeat", spritePath("enemies/potato/defeat/defeat"), 47, 1, true, false, { 0.02f, 0.22f });
+	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
@@ -382,18 +372,18 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	motion.collidesWith = CollisionGroup::PLAYER;
 
 	// Animations
-	auto idle = new AnimationData("mashedpotato_idle", spritePath("enemies/mashedpotato/idle/idle"), 36);
-	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, *idle);
-	anims.addAnimation(AnimationType::MOVE, *idle);
+	auto idle = AnimationData("mashedpotato_idle", spritePath("enemies/mashedpotato/idle/idle"), 36);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, std::make_shared<AnimationData>(idle));
+	anims.addAnimation(AnimationType::MOVE, std::make_shared<AnimationData>(idle));
 
-	auto hit_anim = new AnimationData("mashedpotato_hit", spritePath("enemies/mashedpotato/hit/hit"), 15, 1, true, false);
-	anims.addAnimation(AnimationType::HIT, *hit_anim);
+	auto hit_anim = AnimationData("mashedpotato_hit", spritePath("enemies/mashedpotato/hit/hit"), 15, 1, true, false);
+	anims.addAnimation(AnimationType::HIT, std::make_shared<AnimationData>(hit_anim));
 
-	auto attack1_anim = new AnimationData("mashedpotato_attack1", spritePath("enemies/mashedpotato/attack1/attack1"), 25, 1, true, false);
-	anims.addAnimation(AnimationType::ATTACK1, *attack1_anim);
+	auto attack1_anim = AnimationData("mashedpotato_attack1", spritePath("enemies/mashedpotato/attack1/attack1"), 25, 1, true, false);
+	anims.addAnimation(AnimationType::ATTACK1, std::make_shared<AnimationData>(attack1_anim));
 
-	auto defeat_anim = new AnimationData("mashedpotato_defeat", spritePath("enemies/mashedpotato/defeat/defeat"), 16, 1, true, false);
-	anims.addAnimation(AnimationType::DEFEAT, *defeat_anim);
+	auto defeat_anim = AnimationData("mashedpotato_defeat", spritePath("enemies/mashedpotato/defeat/defeat"), 16, 1, true, false);
+	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
@@ -462,15 +452,15 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
 	motion.collidesWith = CollisionGroup::PLAYER;
 
 	// Animations
-	auto idle = new AnimationData("potatochunk_idle", spritePath("enemies/potatochunk/idle/idle"), 26);
-	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, *idle);
-	anims.addAnimation(AnimationType::MOVE, *idle);
+	auto idle = AnimationData("potatochunk_idle", spritePath("enemies/potatochunk/idle/idle"), 26);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, std::make_shared<AnimationData>(idle));
+	anims.addAnimation(AnimationType::MOVE, std::make_shared<AnimationData>(idle));
 
-	auto hit_anim = new AnimationData("potatochunk_hit", spritePath("enemies/potatochunk/hit/hit"), 15, 1, true, false);
-	anims.addAnimation(AnimationType::HIT, *hit_anim);
+	auto hit_anim = AnimationData("potatochunk_hit", spritePath("enemies/potatochunk/hit/hit"), 15, 1, true, false);
+	anims.addAnimation(AnimationType::HIT, std::make_shared<AnimationData>(hit_anim));
 
-	auto defeat_anim = new AnimationData("potatochunk_defeat", spritePath("enemies/potatochunk/defeat/defeat"), 16, 1, true, false);
-	anims.addAnimation(AnimationType::DEFEAT, *defeat_anim);
+	auto defeat_anim = AnimationData("potatochunk_defeat", spritePath("enemies/potatochunk/defeat/defeat"), 16, 1, true, false);
+	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
