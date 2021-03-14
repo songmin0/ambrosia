@@ -12,6 +12,7 @@ out vec4 particlecolor;
 // Application data
 uniform vec3 cameraRightWorldspace; //This is a constant unless we decide to add rotation to our camera
 uniform vec3 cameraUpWorldspace; //This is a constant unless we decide to add rotation to our camera
+uniform vec2 cameraPos; //Postion of the camera
 
 uniform mat3 projection;
 
@@ -22,7 +23,7 @@ void main()
 	vec3 particleCenterWorldspace = xyzs.xyz;
 	
 	//Transform the pixels into world location. Not using a passed in transform matrix because that would require calculating one for every singe particle on the cpu and passing that to the GPU. This is easier.
-	vec3 vertexPositionWorldspace = particleCenterWorldspace	+ cameraRightWorldspace * squareVertices.x * particleSize	+ cameraUpWorldspace * squareVertices.y * particleSize;
+	vec3 vertexPositionWorldspace = (particleCenterWorldspace - vec3(cameraPos,0.0))	+ cameraRightWorldspace * squareVertices.x * particleSize	+ cameraUpWorldspace * squareVertices.y * particleSize;
 
 	// Output position of the vertex
 	gl_Position = vec4(projection * vertexPositionWorldspace, 1.0f);
