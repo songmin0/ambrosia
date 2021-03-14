@@ -12,29 +12,37 @@
 
 #include <iostream>
 
-bool collides(const Motion& motion1, const Motion& motion2)
+// Returns a BoundingBox representing the entity's current bounds in world coords
+BoundingBox getBoundingBox(ECS::Entity entity, const Motion& motion)
 {
-	// Before checking the bounding boxes, check whether these entities are allowed
-	// to collide with one another
-	if (motion1.collidesWith & motion2.colliderType ||
-			motion2.collidesWith & motion1.colliderType)
+	vec2 boundingBoxDimensions = abs(motion.boundingBox);
+	float halfWidth = boundingBoxDimensions.x / 2.f;
+
+	BoundingBox box;
+	box.left = motion.position.x - halfWidth;
+	box.right = motion.position.x + halfWidth;
+
+	// For projectiles, `motion.position` refers to the center of the texture
+	if (entity.has<ProjectileComponent>())
 	{
-		auto boundingBox1 = abs(motion1.boundingBox);
-		auto boundingBox2 = abs(motion2.boundingBox);
-
-		float halfWidth1 = boundingBox1.x / 2.f;
-		float halfWidth2 = boundingBox2.x / 2.f;
-
-		bool collisionX = motion1.position.x + halfWidth1 >= motion2.position.x &&
-											motion1.position.x <= motion2.position.x + halfWidth2;
-
-		bool collisionY = motion1.position.y - boundingBox1.y <= motion2.position.y &&
-											motion1.position.y >= motion2.position.y - boundingBox2.y;
-
-		return collisionX && collisionY;
+		float halfHeight = boundingBoxDimensions.y / 2.f;
+		box.top = motion.position.y - halfHeight;
+		box.bottom = motion.position.y + halfHeight;
+	}
+	// For characters, `motion.position` refers to the bottom center (position of feet)
+	else
+	{
+		box.top = motion.position.y - boundingBoxDimensions.y;
+		box.bottom = motion.position.y;
 	}
 
-	return false;
+	return box;
+}
+
+bool collides(const BoundingBox& box1, const BoundingBox& box2)
+{
+	return (box1.left < box2.right) && (box1.right > box2.left) &&
+				 (box1.top < box2.bottom) && (box1.bottom > box2.top);
 }
 
 void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
@@ -119,7 +127,6 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		{
 			auto& entity = ECS::registry<Motion>.entities[i];
 			auto& motion = ECS::registry<Motion>.components[i];
-			vec2 position = motion.position;
 
 			if (entity.has<DebugComponent>())
 			{
@@ -129,17 +136,16 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			// Draw this entity's path using dotted lines
 			DebugSystem::createPath(motion.path);
 
-			if (entity.has<PlayerComponent>() || entity.has<AISystem::MobComponent>())
-			{
-				// For pathfinding entities , we translate the sprite upward by half the texture size so that the
-				// entity's position refers to their feet instead of the middle of the sprite. This happens in
-				// RenderSystem::drawAnimatedMesh. See `transform.translate(vec2(0.f, -0.5f))`. The line of code
-				// below this comment just aligns the debug lines properly for those entities.
-				position.y -= abs(motion.boundingBox.y / 2.f);
-			}
+			// Calculate the entity's current bounds
+			BoundingBox box = getBoundingBox(entity, motion);
+			vec2 boxDimensions = box.size();
 
-			// Draw the entity's bounding box
-			DebugSystem::createBox(position, abs(motion.boundingBox));
+			// Draw the debug box (prevent drawing boxes that would be way too small)
+			constexpr float MIN_DIMENSION = 1.f;
+			if (boxDimensions.x > MIN_DIMENSION && boxDimensions.y > MIN_DIMENSION)
+			{
+				DebugSystem::createBox(box.center(), box.size());
+			}
 		}
 	}
 
@@ -150,20 +156,41 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	{
 		Motion& motion_i = motion_container.components[i];
 		ECS::Entity entity_i = motion_container.entities[i];
+
+		// Don't check for collisions if entity_i is dead
+		if (entity_i.has<DeathTimer>())
+		{
+			continue;
+		}
+
+		// Calculate the current bounds for entity_i
+		BoundingBox boundingBox_i = getBoundingBox(entity_i, motion_i);
+
 		for (unsigned int j=i+1; j<motion_container.components.size(); j++)
 		{
 			Motion& motion_j = motion_container.components[j];
 			ECS::Entity entity_j = motion_container.entities[j];
-			// Collide only if both entities are alive
-			if (entity_i.has<DeathTimer>() || entity_j.has<DeathTimer>())
-				break;
 
-			if (collides(motion_i, motion_j))
+			// Don't check for collisions if entity_j is dead
+			if (entity_j.has<DeathTimer>())
 			{
-				// Create a collision event
-				// Note, we are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity, hence, emplaceWithDuplicates
-				ECS::registry<Collision>.emplaceWithDuplicates(entity_i, entity_j);
-				ECS::registry<Collision>.emplaceWithDuplicates(entity_j, entity_i);
+				continue;
+			}
+
+			// Make sure these entities are allowed to collide with one another
+			if (motion_i.collidesWith & motion_j.colliderType ||
+					motion_j.collidesWith & motion_i.colliderType)
+			{
+				// Calculate the current bounds for entity_j
+				BoundingBox boundingBox_j = getBoundingBox(entity_j, motion_j);
+
+				// Check for collision
+				if (collides(boundingBox_i, boundingBox_j))
+				{
+					// Log the collisions
+					ECS::registry<Collision>.emplaceWithDuplicates(entity_i, entity_j);
+					ECS::registry<Collision>.emplaceWithDuplicates(entity_j, entity_i);
+				}
 			}
 		}
 	}
