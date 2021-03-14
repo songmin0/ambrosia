@@ -19,6 +19,7 @@
 #include "ui/ui_system.hpp"
 #include "ui/effects.hpp"
 #include "ui/ui_entities.hpp"
+#include "ui/menus.hpp"
 #include "ai/ai.hpp"
 #include <level_loader/level_loader.hpp>
 
@@ -215,6 +216,10 @@ bool WorldSystem::isOver() const
 
 void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 {
+	// !! Temporary Start Menu Test
+	// this will throw an assert if you try to click outside the buttons, since it's not a pathfindable map
+	// StartMenu::createStartMenu(frameBufferWidth, frameBufferHeight);
+
 	// Create the map
 	MapComponent::createMap(config.at("map"), {frameBufferWidth, frameBufferHeight});
 

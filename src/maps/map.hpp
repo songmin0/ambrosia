@@ -9,6 +9,6 @@ struct MapComponent
 
 	std::string name;
 	vec2 mapSize;
-	float tileSize;
+	float tileSize = 32.f;
 	std::vector<std::vector<int>> grid;
 };
