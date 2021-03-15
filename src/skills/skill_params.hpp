@@ -15,7 +15,6 @@ struct SkillParams
 		, ignoreInstigator(true)
 		, collideWithMultipleEntities(false)
 		, collidesWith(CollisionGroup::NONE)
-		, sourcePosition(0.f)
 		, targetPosition(0.f)
 		, soundEffect(SoundEffect::NONE)
 	{}
@@ -39,7 +38,6 @@ struct SkillParams
 	// This controls the types of entities that will be affected/hit by this skill
 	CollisionGroup collidesWith;
 
-	vec2 sourcePosition; // To be filled when the skill is executed
 	vec2 targetPosition; // To be filled when the skill is executed
 
 	SoundEffect soundEffect;

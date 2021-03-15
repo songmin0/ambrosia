@@ -31,7 +31,7 @@ SET(SOURCE_FILES
         "src/ai/behaviour_tree.cpp"
         "src/animation/animation_components.cpp"
         "src/animation/animation_system.cpp"
-        "src/entities/egg.cpp"
+        
         "src/entities/raoul.cpp"
         "src/entities/taji.cpp"
         "src/entities/ember.cpp"
@@ -61,6 +61,7 @@ SET(SOURCE_FILES
         "src/ui/ui_system.cpp"
         "src/ui/effects.cpp"
         "src/ui/ui_entities.cpp"
+        "src/ui/menus.cpp"
         "src/particles/particle_system.cpp"
         "src/skills/skill.cpp"
         "src/skills/entity_provider.cpp"

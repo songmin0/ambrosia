@@ -4,6 +4,9 @@
 
 struct Taji
 {
-	static ECS::Entity createTaji(json initialStats, float colourShift = 0);
-	static ECS::Entity createTaji(vec2 pos, float colourShift = 0);
+public:
+	static ECS::Entity createTaji(json initialStats);
+	static ECS::Entity createTaji(vec2 pos);
+private:
+	static ECS::Entity commonInit();
 };

@@ -11,7 +11,6 @@
 #include "entities/taji.hpp"
 #include "entities/ember.hpp"
 #include "entities/chia.hpp"
-#include "entities/egg.hpp"
 #include "entities/enemies.hpp"
 #include "rendering/render_components.hpp"
 #include "animation/animation_components.hpp"
@@ -20,6 +19,7 @@
 #include "ui/ui_system.hpp"
 #include "ui/effects.hpp"
 #include "ui/ui_entities.hpp"
+#include "ui/menus.hpp"
 #include "ai/ai.hpp"
 #include <level_loader/level_loader.hpp>
 #include "game_state_system.hpp"
@@ -216,6 +216,10 @@ bool WorldSystem::isOver() const
 
 void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 {
+	// !! Temporary Start Menu Test
+	// this will throw an assert if you try to click outside the buttons, since it's not a pathfindable map
+	// StartMenu::createStartMenu(frameBufferWidth, frameBufferHeight);
+
 	// Create the map
 		
 	MapComponent::createMap(GameStateSystem::instance().currentLevel.at("map"), { frameBufferWidth, frameBufferHeight });
@@ -339,6 +343,16 @@ void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 {
+	// ! It is recommended to comment out all other mobs and test just one enemy at a time
+
+	// Potato tests
+	//Potato::createPotato({ 800.f, 700.f });
+	//MashedPotato::createMashedPotato({ 900.f, 750.f });
+	//PotatoChunk::createPotatoChunk({ 900.f, 800.f });
+
+	// Milk test
+	//Milk::createMilk(vec2(700.f, 500.f), -1.f);
+
 	// TODO: come back and expand this when we have multiple mobs
 	auto mobs = GameStateSystem::instance().currentLevel.at("mobs");
 
@@ -394,10 +408,10 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		anim.changeAnimation(AnimationType::ATTACK3);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_4) {
-		for (auto entity : ECS::registry<Egg>.entities)
+		for (auto entity : ECS::registry<PotatoChunk>.entities)
 		{
 			auto& anim = entity.get<AnimationsComponent>();
-			anim.changeAnimation(AnimationType::HIT);
+			anim.changeAnimation(AnimationType::DEFEAT);
 		}
 	}
 

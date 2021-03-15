@@ -5,7 +5,7 @@
   },
   "taji": {
     "stats": {
-      "hp": 100,
+      "hp": 50,
       "strength": 1,
       "ambrosia" : 0
     },
@@ -13,7 +13,7 @@
   },
   "chia": {
     "stats": {
-      "hp": 100,
+      "hp": 70,
       "strength": 1,
       "ambrosia" : 0
     },
@@ -29,7 +29,7 @@
   },
   "ember": {
     "stats": {
-      "hp": 100,
+      "hp": 80,
       "strength": 1,
       "ambrosia" : 0
     },

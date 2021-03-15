@@ -161,8 +161,9 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 
 		if (entity.has<HPBar>()) {
 			auto& statsComp = entity.get<HPBar>().statsCompEntity.get<StatsComponent>();
-			//This assumes all entities have a max health of 100
-			glUniform1f(percentHP_uloc, statsComp.getStatValue(StatType::HP) / 100.0f);
+			// Safety check for divide by 0
+			float maxHP = clamp(statsComp.getStatValue(StatType::MAXHP), 1.f, 1000.f);
+			glUniform1f(percentHP_uloc, statsComp.getStatValue(StatType::HP) / maxHP);
 
 			GLint isMob_uloc = glGetUniformLocation(texmesh.effect.program, "isMob");
 			glUniform1i(isMob_uloc, entity.get<HPBar>().isMob);
@@ -258,9 +259,9 @@ void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 	}
 
 	// add animation offset
-	transform.translate(anims.currAnimData.offset);
+	transform.translate(anims.currAnimData->offset);
 
-	float frame = (float)anims.currAnimData.currFrame;
+	float frame = (float)anims.currAnimData->currFrame;
 	glUniform1f(frame_uloc, frame);
 
 	// texture_id stores a 2d array texture instead
@@ -446,7 +447,10 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 
 		gl_has_errors();
 	}
-	particleSystem->drawParticles(projection_2D);
+	auto camera = ECS::registry<CameraComponent>.entities[0];
+	auto& cameraComponent = camera.get<CameraComponent>();
+	assert(!ECS::registry<CameraComponent>.entities.empty());
+	particleSystem->drawParticles(projection_2D,cameraComponent.position);
 	// Truely render to the screen
 	drawToScreen();
 

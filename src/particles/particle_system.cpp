@@ -42,10 +42,10 @@ ParticleSystem::ParticleSystem()
 
 
 //http://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
-void ParticleSystem::drawParticles(const mat3& projection)
+void ParticleSystem::drawParticles(const mat3& projection, const vec2& cameraPos)
 {
 		for (int i = 0; i < emitters.size(); i++) {
-				emitters[i]->drawParticles(particleVertexBuffer, cameraRightWorldspaceID, cameraUpWorldspaceID, projectionMatrixID, projection);
+				emitters[i]->drawParticles(particleVertexBuffer, cameraRightWorldspaceID, cameraUpWorldspaceID, projectionMatrixID, projection, cameraPos);
 		}
 
 		// Use the particle shader
@@ -55,12 +55,16 @@ void ParticleSystem::drawParticles(const mat3& projection)
 		cameraRightWorldspaceID = glGetUniformLocation(shaderProgram.program, "cameraRightWorldspace");
 		cameraUpWorldspaceID = glGetUniformLocation(shaderProgram.program, "cameraUpWorldspace");
 		projectionMatrixID = glGetUniformLocation(shaderProgram.program, "projection");
+		cameraPosID = glGetUniformLocation(shaderProgram.program, "cameraPos");
 
 		// Hardcoded the cameraRight and up direction because we are a 2D game and don't allow camera rotation
 		glUniform3f(cameraRightWorldspaceID, 1.0f, 0.0f, 0.0f);
 		glUniform3f(cameraUpWorldspaceID, 0.0f, 1.0f, 0.0f);
 
 		glUniformMatrix3fv(projectionMatrixID, 1, GL_FALSE, (float*)&projection);
+		glUniform2f(cameraPosID, cameraPos.x, cameraPos.y);
+
+
 
 		prepRender();
 		//This line make sure that every instance of a particle uses the same 4 verticies
@@ -326,7 +330,7 @@ void ParticleEmitter::step(float elapsedMs)
 		this->simulateParticles(elapsedMs, newParticles);
 }
 
-void ParticleEmitter::drawParticles(GLuint vertexBuffer, GLuint cameraRightWorldspaceID, GLuint cameraUpWorldspaceID, GLuint projectionMatrixID, const mat3& projection)
+void ParticleEmitter::drawParticles(GLuint vertexBuffer, GLuint cameraRightWorldspaceID, GLuint cameraUpWorldspaceID, GLuint projectionMatrixID, const mat3& projection, const vec2& cameraPos)
 {
 
 		// Use the particle shader
@@ -336,12 +340,14 @@ void ParticleEmitter::drawParticles(GLuint vertexBuffer, GLuint cameraRightWorld
 		cameraRightWorldspaceID = glGetUniformLocation(shaderProgram.program, "cameraRightWorldspace");
 		cameraUpWorldspaceID = glGetUniformLocation(shaderProgram.program, "cameraUpWorldspace");
 		projectionMatrixID = glGetUniformLocation(shaderProgram.program, "projection");
+		cameraPosID = glGetUniformLocation(shaderProgram.program, "cameraPos");
 
 		// Hardcoded the cameraRight and up direction because we are a 2D game and don't allow camera rotation
 		glUniform3f(cameraRightWorldspaceID, 1.0f, 0.0f, 0.0f);
 		glUniform3f(cameraUpWorldspaceID, 0.0f, 1.0f, 0.0f);
 
 		glUniformMatrix3fv(projectionMatrixID, 1, GL_FALSE, (float*)&projection);
+		glUniform2f(cameraPosID, cameraPos.x, cameraPos.y);
 
 		prepRender(vertexBuffer);
 		//This line make sure that every instance of a particle uses the same 4 verticies
