@@ -26,8 +26,8 @@ public:
 	};
 
 private:
-	bool getClosestPlayer(ECS::Entity& mob);
-	bool getClosestMob(ECS::Entity& mob);
+	bool setTargetToClosestPlayer(ECS::Entity& mob);
+	bool setTargetToAllyMob(ECS::Entity& mob);
 
 	void startMobMoveToPlayer(ECS::Entity entity);
 	void startMobMoveToMob(ECS::Entity entity);

@@ -61,7 +61,7 @@ void AISystem::MobComponent::setTarget(ECS::Entity target)
 	this->target = target;
 }
 
-bool AISystem::getClosestPlayer(ECS::Entity& mob)
+bool AISystem::setTargetToClosestPlayer(ECS::Entity& mob)
 {
 	// Movement for mobs - move to closest player
 	ECS::Entity closestPlayer;
@@ -99,43 +99,38 @@ bool AISystem::getClosestPlayer(ECS::Entity& mob)
 	return closestDistance != float_max;
 }
 
-bool AISystem::getClosestMob(ECS::Entity& mob)
+bool AISystem::setTargetToAllyMob(ECS::Entity& mob)
 {
-	// Movement for mobs - move to closest mob
-	// Just milk for now
-	ECS::Entity closestAlly;
+	ECS::Entity targetAlly;
 	// Given mob variable should be a mob
 	assert(mob.has<MobComponent>());
 	auto& mobComponent = mob.get<MobComponent>();
-	auto& mobMotion = mob.get<Motion>();
 
 	auto& mobContainer = ECS::registry<MobComponent>;
 	// When called, there should always be current active mob and one ally
 	assert(mobContainer.entities.size() > 1);
 
-	// Find the closest living mob
+	// Find the ally with lowest HP
 	constexpr auto float_max = std::numeric_limits<float>::max();
-	float closestDistance = float_max;
+	float lowestHP = float_max;
 
 	for (auto ally : mobContainer.entities)
 	{
-		// Check for all other mobs that is alive and has Motion component
+		// Check for all other mobs that are alive and has Motion component
 		if (!(ally.id == mob.id) && !ally.has<DeathTimer>() && ally.has<Motion>())
 		{
-			// Calculate the distance to this mob
-			auto& allyMotion = ally.get<Motion>();
-			float allyDistance = distance(mobMotion.position, allyMotion.position);
-
-			// If this player is closer, update the closest player
-			if (allyDistance < closestDistance)
+			auto& allyStats = ally.get<StatsComponent>();
+			auto allyHP = allyStats.getStatValue(StatType::HP);
+			// Update ally to find mob with lowest HP
+			if (allyHP < allyStats.getStatValue(StatType::MAXHP) && allyHP < lowestHP)
 			{
-				closestDistance = allyDistance;
-				closestAlly = ally;
+				lowestHP = allyHP;
+				targetAlly = ally;
 			}
 		}
 	}
-	mobComponent.setTarget(closestAlly);
-	return closestDistance != float_max;
+	mobComponent.setTarget(targetAlly);
+	return lowestHP != float_max;
 }
 
 void AISystem::startMobMoveToPlayer(ECS::Entity entity)
@@ -147,7 +142,7 @@ void AISystem::startMobMoveToPlayer(ECS::Entity entity)
 
 	std::cout << "Moving towards player\n";
 
-	if (getClosestPlayer(entity)) {
+	if (setTargetToClosestPlayer(entity)) {
 		ECS::Entity closestPlayer = entity.get<MobComponent>().getTarget();
 		//Find the direction to travel towards the player
 		vec2 direction = normalize(closestPlayer.get<Motion>().position - motion.position);
@@ -169,7 +164,7 @@ void AISystem::startMobMoveToMob(ECS::Entity entity)
 
 	std::cout << "Moving towards mob ally\n";
 
-	if (getClosestMob(entity)) {
+	if (setTargetToAllyMob(entity)) {
 		ECS::Entity closestMob = entity.get<MobComponent>().getTarget();
 		//Find the direction to travel towards the player
 		vec2 direction = normalize(closestMob.get<Motion>().position - motion.position);
@@ -190,7 +185,7 @@ void AISystem::startMobRunAway(ECS::Entity entity)
 
 	std::cout << "Running away from player\n";
 
-	if (getClosestPlayer(entity)) {
+	if (setTargetToClosestPlayer(entity)) {
 		ECS::Entity closestPlayer = entity.get<MobComponent>().getTarget();
 		//Find the direction to travel away from the player
 		vec2 direction = normalize(motion.position - closestPlayer.get<Motion>().position);
@@ -210,9 +205,8 @@ void AISystem::startMobSkill(ECS::Entity entity)
 	auto& mobComponent = entity.get<MobComponent>();
 
 	std::cout << "Mob using skill\n";
-
-	// Skill currently targets the closest player
-	// TODO: This can change with cooperative actions like buffing between mobs
+	// TODO: Target is set in movement phase for now; 
+	// not sure if this is safe since we have mobs that don't move
 	ECS::Entity target = mobComponent.getTarget();
 	// Get position of closest player
 	assert(target.has<Motion>());
@@ -241,5 +235,12 @@ void AISystem::onStartMobRunAwayEvent(const StartMobRunAwayEvent& event)
 
 void AISystem::onStartMobSkillEvent(const StartMobSkillEvent& event)
 {
+	ECS::Entity entity = event.entity;
+	// Set the correct target depending on target type
+	// This is important within startMobSkill which calls getTarget()
+	if (event.targetIsPlayer)
+		setTargetToClosestPlayer(entity);
+	else
+		setTargetToAllyMob(entity);
 	startMobSkill(event.entity);
 }

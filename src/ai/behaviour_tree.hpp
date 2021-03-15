@@ -72,6 +72,16 @@ public:
 	void step(float elapsed_ms);
 };
 
+// Check condition before running child; always return SUCCESS
+class Conditional : public Node
+{
+public:
+	std::shared_ptr<Node> child;
+	bool condition;
+	void setConditional(std::shared_ptr<Node>, bool);
+	virtual void run();
+};
+
 // Parent class for all composite nodes
 class Composite : public Node
 {
@@ -114,52 +124,49 @@ public:
 	void run();
 };
 
-// Make milk heal closest mob or attack closest player (if no allies left)
+// Make milk run away if low HP then heal mob or attack if no allies left
 // Root node of Milk BehaviourTree
-class MilkTurnSelector : public Selector
+class MilkTurnSequence : public Sequence
 {
-private:
-	bool alliesLeft;
 public:
-	MilkTurnSelector(bool);
+	MilkTurnSequence();
 	void run();
 };
 
 // Make egg move closer to player or run away (if low HP)
 class EggMoveSelector : public Selector
 {
-private:
-	// HP of active mob entity
-	float hp;
 public:
-	EggMoveSelector(float);
+	EggMoveSelector();
 	void run();
 };
 
-// Make milk move closer to mob and heal
-class MilkHealSequence : public Sequence
+class PepperMoveSelector : public Selector
 {
 public:
-	MilkHealSequence();
+	PepperMoveSelector();
 	void run();
 };
 
-// Make milk move closer to player and attack
-class MilkAttackSequence : public Sequence
+class MilkSkillSelector : public Selector
 {
 public:
-	MilkAttackSequence();
+	MilkSkillSelector();
 	void run();
 };
 
 // Make milk move closer to player or run away (if low HP)
 class MilkMoveSelector : public Selector
 {
-private:
-	// HP of active mob entity
-	float hp;
 public:
-	MilkMoveSelector(float);
+	MilkMoveSelector();
+	void run();
+};
+
+class MilkMoveConditional : public Conditional
+{
+public:
+	MilkMoveConditional();
 	void run();
 };
 
