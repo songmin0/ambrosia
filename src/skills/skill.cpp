@@ -13,10 +13,7 @@ Skill::Skill(SkillParams params)
 
 void Skill::performSkill(vec2 target)
 {
-	assert(params.instigator.has<Motion>());
-
 	// Update the internal params
-	params.sourcePosition = params.instigator.get<Motion>().position;
 	params.targetPosition = target;
 
 	performSkillInternal();

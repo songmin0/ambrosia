@@ -2,8 +2,6 @@
 #include "game/common.hpp"
 #include "rendering/render_components.hpp"
 #include "rendering/render.hpp"
-
-#include <vector>
 #include <unordered_map> 
 
 enum class AnimationType { STATIC, IDLE, MOVE, ATTACK1, ATTACK2, ATTACK3, HIT, DEFEAT, ACTIVE, INACTIVE, DISABLED, EFFECT };
@@ -26,12 +24,12 @@ struct AnimationData
 
 struct AnimationsComponent
 {
-	std::unordered_map<AnimationType, AnimationData> anims;
+	std::unordered_map<AnimationType, std::shared_ptr<AnimationData>> anims;
 	AnimationType currentAnim;
-	AnimationData currAnimData;
+	std::shared_ptr<AnimationData> currAnimData;
 	ShadedMesh* referenceToCache;
 
-	AnimationsComponent(AnimationType type, const AnimationData& anim);
-	void addAnimation(AnimationType type, const AnimationData& anim);
+	AnimationsComponent(AnimationType type, const std::shared_ptr<AnimationData>& anim);
+	void addAnimation(AnimationType type, const std::shared_ptr<AnimationData>& anim);
 	void changeAnimation(AnimationType newAnim);
 };
