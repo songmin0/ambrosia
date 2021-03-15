@@ -20,7 +20,10 @@ enum class Status
 
 enum class MobType
 {
-	EGG
+	EGG,
+	PEPPER,
+	MILK,
+	POTATO
 };
 
 struct BehaviourTreeType
@@ -93,23 +96,92 @@ public:
 	virtual void run();
 };
 
-// Composite sequence of moving (selection) and attacking
-class MobTurnSequence : public Sequence
+// Composite sequence of moving (closer or away) and attacking
+// Root node of Egg BehaviourTree
+class EggTurnSequence : public Sequence
 {
 public:
-	MobTurnSequence();
+	EggTurnSequence();
 	void run();
 };
 
-// Make mob move closer to player or run away (if low HP)
-class MoveSelector : public Selector
+// Composite sequence of moving closer and attacking
+// Root node of Pepper BehaviourTree
+class PepperTurnSequence : public Sequence
+{
+public:
+	PepperTurnSequence();
+	void run();
+};
+
+// Make milk heal closest mob or attack closest player (if no allies left)
+// Root node of Milk BehaviourTree
+class MilkTurnSelector : public Selector
+{
+private:
+	bool alliesLeft;
+public:
+	MilkTurnSelector(bool);
+	void run();
+};
+
+// Make egg move closer to player or run away (if low HP)
+class EggMoveSelector : public Selector
 {
 private:
 	// HP of active mob entity
 	float hp;
 public:
-	MoveSelector(float);
+	EggMoveSelector(float);
 	void run();
+};
+
+// Make milk move closer to mob and heal
+class MilkHealSequence : public Sequence
+{
+public:
+	MilkHealSequence();
+	void run();
+};
+
+// Make milk move closer to player and attack
+class MilkAttackSequence : public Sequence
+{
+public:
+	MilkAttackSequence();
+	void run();
+};
+
+// Make milk move closer to player or run away (if low HP)
+class MilkMoveSelector : public Selector
+{
+private:
+	// HP of active mob entity
+	float hp;
+public:
+	MilkMoveSelector(float);
+	void run();
+};
+
+// Egg BehaviourTree
+struct EggBehaviourTree : public BehaviourTree
+{
+public:
+	EggBehaviourTree();
+};
+
+// Pepper BehaviourTree
+struct PepperBehaviourTree : public BehaviourTree
+{
+public:
+	PepperBehaviourTree();
+};
+
+// Milk BehaviourTree
+struct MilkBehaviourTree : public BehaviourTree
+{
+public:
+	MilkBehaviourTree();
 };
 
 struct Task : public Node
@@ -118,11 +190,20 @@ struct Task : public Node
 };
 
 // Task to move closer to closest player
-class MoveCloserTask : public Task
+class MoveToPlayerTask : public Task
 {
 public:
-	~MoveCloserTask();
-	void onFinishedMoveCloserEvent(const FinishedMovementEvent& event);
+	~MoveToPlayerTask();
+	void onFinishedMoveToPlayerEvent(const FinishedMovementEvent& event);
+	void run();
+};
+
+// Task to move closer to closest mob
+class MoveToMobTask : public Task
+{
+public:
+	~MoveToMobTask();
+	void onFinishedMoveToMobEvent(const FinishedMovementEvent& event);
 	void run();
 };
 
@@ -144,10 +225,11 @@ public:
 	void run();
 };
 
-// Egg mob Behaviour Tree
-// Root node is a MobTurnSequence
-struct EggBehaviourTree : public BehaviourTree
+// Task to heal closest mob
+class HealTask : public Task
 {
 public:
-	EggBehaviourTree();
+	~HealTask();
+	void onFinishedHealEvent(const FinishedSkillEvent& event);
+	void run();
 };

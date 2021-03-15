@@ -7,9 +7,22 @@ void StateSystem::onStartMobTurnEvent(const StartMobTurnEvent& event)
 {
 	ECS::Entity mob = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 	assert(mob.has<BehaviourTreeType>());
-	if (mob.get<BehaviourTreeType>().mobType == MobType::EGG)
+	auto mobBTreeType = mob.get<BehaviourTreeType>().mobType;
+
+	switch (mobBTreeType)
 	{
+	case MobType::EGG :
+	case MobType::POTATO :
 		activeTree = std::make_shared<BehaviourTree>(EggBehaviourTree());
+		break;
+	case MobType::PEPPER :
+		activeTree = std::make_shared<BehaviourTree>(PepperBehaviourTree());
+		break;
+	case MobType::MILK :
+		activeTree = std::make_shared<BehaviourTree>(MilkBehaviourTree());
+		break;
+	default :
+		break;
 	}
 }
 
@@ -55,6 +68,7 @@ void Selector::run()
 		}
 		break;
 	case Status::RUNNING:
+		current->run();
 		break;
 	}
 }
@@ -92,39 +106,77 @@ void Sequence::run()
 
 // MOB AI
 // =====================================================================
+// ROOT NODES
 
-MobTurnSequence::MobTurnSequence()
+EggTurnSequence::EggTurnSequence()
 {
 	ECS::Entity mob = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 	float hp = mob.get<StatsComponent>().getStatValue(StatType::HP);
-	addChild(std::make_shared<MoveSelector>(MoveSelector(hp)));
+	addChild(std::make_shared<EggMoveSelector>(EggMoveSelector(hp)));
 	addChild(std::make_shared<AttackTask>(AttackTask()));
 }
 
-void MobTurnSequence::run()
+void EggTurnSequence::run()
 {
 	Node::run();
 	Sequence::run();
 }
 
-// MOVING
+PepperTurnSequence::PepperTurnSequence()
+{
+	addChild(std::make_shared<MoveToPlayerTask>(MoveToPlayerTask()));
+	addChild(std::make_shared<AttackTask>(AttackTask()));
+}
 
-MoveSelector::MoveSelector(float hp)
+void PepperTurnSequence::run()
+{
+	Node::run();
+	Sequence::run();
+}
+
+MilkTurnSelector::MilkTurnSelector(bool alliesLeft)
+	: alliesLeft(alliesLeft)
+{
+	addChild(std::make_shared<MilkHealSequence>(MilkHealSequence()));
+	addChild(std::make_shared<MilkAttackSequence>(MilkAttackSequence()));
+}
+
+void MilkTurnSelector::run()
+{
+	Node::run();
+	std::shared_ptr<Node> healSequence = children.front();
+	std::shared_ptr<Node> attackSequence = children.back();
+	if (alliesLeft)
+	{
+		// Want to heal; set attack sequence to FAILURE
+		attackSequence->onTerminate(Status::FAILURE);
+	}
+	else
+	{
+		// Want to attack; set heal sequence to FAILURE
+		healSequence->onTerminate(Status::FAILURE);
+	}
+	Selector::run();
+}
+
+// COMPOSITE BEHAVIOUR NODES
+
+EggMoveSelector::EggMoveSelector(float hp)
 	: hp(hp)
 {
-	addChild(std::make_shared<MoveCloserTask>(MoveCloserTask()));
+	addChild(std::make_shared<MoveToPlayerTask>(MoveToPlayerTask()));
 	addChild(std::make_shared<RunAwayTask>(RunAwayTask()));
 }
 
-void MoveSelector::run()
+void EggMoveSelector::run()
 {
 	Node::run();
-	std::shared_ptr<Node> moveCloser = children.front();
+	std::shared_ptr<Node> moveToPlayer = children.front();
 	std::shared_ptr<Node> runAway = children.back();
 	if (hp < MOB_LOW_HEALTH)
 	{
 		// Want to run away; set move closer to FAILURE
-		moveCloser->onTerminate(Status::FAILURE);
+		moveToPlayer->onTerminate(Status::FAILURE);
 	}
 	else
 	{
@@ -134,7 +186,94 @@ void MoveSelector::run()
 	Selector::run();
 }
 
-MoveCloserTask::~MoveCloserTask()
+MilkHealSequence::MilkHealSequence()
+{
+	addChild(std::make_shared<MoveToMobTask>(MoveToMobTask()));
+	addChild(std::make_shared<HealTask>(HealTask()));
+}
+
+void MilkHealSequence::run()
+{
+	Node::run();
+	Sequence::run();
+}
+
+MilkAttackSequence::MilkAttackSequence()
+{
+	ECS::Entity mob = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+	float hp = mob.get<StatsComponent>().getStatValue(StatType::HP);
+	addChild(std::make_shared<MilkMoveSelector>(MilkMoveSelector(hp)));
+	addChild(std::make_shared<AttackTask>(AttackTask()));
+}
+
+void MilkAttackSequence::run()
+{
+	Node::run();
+	Sequence::run();
+}
+
+// Currently the same as egg; leaving in case we want to have different behaviour later
+MilkMoveSelector::MilkMoveSelector(float hp)
+	: hp(hp)
+{
+	addChild(std::make_shared<MoveToPlayerTask>(MoveToPlayerTask()));
+	addChild(std::make_shared<RunAwayTask>(RunAwayTask()));
+}
+
+void MilkMoveSelector::run()
+{
+	Node::run();
+	std::shared_ptr<Node> moveToPlayer = children.front();
+	std::shared_ptr<Node> runAway = children.back();
+	if (hp < MOB_LOW_HEALTH)
+	{
+		// Want to run away; set move closer to FAILURE
+		moveToPlayer->onTerminate(Status::FAILURE);
+	}
+	else
+	{
+		// Want to move closer; set running away to FAILURE
+		runAway->onTerminate(Status::FAILURE);
+	}
+	Selector::run();
+}
+
+// MOB BEHAVIOUR TREE
+// =====================================================================
+
+EggBehaviourTree::EggBehaviourTree()
+{
+	root = std::make_shared<EggTurnSequence>(EggTurnSequence());
+}
+
+PepperBehaviourTree::PepperBehaviourTree()
+{
+	root = std::make_shared<PepperTurnSequence>(PepperTurnSequence());
+}
+
+MilkBehaviourTree::MilkBehaviourTree()
+{
+	bool alliesLeft = false;
+	auto& entities = ECS::registry<TurnSystem::TurnComponent>.entities;
+	int numMobs = 0;
+	for (ECS::Entity entity : entities)
+	{
+		// Check if entity is a mob
+		if (entity.has<BehaviourTreeType>())
+			numMobs++;
+	}
+	// We should always at least have the active milk mob
+	assert(numMobs >= 1);
+	if (numMobs > 1)
+		alliesLeft = true;
+	root = std::make_shared<MilkTurnSelector>(MilkTurnSelector(alliesLeft));
+}
+
+// TASKS
+// Public tasks not meant for any single mob
+// =====================================================================
+
+MoveToPlayerTask::~MoveToPlayerTask()
 {
 	if (taskCompletedListener.isValid())
 	{
@@ -142,23 +281,50 @@ MoveCloserTask::~MoveCloserTask()
 	}
 }
 
-void MoveCloserTask::onFinishedMoveCloserEvent(const FinishedMovementEvent& event)
+void MoveToPlayerTask::onFinishedMoveToPlayerEvent(const FinishedMovementEvent& event)
 {
 	this->onTerminate(Status::SUCCESS);
 }
 
-void MoveCloserTask::run()
+void MoveToPlayerTask::run()
 {
 	if (this->status == Status::INVALID)
 	{
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
-			std::bind(&MoveCloserTask::onFinishedMoveCloserEvent, this, std::placeholders::_1));
-		StartMobMoveCloserEvent event;
+			std::bind(&MoveToPlayerTask::onFinishedMoveToPlayerEvent, this, std::placeholders::_1));
+		StartMobMoveToPlayerEvent event;
 		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
-		EventSystem<StartMobMoveCloserEvent>::instance().sendEvent(event);
+		EventSystem<StartMobMoveToPlayerEvent>::instance().sendEvent(event);
 	}
-	
+
+}
+
+MoveToMobTask::~MoveToMobTask()
+{
+	if (taskCompletedListener.isValid())
+	{
+		EventSystem<FinishedMovementEvent>::instance().unregisterListener(taskCompletedListener);
+	}
+}
+
+void MoveToMobTask::onFinishedMoveToMobEvent(const FinishedMovementEvent& event)
+{
+	this->onTerminate(Status::SUCCESS);
+}
+
+void MoveToMobTask::run()
+{
+	if (this->status == Status::INVALID)
+	{
+		Node::run();
+		taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
+			std::bind(&MoveToMobTask::onFinishedMoveToMobEvent, this, std::placeholders::_1));
+		StartMobMoveToMobEvent event;
+		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+		EventSystem<StartMobMoveToMobEvent>::instance().sendEvent(event);
+	}
+
 }
 
 RunAwayTask::~RunAwayTask()
@@ -210,13 +376,71 @@ void AttackTask::run()
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
 			std::bind(&AttackTask::onFinishedAttackEvent, this, std::placeholders::_1));
-		StartMobSkillEvent event;
-		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
-		EventSystem<StartMobSkillEvent>::instance().sendEvent(event);
+		ECS::Entity activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+		SetActiveSkillEvent activeEvent;
+		activeEvent.entity = activeEntity;
+		auto& mobType = activeEntity.get<BehaviourTreeType>().mobType;
+		switch (mobType)
+		{
+		case MobType::EGG:
+		case MobType::PEPPER:
+		case MobType::POTATO:
+			activeEvent.type = SkillType::SKILL1;
+			break;
+		case MobType::MILK:
+			activeEvent.type = SkillType::SKILL2;
+			break;
+		default:
+			activeEvent.type = SkillType::SKILL1;
+			break;
+		}
+		EventSystem<SetActiveSkillEvent>::instance().sendEvent(activeEvent);
+
+		StartMobSkillEvent skillEvent;
+		skillEvent.entity = activeEntity;
+		EventSystem<StartMobSkillEvent>::instance().sendEvent(skillEvent);
 	}
 }
 
-EggBehaviourTree::EggBehaviourTree()
+// HEALING
+
+HealTask::~HealTask()
 {
-	root = std::make_shared<MobTurnSequence>(MobTurnSequence());
+	if (taskCompletedListener.isValid())
+	{
+		EventSystem<FinishedSkillEvent>::instance().unregisterListener(taskCompletedListener);
+	}
+}
+
+void HealTask::onFinishedHealEvent(const FinishedSkillEvent& event)
+{
+	this->onTerminate(Status::SUCCESS);
+}
+
+void HealTask::run()
+{
+	if (this->status == Status::INVALID)
+	{
+		Node::run();
+		taskCompletedListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
+			std::bind(&HealTask::onFinishedHealEvent, this, std::placeholders::_1));
+		ECS::Entity activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+		SetActiveSkillEvent activeEvent;
+		activeEvent.entity = activeEntity;
+		auto& mobType = activeEntity.get<BehaviourTreeType>().mobType;
+		switch (mobType)
+		{
+		case MobType::MILK:
+			activeEvent.type = SkillType::SKILL1;
+			break;
+		default:
+			activeEvent.type = SkillType::SKILL1;
+			break;
+		}
+		EventSystem<SetActiveSkillEvent>::instance().sendEvent(activeEvent);
+
+		StartMobSkillEvent skillEvent;
+		skillEvent.entity = activeEntity;
+		EventSystem<StartMobSkillEvent>::instance().sendEvent(skillEvent);
+	}
 }

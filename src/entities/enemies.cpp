@@ -21,10 +21,6 @@ ECS::Entity Egg::createEgg(vec2 pos, float orientation)
 
 	// Give it a Mob component
 	entity.emplace<AISystem::MobComponent>();
-	// Set appropriate Behaviour Tree
-	//entity.emplace<EggBehaviourTree>();
-	//EggBehaviourTree bt;
-
 	auto& btType = entity.emplace<BehaviourTreeType>();
 	btType.mobType = MobType::EGG;
 
@@ -107,7 +103,7 @@ ECS::Entity Pepper::createPepper(vec2 pos, float orientation)
 	// Give it a Mob component
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
-	btType.mobType = MobType::EGG;
+	btType.mobType = MobType::PEPPER;
 
 	entity.emplace<TurnSystem::TurnComponent>();
 
@@ -189,7 +185,7 @@ ECS::Entity Milk::createMilk(vec2 pos, float orientation)
 	// TODO: AI for Milk
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
-	btType.mobType = MobType::EGG;
+	btType.mobType = MobType::MILK;
 
 	entity.emplace<TurnSystem::TurnComponent>();
 
@@ -241,7 +237,7 @@ ECS::Entity Milk::createMilk(vec2 pos, float orientation)
 	healParams.damage = 20.f; // this is "healing"
 	healParams.collidesWith = CollisionGroup::MOB;
 	healParams.collideWithMultipleEntities = false;
-	healParams.ignoreInstigator = false; // TODO: if true it never heals itself, if false it only ever heals itself
+	healParams.ignoreInstigator = true; // TODO: if true it never heals itself, if false it only ever heals itself
 	healParams.soundEffect = SoundEffect::PROJECTILE;
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(healParams, ProjectileType::HEAL_ORB));
 
@@ -275,7 +271,7 @@ ECS::Entity Potato::createPotato(vec2 pos, float orientation)
 	// Give it a Mob component
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
-	btType.mobType = MobType::EGG;
+	btType.mobType = MobType::POTATO;
 
 	entity.emplace<TurnSystem::TurnComponent>();
 
@@ -367,7 +363,7 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	// TODO: Figure this out for MashedPotato
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
-	btType.mobType = MobType::EGG;
+	btType.mobType = MobType::POTATO;
 
 	entity.emplace<TurnSystem::TurnComponent>();
 

@@ -20,23 +20,27 @@ public:
 	// Holds information
 	struct MobComponent
 	{
-		ECS::Entity closestPlayer;	// the closest player to mob
-		ECS::Entity getClosestPlayer();
-		void setClosestPlayer(ECS::Entity);
+		ECS::Entity target;
+		ECS::Entity getTarget();
+		void setTarget(ECS::Entity);
 	};
 
 private:
 	bool getClosestPlayer(ECS::Entity& mob);
+	bool getClosestMob(ECS::Entity& mob);
 
-	void startMobMoveCloser(ECS::Entity entity);
+	void startMobMoveToPlayer(ECS::Entity entity);
+	void startMobMoveToMob(ECS::Entity entity);
 	void startMobRunAway(ECS::Entity entity);
 	void startMobSkill(ECS::Entity entity);
 
-	void onStartMobMoveCloserEvent(const StartMobMoveCloserEvent& event);
+	void onStartMobMoveToPlayerEvent(const StartMobMoveToPlayerEvent& event);
+	void onStartMobMoveToMobEvent(const StartMobMoveToMobEvent& event);
 	void onStartMobRunAwayEvent(const StartMobRunAwayEvent& event);
 	void onStartMobSkillEvent(const StartMobSkillEvent& event);
 
-	EventListenerInfo startMobMoveCloserListener;
+	EventListenerInfo startMobMoveToPlayerListener;
+	EventListenerInfo startMobMoveToMobListener;
 	EventListenerInfo startMobRunAwayListener;
 	EventListenerInfo startMobSkillListener;
 
