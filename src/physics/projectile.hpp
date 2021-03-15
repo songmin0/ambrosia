@@ -1,12 +1,15 @@
 #pragma once
 #include "game/common.hpp"
 #include "entities/tiny_ecs.hpp"
+#include "skills/entity_filter.hpp"
+#include "skills/entity_handler.hpp"
 
 #include <set>
 #include <functional>
 
 enum class ProjectileType
 {
+	INVALID,
 	BULLET,
 	BONE,
 	EGG_SHELL,
@@ -32,14 +35,13 @@ struct ProjectileParams
 {
 	ProjectileParams();
 
-	static ProjectileParams create(ProjectileType type, float damage);
+	static ProjectileParams create(ProjectileType type);
 
 	std::string spritePath;
 	vec2 spriteScale;
 	vec2 launchOffset;
 	float launchSpeed;
 	float rotationSpeed;
-	float damage;
 	Trajectory trajectory;
 };
 
@@ -47,9 +49,9 @@ struct ProjectileComponent
 {
 	ProjectileComponent();
 
-	inline void collideWith(ECS::Entity e) {ignoredEntities.insert(e.id);}
-	inline bool canCollideWith(ECS::Entity e) const {return ignoredEntities.count(e.id) == 0;}
+	void processCollision(ECS::Entity entity);
 
+public:
 	ECS::Entity instigator;
 	vec2 sourcePosition;
 	vec2 targetPosition;
@@ -58,6 +60,8 @@ struct ProjectileComponent
 	Phase phase;
 
 	std::set<int> ignoredEntities;
+	std::vector<std::shared_ptr<EntityFilter>> entityFilters;
+	std::shared_ptr<EntityHandler> entityHandler;
 
 	// This callback is executed when the projectile is finished. When using a linear trajectory, this happens when the
 	// projectile reaches the target position. When using a boomerang trajectory, this happens when the projectile gets

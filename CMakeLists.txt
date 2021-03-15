@@ -66,6 +66,7 @@ SET(SOURCE_FILES
         "src/skills/skill.cpp"
         "src/skills/entity_provider.cpp"
         "src/skills/entity_filter.cpp"
+        "src/skills/entity_handler.cpp"
         "src/skills/skill_system.cpp")
 
 # Add the directories that the compiler has to search for #include files
@@ -75,11 +76,13 @@ INCLUDE_DIRECTORIES(
         "src/animation"
         "src/entities"
         "src/game"
+        "src/level_loader"
         "src/maps"
+        "src/particles"
         "src/physics"
         "src/rendering"
-        "src/ui"
-        "src/particles")
+        "src/skills"
+        "src/ui")
 
 # external libraries will be installed into /usr/local/include and /usr/local/lib but that folder is not automatically included in the search on MACs
 if (IS_OS_MAC)

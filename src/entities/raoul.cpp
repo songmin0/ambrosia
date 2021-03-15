@@ -41,43 +41,38 @@ ECS::Entity Raoul::commonInit()
 	auto& skillComponent = entity.emplace<SkillComponent>();
 
 	// Melee hit
-	SkillParams meleeParams;
-	meleeParams.instigator = entity;
-	meleeParams.animationType = AnimationType::ATTACK1;
-	meleeParams.delay = 1.f;
-	meleeParams.damage = 30.f;
-	meleeParams.range = 200.f;
-	meleeParams.collideWithMultipleEntities = false;
-	meleeParams.collidesWith = CollisionGroup::MOB;
-	meleeParams.soundEffect = SoundEffect::MELEE;
-	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<MeleeSkill>(meleeParams));
+	auto meleeParams = std::make_shared<AoESkillParams>();
+	meleeParams->instigator = entity;
+	meleeParams->soundEffect = SoundEffect::MELEE;
+	meleeParams->animationType = AnimationType::ATTACK1;
+	meleeParams->delay = 1.f;
+	meleeParams->entityProvider = std::make_shared<CircularProvider>(200.f);
+	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+	meleeParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
+	meleeParams->entityHandler = std::make_shared<DamageHandler>(30.f);
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(meleeParams));
 
 	// Strength buff for nearby players (the instigator will also be buffed)
-	StatModifier strengthBuffModifier;
-	strengthBuffModifier.statType = StatType::STRENGTH;
-	strengthBuffModifier.value = 0.1f;
-	strengthBuffModifier.timer = 60.f;
-
-	SkillParams strengthBuffParams;
-	strengthBuffParams.instigator = entity;
-	strengthBuffParams.animationType = AnimationType::ATTACK2;
-	strengthBuffParams.delay = 1.f;
-	strengthBuffParams.range = 300.f;
-	strengthBuffParams.ignoreInstigator = false;
-	strengthBuffParams.collideWithMultipleEntities = true;
-	strengthBuffParams.collidesWith = CollisionGroup::PLAYER;
-	strengthBuffParams.soundEffect = SoundEffect::BUFF;
-	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<BuffProximitySkill>(strengthBuffParams, strengthBuffModifier));
+	auto strengthBuffParams = std::make_shared<AoESkillParams>();
+	strengthBuffParams->instigator = entity;
+	strengthBuffParams->soundEffect = SoundEffect::BUFF;
+	strengthBuffParams->animationType = AnimationType::ATTACK2;
+	strengthBuffParams->delay = 1.f;
+	strengthBuffParams->entityProvider = std::make_shared<CircularProvider>(300.f);
+	strengthBuffParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
+	strengthBuffParams->entityHandler = std::make_shared<BuffHandler>(StatType::STRENGTH, 0.1f, 60.f);
+	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(strengthBuffParams));
 
 	// Bone throw projectile attack
-	SkillParams boneThrowParams;
-	boneThrowParams.instigator = entity;
-	boneThrowParams.animationType = AnimationType::ATTACK3;
-	boneThrowParams.delay = 0.6f;
-	boneThrowParams.damage = 20.f;
-	boneThrowParams.collidesWith = CollisionGroup::MOB;
-	boneThrowParams.soundEffect = SoundEffect::PROJECTILE;
-	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<ProjectileSkill>(boneThrowParams, ProjectileType::BONE));
+	auto boneThrowParams = std::make_shared<ProjectileSkillParams>();
+	boneThrowParams->instigator = entity;
+	boneThrowParams->soundEffect = SoundEffect::PROJECTILE;
+	boneThrowParams->animationType = AnimationType::ATTACK3;
+	boneThrowParams->delay = 0.6f;
+	boneThrowParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+	boneThrowParams->entityHandler = std::make_shared<DamageHandler>(20.f);
+	boneThrowParams->projectileType = ProjectileType::BONE;
+	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<ProjectileSkill>(boneThrowParams));
 
 	entity.emplace<Raoul>();
 	return entity;
@@ -98,7 +93,6 @@ ECS::Entity Raoul::createRaoul(json configValues)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = vec2(configValues.at("position")[0], configValues.at("position")[1]);
 	motion.colliderType = CollisionGroup::PLAYER;
-	motion.collidesWith = CollisionGroup::MOB;
 
 	// hitbox scaling
 	auto hitboxScale = vec2({ 0.6f, 0.9f });
@@ -136,7 +130,6 @@ ECS::Entity Raoul::createRaoul(vec2 position)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = position;
 	motion.colliderType = CollisionGroup::PLAYER;
-	motion.collidesWith = CollisionGroup::MOB;
 
 	// hitbox scaling
 	auto hitboxScale = vec2({ 0.6f, 0.9f });

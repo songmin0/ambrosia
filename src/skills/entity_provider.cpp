@@ -64,12 +64,12 @@ namespace
 	}
 }
 
-std::vector<ECS::Entity> CircularProvider::getEntities(const SkillParams& params)
+std::vector<ECS::Entity> CircularProvider::getEntities(ECS::Entity instigator,
+																											 vec2 targetPosition)
 {
 	// Pairs of entities and their distances to the instigator
 	std::vector<std::pair<ECS::Entity, float>> entities;
 
-	ECS::Entity instigator = params.instigator;
 	assert(instigator.has<Motion>());
 	vec2 instigatorPosition = instigator.get<Motion>().position;
 
@@ -84,7 +84,7 @@ std::vector<ECS::Entity> CircularProvider::getEntities(const SkillParams& params
 		// Find all targets whose bounding box intersects with the circle
 		float dist = distance(centerOfInstigator,
 													getClosestPointOnBoundingBox(centerOfInstigator, motion));
-		if (dist <= params.range)
+		if (dist <= radius)
 		{
 			// Targets will be sorted based on the distance from the targets ground/foot
 			// position to the instigator's ground/foot position
@@ -97,14 +97,15 @@ std::vector<ECS::Entity> CircularProvider::getEntities(const SkillParams& params
 	return getSortedEntities(entities);
 }
 
-std::vector<ECS::Entity> ConicalProvider::getEntities(const SkillParams &params)
+std::vector<ECS::Entity> ConicalProvider::getEntities(ECS::Entity instigator,
+																											vec2 targetPosition)
 {
 	// Pairs of entities and their angular distance
 	std::vector<std::pair<ECS::Entity, float>> entities;
 
 	// We should search in a cone that starts at the center of the instigator
-	vec2 centerOfInstigator = getCenterOfEntity(params.instigator);
-	vec2 instigatorToTarget = normalize(params.targetPosition - centerOfInstigator);
+	vec2 centerOfInstigator = getCenterOfEntity(instigator);
+	vec2 instigatorToTarget = normalize(targetPosition - centerOfInstigator);
 
 	for (int i = 0; i < ECS::registry<Motion>.entities.size(); i++)
 	{
@@ -115,7 +116,7 @@ std::vector<ECS::Entity> ConicalProvider::getEntities(const SkillParams &params)
 		vec2 sourceToEntity = normalize(motion.position - centerOfInstigator);
 
 		float entityAngle = acos(dot(instigatorToTarget, sourceToEntity));
-		if (entityAngle <= params.angle)
+		if (entityAngle <= angle)
 		{
 			entities.emplace_back(entity, entityAngle);
 		}
@@ -124,13 +125,14 @@ std::vector<ECS::Entity> ConicalProvider::getEntities(const SkillParams &params)
 	return getSortedEntities(entities);
 }
 
-std::vector<ECS::Entity> MouseClickProvider::getEntities(const SkillParams &params)
+std::vector<ECS::Entity> MouseClickProvider::getEntities(ECS::Entity instigator,
+																												 vec2 targetPosition)
 {
 	// Pairs of entities and their distance to the mouse click
 	std::vector<std::pair<ECS::Entity, float>> entities;
 
 	// We should search in a circle around the mouse click position
-	vec2 mouseClickPosition = params.targetPosition;
+	vec2 mouseClickPosition = targetPosition;
 
 	// Find all targets whose bounding box intersects with the circle
 	for (int i = 0; i < ECS::registry<Motion>.entities.size(); i++)
@@ -140,7 +142,7 @@ std::vector<ECS::Entity> MouseClickProvider::getEntities(const SkillParams &para
 
 		float dist = distance(mouseClickPosition,
 													getClosestPointOnBoundingBox(mouseClickPosition, motion));
-		if (dist <= params.range)
+		if (dist <= radius)
 		{
 			// Targets will be sorted based on the distance from the targets ground/foot
 			// position to the instigator's ground/foot position
