@@ -146,7 +146,8 @@ void EggTurnSequence::run()
 
 PepperTurnSequence::PepperTurnSequence()
 {
-	addChild(std::make_shared<MoveToPlayerTask>(MoveToPlayerTask()));
+	//addChild(std::make_shared<MoveToPlayerTask>(MoveToPlayerTask()));
+	addChild(std::make_shared<PepperMoveSelector>(PepperMoveSelector()));
 	addChild(std::make_shared<AttackTask>(AttackTask()));
 }
 
@@ -207,18 +208,25 @@ void PepperMoveSelector::run()
 	Node::run(); 
 	std::shared_ptr<Node> moveToMob = children.front();
 	std::shared_ptr<Node> moveToPlayer = children.back();
-	bool shouldHeal = false;
 	auto& entities = ECS::registry<TurnSystem::TurnComponent>.entities;
-	int numAllies = 0;
+	bool shouldProtect = false;
 	for (ECS::Entity entity : entities)
 	{
 		auto& allyStats = entity.get<StatsComponent>();
-		// Check if entity is an ally that needs healing
-		if (entity.has<BehaviourTreeType>() && !entity.has<TurnSystem::TurnComponentIsActive>() && allyStats.getStatValue(StatType::HP) < allyStats.getStatValue(StatType::MAXHP))
-			numAllies++;
+		// Check if there is an ally that needs protecting (low HP)
+		if (entity.has<BehaviourTreeType>() && !entity.has<TurnSystem::TurnComponentIsActive>() &&
+			allyStats.getStatValue(StatType::HP) < MOB_LOW_HEALTH)
+		{
+			shouldProtect = true;
+			break;
+		}
 	}
-	if (numAllies > 1)
-		shouldHeal = true;
+	if (shouldProtect)
+		moveToPlayer->onTerminate(Status::FAILURE);
+	else
+		moveToMob->onTerminate(Status::FAILURE);
+	
+	Selector::run();
 }
 
 MilkSkillSelector::MilkSkillSelector()
@@ -234,26 +242,22 @@ void MilkSkillSelector::run()
 	std::shared_ptr<Node> attackPlayer = children.back();
 	bool shouldHeal = false;
 	auto& entities = ECS::registry<TurnSystem::TurnComponent>.entities;
-	int numAllies = 0;
 	for (ECS::Entity entity : entities)
 	{
 		auto& allyStats = entity.get<StatsComponent>();
-		// Check if entity is an ally that needs healing
-		if (entity.has<BehaviourTreeType>() && !entity.has<TurnSystem::TurnComponentIsActive>() && 
+		// Check if there is an ally that needs healing
+		if (entity.has<BehaviourTreeType>() && !entity.has<TurnSystem::TurnComponentIsActive>() &&
 			allyStats.getStatValue(StatType::HP) < allyStats.getStatValue(StatType::MAXHP))
-			numAllies++;
+		{
+			shouldHeal = true;
+			break;
+		}
 	}
-	if (numAllies > 0)
-		shouldHeal = true;
-
 	if (shouldHeal)
-	{
 		attackPlayer->onTerminate(Status::FAILURE);
-	}
 	else
-	{
 		healMob->onTerminate(Status::FAILURE);
-	}
+
 	Selector::run();
 }
 
@@ -330,7 +334,6 @@ MoveToPlayerTask::~MoveToPlayerTask()
 
 void MoveToPlayerTask::onFinishedMoveToPlayerEvent(const FinishedMovementEvent& event)
 {
-	std::cout << "Heard finished MoveToPlayer event\n";
 	this->onTerminate(Status::SUCCESS);
 }
 
@@ -338,6 +341,7 @@ void MoveToPlayerTask::run()
 {
 	if (this->status == Status::INVALID)
 	{
+		std::cout << "Moving to closest player\n";
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
 			std::bind(&MoveToPlayerTask::onFinishedMoveToPlayerEvent, this, std::placeholders::_1));
@@ -358,7 +362,6 @@ MoveToMobTask::~MoveToMobTask()
 
 void MoveToMobTask::onFinishedMoveToMobEvent(const FinishedMovementEvent& event)
 {
-	std::cout << "Heard finished MoveToMob event\n";
 	this->onTerminate(Status::SUCCESS);
 }
 
@@ -366,6 +369,7 @@ void MoveToMobTask::run()
 {
 	if (this->status == Status::INVALID)
 	{
+		std::cout << "Moving to ally with lowest HP\n";
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
 			std::bind(&MoveToMobTask::onFinishedMoveToMobEvent, this, std::placeholders::_1));
@@ -386,13 +390,13 @@ RunAwayTask::~RunAwayTask()
 
 void RunAwayTask::onFinishedRunAwayEvent(const FinishedMovementEvent& event)
 {
-	std::cout << "Heard finished RunAway event\n";
 	this->onTerminate(Status::SUCCESS);
 }
 
 void RunAwayTask::run()
 {
 	if (this->status == Status::INVALID) {
+		std::cout << "Running away from closest player\n";
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
 			std::bind(&RunAwayTask::onFinishedRunAwayEvent, this, std::placeholders::_1));
@@ -415,7 +419,6 @@ AttackTask::~AttackTask()
 
 void AttackTask::onFinishedAttackEvent(const FinishedSkillEvent& event)
 {
-	std::cout << "Heard finished Attack event\n";
 	this->onTerminate(Status::SUCCESS);
 }
 
@@ -423,6 +426,7 @@ void AttackTask::run()
 {
 	if (this->status == Status::INVALID)
 	{
+		std::cout << "Attacking closest player\n";
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
 			std::bind(&AttackTask::onFinishedAttackEvent, this, std::placeholders::_1));
@@ -466,7 +470,6 @@ HealTask::~HealTask()
 
 void HealTask::onFinishedHealEvent(const FinishedSkillEvent& event)
 {
-	std::cout << "Heard finished Heal event\n";
 	this->onTerminate(Status::SUCCESS);
 }
 
@@ -474,6 +477,7 @@ void HealTask::run()
 {
 	if (this->status == Status::INVALID)
 	{
+		std::cout << "Healing ally with lowest HP\n";
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
 			std::bind(&HealTask::onFinishedHealEvent, this, std::placeholders::_1));
