@@ -69,6 +69,7 @@ private:
 
 	// Game state
 	float current_speed;
+	int curr_level;
 
 	// Player test
 	ECS::Entity playerRaoul;
@@ -92,4 +93,5 @@ private:
 
 	//config obj
 	json config;
+	json recipe;
 };
