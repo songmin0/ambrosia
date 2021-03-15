@@ -1,6 +1,7 @@
 #pragma once
 #include "animation_system.hpp"
 #include "animation_components.hpp"
+#include "game/game_state_system.hpp"
 
 AnimationSystem::AnimationSystem()
 {
@@ -45,57 +46,59 @@ void AnimationSystem::updateOrientation(Motion& motion, const vec2 direction)
 // call this every frame
 void AnimationSystem::step()
 {
-	// for each Animation component...
-	for (auto& entity : ECS::registry<AnimationsComponent>.entities)
-	{
-		auto& anims = entity.get<AnimationsComponent>();
-		// get the data for the current animation
-		std::shared_ptr<AnimationData>& currAnim = anims.currAnimData;
-
-		// if the anim is waiting for frame delay, decrement the delay timer and don't do anything else
-		if (currAnim->delayTimer > 0)
-		{
-			currAnim->delayTimer--;
-			continue;
-		}
-
-		///////////////////////////////////
-	   /// else it's time to animate /////
-	  ///////////////////////////////////
-
-		// Check if we should switch between move and idle animations
-		checkAnimation(entity);
-
-	   // reset the timer
-		currAnim->delayTimer = currAnim->delay;
-
-		//calculate it's current frame...
-		if (!currAnim->isCycle)
-		{
-			// if we're on the last frame and we don't cycle...
-			if (currAnim->currFrame >= currAnim->numFrames - 1)
-			{
-				// for all anims that don't cycle except defeat, try to return to idle
-				if (anims.currentAnim != AnimationType::DEFEAT)
+		if (GameStateSystem::instance().inGameState()) {
+				// for each Animation component...
+				for (auto& entity : ECS::registry<AnimationsComponent>.entities)
 				{
-					anims.changeAnimation(AnimationType::IDLE);
+						auto& anims = entity.get<AnimationsComponent>();
+						// get the data for the current animation
+						std::shared_ptr<AnimationData>& currAnim = anims.currAnimData;
+
+						// if the anim is waiting for frame delay, decrement the delay timer and don't do anything else
+						if (currAnim->delayTimer > 0)
+						{
+								currAnim->delayTimer--;
+								continue;
+						}
+
+						///////////////////////////////////
+								/// else it's time to animate /////
+							///////////////////////////////////
+
+						// Check if we should switch between move and idle animations
+						checkAnimation(entity);
+
+						// reset the timer
+						currAnim->delayTimer = currAnim->delay;
+
+						//calculate it's current frame...
+						if (!currAnim->isCycle)
+						{
+								// if we're on the last frame and we don't cycle...
+								if (currAnim->currFrame >= currAnim->numFrames - 1)
+								{
+										// for all anims that don't cycle except defeat, try to return to idle
+										if (anims.currentAnim != AnimationType::DEFEAT)
+										{
+												anims.changeAnimation(AnimationType::IDLE);
+										}
+								}
+								else
+								{
+										currAnim->currFrame++;
+								}
+						}
+						else
+						{
+								// the animation loops, increment and calculate cycle
+								currAnim->currFrame++;
+								currAnim->currFrame = currAnim->currFrame % currAnim->numFrames;
+								// sanity check, if numFrames is 5, and currFrame is 5, then we want to loop back to frame 0
+								// numFrames is like "length" of an array (it's 1-based) but currFrames is like "index" of an array (it's 0-based)
+								// hence currAnim.currFrame should always stay between 0:(numFrames-1)
+						}
 				}
-			}
-			else
-			{
-				currAnim->currFrame++;
-			}
 		}
-		else
-		{
-			// the animation loops, increment and calculate cycle
-			currAnim->currFrame++;
-			currAnim->currFrame = currAnim->currFrame % currAnim->numFrames;
-			// sanity check, if numFrames is 5, and currFrame is 5, then we want to loop back to frame 0
-			// numFrames is like "length" of an array (it's 1-based) but currFrames is like "index" of an array (it's 0-based)
-			// hence currAnim.currFrame should always stay between 0:(numFrames-1)
-		}
-	}
 };
 
 void AnimationSystem::checkAnimation(ECS::Entity& entity)

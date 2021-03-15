@@ -1,5 +1,8 @@
 #include "game_state_system.hpp"
 #include <level_loader/level_loader.hpp>
+#include "ui/menus.hpp"
+#include "camera.hpp"
+
 
 
 GameStateSystem::GameStateSystem() {
@@ -69,4 +72,16 @@ void GameStateSystem::launchDefeatScreen()
 void GameStateSystem::launchMainMenu()
 {
 		//TODO fill in
+		isInMainScreen = true;
+		Camera::createCamera(vec2{ 0.0f,0.0f });
+
+		int frameBufferWidth, frameBufferHeight;
+		glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
+
+		StartMenu::createStartMenu(frameBufferWidth, frameBufferHeight);
+}
+
+void GameStateSystem::setWindow(GLFWwindow* window)
+{
+		this->window = window;
 }

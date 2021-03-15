@@ -96,43 +96,44 @@ WorldSystem::~WorldSystem(){
 // Update our game world
 void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
-	// Updating window title with points
-	std::stringstream title_ss;
-	title_ss << "Points: " << points;
-	glfwSetWindowTitle(window, title_ss.str().c_str());
+		if (GameStateSystem::instance().inGameState()) {
+				// Updating window title with points
+				std::stringstream title_ss;
+				title_ss << "Points: " << points;
+				glfwSetWindowTitle(window, title_ss.str().c_str());
 
-	// Check for player defeat
-	assert(ECS::registry<ScreenState>.components.size() == 1);
-	auto& screen = ECS::registry<ScreenState>.components[0];
+				// Check for player defeat
+				assert(ECS::registry<ScreenState>.components.size() == 1);
+				auto& screen = ECS::registry<ScreenState>.components[0];
 
-	for (auto entity : ECS::registry<DeathTimer>.entities)
-	{
-		// Progress timer
-		auto& counter = ECS::registry<DeathTimer>.get(entity);
-		counter.counter_ms -= elapsed_ms;
+				for (auto entity : ECS::registry<DeathTimer>.entities)
+				{
+						// Progress timer
+						auto& counter = ECS::registry<DeathTimer>.get(entity);
+						counter.counter_ms -= elapsed_ms;
 
-		// Remove player/mob once death timer expires
-		if (counter.counter_ms < 0)
-		{
-				//If the entity has a stats component get rid of the health bar too
-			if (entity.has<StatsComponent>()) {
-						ECS::ContainerInterface::removeAllComponentsOf(entity.get<StatsComponent>().healthBar);
-			}
-			ECS::ContainerInterface::removeAllComponentsOf(entity);
-			// Check if there are no more players left, restart game
-			if (ECS::registry<PlayerComponent>.entities.empty())
-			{
-				EventSystem<PlaySoundEffectEvent>::instance().sendEvent({SoundEffect::GAME_OVER});
-				restart();
-				return;
-			}
+						// Remove player/mob once death timer expires
+						if (counter.counter_ms < 0)
+						{
+								//If the entity has a stats component get rid of the health bar too
+								if (entity.has<StatsComponent>()) {
+										ECS::ContainerInterface::removeAllComponentsOf(entity.get<StatsComponent>().healthBar);
+								}
+								ECS::ContainerInterface::removeAllComponentsOf(entity);
+								// Check if there are no more players left, restart game
+								if (ECS::registry<PlayerComponent>.entities.empty())
+								{
+										EventSystem<PlaySoundEffectEvent>::instance().sendEvent({ SoundEffect::GAME_OVER });
+										restart();
+										return;
+								}
+						}
+				}
+				if (ECS::registry<AISystem::MobComponent>.entities.size() == 0) {
+						//TODO make this go to the victory screen. For now launch into the next map
+						GameStateSystem::instance().nextMap();
+				}
 		}
-	}
-
-	if (ECS::registry<AISystem::MobComponent>.entities.size() == 0) {
-			//TODO make this go to the victory screen. For now launch into the next map
-			GameStateSystem::instance().nextMap();
-	}
 }
 
 // Reset the world state to its initial state
@@ -176,36 +177,38 @@ void WorldSystem::restart()
 // Compute collisions between entities
 void WorldSystem::handleCollisions()
 {
-	// Loop over all collisions detected by the physics system
-	auto& registry = ECS::registry<PhysicsSystem::Collision>;
-	for (unsigned int i=0; i< registry.components.size(); i++)
-	{
-		// The entity and its collider
-		auto entity = registry.entities[i];
-		auto entity_other = registry.components[i].other;
+		if (GameStateSystem::instance().inGameState()) {
+				// Loop over all collisions detected by the physics system
+				auto& registry = ECS::registry<PhysicsSystem::Collision>;
+				for (unsigned int i = 0; i < registry.components.size(); i++)
+				{
+						// The entity and its collider
+						auto entity = registry.entities[i];
+						auto entity_other = registry.components[i].other;
 
-		// Check for projectiles colliding with the player or with the eggs
-		if (ECS::registry<ProjectileComponent>.has(entity))
-		{
-			auto& projComponent = entity.get<ProjectileComponent>();
+						// Check for projectiles colliding with the player or with the eggs
+						if (ECS::registry<ProjectileComponent>.has(entity))
+						{
+								auto& projComponent = entity.get<ProjectileComponent>();
 
-			// Only allowing a projectile to collide with an entity once. It can collide with multiple entities, but only once
-			// per entity
-			if (projComponent.canCollideWith(entity_other))
-			{
-				projComponent.collideWith(entity_other);
+								// Only allowing a projectile to collide with an entity once. It can collide with multiple entities, but only once
+								// per entity
+								if (projComponent.canCollideWith(entity_other))
+								{
+										projComponent.collideWith(entity_other);
 
-				HitEvent event;
-				event.instigator = projComponent.instigator;
-				event.target = entity_other;
-				event.damage = projComponent.params.damage;
-				EventSystem<HitEvent>::instance().sendEvent(event);
-			}
+										HitEvent event;
+										event.instigator = projComponent.instigator;
+										event.target = entity_other;
+										event.damage = projComponent.params.damage;
+										EventSystem<HitEvent>::instance().sendEvent(event);
+								}
+						}
+				}
+
+				// Remove all collisions from this simulation step
+				ECS::registry<PhysicsSystem::Collision>.clear();
 		}
-	}
-
-	// Remove all collisions from this simulation step
-	ECS::registry<PhysicsSystem::Collision>.clear();
 }
 
 // Should the game be over ?
@@ -218,10 +221,10 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 {
 	// !! Temporary Start Menu Test
 	// this will throw an assert if you try to click outside the buttons, since it's not a pathfindable map
-	// StartMenu::createStartMenu(frameBufferWidth, frameBufferHeight);
+	//StartMenu::createStartMenu(frameBufferWidth, frameBufferHeight);
 
 	// Create the map
-		
+	
 	MapComponent::createMap(GameStateSystem::instance().currentLevel.at("map"), { frameBufferWidth, frameBufferHeight });
 
 	// Create a deforming blob for pizza arena
@@ -234,6 +237,7 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 			
 		DessertForeground::createDessertForeground({ 1920, 672 });
 	}
+	
 }
 
 void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)

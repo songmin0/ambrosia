@@ -49,12 +49,15 @@ public:
 		//This will call the main menu
 		void launchMainMenu();
 
+		void setWindow(GLFWwindow* window);
+
 
 private:
 		
 		GameStateSystem();
 
 		ECS::Entity currentRecipeEntity;
+		GLFWwindow* window;
 		//This is the index for which level we are on in the recipe
 		
 

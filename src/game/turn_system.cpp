@@ -3,6 +3,7 @@
 #include "ai/ai.hpp"
 #include "game/camera.hpp"
 #include "rendering/render_components.hpp"
+#include "game/game_state_system.hpp"
 
 #include <string.h>
 #include <cassert>
@@ -131,46 +132,48 @@ void TurnSystem::nextTurn()
 
 void TurnSystem::step(float elapsed_ms)
 {
-	//If there is no active entity (this could be due to a restart) get the next active entity
-	if (ECS::registry<TurnComponentIsActive>.entities.empty()) {
-		nextActiveEntity();
-	}
-	// Check happens with above if statement.
-	auto& activeEntity = ECS::registry<TurnComponentIsActive>.entities[0];
-	if (!activeEntity.has<DeathTimer>()) {
-		if (activeEntity.has<TurnComponent>()) {
-			auto& turnComponent = activeEntity.get<TurnComponent>();
-
-			if (hasCompletedTurn(turnComponent))
-			{
-				// Add a hardcoded delay before moving the camera so player can see animations
-				assert(!ECS::registry<CameraComponent>.entities.empty());
-				auto camera = ECS::registry<CameraComponent>.entities[0];
-				camera.emplace<CameraDelayedMoveComponent>(0.5f);
-				nextActiveEntity();
-			}
-			// For mobs, need to tell them when its time to move and to perform a skill
-			else if (activeEntity.has<AISystem::MobComponent>())
-			{
-				// Start behaviour tree for active mob entity
-				// Event should be heard by StateSystem in behaviour_tree.hpp
-				if (turnComponent.canStartMoving())
-				{
-					std::cout << "Making mob turn event\n";
-					StartMobTurnEvent event;
-					//event.entity = activeEntity;
-					EventSystem<StartMobTurnEvent>::instance().sendEvent(event);
-					turnComponent.isMoving = true;					
+		if (GameStateSystem::instance().inGameState()) {
+				//If there is no active entity (this could be due to a restart) get the next active entity
+				if (ECS::registry<TurnComponentIsActive>.entities.empty()) {
+						nextActiveEntity();
 				}
-			}
+				// Check happens with above if statement.
+				auto& activeEntity = ECS::registry<TurnComponentIsActive>.entities[0];
+				if (!activeEntity.has<DeathTimer>()) {
+						if (activeEntity.has<TurnComponent>()) {
+								auto& turnComponent = activeEntity.get<TurnComponent>();
+
+								if (hasCompletedTurn(turnComponent))
+								{
+										// Add a hardcoded delay before moving the camera so player can see animations
+										assert(!ECS::registry<CameraComponent>.entities.empty());
+										auto camera = ECS::registry<CameraComponent>.entities[0];
+										camera.emplace<CameraDelayedMoveComponent>(0.5f);
+										nextActiveEntity();
+								}
+								// For mobs, need to tell them when its time to move and to perform a skill
+								else if (activeEntity.has<AISystem::MobComponent>())
+								{
+										// Start behaviour tree for active mob entity
+										// Event should be heard by StateSystem in behaviour_tree.hpp
+										if (turnComponent.canStartMoving())
+										{
+												std::cout << "Making mob turn event\n";
+												StartMobTurnEvent event;
+												//event.entity = activeEntity;
+												EventSystem<StartMobTurnEvent>::instance().sendEvent(event);
+												turnComponent.isMoving = true;
+										}
+								}
+						}
+				}
+				else {
+						//Pretty sure whis will be needed once we get multiple players but that depends 
+						//		on how we handle death leaving for now as it doesn't hurt anything
+						//The current user is dead so switch to the next
+						nextActiveEntity();
+				}
 		}
-	}
-	else {
-		//Pretty sure whis will be needed once we get multiple players but that depends 
-		//		on how we handle death leaving for now as it doesn't hurt anything
-		//The current user is dead so switch to the next
-		nextActiveEntity();
-	}
 }
 
 bool TurnSystem::hasCompletedTurn(TurnComponent tc)

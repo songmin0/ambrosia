@@ -1,6 +1,7 @@
 #include "menus.hpp"
 #include "map.hpp"
 #include <iostream>
+#include "game/game_state_system.hpp"
 
 void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 {
@@ -42,6 +43,8 @@ void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 		{ frameBufferWidth - 250, frameBufferHeight / 2 + 50 }, "menus/start/start-button",
 		[]() {
 			std::cout << "Start button clicked!" << std::endl;
+			GameStateSystem::instance().isInMainScreen = false;
+			GameStateSystem::instance().nextMap();
 		});
 
 	Button::createButton(ButtonShape::RECTANGLE,

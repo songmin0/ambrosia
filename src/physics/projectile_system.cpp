@@ -6,6 +6,8 @@
 
 #include <functional>
 
+#include "game/game_state_system.hpp"
+
 
 ProjectileSystem::ProjectileSystem()
 {
@@ -23,37 +25,39 @@ ProjectileSystem::~ProjectileSystem()
 
 void ProjectileSystem::step(float elapsed_ms)
 {
-	const float elapsed_s = elapsed_ms / 1000.f;
+		if (GameStateSystem::instance().inGameState()) {
+				const float elapsed_s = elapsed_ms / 1000.f;
 
-	// Update the projectile velocities and remove any projectiles that have finished
-	for (int i = ECS::registry<ProjectileComponent>.entities.size() - 1; i >= 0; i--)
-	{
-		auto& projEntity = ECS::registry<ProjectileComponent>.entities[i];
-		auto& projComponent = projEntity.get<ProjectileComponent>();
+				// Update the projectile velocities and remove any projectiles that have finished
+				for (int i = ECS::registry<ProjectileComponent>.entities.size() - 1; i >= 0; i--)
+				{
+						auto& projEntity = ECS::registry<ProjectileComponent>.entities[i];
+						auto& projComponent = projEntity.get<ProjectileComponent>();
 
-		projComponent.timeSinceLaunch += elapsed_s;
+						projComponent.timeSinceLaunch += elapsed_s;
 
-		// Projectile handling based on trajectory type
-		if (projComponent.params.trajectory == Trajectory::LINEAR)
-		{
-			updateLinearTrajectory(elapsed_s, projEntity, projComponent);
+						// Projectile handling based on trajectory type
+						if (projComponent.params.trajectory == Trajectory::LINEAR)
+						{
+								updateLinearTrajectory(elapsed_s, projEntity, projComponent);
+						}
+						else
+						{
+								updateBoomerangTrajectory(elapsed_s, projEntity, projComponent);
+						}
+
+						// Remove projectile if needed
+						if (projComponent.phase == Phase::END)
+						{
+								if (projComponent.callback)
+								{
+										projComponent.callback();
+								}
+
+								ECS::ContainerInterface::removeAllComponentsOf(projEntity);
+						}
+				}
 		}
-		else
-		{
-			updateBoomerangTrajectory(elapsed_s, projEntity, projComponent);
-		}
-
-		// Remove projectile if needed
-		if (projComponent.phase == Phase::END)
-		{
-			if (projComponent.callback)
-			{
-				projComponent.callback();
-			}
-
-			ECS::ContainerInterface::removeAllComponentsOf(projEntity);
-		}
-	}
 }
 
 void ProjectileSystem::updateLinearTrajectory(float elapsed_s, ECS::Entity projEntity, ProjectileComponent& projComponent)

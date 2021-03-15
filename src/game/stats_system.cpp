@@ -1,4 +1,5 @@
 #include "stats_system.hpp"
+#include "game/game_state_system.hpp"
 
 StatsSystem::StatsSystem()
 {
@@ -24,30 +25,32 @@ StatsSystem::~StatsSystem()
 
 void StatsSystem::step(float elapsed_ms)
 {
-	const float elapsed_s = elapsed_ms / 1000.f;
+		if (GameStateSystem::instance().inGameState()) {
+				const float elapsed_s = elapsed_ms / 1000.f;
 
-	// Remove expired stat modifiers
-	for (auto& statsComponent : ECS::registry<StatsComponent>.components)
-	{
-		std::vector<StatType> toRemove;
+				// Remove expired stat modifiers
+				for (auto& statsComponent : ECS::registry<StatsComponent>.components)
+				{
+						std::vector<StatType> toRemove;
 
-		// Decrement the StatModifier timers. Add the finished ones to the toRemove list
-		for (auto& statModifier : statsComponent.statModifiers)
-		{
-			statModifier.second.timer -= elapsed_s;
+						// Decrement the StatModifier timers. Add the finished ones to the toRemove list
+						for (auto& statModifier : statsComponent.statModifiers)
+						{
+								statModifier.second.timer -= elapsed_s;
 
-			if (statModifier.second.timer <= 0.f)
-			{
-				toRemove.push_back(statModifier.first);
-			}
+								if (statModifier.second.timer <= 0.f)
+								{
+										toRemove.push_back(statModifier.first);
+								}
+						}
+
+						// Remove the expired modifiers
+						for (auto type : toRemove)
+						{
+								statsComponent.statModifiers.erase(type);
+						}
+				}
 		}
-
-		// Remove the expired modifiers
-		for (auto type : toRemove)
-		{
-			statsComponent.statModifiers.erase(type);
-		}
-	}
 }
 
 void StatsSystem::onHitEvent(const HitEvent &event)
