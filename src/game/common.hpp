@@ -36,6 +36,7 @@ inline std::string mapsPath(const std::string& name) { return dataPath() + "/map
 inline std::string objectsPath(const std::string& name) { return dataPath() + "/objects/" + name; };
 inline std::string uiPath(const std::string& name) { return dataPath() + "/ui/" + name; };
 inline std::string levelsPath(const std::string& name) { return dataPath() + "/levels/" + name; };
+inline std::string fxPath(const std::string& name) { return dataPath() + "/effects/" + name; };
 
 enum class PlayerType { RAOUL, TAJI, CHIA, EMBER };
 float playerToFloat(const PlayerType& player);
