@@ -46,6 +46,7 @@ void GameStateSystem::nextMap()
 
 void GameStateSystem::restartMap()
 {
+		EventSystem<LoadLevelEvent>::instance().sendEvent(LoadLevelEvent{});
 		//TODO fill in
 }
 

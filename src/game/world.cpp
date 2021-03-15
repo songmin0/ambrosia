@@ -124,7 +124,8 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 								if (ECS::registry<PlayerComponent>.entities.empty())
 								{
 										EventSystem<PlaySoundEffectEvent>::instance().sendEvent({ SoundEffect::GAME_OVER });
-										restart();
+										//TODO this should launch the defeat screen once that is implemented
+										GameStateSystem::instance().restartMap();
 										return;
 								}
 						}
