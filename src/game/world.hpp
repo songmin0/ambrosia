@@ -4,6 +4,7 @@
 #include "../ext/nlohmann/json.hpp"
 #include "event_system.hpp"
 #include "events.hpp"
+#include <functional>
 
 using json = nlohmann::json;
 
@@ -91,5 +92,10 @@ private:
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 
 	//config obj
-	json config;
+	//json config;
+
+	//Event listener for load level event
+	void onLoadLevel(LoadLevelEvent);
+	EventListenerInfo loadLevelListener;
+
 };

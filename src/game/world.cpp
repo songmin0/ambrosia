@@ -22,6 +22,7 @@
 #include "ui/ui_entities.hpp"
 #include "ai/ai.hpp"
 #include <level_loader/level_loader.hpp>
+#include "game_state_system.hpp"
 
 // stlib
 #include <string.h>
@@ -74,12 +75,12 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	auto mouseHoverRedirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->onMouseHover(_0, _1); };
 	glfwSetCursorPosCallback(window, mouseHoverRedirect);
 
-
-	LevelLoader lc;
-	config = lc.readLevel("pizza-arena");
-
 	initAudio();
 	std::cout << "Loaded music\n";
+
+	//Register the loadLevelEvent listener
+	loadLevelListener = EventSystem<LoadLevelEvent>::instance().registerListener(
+			std::bind(&WorldSystem::onLoadLevel, this, std::placeholders::_1));
 }
 
 WorldSystem::~WorldSystem(){
@@ -129,9 +130,8 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 
 	if (ECS::registry<AISystem::MobComponent>.entities.size() == 0) {
-		LevelLoader lc;
-		config = lc.readLevel("dessert-arena");
-		restart();
+			//TODO make this go to the victory screen. For now launch into the next map
+			GameStateSystem::instance().nextMap();
 	}
 }
 
@@ -161,8 +161,8 @@ void WorldSystem::restart()
 	// Get screen/buffer size
 	int frameBufferWidth, frameBufferHeight;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
-
-	Camera::createCamera(config.at("camera"));
+	
+	Camera::createCamera(GameStateSystem::instance().currentLevel.at("camera"));
 	createMap(frameBufferWidth, frameBufferHeight);
 	createPlayers(frameBufferWidth, frameBufferHeight);
 	createMobs(frameBufferWidth, frameBufferHeight);
@@ -217,15 +217,17 @@ bool WorldSystem::isOver() const
 void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 {
 	// Create the map
-	MapComponent::createMap(config.at("map"), {frameBufferWidth, frameBufferHeight});
+		
+	MapComponent::createMap(GameStateSystem::instance().currentLevel.at("map"), { frameBufferWidth, frameBufferHeight });
 
 	// Create a deforming blob for pizza arena
 	// maybe add own section in level file we have more of these
-	if (config.at("map") == "pizza-arena") {
+	if (GameStateSystem::instance().currentLevel.at("map") == "pizza-arena") {
 		CheeseBlob::createCheeseBlob({ 700, 950 });
 	}
 
-	if (config.at("map") == "dessert-arena") {
+	if (GameStateSystem::instance().currentLevel.at("map") == "dessert-arena") {
+			
 		DessertForeground::createDessertForeground({ 1920, 672 });
 	}
 }
@@ -329,16 +331,16 @@ void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 	// eg: playerRaoul = Raoul::createRaoul(vec2( 640, 512 ));
 	// please specify vec2(x, y), as {x , y} is also valid json
 
-	playerRaoul = Raoul::createRaoul(config.at("raoul"));
-	playerTaji = Taji::createTaji(config.at("taji"));
-	playerEmber = Ember::createEmber(config.at("ember"));
-	playerChia = Chia::createChia(config.at("chia"));
+		playerRaoul = Raoul::createRaoul(GameStateSystem::instance().currentLevel.at("raoul"));
+		playerTaji = Taji::createTaji(GameStateSystem::instance().currentLevel.at("taji"));
+		playerEmber = Ember::createEmber(GameStateSystem::instance().currentLevel.at("ember"));
+		playerChia = Chia::createChia(GameStateSystem::instance().currentLevel.at("chia"));
 }
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 {
 	// TODO: come back and expand this when we have multiple mobs
-	auto mobs = config.at("mobs");
+	auto mobs = GameStateSystem::instance().currentLevel.at("mobs");
 
 	for (json mob : mobs) {
 		auto type = mob["type"];
@@ -444,13 +446,13 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	LevelLoader lc;
 	// swap maps
 	if (action == GLFW_RELEASE && key == GLFW_KEY_M) {
-		config = lc.readLevel("dessert-arena");
-		restart();
+			GameStateSystem::instance().currentLevelIndex = -1;
+			GameStateSystem::instance().nextMap();
 	}
 
 	if (action == GLFW_RELEASE && key == GLFW_KEY_N) {
-		config = lc.readLevel("pizza-arena");
-		restart();
+			GameStateSystem::instance().currentLevelIndex = 0;
+			GameStateSystem::instance().nextMap();
 	}
 
 	// Play the next audio track (this is just so that we can give all of them a try)
@@ -602,11 +604,11 @@ void WorldSystem::playAudio()
 {
 	MusicType nextMusicType;
 
-	if (config.at("map") == "pizza-arena")
+	if (GameStateSystem::instance().currentLevel.at("map") == "pizza-arena")
 	{
 		nextMusicType = MusicType::PIZZA_ARENA;
 	}
-	else if (config.at("map") == "dessert-arena")
+	else if (GameStateSystem::instance().currentLevel.at("map") == "dessert-arena")
 	{
 		nextMusicType = MusicType::DESSERT_ARENA;
 	}
@@ -642,4 +644,9 @@ void WorldSystem::onPlayerChangeEvent(const PlayerChangeEvent& event)
 		Mix_PlayChannel(-1, soundEffects[SoundEffect::TURN_START], 0);
 	}
 	shouldPlayAudioAtStartOfTurn = true;
+}
+
+void WorldSystem::onLoadLevel(LoadLevelEvent)
+{
+		restart();
 }
