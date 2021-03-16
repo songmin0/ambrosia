@@ -11,6 +11,7 @@
 
 TurnSystem::TurnSystem(PathFindingSystem& pfs)
 	: pathFindingSystem(pfs)
+	, timer(TIMER_PERIOD)
 {
 	EventSystem<MouseClickEvent>::instance().registerListener(
 		std::bind(&TurnSystem::onMouseClick, this, std::placeholders::_1));
@@ -131,6 +132,13 @@ void TurnSystem::nextTurn()
 
 void TurnSystem::step(float elapsed_ms)
 {
+	timer -= elapsed_ms;
+	if (timer > 0.f)
+	{
+		return;
+	}
+	timer = 0.f;
+
 	//If there is no active entity (this could be due to a restart) get the next active entity
 	if (ECS::registry<TurnComponentIsActive>.entities.empty()) {
 		nextActiveEntity();
@@ -257,6 +265,8 @@ void TurnSystem::onFinishedMovement(const FinishedMovementEvent& event)
 		turnComponent.isMoving = false;
 		turnComponent.hasMoved = true;
 	}
+
+	timer = TIMER_PERIOD;
 }
 
 void TurnSystem::onFinishedSkill(const FinishedSkillEvent& event)
@@ -270,4 +280,6 @@ void TurnSystem::onFinishedSkill(const FinishedSkillEvent& event)
 		turnComponent.isUsingSkill = false;
 		turnComponent.hasUsedSkill = true;
 	}
+
+	timer = TIMER_PERIOD;
 }

@@ -8,7 +8,8 @@ enum class StatType
 {
 	INVALID,
 	HP,
-	MAXHP,
+	MAX_HP,
+	HP_SHIELD, // Should only be set using a BuffEvent (and should never be negative)
 	AMBROSIA,
 	STRENGTH
 };
@@ -23,6 +24,7 @@ struct StatModifier
 struct StatsComponent
 {
 	float getStatValue(StatType type);
+	float getEffectiveHP();
 
 	// The actual stats
 	std::unordered_map<StatType, float> stats;

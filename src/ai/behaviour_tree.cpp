@@ -247,7 +247,7 @@ void MilkSkillSelector::run()
 		auto& allyStats = entity.get<StatsComponent>();
 		// Check if there is an ally that needs healing
 		if (entity.has<BehaviourTreeType>() && !entity.has<TurnSystem::TurnComponentIsActive>() &&
-			allyStats.getStatValue(StatType::HP) < allyStats.getStatValue(StatType::MAXHP))
+			allyStats.getStatValue(StatType::HP) < allyStats.getStatValue(StatType::MAX_HP))
 		{
 			shouldHeal = true;
 			break;

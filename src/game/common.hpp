@@ -49,13 +49,27 @@ struct Transform {
 	void translate(vec2 offset);
 };
 
-enum CollisionGroup
+//////////////////////////////////////////
+// Collider flags
+enum CollisionGroup : std::uint8_t
 {
-	NONE = 0,
-	PLAYER = 1 << 0,
-	MOB = 1 << 1,
-	ALL = ~NONE
+	NONE = 0u,
+	PLAYER = 1u << 0u,
+	MOB = 1u << 1u,
 };
+constexpr CollisionGroup operator&(CollisionGroup a, CollisionGroup b)
+{
+	return static_cast<CollisionGroup>(
+			static_cast<std::underlying_type_t<CollisionGroup>>(a) &
+			static_cast<std::underlying_type_t<CollisionGroup>>(b));
+}
+constexpr CollisionGroup operator|(CollisionGroup a, CollisionGroup b)
+{
+	return static_cast<CollisionGroup>(
+			static_cast<std::underlying_type_t<CollisionGroup>>(a) |
+			static_cast<std::underlying_type_t<CollisionGroup>>(b));
+}
+//////////////////////////////////////////
 
 // All data relevant to the shape and motion of entities
 struct Motion {

@@ -14,12 +14,12 @@ ProjectileParams ProjectileParams::create(ProjectileType type)
 	assert(type != ProjectileType::INVALID);
 	ProjectileParams params;
 
-	if (type == ProjectileType::BULLET)
+	if (type == ProjectileType::BLUEBERRY)
 	{
-		params.spritePath = "placeholder";
-		params.spriteScale = {1.f, 1.f};
+		params.spritePath = "players/chia/chia-blueberry";
+		params.spriteScale = {0.3f, 0.3f};
 		params.launchOffset = {0.f, -75.f};
-		params.launchSpeed = 300.f;
+		params.launchSpeed = 500.f;
 		params.rotationSpeed = 300.f;
 		params.trajectory = Trajectory::LINEAR;
 	}

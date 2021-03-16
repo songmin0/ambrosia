@@ -8,7 +8,7 @@ class EntityHandler
 {
 public:
 	EntityHandler() = default;
-	~EntityHandler() = default;
+	virtual ~EntityHandler() = default;
 
 	virtual void process(ECS::Entity instigator, ECS::Entity target) = 0;
 };
@@ -21,7 +21,7 @@ public:
 		: damage(damage)
 	{}
 
-	~DamageHandler() = default;
+	~DamageHandler() override = default;
 
 	void process(ECS::Entity instigator, ECS::Entity target) override;
 
@@ -37,7 +37,7 @@ public:
 		: healAmount(healAmount)
 	{}
 
-	~HealHandler() = default;
+	~HealHandler() override = default;
 
 	void process(ECS::Entity instigator, ECS::Entity target) override;
 
@@ -55,7 +55,7 @@ public:
 		, timer(timer)
 	{}
 
-	~BuffHandler() = default;
+	~BuffHandler() override = default;
 
 	void process(ECS::Entity instigator, ECS::Entity target) override;
 
@@ -63,4 +63,53 @@ private:
 	StatType statType;
 	float value;
 	float timer;
+};
+
+// Heals one type of entity and damages the other type
+class HealAndDamageHandler : public EntityHandler
+{
+public:
+	HealAndDamageHandler(CollisionGroup typeToHeal, float healAmount,
+											 CollisionGroup typeToDamage, float damage)
+		: typeToHeal(typeToHeal)
+		, healAmount(healAmount)
+		, typeToDamage(typeToDamage)
+		, damage(damage)
+	{}
+
+	~HealAndDamageHandler() override = default;
+
+	void process(ECS::Entity instigator, ECS::Entity target) override;
+
+private:
+	CollisionGroup typeToHeal;
+	float healAmount;
+
+	CollisionGroup typeToDamage;
+	float damage;
+};
+
+// Debuffs and damages the given target. You could also use it to buff and
+// damage the target, of course, but that wouldn't make much sense.
+class DebuffAndDamageHandler : public EntityHandler
+{
+public:
+	DebuffAndDamageHandler(StatType statType, float value, float timer,
+												 float damage)
+			: statType(statType)
+			, value(value)
+			, timer(timer)
+			, damage(damage)
+	{}
+
+	~DebuffAndDamageHandler() override = default;
+
+	void process(ECS::Entity instigator, ECS::Entity target) override;
+
+private:
+	StatType statType;
+	float value;
+	float timer;
+
+	float damage;
 };
