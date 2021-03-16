@@ -206,7 +206,7 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 {
 	// !! Temporary Start Menu Test
 	// this will throw an assert if you try to click outside the buttons, since it's not a pathfindable map
-	// StartMenu::createStartMenu(frameBufferWidth, frameBufferHeight);
+	 //StartMenu::createStartMenu(frameBufferWidth, frameBufferHeight);
 
 	// Create the map
 	MapComponent::createMap(config.at("map"), {frameBufferWidth, frameBufferHeight});
@@ -337,7 +337,7 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 	//PotatoChunk::createPotatoChunk({ 900.f, 800.f });
 
 	// Milk test
-	//Milk::createMilk(vec2(700.f, 500.f), -1.f);
+	Milk::createMilk(vec2(900.f, 800.f), -1.f);
 
 	// TODO: come back and expand this when we have multiple mobs
 	auto mobs = config.at("mobs");

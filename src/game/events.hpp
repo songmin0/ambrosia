@@ -77,19 +77,30 @@ struct StartMobTurnEvent
 
 };
 
-struct StartMobMoveCloserEvent
+struct StartMobMoveToPlayerEvent
 {
+	// Moving mob
+	ECS::Entity entity;
+};
+
+struct StartMobMoveToMobEvent
+{
+	// Moving mob
 	ECS::Entity entity;
 };
 
 struct StartMobRunAwayEvent
 {
+	// Moving mob
 	ECS::Entity entity;
 };
 
 struct StartMobSkillEvent
 {
+	// Active mob
 	ECS::Entity entity;
+	// Skill target type; player or mob
+	bool targetIsPlayer;
 };
 
 struct FinishedMovementEvent

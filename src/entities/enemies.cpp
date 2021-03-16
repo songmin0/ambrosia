@@ -21,10 +21,6 @@ ECS::Entity Egg::createEgg(vec2 pos, float orientation)
 
 	// Give it a Mob component
 	entity.emplace<AISystem::MobComponent>();
-	// Set appropriate Behaviour Tree
-	//entity.emplace<EggBehaviourTree>();
-	//EggBehaviourTree bt;
-
 	auto& btType = entity.emplace<BehaviourTreeType>();
 	btType.mobType = MobType::EGG;
 
@@ -105,7 +101,7 @@ ECS::Entity Pepper::createPepper(vec2 pos, float orientation)
 	// Give it a Mob component
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
-	btType.mobType = MobType::EGG;
+	btType.mobType = MobType::PEPPER;
 
 	entity.emplace<TurnSystem::TurnComponent>();
 
@@ -175,10 +171,9 @@ ECS::Entity Milk::createMilk(vec2 pos, float orientation)
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
 
-	// TODO: AI for Milk
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
-	btType.mobType = MobType::EGG;
+	btType.mobType = MobType::MILK;
 
 	entity.emplace<TurnSystem::TurnComponent>();
 
@@ -260,12 +255,10 @@ ECS::Entity Potato::createPotato(vec2 pos, float orientation)
 	}
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
-
-	// TODO: Figure this out for Potato
-	// Give it a Mob component
+	
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
-	btType.mobType = MobType::EGG;
+	btType.mobType = MobType::POTATO;
 
 	entity.emplace<TurnSystem::TurnComponent>();
 
@@ -355,7 +348,7 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	// TODO: Figure this out for MashedPotato
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
-	btType.mobType = MobType::EGG;
+	btType.mobType = MobType::POTATO;
 
 	entity.emplace<TurnSystem::TurnComponent>();
 
