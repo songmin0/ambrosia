@@ -2,170 +2,122 @@
 
 #include <game/event_system.hpp>
 #include <game/events.hpp>
+#include <utility>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Skill
 ///////////////////////////////////////////////////////////////////////////////
 
-Skill::Skill(SkillParams params)
-	: params(params)
+Skill::Skill(std::shared_ptr<SkillParams> params)
+	: params(std::move(params))
 {}
 
 void Skill::performSkill(vec2 target)
 {
-	// Update the internal params
-	params.targetPosition = target;
+	assert(params);
 
+	// Update the internal params
+	params->targetPosition = target;
+
+	// Play sound effect
+	EventSystem<PlaySoundEffectEvent>::instance().sendEvent({params->soundEffect});
+
+	// Reset filters
+	for (auto& filter : params->entityFilters)
+	{
+		assert(filter);
+		filter->reset();
+	}
+
+	// Perform the skill
 	performSkillInternal();
+}
+
+float Skill::getDelay() const
+{
+	assert(params);
+	return params->delay;
+}
+
+AnimationType Skill::getAnimationType() const
+{
+	assert(params);
+	return params->animationType;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // AreaOfEffectSkill
 ///////////////////////////////////////////////////////////////////////////////
 
-AreaOfEffectSkill::AreaOfEffectSkill(SkillParams params)
-	: Skill(params)
+AreaOfEffectSkill::AreaOfEffectSkill(std::shared_ptr<AoESkillParams> params)
+	: Skill(std::move(params))
 {}
 
 void AreaOfEffectSkill::performSkillInternal()
 {
-	// Get the entities that should be affected by this skill
-	std::vector<ECS::Entity> entities = getEntities();
+	assert(params);
 
-	// Apply the skill to each entity
-	for (auto entity : entities)
+	if (auto aoeParams = std::dynamic_pointer_cast<AoESkillParams>(params))
 	{
-		process(entity);
-	}
-}
+		assert(aoeParams->entityProvider);
+		assert(aoeParams->entityHandler);
 
-std::vector<ECS::Entity> AreaOfEffectSkill::getEntities()
-{
-	std::vector<ECS::Entity> entities;
+		// Collect the entities
+		std::vector<ECS::Entity> entities
+				= aoeParams->entityProvider->getEntities(aoeParams->instigator,
+																								 aoeParams->targetPosition);
 
-	if (entityProvider)
-	{
-		entities = entityProvider->getEntities(params);
-
-		if (!entities.empty())
+		for (auto entity : entities)
 		{
-			for (auto& filter : entityFilters)
+			// Run the entity through the filters. A filter returns false if the
+			// entity should get filtered out
+			bool shouldKeepEntity = true;
+			for (auto& filter : aoeParams->entityFilters)
 			{
-				entities = filter->process(params, entities);
+				assert(filter);
+				if (!filter->process(entity))
+				{
+					shouldKeepEntity = false;
+					break;
+				}
 			}
 
-			if (params.ignoreInstigator)
+			// If the entity made it through the filters successfully, apply the
+			// entity handler
+			if (shouldKeepEntity)
 			{
-				InstigatorFilter instigatorFilter;
-				entities = instigatorFilter.process(params, entities);
-			}
-
-			if (!params.collideWithMultipleEntities)
-			{
-				entities.resize(1);
+				aoeParams->entityHandler->process(aoeParams->instigator, entity);
 			}
 		}
 	}
 
-	return entities;
+	// Notify the TurnSystem that the skill is finished
+	EventSystem<FinishedSkillEvent>::instance().sendEvent({params->instigator});
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // ProjectileSkill
 ///////////////////////////////////////////////////////////////////////////////
 
-ProjectileSkill::ProjectileSkill(SkillParams params, ProjectileType projectileType)
-	: Skill(params)
-	, projectileType(projectileType)
+ProjectileSkill::ProjectileSkill(std::shared_ptr<ProjectileSkillParams> params)
+	: Skill(std::move(params))
 {}
 
 void ProjectileSkill::performSkillInternal()
 {
-	LaunchEvent launchEvent;
-	launchEvent.projectileType = projectileType;
-	launchEvent.instigator = params.instigator;
-	launchEvent.targetPosition = params.targetPosition;
-	launchEvent.damage = params.damage;
-	launchEvent.collisionMask = params.collidesWith;
-	launchEvent.callback = [=]() {
+	assert(params);
 
-		// When the projectile reaches the end of its trajectory, notify the TurnSystem
-		// that the skill is finished
-		FinishedSkillEvent event;
-		event.entity = params.instigator;
-		EventSystem<FinishedSkillEvent>::instance().sendEvent(event);
-	};
-	EventSystem<LaunchEvent>::instance().sendEvent(launchEvent);
-}
+	if (auto projParams = std::dynamic_pointer_cast<ProjectileSkillParams>(params))
+	{
+		LaunchEvent launchEvent;
+		launchEvent.skillParams = *projParams;
 
+		launchEvent.callback = [=]() {
+			// When the projectile reaches the end of its trajectory, notify the TurnSystem
+			// that the skill is finished
+			EventSystem<FinishedSkillEvent>::instance().sendEvent({params->instigator});
+		};
 
-
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-// CUSTOM AREA OF EFFECT SKILLS
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-
-///////////////////////////////////////////////////////////////////////////////
-// MeleeSkill
-///////////////////////////////////////////////////////////////////////////////
-
-MeleeSkill::MeleeSkill(SkillParams params)
-	: AreaOfEffectSkill(params)
-{
-	entityProvider = std::make_unique<CircularProvider>();
-
-	entityFilters.push_back(std::make_unique<CollisionFilter>());
-}
-
-void MeleeSkill::process(ECS::Entity entity)
-{
-	HitEvent hitEvent;
-	hitEvent.instigator = params.instigator;
-	hitEvent.target = entity;
-	hitEvent.damage = params.damage;
-	EventSystem<HitEvent>::instance().sendEvent(hitEvent);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// BuffSkill
-///////////////////////////////////////////////////////////////////////////////
-
-BuffSkill::BuffSkill(SkillParams params, StatModifier statModifier)
-	: AreaOfEffectSkill(params)
-	, statModifier(statModifier)
-{}
-
-void BuffSkill::process(ECS::Entity entity)
-{
-	BuffEvent buffEvent;
-	buffEvent.entity = entity;
-	buffEvent.statModifier = statModifier;
-	EventSystem<BuffEvent>::instance().sendEvent(buffEvent);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// BuffProximitySkill
-///////////////////////////////////////////////////////////////////////////////
-
-BuffProximitySkill::BuffProximitySkill(SkillParams params, StatModifier statModifier)
-	: BuffSkill(params, statModifier)
-{
-	entityProvider = std::make_unique<CircularProvider>();
-
-	entityFilters.push_back(std::make_unique<CollisionFilter>());
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// BuffMouseClickSkill
-///////////////////////////////////////////////////////////////////////////////
-
-BuffMouseClickSkill::BuffMouseClickSkill(SkillParams params, StatModifier statModifier)
-	: BuffSkill(params, statModifier)
-{
-	entityProvider = std::make_unique<MouseClickProvider>();
-
-	entityFilters.push_back(std::make_unique<CollisionFilter>());
+		EventSystem<LaunchEvent>::instance().sendEvent(launchEvent);
+	}
 }

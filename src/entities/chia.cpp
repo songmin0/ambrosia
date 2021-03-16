@@ -40,43 +40,39 @@ ECS::Entity Chia::commonInit()
 	auto& skillComponent = entity.emplace<SkillComponent>();
 
 	// Melee hit
-	SkillParams meleeParams;
-	meleeParams.instigator = entity;
-	meleeParams.animationType = AnimationType::ATTACK1;
-	meleeParams.delay = 1.f;
-	meleeParams.damage = 30.f;
-	meleeParams.range = 200.f;
-	meleeParams.collideWithMultipleEntities = false;
-	meleeParams.collidesWith = CollisionGroup::MOB;
-	meleeParams.soundEffect = SoundEffect::MELEE;
-	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<MeleeSkill>(meleeParams));
+	auto meleeParams = std::make_shared<AoESkillParams>();
+	meleeParams->instigator = entity;
+	meleeParams->soundEffect = SoundEffect::MELEE;
+	meleeParams->animationType = AnimationType::ATTACK1;
+	meleeParams->delay = 1.f;
+	meleeParams->entityProvider = std::make_shared<CircularProvider>(200.f);
+	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+	meleeParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
+	meleeParams->entityHandler = std::make_shared<DamageHandler>(30.f);
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(meleeParams));
 
 	// Debuff an enemy by clicking on the enemy (doesn't matter how far away they are from the player)
-	StatModifier strengthDebuffModifier;
-	strengthDebuffModifier.statType = StatType::STRENGTH;
-	strengthDebuffModifier.value = -0.1f;
-	strengthDebuffModifier.timer = 60.f;
-
-	SkillParams strengthDebuffParams;
-	strengthDebuffParams.instigator = entity;
-	strengthDebuffParams.animationType = AnimationType::ATTACK2;
-	strengthDebuffParams.delay = 1.f;
-	strengthDebuffParams.range = 100.f;
-	strengthDebuffParams.ignoreInstigator = true;
-	strengthDebuffParams.collideWithMultipleEntities = false;
-	strengthDebuffParams.collidesWith = CollisionGroup::MOB;
-	strengthDebuffParams.soundEffect = SoundEffect::DEBUFF;
-	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<BuffMouseClickSkill>(strengthDebuffParams, strengthDebuffModifier));
+	auto strengthDebuffParams = std::make_shared<AoESkillParams>();
+	strengthDebuffParams->instigator = entity;
+	strengthDebuffParams->soundEffect = SoundEffect::DEBUFF;
+	strengthDebuffParams->animationType = AnimationType::ATTACK2;
+	strengthDebuffParams->delay = 1.f;
+	strengthDebuffParams->entityProvider = std::make_shared<MouseClickProvider>(100.f);
+	strengthDebuffParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+	strengthDebuffParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
+	strengthDebuffParams->entityHandler = std::make_shared<BuffHandler>(StatType::STRENGTH, -0.1f, 60.f);
+	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(strengthDebuffParams));
 
 	// Bone throw projectile attack
-	SkillParams boneThrowParams;
-	boneThrowParams.instigator = entity;
-	boneThrowParams.animationType = AnimationType::ATTACK3;
-	boneThrowParams.delay = 0.6f;
-	boneThrowParams.damage = 20.f;
-	boneThrowParams.collidesWith = CollisionGroup::MOB;
-	boneThrowParams.soundEffect = SoundEffect::PROJECTILE;
-	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<ProjectileSkill>(boneThrowParams, ProjectileType::BONE));
+	auto boneThrowParams = std::make_shared<ProjectileSkillParams>();
+	boneThrowParams->instigator = entity;
+	boneThrowParams->soundEffect = SoundEffect::PROJECTILE;
+	boneThrowParams->animationType = AnimationType::ATTACK3;
+	boneThrowParams->delay = 0.6f;
+	boneThrowParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+	boneThrowParams->entityHandler = std::make_shared<DamageHandler>(20.f);
+	boneThrowParams->projectileType = ProjectileType::BONE;
+	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<ProjectileSkill>(boneThrowParams));
 
 	entity.emplace<Chia>();
 	return entity;
@@ -97,7 +93,6 @@ ECS::Entity Chia::createChia(json configValues)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = vec2(configValues.at("position")[0], configValues.at("position")[1]);
 	motion.colliderType = CollisionGroup::PLAYER;
-	motion.collidesWith = CollisionGroup::MOB;
 
 	// hitbox scaling
 	auto hitboxScale = vec2({ 0.5f, 0.8f });
@@ -135,7 +130,6 @@ ECS::Entity Chia::createChia(vec2 position)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = position;
 	motion.colliderType = CollisionGroup::PLAYER;
-	motion.collidesWith = CollisionGroup::MOB;
 
 	// hitbox scaling
 	auto hitboxScale = vec2({ 0.5f, 0.8f });

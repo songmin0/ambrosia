@@ -1,31 +1,22 @@
 #include "entity_filter.hpp"
 
-std::vector<ECS::Entity> InstigatorFilter::process(const SkillParams& params, const std::vector<ECS::Entity>& entities)
+bool InstigatorFilter::process(ECS::Entity entity)
 {
-	std::vector<ECS::Entity> results;
-
-	for (auto entity : entities)
-	{
-		if (entity.id != params.instigator.id)
-		{
-			results.push_back(entity);
-		}
-	}
-
-	return results;
+	return instigator.id != entity.id;
 }
 
-std::vector<ECS::Entity> CollisionFilter::process(const SkillParams& params, const std::vector<ECS::Entity> &entities)
+bool CollisionFilter::process(ECS::Entity entity)
 {
-	std::vector<ECS::Entity> results;
+	return entity.has<Motion>() && (entity.get<Motion>().colliderType & collidesWith);
+}
 
-	for (auto entity : entities)
-	{
-		if (entity.get<Motion>().colliderType & params.collidesWith)
-		{
-			results.push_back(entity);
-		}
-	}
+bool MaxTargetsFilter::process(ECS::Entity entity)
+{
+	targetCount++;
+	return targetCount <= maxTargets;
+}
 
-	return results;
+void MaxTargetsFilter::reset()
+{
+	targetCount = 0;
 }

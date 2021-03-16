@@ -6,6 +6,7 @@
 
 enum class StatType
 {
+	INVALID,
 	HP,
 	MAXHP,
 	AMBROSIA,

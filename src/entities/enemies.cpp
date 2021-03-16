@@ -32,7 +32,6 @@ ECS::Entity Egg::createEgg(vec2 pos, float orientation)
 	motion.scale = vec2({ 0.8f, 0.8f });
 	motion.orientation = orientation;
 	motion.colliderType = CollisionGroup::MOB;
-	motion.collidesWith = CollisionGroup::PLAYER;
 
 
 	// hitbox scaling
@@ -72,14 +71,15 @@ ECS::Entity Egg::createEgg(vec2 pos, float orientation)
 	auto& skillComponent = entity.emplace<SkillComponent>();
 
 	// Egg shell projectile
-	SkillParams eggShellParams;
-	eggShellParams.instigator = entity;
-	eggShellParams.animationType = AnimationType::ATTACK1;
-	eggShellParams.delay = 0.6f;
-	eggShellParams.damage = 30.f;
-	eggShellParams.collidesWith = CollisionGroup::PLAYER;
-	eggShellParams.soundEffect = SoundEffect::PROJECTILE;
-	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(eggShellParams, ProjectileType::EGG_SHELL));
+	auto eggShellParams = std::make_shared<ProjectileSkillParams>();
+	eggShellParams->instigator = entity;
+	eggShellParams->soundEffect = SoundEffect::PROJECTILE;
+	eggShellParams->animationType = AnimationType::ATTACK1;
+	eggShellParams->delay = 0.6f;
+	eggShellParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
+	eggShellParams->entityHandler = std::make_shared<DamageHandler>(30.f);
+	eggShellParams->projectileType = ProjectileType::EGG_SHELL;
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(eggShellParams));
 
 	entity.emplace<Egg>();
 	return entity;
@@ -113,7 +113,6 @@ ECS::Entity Pepper::createPepper(vec2 pos, float orientation)
 	auto hitboxScale = vec2({ 0.4f, 0.7f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
-	motion.collidesWith = CollisionGroup::PLAYER;
 
 	// Animations
 	auto idle_and_run = AnimationData("pepper_idle", spritePath("enemies/pepper/idle/idle"), 74);
@@ -145,16 +144,16 @@ ECS::Entity Pepper::createPepper(vec2 pos, float orientation)
 	auto& skillComponent = entity.emplace<SkillComponent>();
 
 	// Melee hit
-	SkillParams meleeParams;
-	meleeParams.instigator = entity;
-	meleeParams.animationType = AnimationType::ATTACK1;
-	meleeParams.delay = 1.f;
-	meleeParams.damage = 40.f;
-	meleeParams.range = 200.f;
-	meleeParams.collideWithMultipleEntities = false;
-	meleeParams.collidesWith = CollisionGroup::PLAYER;
-	meleeParams.soundEffect = SoundEffect::MELEE;
-	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<MeleeSkill>(meleeParams));
+	auto meleeParams = std::make_shared<AoESkillParams>();
+	meleeParams->instigator = entity;
+	meleeParams->soundEffect = SoundEffect::MELEE;
+	meleeParams->animationType = AnimationType::ATTACK1;
+	meleeParams->delay = 1.f;
+	meleeParams->entityProvider = std::make_shared<CircularProvider>(200.f);
+	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
+	meleeParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
+	meleeParams->entityHandler = std::make_shared<DamageHandler>(40.f);
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(meleeParams));
 
 	entity.emplace<Pepper>();
 	return entity;
@@ -185,7 +184,6 @@ ECS::Entity Milk::createMilk(vec2 pos, float orientation)
 	auto hitboxScale = vec2({ 0.4f, 0.7f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
-	motion.collidesWith = CollisionGroup::PLAYER;
 
 	// Animations
 	auto idle = AnimationData("milk_idle", spritePath("enemies/milk/idle/idle"), 30);
@@ -227,19 +225,20 @@ ECS::Entity Milk::createMilk(vec2 pos, float orientation)
 	healParams.damage = 20.f; // this is "healing"
 	healParams.collidesWith = CollisionGroup::MOB;
 	healParams.collideWithMultipleEntities = false;
-	healParams.ignoreInstigator = true; // TODO: if true it never heals itself, if false it only ever heals itself
+	healParams.ignoreInstigator = false; // TODO: if true it never heals itself, if false it only ever heals itself
 	healParams.soundEffect = SoundEffect::PROJECTILE;
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(healParams, ProjectileType::HEAL_ORB));
 
 	// Use a ranged attack if there's no ally to heal
-	SkillParams rangedAttackParams;
-	rangedAttackParams.instigator = entity;
-	rangedAttackParams.animationType = AnimationType::ATTACK1;
-	rangedAttackParams.delay = 0.3f;
-	rangedAttackParams.damage = 15.f;
-	rangedAttackParams.collidesWith = CollisionGroup::PLAYER;
-	rangedAttackParams.soundEffect = SoundEffect::PROJECTILE;
-	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<ProjectileSkill>(rangedAttackParams, ProjectileType::DAMAGE_ORB));
+	auto rangedAttackParams = std::make_shared<ProjectileSkillParams>();
+	rangedAttackParams->instigator = entity;
+	rangedAttackParams->soundEffect = SoundEffect::PROJECTILE;
+	rangedAttackParams->animationType = AnimationType::ATTACK1;
+	rangedAttackParams->delay = 0.3f;
+	rangedAttackParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
+	rangedAttackParams->entityHandler = std::make_shared<DamageHandler>(15.f);
+	rangedAttackParams->projectileType = ProjectileType::DAMAGE_ORB;
+	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<ProjectileSkill>(rangedAttackParams));
 
 	entity.emplace<Milk>();
 	return entity;
@@ -273,7 +272,6 @@ ECS::Entity Potato::createPotato(vec2 pos, float orientation)
 	auto hitboxScale = vec2({ 0.7f, 1.f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
-	motion.collidesWith = CollisionGroup::PLAYER;
 
 	// Animations
 	auto idle = AnimationData("potato_idle", spritePath("enemies/potato/idle/idle"), 43);
@@ -311,28 +309,27 @@ ECS::Entity Potato::createPotato(vec2 pos, float orientation)
 	auto& skillComponent = entity.emplace<SkillComponent>();
 
 	// Skill 1, single-target melee hit
-	SkillParams meleeParams;
-	meleeParams.instigator = entity;
-	meleeParams.animationType = AnimationType::ATTACK1;
-	meleeParams.delay = 1.f;
-	meleeParams.damage = 40.f;
-	meleeParams.range = 200.f;
-	meleeParams.collideWithMultipleEntities = false;
-	meleeParams.collidesWith = CollisionGroup::PLAYER;
-	meleeParams.soundEffect = SoundEffect::MELEE;
-	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<MeleeSkill>(meleeParams));
+	auto meleeParams = std::make_shared<AoESkillParams>();
+	meleeParams->instigator = entity;
+	meleeParams->soundEffect = SoundEffect::MELEE;
+	meleeParams->animationType = AnimationType::ATTACK1;
+	meleeParams->delay = 1.f;
+	meleeParams->entityProvider = std::make_shared<CircularProvider>(200.f);
+	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
+	meleeParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
+	meleeParams->entityHandler = std::make_shared<DamageHandler>(40.f);
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(meleeParams));
 
 	// Skill 2, large aoe blast
-	SkillParams aoeParams;
-	aoeParams.instigator = entity;
-	aoeParams.animationType = AnimationType::ATTACK2;
-	aoeParams.delay = 1.f;
-	aoeParams.damage = 70.f;
-	aoeParams.range = 800.f;
-	aoeParams.collideWithMultipleEntities = true;
-	aoeParams.collidesWith = CollisionGroup::PLAYER;
-	aoeParams.soundEffect = SoundEffect::MELEE;
-	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<MeleeSkill>(aoeParams));
+	auto aoeParams = std::make_shared<AoESkillParams>();
+	aoeParams->instigator = entity;
+	aoeParams->soundEffect = SoundEffect::MELEE;
+	aoeParams->animationType = AnimationType::ATTACK2;
+	aoeParams->delay = 1.f;
+	aoeParams->entityProvider = std::make_shared<CircularProvider>(800.f);
+	aoeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
+	aoeParams->entityHandler = std::make_shared<DamageHandler>(70.f);
+	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(aoeParams));
 
 	entity.emplace<Potato>();
 	return entity;
@@ -365,7 +362,6 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	auto hitboxScale = vec2({ 0.7f, 1.f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
-	motion.collidesWith = CollisionGroup::PLAYER;
 
 	// Animations
 	auto idle = AnimationData("mashedpotato_idle", spritePath("enemies/mashedpotato/idle/idle"), 36);
@@ -403,16 +399,15 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	auto& skillComponent = entity.emplace<SkillComponent>();
 
 	// Skill 1, aoe melee hit
-	SkillParams meleeParams;
-	meleeParams.instigator = entity;
-	meleeParams.animationType = AnimationType::ATTACK1;
-	meleeParams.delay = 0.3f;
-	meleeParams.damage = 40.f;
-	meleeParams.range = 400.f;
-	meleeParams.collideWithMultipleEntities = true;
-	meleeParams.collidesWith = CollisionGroup::PLAYER;
-	meleeParams.soundEffect = SoundEffect::MELEE;
-	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<MeleeSkill>(meleeParams));
+	auto meleeParams = std::make_shared<AoESkillParams>();
+	meleeParams->instigator = entity;
+	meleeParams->soundEffect = SoundEffect::MELEE;
+	meleeParams->animationType = AnimationType::ATTACK1;
+	meleeParams->delay = 0.3f;
+	meleeParams->entityProvider = std::make_shared<CircularProvider>(400.f);
+	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
+	meleeParams->entityHandler = std::make_shared<DamageHandler>(40.f);
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(meleeParams));
 
 	entity.emplace<MashedPotato>();
 	return entity;
@@ -445,7 +440,6 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
 	auto hitboxScale = vec2({ 0.7f, 1.f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
-	motion.collidesWith = CollisionGroup::PLAYER;
 
 	// Animations
 	auto idle = AnimationData("potatochunk_idle", spritePath("enemies/potatochunk/idle/idle"), 26);
@@ -475,16 +469,16 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
 	auto& skillComponent = entity.emplace<SkillComponent>();
 
 	// A fake Skill 1 to keep the turn system happy, but chunks don't actually use skills
-	SkillParams meleeParams;
-	meleeParams.instigator = entity;
-	meleeParams.animationType = AnimationType::IDLE;
-	meleeParams.delay = 0.f;
-	meleeParams.damage = 0.f;
-	meleeParams.range = 0.f;
-	meleeParams.collideWithMultipleEntities = false;
-	meleeParams.collidesWith = CollisionGroup::PLAYER;
-	meleeParams.soundEffect = SoundEffect::MELEE;
-	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<MeleeSkill>(meleeParams));
+	auto meleeParams = std::make_shared<AoESkillParams>();
+	meleeParams->instigator = entity;
+	meleeParams->soundEffect = SoundEffect::MELEE;
+	meleeParams->animationType = AnimationType::IDLE;
+	meleeParams->delay = 0.f;
+	meleeParams->entityProvider = std::make_shared<CircularProvider>(0.f);
+	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
+	meleeParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(0));
+	meleeParams->entityHandler = std::make_shared<DamageHandler>(0.f);
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(meleeParams));
 
 	entity.emplace<PotatoChunk>();
 	return entity;

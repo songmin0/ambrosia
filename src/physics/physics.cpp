@@ -177,20 +177,15 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 				continue;
 			}
 
-			// Make sure these entities are allowed to collide with one another
-			if (motion_i.collidesWith & motion_j.colliderType ||
-					motion_j.collidesWith & motion_i.colliderType)
-			{
-				// Calculate the current bounds for entity_j
-				BoundingBox boundingBox_j = getBoundingBox(entity_j, motion_j);
+			// Calculate the current bounds for entity_j
+			BoundingBox boundingBox_j = getBoundingBox(entity_j, motion_j);
 
-				// Check for collision
-				if (collides(boundingBox_i, boundingBox_j))
-				{
-					// Log the collisions
-					ECS::registry<Collision>.emplaceWithDuplicates(entity_i, entity_j);
-					ECS::registry<Collision>.emplaceWithDuplicates(entity_j, entity_i);
-				}
+			// Check for collision
+			if (collides(boundingBox_i, boundingBox_j))
+			{
+				// Log the collisions
+				ECS::registry<Collision>.emplaceWithDuplicates(entity_i, entity_j);
+				ECS::registry<Collision>.emplaceWithDuplicates(entity_j, entity_i);
 			}
 		}
 	}
