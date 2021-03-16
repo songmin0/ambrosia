@@ -162,10 +162,12 @@ void ProjectileSystem::launchProjectile(LaunchEvent launchEvent, const Projectil
 
 	// Projectile component setup
 	auto& projComponent = entity.emplace<ProjectileComponent>();
-	projComponent.instigator = launchEvent.instigator;
-	projComponent.sourcePosition = launchEvent.instigator.get<Motion>().position + params.launchOffset;
-	projComponent.targetPosition = launchEvent.targetPosition;
+	projComponent.instigator = launchEvent.skillParams.instigator;
+	projComponent.sourcePosition = launchEvent.skillParams.instigator.get<Motion>().position + params.launchOffset;
+	projComponent.targetPosition = launchEvent.skillParams.targetPosition;
 	projComponent.params = params;
+	projComponent.entityFilters = launchEvent.skillParams.entityFilters;
+	projComponent.entityHandler = launchEvent.skillParams.entityHandler;
 	projComponent.callback = launchEvent.callback;
 
 	// Setting initial motion values
@@ -181,11 +183,9 @@ void ProjectileSystem::launchProjectile(LaunchEvent launchEvent, const Projectil
 	vec2 normalBoundingBox = motion.scale * vec2(resource.texture.size.x, resource.texture.size.y);
 	float maxDimension = std::max(normalBoundingBox.x, normalBoundingBox.y);
 	motion.boundingBox = {maxDimension, maxDimension};
-
-	motion.collidesWith = launchEvent.collisionMask;
 }
 
 void ProjectileSystem::onLaunchEvent(const LaunchEvent& event)
 {
-	launchProjectile(event, ProjectileParams::create(event.projectileType, event.damage));
+	launchProjectile(event, ProjectileParams::create(event.skillParams.projectileType));
 }

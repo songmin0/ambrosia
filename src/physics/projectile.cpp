@@ -6,12 +6,12 @@ ProjectileParams::ProjectileParams()
 	, launchOffset(0.f, 0.f)
 	, launchSpeed(0.f)
 	, rotationSpeed(0.f)
-	, damage(0.f)
 	, trajectory(Trajectory::LINEAR)
 {}
 
-ProjectileParams ProjectileParams::create(ProjectileType type, float damage)
+ProjectileParams ProjectileParams::create(ProjectileType type)
 {
+	assert(type != ProjectileType::INVALID);
 	ProjectileParams params;
 
 	if (type == ProjectileType::BULLET)
@@ -21,7 +21,6 @@ ProjectileParams ProjectileParams::create(ProjectileType type, float damage)
 		params.launchOffset = {0.f, -75.f};
 		params.launchSpeed = 300.f;
 		params.rotationSpeed = 300.f;
-		params.damage = damage;
 		params.trajectory = Trajectory::LINEAR;
 	}
 	else if (type == ProjectileType::BONE)
@@ -31,7 +30,6 @@ ProjectileParams ProjectileParams::create(ProjectileType type, float damage)
 		params.launchOffset = {0.f, -75.f};
 		params.launchSpeed = 300.f;
 		params.rotationSpeed = 200.f;
-		params.damage = damage;
 		params.trajectory = Trajectory::BOOMERANG;
 	}
 	else if (type == ProjectileType::EGG_SHELL)
@@ -41,7 +39,6 @@ ProjectileParams ProjectileParams::create(ProjectileType type, float damage)
 		params.launchOffset = {0.f, -75.f};
 		params.launchSpeed = 300.f;
 		params.rotationSpeed = 200.f;
-		params.damage = damage;
 		params.trajectory = Trajectory::LINEAR;
 	}
 	else if (type == ProjectileType::DAMAGE_ORB)
@@ -51,7 +48,6 @@ ProjectileParams ProjectileParams::create(ProjectileType type, float damage)
 		params.launchOffset = { 0.f, -75.f };
 		params.launchSpeed = 300.f;
 		params.rotationSpeed = 200.f;
-		params.damage = damage;
 		params.trajectory = Trajectory::LINEAR;
 	}
 	else if (type == ProjectileType::HEAL_ORB)
@@ -61,7 +57,6 @@ ProjectileParams ProjectileParams::create(ProjectileType type, float damage)
 		params.launchOffset = { 0.f, -75.f };
 		params.launchSpeed = 300.f;
 		params.rotationSpeed = 200.f;
-		params.damage = -damage; // hacky heal, won't prevent HP overflow
 		params.trajectory = Trajectory::LINEAR;
 	}
 
@@ -75,3 +70,29 @@ ProjectileComponent::ProjectileComponent()
 	, phase(Phase::INIT)
 	, callback(nullptr)
 {}
+
+void ProjectileComponent::processCollision(ECS::Entity entity)
+{
+	// Don't process an entity more than once
+	if (ignoredEntities.count(entity.id) > 0)
+	{
+		return;
+	}
+	ignoredEntities.insert(entity.id);
+
+	// Run the entity through the filters
+	for (auto& filter : entityFilters)
+	{
+		assert(filter);
+
+		// If a filter returns false, that means the entity should get filtered out
+		if (!filter->process(entity))
+		{
+			return;
+		}
+	}
+
+	// Apply the entity handler
+	assert(entityHandler);
+	entityHandler->process(instigator, entity);
+}

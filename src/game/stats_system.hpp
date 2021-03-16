@@ -15,7 +15,9 @@ public:
 private:
 	void onHitEvent(const HitEvent& event);
 	void onBuffEvent(const BuffEvent& event);
+	void onHealEvent(const HealEvent& event);
 
 	EventListenerInfo hitEventListener;
 	EventListenerInfo buffEventListener;
+	EventListenerInfo healEventListener;
 };

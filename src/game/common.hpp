@@ -36,6 +36,7 @@ inline std::string mapsPath(const std::string& name) { return dataPath() + "/map
 inline std::string objectsPath(const std::string& name) { return dataPath() + "/objects/" + name; };
 inline std::string uiPath(const std::string& name) { return dataPath() + "/ui/" + name; };
 inline std::string levelsPath(const std::string& name) { return dataPath() + "/levels/" + name; };
+inline std::string fxPath(const std::string& name) { return dataPath() + "/effects/" + name; };
 
 enum class PlayerType { RAOUL, TAJI, CHIA, EMBER };
 float playerToFloat(const PlayerType& player);
@@ -64,6 +65,7 @@ struct Motion {
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 1, 1 };
 	vec2 boundingBox = { 0, 0 };
+	float moveRange = 100.f;
 
 	// (orientation * scale.x) faces right when positive 
 	// ie. if a sprite's texture faces left, then orientation should be -1
@@ -72,7 +74,6 @@ struct Motion {
 	std::stack<vec2> path;
 
 	CollisionGroup colliderType = CollisionGroup::NONE;
-	CollisionGroup collidesWith = CollisionGroup::NONE;
 };
 
 //PlaceHolder please replace with the real one once someone has made them or continue to use these but rename
@@ -82,7 +83,7 @@ struct PlayerComponent {
 
 enum MusicType
 {
-	MAIN_MENU,
+	START_SCREEN,
 	SHOP,
 	VICTORY,
 	BOSS,
@@ -92,6 +93,7 @@ enum MusicType
 	PLACEHOLDER2,
 	PLACEHOLDER3,
 	PLACEHOLDER4,
+	PLACEHOLDER5,
 
 	// The `LAST` value is only needed because WorldSystem::playNextAudioTrack_DEBUG()
 	// needs to be able to loop through the music.

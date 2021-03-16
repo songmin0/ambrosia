@@ -61,7 +61,6 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 						if (!entity.has<ProjectileComponent>())
 						{
 								// Get rid of any points that are close enough that no movement is needed
-								const float THRESHOLD = 3.f;
 								while (!motion.path.empty() && length(motion.position - motion.path.top()) < THRESHOLD)
 								{
 										motion.path.pop();
@@ -82,8 +81,6 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 								}
 								else
 								{
-										const float DEFAULT_SPEED = 100.f; // TEMPORARY
-
 										// The position at the top of the stack is where the entity wants to go next. We will give the entity
 										// velocity in order to reach that point, and we leave the point on the stack until the entity is within
 										// the threshold distance.
@@ -180,20 +177,15 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 										continue;
 								}
 
-								// Make sure these entities are allowed to collide with one another
-								if (motion_i.collidesWith & motion_j.colliderType ||
-										motion_j.collidesWith & motion_i.colliderType)
-								{
-										// Calculate the current bounds for entity_j
-										BoundingBox boundingBox_j = getBoundingBox(entity_j, motion_j);
+								// Calculate the current bounds for entity_j
+								BoundingBox boundingBox_j = getBoundingBox(entity_j, motion_j);
 
-										// Check for collision
-										if (collides(boundingBox_i, boundingBox_j))
-										{
-												// Log the collisions
-												ECS::registry<Collision>.emplaceWithDuplicates(entity_i, entity_j);
-												ECS::registry<Collision>.emplaceWithDuplicates(entity_j, entity_i);
-										}
+								// Check for collision
+								if (collides(boundingBox_i, boundingBox_j))
+								{
+										// Log the collisions
+										ECS::registry<Collision>.emplaceWithDuplicates(entity_i, entity_j);
+										ECS::registry<Collision>.emplaceWithDuplicates(entity_j, entity_i);
 								}
 						}
 				}

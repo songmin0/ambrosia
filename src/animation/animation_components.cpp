@@ -59,6 +59,7 @@ void AnimationsComponent::changeAnimation(AnimationType newAnim)
 	// else update current animation and its data
 	currentAnim = newAnim;
 	currAnimData = anims.at(currentAnim);
+	currAnimData->currFrame = 0;
 
 	// point the mesh ref to the new texture
 	referenceToCache = &cacheResource(currAnimData->texture_key);

@@ -40,40 +40,38 @@ ECS::Entity Ember::commonInit()
 	auto& skillComponent = entity.emplace<SkillComponent>();
 
 	// Skill 1 Melee hit
-	SkillParams meleeParams;
-	meleeParams.instigator = entity;
-	meleeParams.animationType = AnimationType::ATTACK1;
-	meleeParams.delay = 1.f;
-	meleeParams.damage = 30.f;
-	meleeParams.range = 300.f;
-	meleeParams.collideWithMultipleEntities = true;
-	meleeParams.collidesWith = CollisionGroup::MOB;
-	meleeParams.soundEffect = SoundEffect::MELEE;
-	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<MeleeSkill>(meleeParams));
+	auto meleeParams = std::make_shared<AoESkillParams>();
+	meleeParams->instigator = entity;
+	meleeParams->soundEffect = SoundEffect::MELEE;
+	meleeParams->animationType = AnimationType::ATTACK1;
+	meleeParams->delay = 1.f;
+	meleeParams->entityProvider = std::make_shared<CircularProvider>(300.f);
+	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+	meleeParams->entityHandler = std::make_shared<DamageHandler>(30.f);
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(meleeParams));
 
 	// Skill 2 Melee hit
-	SkillParams melee2Params;
-	melee2Params.instigator = entity;
-	melee2Params.animationType = AnimationType::ATTACK2;
-	melee2Params.delay = 1.5f;
-	melee2Params.damage = 60.f;
-	melee2Params.range = 250.f;
-	melee2Params.collideWithMultipleEntities = false;
-	melee2Params.collidesWith = CollisionGroup::MOB;
-	melee2Params.soundEffect = SoundEffect::MELEE;
-	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<MeleeSkill>(melee2Params));
+	auto melee2Params = std::make_shared<AoESkillParams>();
+	melee2Params->instigator = entity;
+	melee2Params->soundEffect = SoundEffect::MELEE;
+	melee2Params->animationType = AnimationType::ATTACK2;
+	melee2Params->delay = 1.5f;
+	melee2Params->entityProvider = std::make_shared<CircularProvider>(250.f);
+	melee2Params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+	melee2Params->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
+	melee2Params->entityHandler = std::make_shared<DamageHandler>(60.f);
+	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(melee2Params));
 
 	// Skill 3 AOE Knockback, without the knockback
-	SkillParams melee3Params;
-	melee3Params.instigator = entity;
-	melee3Params.animationType = AnimationType::ATTACK3;
-	melee3Params.delay = 1.5f;
-	melee3Params.damage = 40.f;
-	melee3Params.range = 200.f;
-	melee3Params.collideWithMultipleEntities = true;
-	melee3Params.collidesWith = CollisionGroup::MOB;
-	melee3Params.soundEffect = SoundEffect::MELEE;
-	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<MeleeSkill>(melee3Params));
+	auto melee3Params = std::make_shared<AoESkillParams>();
+	melee3Params->instigator = entity;
+	melee3Params->soundEffect = SoundEffect::MELEE;
+	melee3Params->animationType = AnimationType::ATTACK3;
+	melee3Params->delay = 1.5f;
+	melee3Params->entityProvider = std::make_shared<CircularProvider>(200.f);
+	melee3Params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+	melee3Params->entityHandler = std::make_shared<DamageHandler>(40.f);
+	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<AreaOfEffectSkill>(melee3Params));
 
 	entity.emplace<Ember>();
 	return entity;
@@ -94,7 +92,6 @@ ECS::Entity Ember::createEmber(json configValues)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = vec2(configValues.at("position")[0], configValues.at("position")[1]);
 	motion.colliderType = CollisionGroup::PLAYER;
-	motion.collidesWith = CollisionGroup::MOB;
 
 	// hitbox scaling
 	auto hitboxScale = vec2({ 0.4f, 0.6f });
@@ -131,7 +128,6 @@ ECS::Entity Ember::createEmber(vec2 position)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = position;
 	motion.colliderType = CollisionGroup::PLAYER;
-	motion.collidesWith = CollisionGroup::MOB;
 
 	// hitbox scaling
 	auto hitboxScale = vec2({ 0.4f, 0.6f });
