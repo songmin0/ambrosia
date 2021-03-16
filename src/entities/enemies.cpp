@@ -171,7 +171,6 @@ ECS::Entity Milk::createMilk(vec2 pos, float orientation)
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
 
-	// TODO: AI for Milk
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
 	btType.mobType = MobType::MILK;
@@ -217,17 +216,18 @@ ECS::Entity Milk::createMilk(vec2 pos, float orientation)
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
 
-	// Hacky Heal TODO: make a better heal
-	SkillParams healParams;
-	healParams.instigator = entity;
-	healParams.animationType = AnimationType::ATTACK1;
-	healParams.delay = 0.3f;
-	healParams.damage = 20.f; // this is "healing"
-	healParams.collidesWith = CollisionGroup::MOB;
-	healParams.collideWithMultipleEntities = false;
-	healParams.ignoreInstigator = false; // TODO: if true it never heals itself, if false it only ever heals itself
-	healParams.soundEffect = SoundEffect::PROJECTILE;
-	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(healParams, ProjectileType::HEAL_ORB));
+	// An orb projectile that heals the target
+	auto healParams = std::make_shared<ProjectileSkillParams>();
+	healParams->instigator = entity;
+	healParams->soundEffect = SoundEffect::PROJECTILE;
+	healParams->animationType = AnimationType::ATTACK1;
+	healParams->delay = 0.3f;
+	healParams->entityFilters.push_back(std::make_shared<InstigatorFilter>(entity));
+	healParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+	healParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
+	healParams->entityHandler = std::make_shared<HealHandler>(20.f);
+	healParams->projectileType = ProjectileType::HEAL_ORB;
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(healParams));
 
 	// Use a ranged attack if there's no ally to heal
 	auto rangedAttackParams = std::make_shared<ProjectileSkillParams>();
@@ -255,9 +255,7 @@ ECS::Entity Potato::createPotato(vec2 pos, float orientation)
 	}
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
-
-	// TODO: Figure this out for Potato
-	// Give it a Mob component
+	
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
 	btType.mobType = MobType::POTATO;

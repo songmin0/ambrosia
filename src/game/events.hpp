@@ -99,7 +99,7 @@ struct StartMobSkillEvent
 {
 	// Active mob
 	ECS::Entity entity;
-	// Skill target type
+	// Skill target type; player or mob
 	bool targetIsPlayer;
 };
 
