@@ -125,7 +125,7 @@ bool AISystem::setTargetToAllyMob(ECS::Entity& mob)
 			auto& allyStats = ally.get<StatsComponent>();
 			auto allyHP = allyStats.getStatValue(StatType::HP);
 			// Update ally to find mob with lowest HP
-			if (allyHP < allyStats.getStatValue(StatType::MAXHP) && allyHP < lowestHP)
+			if (allyHP < allyStats.getStatValue(StatType::MAX_HP) && allyHP < lowestHP)
 			{
 				lowestHP = allyHP;
 				targetAlly = ally;

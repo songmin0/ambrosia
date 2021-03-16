@@ -154,16 +154,22 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	GLuint percentHP_uloc = glGetUniformLocation(texmesh.effect.program, "percentHP");
 	if (percentHP_uloc >= 0)
 	{
-		GLuint percentShield_uloc = glGetUniformLocation(texmesh.effect.program, "percentShield");
-		float HPshield = 0.f; 
-		// TODO: Pass in correct %HP shield
-		glUniform1f(percentShield_uloc, HPshield);
-
 		if (entity.has<HPBar>()) {
 			auto& statsComp = entity.get<HPBar>().statsCompEntity.get<StatsComponent>();
-			// Safety check for divide by 0
-			float maxHP = clamp(statsComp.getStatValue(StatType::MAXHP), 1.f, 1000.f);
-			glUniform1f(percentHP_uloc, statsComp.getStatValue(StatType::HP) / maxHP);
+
+			float maxHP = statsComp.getStatValue(StatType::MAX_HP);
+			float hpShield = statsComp.getStatValue(StatType::HP_SHIELD);
+			float hp = statsComp.getStatValue(StatType::HP);
+
+			// Using std::max to prevent division by zero
+			float maxEffectiveHP = std::max(1.f, maxHP + hpShield);
+
+			float percentHP = hp / maxEffectiveHP;
+			float percentShield = hpShield / maxEffectiveHP;
+
+			glUniform1f(percentHP_uloc, percentHP);
+			GLuint percentShield_uloc = glGetUniformLocation(texmesh.effect.program, "percentShield");
+			glUniform1f(percentShield_uloc, percentShield);
 
 			GLint isMob_uloc = glGetUniformLocation(texmesh.effect.program, "isMob");
 			glUniform1i(isMob_uloc, entity.get<HPBar>().isMob);

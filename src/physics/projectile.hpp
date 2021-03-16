@@ -10,7 +10,7 @@
 enum class ProjectileType
 {
 	INVALID,
-	BULLET,
+	BLUEBERRY,
 	BONE,
 	EGG_SHELL,
 	HEAL_ORB,

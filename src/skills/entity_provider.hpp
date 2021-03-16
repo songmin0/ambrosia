@@ -15,6 +15,17 @@ public:
 																							 vec2 targetPosition) = 0;
 };
 
+// Collects all entities (that have a Motion component) on the map
+class AllEntitiesProvider : public EntityProvider
+{
+public:
+	AllEntitiesProvider() = default;
+	~AllEntitiesProvider() override = default;
+
+	std::vector<ECS::Entity> getEntities(ECS::Entity instigator,
+																			 vec2 targetPosition) override;
+};
+
 // Collects all entities within a certain radius of the instigator
 class CircularProvider : public EntityProvider
 {

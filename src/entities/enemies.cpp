@@ -56,7 +56,7 @@ ECS::Entity Egg::createEgg(vec2 pos, float orientation)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAXHP] = 50.f;
+	statsComponent.stats[StatType::MAX_HP] = 50.f;
 	statsComponent.stats[StatType::HP] = 50.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
@@ -131,7 +131,7 @@ ECS::Entity Pepper::createPepper(vec2 pos, float orientation)
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
 	statsComponent.stats[StatType::HP] = 40.f;
-	statsComponent.stats[StatType::MAXHP] = 40.f;
+	statsComponent.stats[StatType::MAX_HP] = 40.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
 
@@ -203,7 +203,7 @@ ECS::Entity Milk::createMilk(vec2 pos, float orientation)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAXHP] = 50.f;
+	statsComponent.stats[StatType::MAX_HP] = 50.f;
 	statsComponent.stats[StatType::HP] = 50.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
@@ -225,7 +225,6 @@ ECS::Entity Milk::createMilk(vec2 pos, float orientation)
 	healParams->delay = 0.3f;
 	healParams->entityFilters.push_back(std::make_shared<InstigatorFilter>(entity));
 	healParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
-	healParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
 	healParams->entityHandler = std::make_shared<HealHandler>(20.f);
 	healParams->projectileType = ProjectileType::HEAL_ORB;
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(healParams));
@@ -293,7 +292,7 @@ ECS::Entity Potato::createPotato(vec2 pos, float orientation)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAXHP] = 200.f;
+	statsComponent.stats[StatType::MAX_HP] = 200.f;
 	statsComponent.stats[StatType::HP] = 200.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
@@ -383,7 +382,7 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	// the parameter initHPPercent is a % value from 0 -> 1
 	// ie. if we collectively reduced chunks to 50% HP (or defeated half the chunks), then
 	// Mashed Potatoes spawns with 50% of its Max HP
-	statsComponent.stats[StatType::MAXHP] = 180.f;
+	statsComponent.stats[StatType::MAX_HP] = 180.f;
 	statsComponent.stats[StatType::HP] = 180.f * initHPPercent;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
@@ -453,7 +452,7 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAXHP] = 30.f;
+	statsComponent.stats[StatType::MAX_HP] = 30.f;
 	statsComponent.stats[StatType::HP] = 30.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;

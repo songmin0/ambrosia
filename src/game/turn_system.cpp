@@ -12,6 +12,7 @@
 
 TurnSystem::TurnSystem(PathFindingSystem& pfs)
 	: pathFindingSystem(pfs)
+	, timer(0.f)
 {
 	EventSystem<MouseClickEvent>::instance().registerListener(
 		std::bind(&TurnSystem::onMouseClick, this, std::placeholders::_1));
@@ -132,48 +133,57 @@ void TurnSystem::nextTurn()
 
 void TurnSystem::step(float elapsed_ms)
 {
-		if (GameStateSystem::instance().inGameState()) {
-				//If there is no active entity (this could be due to a restart) get the next active entity
-				if (ECS::registry<TurnComponentIsActive>.entities.empty()) {
-						nextActiveEntity();
-				}
-				// Check happens with above if statement.
-				auto& activeEntity = ECS::registry<TurnComponentIsActive>.entities[0];
-				if (!activeEntity.has<DeathTimer>()) {
-						if (activeEntity.has<TurnComponent>()) {
-								auto& turnComponent = activeEntity.get<TurnComponent>();
+	if (!GameStateSystem::instance().inGameState()) {
+		return;
+	}
+	timer -= elapsed_ms;
 
-								if (hasCompletedTurn(turnComponent))
-								{
-										// Add a hardcoded delay before moving the camera so player can see animations
-										assert(!ECS::registry<CameraComponent>.entities.empty());
-										auto camera = ECS::registry<CameraComponent>.entities[0];
-										camera.emplace<CameraDelayedMoveComponent>(0.5f);
-										nextActiveEntity();
-								}
-								// For mobs, need to tell them when its time to move and to perform a skill
-								else if (activeEntity.has<AISystem::MobComponent>())
-								{
-										// Start behaviour tree for active mob entity
-										// Event should be heard by StateSystem in behaviour_tree.hpp
-										if (turnComponent.canStartMoving())
-										{
-												std::cout << "Starting mob turn\n";
-												StartMobTurnEvent event;
-												//event.entity = activeEntity;
-												EventSystem<StartMobTurnEvent>::instance().sendEvent(event);
-												turnComponent.isMoving = true;
-										}
-								}
-						}
+	if (timer > 0.f)
+	{
+		return;
+	}
+	timer = 0.f;
+
+	//If there is no active entity (this could be due to a restart) get the next active entity
+	if (ECS::registry<TurnComponentIsActive>.entities.empty()) {
+		nextActiveEntity();
+	}
+	// Check happens with above if statement.
+	auto& activeEntity = ECS::registry<TurnComponentIsActive>.entities[0];
+	if (!activeEntity.has<DeathTimer>()) {
+		if (activeEntity.has<TurnComponent>()) {
+			auto& turnComponent = activeEntity.get<TurnComponent>();
+
+			if (hasCompletedTurn(turnComponent))
+			{
+				// Add a hardcoded delay before moving the camera so player can see animations
+				assert(!ECS::registry<CameraComponent>.entities.empty());
+				auto camera = ECS::registry<CameraComponent>.entities[0];
+				camera.emplace<CameraDelayedMoveComponent>(0.5f);
+				nextActiveEntity();
+			}
+			// For mobs, need to tell them when its time to move and to perform a skill
+			else if (activeEntity.has<AISystem::MobComponent>())
+			{
+				// Start behaviour tree for active mob entity
+				// Event should be heard by StateSystem in behaviour_tree.hpp
+				if (turnComponent.canStartMoving())
+				{
+					std::cout << "Starting mob turn\n";
+					StartMobTurnEvent event;
+					//event.entity = activeEntity;
+					EventSystem<StartMobTurnEvent>::instance().sendEvent(event);
+					turnComponent.isMoving = true;
 				}
-				else {
-						//Pretty sure whis will be needed once we get multiple players but that depends 
-						//		on how we handle death leaving for now as it doesn't hurt anything
-						//The current user is dead so switch to the next
-						nextActiveEntity();
-				}
+			}
 		}
+	}
+	else {
+		//Pretty sure whis will be needed once we get multiple players but that depends 
+		//		on how we handle death leaving for now as it doesn't hurt anything
+		//The current user is dead so switch to the next
+		nextActiveEntity();
+	}
 }
 
 bool TurnSystem::hasCompletedTurn(TurnComponent tc)
@@ -260,6 +270,8 @@ void TurnSystem::onFinishedMovement(const FinishedMovementEvent& event)
 		turnComponent.isMoving = false;
 		turnComponent.hasMoved = true;
 	}
+
+	timer = TIMER_PERIOD;
 }
 
 void TurnSystem::onFinishedSkill(const FinishedSkillEvent& event)
@@ -273,4 +285,6 @@ void TurnSystem::onFinishedSkill(const FinishedSkillEvent& event)
 		turnComponent.isUsingSkill = false;
 		turnComponent.hasUsedSkill = true;
 	}
+
+	timer = TIMER_PERIOD;
 }

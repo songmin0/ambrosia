@@ -13,3 +13,8 @@ float StatsComponent::getStatValue(StatType type)
 
 	return value;
 }
+
+float StatsComponent::getEffectiveHP()
+{
+	return getStatValue(StatType::HP) + getStatValue(StatType::HP_SHIELD);
+}
