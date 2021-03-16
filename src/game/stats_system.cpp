@@ -85,14 +85,30 @@ void StatsSystem::onHitEvent(const HitEvent &event)
 	{
 		auto& statsComponent = target.get<StatsComponent>();
 
-		statsComponent.stats[StatType::HP] -= actualDamage;
+		// Apply damage to HP shield first. The HP_SHIELD stat itself should always
+		// be zero. We only need to check the stat modifier.
+		auto it = statsComponent.statModifiers.find(StatType::HP_SHIELD);
+		if (it != statsComponent.statModifiers.end())
+		{
+			// Apply damage to HP shield
+			float hpShieldBefore = it->second.value;
+			it->second.value = std::max(0.f, hpShieldBefore - actualDamage);
+			float hpShieldAfter = it->second.value;
+
+			// Update the amount of damage that still needs to be applied
+			actualDamage -= hpShieldBefore - hpShieldAfter;
+		}
+
+		// Subtract remaining damage from HP
+		float currentHP = statsComponent.stats[StatType::HP];
+		statsComponent.stats[StatType::HP] = std::max(0.f, currentHP - actualDamage);
 
 		AnimationType animationToPerform = AnimationType::HIT;
 		SoundEffect soundEffect = target.has<PlayerComponent>() ? SoundEffect::HIT_PLAYER
 																														: SoundEffect::HIT_MOB;
 
 		// Check whether the target has died
-		if (statsComponent.stats[StatType::HP] <= 0.f)
+		if (statsComponent.getEffectiveHP() <= 0.f)
 		{
 			animationToPerform = AnimationType::DEFEAT;
 
@@ -100,12 +116,6 @@ void StatsSystem::onHitEvent(const HitEvent &event)
 			{
 				ECS::registry<DeathTimer>.emplace(target);
 				soundEffect = SoundEffect::DEFEAT;
-
-				// If the target's HP is buffed or debuffed, remove the stat modifier
-				// now so that we don't end up with a situation where the stat modifier
-				// gets removed in StatsSystem::step while the DeathTimer is counting
-				// down, causing the HP to change. It would be weird to see the HP bar
-				// change after death.
 				statsComponent.statModifiers.erase(StatType::HP);
 			}
 		}
@@ -119,13 +129,14 @@ void StatsSystem::onHitEvent(const HitEvent &event)
 
 		EventSystem<PlaySoundEffectEvent>::instance().sendEvent({soundEffect});
 	}
-
-
 }
 
 void StatsSystem::onBuffEvent(const BuffEvent &event)
 {
-	assert(event.statModifier.statType != StatType::INVALID);
+	// These are the only stats that make sense to buff/debuff at the moment
+	assert(event.statModifier.statType == StatType::STRENGTH ||
+				 event.statModifier.statType == StatType::MAX_HP ||
+				 event.statModifier.statType == StatType::HP_SHIELD);
 
 	auto entity = event.entity;
 
@@ -134,32 +145,8 @@ void StatsSystem::onBuffEvent(const BuffEvent &event)
 	{
 		auto& statsComponent = entity.get<StatsComponent>();
 
-		// When applying an HP modifier, make sure the HP stays between 1.f and MAXHP
-		StatModifier statModifier = event.statModifier;
-		if (statModifier.statType == StatType::HP)
-		{
-			float currentHP = statsComponent.stats[StatType::HP];
-			float modifiedHP = currentHP + statModifier.value;
-
-			// Prevent debuffs from killing the character. Please feel free to remove
-			// this if we decide that debuffs should be able to kill.
-			if (modifiedHP < 1.f)
-			{
-				statModifier.value = -currentHP + 1.f;
-			}
-			// Prevent buffing the character's HP beyond the maximum
-			else
-			{
-				float maxHP = statsComponent.stats[StatType::MAXHP];
-				if (modifiedHP > maxHP)
-				{
-					statModifier.value = maxHP - currentHP;
-				}
-			}
-		}
-
 		// Apply the given stat modifier
-		statsComponent.statModifiers[event.statModifier.statType] = statModifier;
+		statsComponent.statModifiers[event.statModifier.statType] = event.statModifier;
 	}
 }
 
@@ -182,7 +169,7 @@ void StatsSystem::onHealEvent(const HealEvent &event)
 		float currentHP = statsComponent.stats[StatType::HP];
 
 		// Get the maximum possible HP
-		float maxHP = statsComponent.getStatValue(StatType::MAXHP);
+		float maxHP = statsComponent.getStatValue(StatType::MAX_HP);
 
 		// Apply the healing, keeping the HP within the maximum
 		float newHP = std::min(currentHP + event.amount, maxHP);

@@ -39,40 +39,40 @@ ECS::Entity Chia::commonInit()
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
 
-	// Melee hit
-	auto meleeParams = std::make_shared<AoESkillParams>();
-	meleeParams->instigator = entity;
-	meleeParams->soundEffect = SoundEffect::MELEE;
-	meleeParams->animationType = AnimationType::ATTACK1;
-	meleeParams->delay = 1.f;
-	meleeParams->entityProvider = std::make_shared<CircularProvider>(200.f);
-	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
-	meleeParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
-	meleeParams->entityHandler = std::make_shared<DamageHandler>(30.f);
-	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(meleeParams));
+	// Blueberry projectile that heals allies and damages enemies
+	auto blueberryParams = std::make_shared<ProjectileSkillParams>();
+	blueberryParams->instigator = entity;
+	blueberryParams->soundEffect = SoundEffect::PROJECTILE;
+	blueberryParams->animationType = AnimationType::ATTACK1;
+	blueberryParams->delay = 0.6f;
+	blueberryParams->entityFilters.push_back(std::make_shared<InstigatorFilter>(entity));
+	blueberryParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER | CollisionGroup::MOB));
+	blueberryParams->entityHandler = std::make_shared<HealAndDamageHandler>(CollisionGroup::PLAYER, 10.f, CollisionGroup::MOB, 10.f);
+	blueberryParams->projectileType = ProjectileType::BLUEBERRY;
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(blueberryParams));
 
-	// Debuff an enemy by clicking on the enemy (doesn't matter how far away they are from the player)
-	auto strengthDebuffParams = std::make_shared<AoESkillParams>();
-	strengthDebuffParams->instigator = entity;
-	strengthDebuffParams->soundEffect = SoundEffect::DEBUFF;
-	strengthDebuffParams->animationType = AnimationType::ATTACK2;
-	strengthDebuffParams->delay = 1.f;
-	strengthDebuffParams->entityProvider = std::make_shared<MouseClickProvider>(100.f);
-	strengthDebuffParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
-	strengthDebuffParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
-	strengthDebuffParams->entityHandler = std::make_shared<BuffHandler>(StatType::STRENGTH, -0.1f, 60.f);
-	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(strengthDebuffParams));
+	// Debuff the target's strength and deal damage (need to click on the target you want to attack)
+	auto debuffAndDamageParams = std::make_shared<AoESkillParams>();
+	debuffAndDamageParams->instigator = entity;
+	debuffAndDamageParams->soundEffect = SoundEffect::DEBUFF;
+	debuffAndDamageParams->animationType = AnimationType::ATTACK2;
+	debuffAndDamageParams->delay = 1.f;
+	debuffAndDamageParams->entityProvider = std::make_shared<MouseClickProvider>(100.f);
+	debuffAndDamageParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+	debuffAndDamageParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
+	debuffAndDamageParams->entityHandler = std::make_shared<DebuffAndDamageHandler>(StatType::STRENGTH, -0.1f, 60.f, 8.f);
+	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(debuffAndDamageParams));
 
-	// Bone throw projectile attack
-	auto boneThrowParams = std::make_shared<ProjectileSkillParams>();
-	boneThrowParams->instigator = entity;
-	boneThrowParams->soundEffect = SoundEffect::PROJECTILE;
-	boneThrowParams->animationType = AnimationType::ATTACK3;
-	boneThrowParams->delay = 0.6f;
-	boneThrowParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
-	boneThrowParams->entityHandler = std::make_shared<DamageHandler>(20.f);
-	boneThrowParams->projectileType = ProjectileType::BONE;
-	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<ProjectileSkill>(boneThrowParams));
+	// Grant x amount of HP shield to all allies (for 60 seconds...but change it to one turn when buffs become turn-based)
+	auto hpShieldParams = std::make_shared<AoESkillParams>();
+	hpShieldParams->instigator = entity;
+	hpShieldParams->soundEffect = SoundEffect::BUFF; // TODO: Update this when we add an appropriate sound effect
+	hpShieldParams->animationType = AnimationType::ATTACK3;
+	hpShieldParams->delay = 0.6f;
+	hpShieldParams->entityProvider = std::make_shared<AllEntitiesProvider>();
+	hpShieldParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
+	hpShieldParams->entityHandler = std::make_shared<BuffHandler>(StatType::HP_SHIELD, 15.f, 60.f);
+	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<AreaOfEffectSkill>(hpShieldParams));
 
 	entity.emplace<Chia>();
 	return entity;
@@ -102,7 +102,7 @@ ECS::Entity Chia::createChia(json configValues)
 	auto& statsComponent = entity.emplace<StatsComponent>();
 	json stats = configValues.at("stats");
 	statsComponent.stats[StatType::HP] = stats.at("hp");
-	statsComponent.stats[StatType::MAXHP] = stats.at("hp");
+	statsComponent.stats[StatType::MAX_HP] = stats.at("hp");
 	statsComponent.stats[StatType::AMBROSIA] = stats.at("ambrosia");
 	statsComponent.stats[StatType::STRENGTH] = stats.at("strength");
 
@@ -137,7 +137,7 @@ ECS::Entity Chia::createChia(vec2 position)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAXHP] = 70.f;
+	statsComponent.stats[StatType::MAX_HP] = 70.f;
 	statsComponent.stats[StatType::HP] = 70.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
