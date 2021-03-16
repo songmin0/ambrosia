@@ -140,8 +140,6 @@ void AISystem::startMobMoveToPlayer(ECS::Entity entity)
 	assert(entity.has<Motion>());
 	auto& motion = entity.get<Motion>();
 
-	std::cout << "Moving towards player\n";
-
 	if (setTargetToClosestPlayer(entity)) {
 		ECS::Entity closestPlayer = entity.get<MobComponent>().getTarget();
 		//Find the direction to travel towards the player
@@ -162,8 +160,6 @@ void AISystem::startMobMoveToMob(ECS::Entity entity)
 	assert(entity.has<Motion>());
 	auto& motion = entity.get<Motion>();
 
-	std::cout << "Moving towards mob ally\n";
-
 	if (setTargetToAllyMob(entity)) {
 		ECS::Entity closestMob = entity.get<MobComponent>().getTarget();
 		//Find the direction to travel towards the player
@@ -182,8 +178,6 @@ void AISystem::startMobRunAway(ECS::Entity entity)
 	assert(entity.has<MobComponent>());
 	assert(entity.has<Motion>());
 	auto& motion = entity.get<Motion>();
-
-	std::cout << "Running away from player\n";
 
 	if (setTargetToClosestPlayer(entity)) {
 		ECS::Entity closestPlayer = entity.get<MobComponent>().getTarget();
