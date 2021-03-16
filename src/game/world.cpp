@@ -184,23 +184,11 @@ void WorldSystem::handleCollisions()
 		auto entity = registry.entities[i];
 		auto entity_other = registry.components[i].other;
 
-		// Check for projectiles colliding with the player or with the eggs
+		// Check for projectiles colliding with the player or mobs
 		if (ECS::registry<ProjectileComponent>.has(entity))
 		{
 			auto& projComponent = entity.get<ProjectileComponent>();
-
-			// Only allowing a projectile to collide with an entity once. It can collide with multiple entities, but only once
-			// per entity
-			if (projComponent.canCollideWith(entity_other))
-			{
-				projComponent.collideWith(entity_other);
-
-				HitEvent event;
-				event.instigator = projComponent.instigator;
-				event.target = entity_other;
-				event.damage = projComponent.params.damage;
-				EventSystem<HitEvent>::instance().sendEvent(event);
-			}
+			projComponent.processCollision(entity_other);
 		}
 	}
 
