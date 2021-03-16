@@ -1,4 +1,5 @@
 {
+  "name": "recipe-1",
   "maps": [
     {
       "map": "pizza-arena",
@@ -55,23 +56,26 @@
       "mobs": [
         {
           "type": "egg",
-          "position": [
-            850,
-            800
-          ]
-        },
-        {
-          "type": "egg",
-          "position": [
-            1000,
-            650
-          ]
-        },
-        {
-          "type": "pepper",
-          "position": [
-            950,
-            500
+          "stats": {
+            "hp": 80,
+            "strength": 1
+          },
+          "positions": [
+            [
+              950,
+              500,
+              -1
+            ],
+            [
+              1000,
+              650,
+              -1
+            ],
+            [
+              850,
+              800,
+              -1
+            ]
           ]
         }
       ]
@@ -131,30 +135,40 @@
       "mobs": [
         {
           "type": "egg",
-          "position": [
-            2400,
-            1100
-          ]
-        },
-        {
-          "type": "egg",
-          "position": [
-            2550,
-            900
+          "stats": {
+            "hp": 80,
+            "strength": 1
+          },
+          "positions": [
+            [
+              2400,
+              1100,
+              -1
+            ],
+            [
+              2550,
+              900,
+              -1
+            ]
           ]
         },
         {
           "type": "pepper",
-          "position": [
-            750,
-            900
-          ]
-        },
-        {
-          "type": "pepper",
-          "position": [
-            850,
-            1100
+          "stats": {
+            "hp": 80,
+            "strength": 1
+          },
+          "positions": [
+            [
+              750,
+              900,
+              1
+            ],
+            [
+              850,
+              1100,
+              1
+            ]
           ]
         }
       ]

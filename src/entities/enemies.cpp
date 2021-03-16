@@ -114,7 +114,6 @@ ECS::Entity Pepper::createPepper(json stats, json position)
 	motion.position = vec2(position[0], position[1]);
 	motion.scale = vec2(0.9f);
 	motion.orientation = position[2];
-	std::cout << motion.orientation;
 	auto hitboxScale = vec2({ 0.4f, 0.7f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;

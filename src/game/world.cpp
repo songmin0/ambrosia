@@ -75,7 +75,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	glfwSetCursorPosCallback(window, mouseHoverRedirect);
 
 	curr_level = 0;
-	recipe = lc.readLevel("recipe-2");
+	recipe = lc.readLevel("recipe-1");
 
 	initAudio();
 	std::cout << "Loaded music\n";
@@ -152,7 +152,7 @@ void WorldSystem::restart()
 	// Reset the game speed
 	current_speed = 1.f;
 
-	// set config vals for curr level
+	// set config vals for current level
 	config = recipe["maps"][curr_level];
 
 	// Remove all entities that we created
@@ -361,25 +361,9 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 	// Milk test
 	//Milk::createMilk(vec2(700.f, 500.f), -1.f);
 
-	// TODO: come back and expand this when we have multiple mobs
 	auto mobs = config.at("mobs");
 
 	createEnemies(mobs);
-
-
-
-	//for (json mob : mobs) {
-	//	auto type = mob["type"];
-	//	if (type == "egg") {
-	//		for (json position : mob["positions"]) {
-	//			Egg::createEgg(mob["stats"], position);
-	//		}
-	//	}
-	//	//else if (type == "pepper")
-	//	//{
-	//	//	Pepper::createPepper({ mob.at("position")[0], mob["position"][1] });
-	//	//}
-	//}
 }
 
 // On key callback
