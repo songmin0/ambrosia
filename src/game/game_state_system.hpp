@@ -17,6 +17,7 @@ struct Recipe {
 
 
 class GameStateSystem {
+	//TODO should I move all the music logic from the WorldSystem to here?
 public:
 		// Returns the singleton instance of this system
 		static GameStateSystem& instance() {

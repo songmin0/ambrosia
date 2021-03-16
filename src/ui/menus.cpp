@@ -3,8 +3,14 @@
 #include <iostream>
 #include "game/game_state_system.hpp"
 
+#define SDL_MAIN_HANDLED
+#include <SDL.h>
+#include <SDL_mixer.h>
+
 void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 {
+	//Play menu music
+	Mix_PlayMusic(Mix_LoadMUS(audioPath("music/Ambrosia_Theme.wav").c_str()), -1);
 	// Background
 	auto background = ECS::Entity();
 	ShadedMesh& splashResource = cacheResource("start_splash");
