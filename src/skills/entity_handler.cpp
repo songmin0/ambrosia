@@ -32,3 +32,46 @@ void BuffHandler::process(ECS::Entity instigator, ECS::Entity target)
 	buffEvent.statModifier = statModifier;
 	EventSystem<BuffEvent>::instance().sendEvent(buffEvent);
 }
+
+void HealAndDamageHandler::process(ECS::Entity instigator, ECS::Entity target)
+{
+	assert(target.has<Motion>());
+	auto& targetMotion = target.get<Motion>();
+
+	if (targetMotion.colliderType == typeToHeal)
+	{
+		HealEvent healEvent;
+		healEvent.entity = target;
+		healEvent.amount = healAmount;
+		EventSystem<HealEvent>::instance().sendEvent(healEvent);
+	}
+	else if (targetMotion.colliderType == typeToDamage)
+	{
+		HitEvent hitEvent;
+		hitEvent.instigator = instigator;
+		hitEvent.target = target;
+		hitEvent.damage = damage;
+		EventSystem<HitEvent>::instance().sendEvent(hitEvent);
+	}
+}
+
+void DebuffAndDamageHandler::process(ECS::Entity instigator, ECS::Entity target)
+{
+	// DEBUFF
+	StatModifier statModifier;
+	statModifier.statType = statType;
+	statModifier.value = value;
+	statModifier.timer = timer;
+
+	BuffEvent buffEvent;
+	buffEvent.entity = target;
+	buffEvent.statModifier = statModifier;
+	EventSystem<BuffEvent>::instance().sendEvent(buffEvent);
+
+	// DAMAGE
+	HitEvent hitEvent;
+	hitEvent.instigator = instigator;
+	hitEvent.target = target;
+	hitEvent.damage = damage;
+	EventSystem<HitEvent>::instance().sendEvent(hitEvent);
+}

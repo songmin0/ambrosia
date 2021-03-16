@@ -59,3 +59,109 @@ ECS::Entity ActiveSkillFX::createActiveSkillFX()
 
 	return entity;
 }
+
+ECS::Entity commonInitFX(const std::string& key, const int numFrames, const bool doesCycle)
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource(key);
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, fxPath(key + "/" + key + "_000.png"), "textured");
+	}
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::SKILL);
+
+	auto effect_anim = AnimationData(key + "_anim", fxPath(key + "/" + key), numFrames, 1, false, doesCycle);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::EFFECT, std::make_shared<AnimationData>(effect_anim));
+
+	return entity;
+};
+
+ECS::Entity BuffedFX::createBuffedFX(vec2 position, vec2 scale)
+{
+	auto entity = commonInitFX("buffed", 30, true);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+	motion.scale = scale;
+
+	return entity;
+}
+
+ECS::Entity DebuffedFX::createDebuffedFX(vec2 position, vec2 scale)
+{
+	auto entity = commonInitFX("debuffed", 31, true);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+	motion.scale = scale;
+
+	return entity;
+}
+
+ECS::Entity HealedFX::createHealedFX(vec2 position, vec2 scale)
+{
+	auto entity = commonInitFX("healed", 56, false);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+	motion.scale = scale;
+
+	return entity;
+}
+
+ECS::Entity ShieldedFX::createShieldedFX(vec2 position, vec2 scale)
+{
+	auto entity = commonInitFX("shielded", 30, true);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+	motion.scale = scale;
+
+	return entity;
+}
+
+ECS::Entity Candy1FX::createCandy1FX(vec2 position, vec2 scale)
+{
+	auto entity = commonInitFX("candy1", 18, false);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+	motion.scale = scale;
+
+	return entity;
+}
+
+ECS::Entity Candy2FX::createCandy2FX(vec2 position, vec2 scale)
+{
+	auto entity = commonInitFX("candy2", 18, false);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+	motion.scale = scale;
+
+	return entity;
+}
+
+ECS::Entity BlueberriedFX::createBlueberriedFX(vec2 position, vec2 scale)
+{
+	auto entity = commonInitFX("blueberried", 11, false);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+	motion.scale = scale;
+
+	return entity;
+}
+
+ECS::Entity StunnedFX::createStunnedFX(vec2 position, vec2 scale)
+{
+	auto entity = commonInitFX("stunned", 11, true);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+	motion.scale = scale;
+
+	return entity;
+}

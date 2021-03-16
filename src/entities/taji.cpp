@@ -39,39 +39,39 @@ ECS::Entity Taji::commonInit()
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
 
-	// Melee hit
-	auto meleeParams = std::make_shared<AoESkillParams>();
-	meleeParams->instigator = entity;
-	meleeParams->soundEffect = SoundEffect::MELEE;
-	meleeParams->animationType = AnimationType::ATTACK1;
-	meleeParams->delay = 1.f;
-	meleeParams->entityProvider = std::make_shared<CircularProvider>(300.f);
-	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
-	meleeParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
-	meleeParams->entityHandler = std::make_shared<DamageHandler>(30.f);
-	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(meleeParams));
+	// Ranged damage with small area of effect
+	auto aoeParams = std::make_shared<AoESkillParams>();
+	aoeParams->instigator = entity;
+	aoeParams->soundEffect = SoundEffect::BUFF; // TODO: Update this when we add an appropriate sound effect
+	aoeParams->animationType = AnimationType::ATTACK1;
+	aoeParams->delay = 1.f;
+	aoeParams->entityProvider = std::make_shared<MouseClickProvider>(250.f);
+	aoeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+	aoeParams->entityHandler = std::make_shared<DamageHandler>(12.f);
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(aoeParams));
 
-	// Strength buff for nearby players (the instigator will also be buffed)
-	auto strengthBuffParams = std::make_shared<AoESkillParams>();
-	strengthBuffParams->instigator = entity;
-	strengthBuffParams->soundEffect = SoundEffect::BUFF;
-	strengthBuffParams->animationType = AnimationType::ATTACK2;
-	strengthBuffParams->delay = 1.f;
-	strengthBuffParams->entityProvider = std::make_shared<CircularProvider>(300.f);
-	strengthBuffParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
-	strengthBuffParams->entityHandler = std::make_shared<BuffHandler>(StatType::STRENGTH, 0.1f, 60.f);
-	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(strengthBuffParams));
+	// Single-target ranged attack, deals damage and makes the target skip a turn (that part is not supported yet)
+	auto castAttackParams = std::make_shared<AoESkillParams>();
+	castAttackParams->instigator = entity;
+	castAttackParams->soundEffect = SoundEffect::BUFF; // TODO: Update this when we add an appropriate sound effect
+	castAttackParams->animationType = AnimationType::ATTACK2;
+	castAttackParams->delay = 1.f;
+	castAttackParams->entityProvider = std::make_shared<MouseClickProvider>(100.f);
+	castAttackParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+	castAttackParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
+	castAttackParams->entityHandler = std::make_shared<DamageHandler>(20.f);
+	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(castAttackParams));
 
-	// Bone throw projectile attack
-	auto boneThrowParams = std::make_shared<ProjectileSkillParams>();
-	boneThrowParams->instigator = entity;
-	boneThrowParams->soundEffect = SoundEffect::PROJECTILE;
-	boneThrowParams->animationType = AnimationType::ATTACK3;
-	boneThrowParams->delay = 0.6f;
-	boneThrowParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
-	boneThrowParams->entityHandler = std::make_shared<DamageHandler>(20.f);
-	boneThrowParams->projectileType = ProjectileType::BONE;
-	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<ProjectileSkill>(boneThrowParams));
+	// Small damage to all enemies, small heal to all allies
+	auto healAndDamageParams = std::make_shared<AoESkillParams>();
+	healAndDamageParams->instigator = entity;
+	healAndDamageParams->soundEffect = SoundEffect::BUFF; // TODO: Update this when we add an appropriate sound effect
+	healAndDamageParams->animationType = AnimationType::ATTACK3;
+	healAndDamageParams->delay = 1.f;
+	healAndDamageParams->entityProvider = std::make_shared<AllEntitiesProvider>();
+	healAndDamageParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER | CollisionGroup::MOB));
+	healAndDamageParams->entityHandler = std::make_shared<HealAndDamageHandler>(CollisionGroup::PLAYER, 8.f, CollisionGroup::MOB, 8.f);
+	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<AreaOfEffectSkill>(healAndDamageParams));
 
 	entity.emplace<Taji>();
 	return entity;
@@ -102,7 +102,7 @@ ECS::Entity Taji::createTaji(json configValues)
 	auto& statsComponent = entity.emplace<StatsComponent>();
 	json stats = configValues.at("stats");
 	statsComponent.stats[StatType::HP] = stats.at("hp");
-	statsComponent.stats[StatType::MAXHP] = stats.at("hp");
+	statsComponent.stats[StatType::MAX_HP] = stats.at("hp");
 	statsComponent.stats[StatType::AMBROSIA] = stats.at("ambrosia");
 	statsComponent.stats[StatType::STRENGTH] = stats.at("strength");
 
@@ -137,7 +137,7 @@ ECS::Entity Taji::createTaji(vec2 position)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAXHP] = 60.f;
+	statsComponent.stats[StatType::MAX_HP] = 60.f;
 	statsComponent.stats[StatType::HP] = 60.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
