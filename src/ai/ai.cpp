@@ -187,7 +187,7 @@ void AISystem::startMobRunAway(ECS::Entity entity)
 
 	if (setTargetToClosestPlayer(entity)) {
 		ECS::Entity closestPlayer = entity.get<MobComponent>().getTarget();
-		//Find the direction to travel away from the player
+		//Find the direction to travel away from the closest player
 		vec2 direction = normalize(motion.position - closestPlayer.get<Motion>().position);
 
 		float movementDistance = 100.0f;
@@ -204,11 +204,8 @@ void AISystem::startMobSkill(ECS::Entity entity)
 	auto& motion = entity.get<Motion>();
 	auto& mobComponent = entity.get<MobComponent>();
 
-	std::cout << "Mob using skill\n";
-	// TODO: Target is set in movement phase for now; 
-	// not sure if this is safe since we have mobs that don't move
 	ECS::Entity target = mobComponent.getTarget();
-	// Get position of closest player
+	// Get position of target
 	assert(target.has<Motion>());
 	vec2 closestTargetPosition = target.get<Motion>().position;
 
