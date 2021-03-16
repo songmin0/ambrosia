@@ -74,9 +74,8 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	auto mouseHoverRedirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->onMouseHover(_0, _1); };
 	glfwSetCursorPosCallback(window, mouseHoverRedirect);
 
-
-	LevelLoader lc;
-	config = lc.readLevel("pizza-arena");
+	curr_level = 0;
+	recipe = lc.readLevel("recipe-1");
 
 	initAudio();
 	std::cout << "Loaded music\n";
@@ -129,8 +128,16 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 
 	if (ECS::registry<AISystem::MobComponent>.entities.size() == 0) {
-		LevelLoader lc;
-		config = lc.readLevel("dessert-arena");
+		// advance level and save
+		curr_level++;
+
+		lc.save(recipe["name"], curr_level);
+		
+		if (curr_level >= recipe["maps"].size()) {
+			curr_level = 0;
+			// small hack to prevent crashing after beating everything on dessert map
+			// once we have the ending, can put check here
+		}
 		restart();
 	}
 }
@@ -144,6 +151,9 @@ void WorldSystem::restart()
 
 	// Reset the game speed
 	current_speed = 1.f;
+
+	// set config vals for current level
+	config = recipe["maps"][curr_level];
 
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
@@ -348,22 +358,9 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 	//MashedPotato::createMashedPotato({ 900.f, 750.f });
 	//PotatoChunk::createPotatoChunk({ 900.f, 800.f });
 
-	// Milk test
-	Milk::createMilk(vec2(900.f, 800.f), -1.f);
-
-	// TODO: come back and expand this when we have multiple mobs
 	auto mobs = config.at("mobs");
 
-	for (json mob : mobs) {
-		auto type = mob["type"];
-		if (type == "egg") {
-			Egg::createEgg({ mob.at("position")[0], mob["position"][1] });
-		}
-		else if (type == "pepper")
-		{
-			Pepper::createPepper({ mob.at("position")[0], mob["position"][1] });
-		}
-	}
+	createEnemies(mobs);
 }
 
 // On key callback
@@ -455,15 +452,22 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	}
 	current_speed = std::max(0.f, current_speed);
 
-	LevelLoader lc;
-	// swap maps
+	// swap maps for swapping between pizza and dessert maps for recipe 1
 	if (action == GLFW_RELEASE && key == GLFW_KEY_M) {
-		config = lc.readLevel("dessert-arena");
+		curr_level = 1;
 		restart();
 	}
 
 	if (action == GLFW_RELEASE && key == GLFW_KEY_N) {
-		config = lc.readLevel("pizza-arena");
+		curr_level = 0;
+		restart();
+	}
+
+	// load save
+	if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
+		json save_obj = lc.load();
+		recipe = lc.readLevel(save_obj["recipe"]);
+		curr_level = save_obj["level"];
 		restart();
 	}
 
