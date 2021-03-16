@@ -109,6 +109,7 @@ ECS::Entity Pepper::createPepper(vec2 pos, float orientation)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = pos;
 	motion.scale = vec2(0.9f);
+	motion.moveRange = 300.f;
 	motion.orientation = orientation;
 	auto hitboxScale = vec2({ 0.4f, 0.7f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
