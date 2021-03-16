@@ -80,7 +80,7 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			}
 			else
 			{
-				const float DEFAULT_SPEED = 100.f; // TEMPORARY
+				const float DEFAULT_SPEED = 150.f; // TEMPORARY
 
 				// The position at the top of the stack is where the entity wants to go next. We will give the entity
 				// velocity in order to reach that point, and we leave the point on the stack until the entity is within
