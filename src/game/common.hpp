@@ -82,7 +82,7 @@ struct PlayerComponent {
 
 enum MusicType
 {
-	MAIN_MENU,
+	START_SCREEN,
 	SHOP,
 	VICTORY,
 	BOSS,
@@ -92,6 +92,7 @@ enum MusicType
 	PLACEHOLDER2,
 	PLACEHOLDER3,
 	PLACEHOLDER4,
+	PLACEHOLDER5,
 
 	// The `LAST` value is only needed because WorldSystem::playNextAudioTrack_DEBUG()
 	// needs to be able to loop through the music.
