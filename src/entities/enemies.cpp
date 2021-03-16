@@ -7,7 +7,7 @@
 #include "game/turn_system.hpp"
 #include "ui/ui_entities.hpp"
 
-ECS::Entity Egg::createEgg(vec2 pos, float orientation)
+ECS::Entity Egg::createEgg(json stats, json position)
 {
 	auto entity = ECS::Entity();
 
@@ -32,9 +32,10 @@ ECS::Entity Egg::createEgg(vec2 pos, float orientation)
 
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
-	motion.position = pos;
+	motion.position = vec2(position[0], position[1]);
 	motion.scale = vec2({ 0.8f, 0.8f });
-	motion.orientation = orientation;
+	motion.orientation = position[2];
+	std::cout << motion.orientation;
 	motion.colliderType = CollisionGroup::MOB;
 	motion.collidesWith = CollisionGroup::PLAYER;
 
@@ -61,10 +62,10 @@ ECS::Entity Egg::createEgg(vec2 pos, float orientation)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAXHP] = 50.f;
-	statsComponent.stats[StatType::HP] = 50.f;
+	statsComponent.stats[StatType::MAXHP] = stats["hp"];
+	statsComponent.stats[StatType::HP] = stats["hp"];
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
-	statsComponent.stats[StatType::STRENGTH] = 1.f;
+	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
@@ -89,7 +90,7 @@ ECS::Entity Egg::createEgg(vec2 pos, float orientation)
 	return entity;
 };
 
-ECS::Entity Pepper::createPepper(vec2 pos, float orientation)
+ECS::Entity Pepper::createPepper(json stats, json position)
 {
 	auto entity = ECS::Entity();
 
@@ -111,9 +112,10 @@ ECS::Entity Pepper::createPepper(vec2 pos, float orientation)
 
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
-	motion.position = pos;
+	motion.position = vec2(position[0], position[1]);
 	motion.scale = vec2(0.9f);
-	motion.orientation = orientation;
+	motion.orientation = position[2];
+	std::cout << motion.orientation;
 	auto hitboxScale = vec2({ 0.4f, 0.7f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
@@ -134,10 +136,10 @@ ECS::Entity Pepper::createPepper(vec2 pos, float orientation)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::HP] = 40.f;
-	statsComponent.stats[StatType::MAXHP] = 40.f;
+	statsComponent.stats[StatType::MAXHP] = stats["hp"];
+	statsComponent.stats[StatType::HP] = stats["hp"];
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
-	statsComponent.stats[StatType::STRENGTH] = 1.f;
+	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
@@ -164,7 +166,7 @@ ECS::Entity Pepper::createPepper(vec2 pos, float orientation)
 	return entity;
 };
 
-ECS::Entity Milk::createMilk(vec2 pos, float orientation)
+ECS::Entity Milk::createMilk(json stats, json position)
 {
 	auto entity = ECS::Entity();
 
@@ -184,8 +186,8 @@ ECS::Entity Milk::createMilk(vec2 pos, float orientation)
 	entity.emplace<TurnSystem::TurnComponent>();
 
 	Motion& motion = entity.emplace<Motion>();
-	motion.position = pos;
-	motion.orientation = orientation;
+	motion.position = vec2(position[0], position[1]);
+	motion.orientation = position[2];
 	auto hitboxScale = vec2({ 0.4f, 0.7f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
@@ -209,10 +211,10 @@ ECS::Entity Milk::createMilk(vec2 pos, float orientation)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAXHP] = 50.f;
-	statsComponent.stats[StatType::HP] = 50.f;
+	statsComponent.stats[StatType::MAXHP] = stats["hp"];
+	statsComponent.stats[StatType::HP] = stats["hp"];
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
-	statsComponent.stats[StatType::STRENGTH] = 1.f;
+	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
@@ -249,7 +251,7 @@ ECS::Entity Milk::createMilk(vec2 pos, float orientation)
 	return entity;
 };
 
-ECS::Entity Potato::createPotato(vec2 pos, float orientation)
+ECS::Entity Potato::createPotato(json stats, json position)
 {
 	auto entity = ECS::Entity();
 
@@ -271,9 +273,9 @@ ECS::Entity Potato::createPotato(vec2 pos, float orientation)
 
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
-	motion.position = pos;
+	motion.position = vec2(position[0], position[1]);
+	motion.orientation = position[2];
 	motion.scale = vec2(1.4f);
-	motion.orientation = orientation;
 	auto hitboxScale = vec2({ 0.7f, 1.f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
@@ -300,10 +302,10 @@ ECS::Entity Potato::createPotato(vec2 pos, float orientation)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAXHP] = 200.f;
-	statsComponent.stats[StatType::HP] = 200.f;
+	statsComponent.stats[StatType::MAXHP] = stats["hp"];
+	statsComponent.stats[StatType::HP] = stats["hp"];
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
-	statsComponent.stats[StatType::STRENGTH] = 1.f;
+	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f }, { 1.f, 0.55f });
@@ -493,3 +495,33 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
 	entity.emplace<PotatoChunk>();
 	return entity;
 };
+
+void createEnemies(json enemies) {
+	for (json enemy : enemies) {
+		auto type = enemy["type"];
+		if (type == "egg") {
+			for (json position : enemy["positions"]) {
+				Egg::createEgg(enemy["stats"], position);
+			}
+		}
+
+		if (type == "pepper") {
+			for (json position : enemy["positions"]) {
+				Pepper::createPepper(enemy["stats"], position);
+			}
+		}
+
+		if (type == "milk") {
+			for (json position : enemy["positions"]) {
+				Milk::createMilk(enemy["stats"], position);
+			}
+		}
+
+		if (type == "potato") {
+			for (json position : enemy["positions"]) {
+				Potato::createPotato(enemy["stats"], position);
+			}
+		}
+	}
+
+}

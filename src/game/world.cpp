@@ -78,7 +78,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	LevelLoader lc;
 	curr_level = 0;
 
-	recipe = lc.readLevel("recipe-1");
+	recipe = lc.readLevel("recipe-2");
 
 	initAudio();
 	std::cout << "Loaded music\n";
@@ -364,16 +364,22 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 	// TODO: come back and expand this when we have multiple mobs
 	auto mobs = config.at("mobs");
 
-	for (json mob : mobs) {
-		auto type = mob["type"];
-		if (type == "egg") {
-			Egg::createEgg({ mob.at("position")[0], mob["position"][1] });
-		}
-		else if (type == "pepper")
-		{
-			Pepper::createPepper({ mob.at("position")[0], mob["position"][1] });
-		}
-	}
+	createEnemies(mobs);
+
+
+
+	//for (json mob : mobs) {
+	//	auto type = mob["type"];
+	//	if (type == "egg") {
+	//		for (json position : mob["positions"]) {
+	//			Egg::createEgg(mob["stats"], position);
+	//		}
+	//	}
+	//	//else if (type == "pepper")
+	//	//{
+	//	//	Pepper::createPepper({ mob.at("position")[0], mob["position"][1] });
+	//	//}
+	//}
 }
 
 // On key callback
