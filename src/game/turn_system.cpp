@@ -11,7 +11,7 @@
 
 TurnSystem::TurnSystem(PathFindingSystem& pfs)
 	: pathFindingSystem(pfs)
-	, timer(TIMER_PERIOD)
+	, timer(0.f)
 {
 	EventSystem<MouseClickEvent>::instance().registerListener(
 		std::bind(&TurnSystem::onMouseClick, this, std::placeholders::_1));

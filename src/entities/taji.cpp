@@ -39,13 +39,13 @@ ECS::Entity Taji::commonInit()
 	// Initialize skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
 
-	// Deals damage on nearby enemies
+	// Ranged damage with small area of effect
 	auto aoeParams = std::make_shared<AoESkillParams>();
 	aoeParams->instigator = entity;
 	aoeParams->soundEffect = SoundEffect::BUFF; // TODO: Update this when we add an appropriate sound effect
 	aoeParams->animationType = AnimationType::ATTACK1;
 	aoeParams->delay = 1.f;
-	aoeParams->entityProvider = std::make_shared<CircularProvider>(250.f);
+	aoeParams->entityProvider = std::make_shared<MouseClickProvider>(250.f);
 	aoeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
 	aoeParams->entityHandler = std::make_shared<DamageHandler>(12.f);
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(aoeParams));

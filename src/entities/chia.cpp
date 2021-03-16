@@ -47,7 +47,7 @@ ECS::Entity Chia::commonInit()
 	blueberryParams->delay = 0.6f;
 	blueberryParams->entityFilters.push_back(std::make_shared<InstigatorFilter>(entity));
 	blueberryParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER | CollisionGroup::MOB));
-	blueberryParams->entityHandler = std::make_shared<HealAndDamageHandler>(CollisionGroup::PLAYER, 10.f, CollisionGroup::MOB, 10.f);
+	blueberryParams->entityHandler = std::make_shared<HealAndDamageHandler>(CollisionGroup::PLAYER, 30.f, CollisionGroup::MOB, 20.f);
 	blueberryParams->projectileType = ProjectileType::BLUEBERRY;
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(blueberryParams));
 
@@ -71,7 +71,7 @@ ECS::Entity Chia::commonInit()
 	hpShieldParams->delay = 0.6f;
 	hpShieldParams->entityProvider = std::make_shared<AllEntitiesProvider>();
 	hpShieldParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
-	hpShieldParams->entityHandler = std::make_shared<BuffHandler>(StatType::HP_SHIELD, 15.f, 60.f);
+	hpShieldParams->entityHandler = std::make_shared<BuffHandler>(StatType::HP_SHIELD, 25.f, 60.f);
 	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<AreaOfEffectSkill>(hpShieldParams));
 
 	entity.emplace<Chia>();
