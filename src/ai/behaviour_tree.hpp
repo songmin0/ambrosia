@@ -68,7 +68,6 @@ public:
 	};
 
 	void onStartMobTurnEvent(const StartMobTurnEvent& event);
-	//static ECS::Entity getCurrentMobEntity() { return currentMobEntity; };
 	void step(float elapsed_ms);
 };
 
@@ -141,6 +140,7 @@ public:
 	void run();
 };
 
+// Make pepper move closer to weakest player or farthest player (if all full HP)
 class PepperMoveSelector : public Selector
 {
 public:
@@ -148,25 +148,19 @@ public:
 	void run();
 };
 
-class MilkSkillSelector : public Selector
-{
-public:
-	MilkSkillSelector();
-	void run();
-};
-
-// Make milk move closer to player or run away (if low HP)
-class MilkMoveSelector : public Selector
-{
-public:
-	MilkMoveSelector();
-	void run();
-};
-
+// Run away if low HP; otherwise, don't move
 class MilkMoveConditional : public Conditional
 {
 public:
 	MilkMoveConditional();
+	void run();
+};
+
+// Make milk heal weakest mob or attack (if all full HP)
+class MilkSkillSelector : public Selector
+{
+public:
+	MilkSkillSelector();
 	void run();
 };
 
@@ -191,35 +185,54 @@ public:
 	MilkBehaviourTree();
 };
 
+// Parent class of all leaf nodes
 struct Task : public Node
 {
 	EventListenerInfo taskCompletedListener;
 };
 
-// Task to move closer to closest player
-class MoveToPlayerTask : public Task
+// Parent class to all movement tasks
+class MoveTask : public Task
 {
 public:
-	~MoveToPlayerTask();
-	void onFinishedMoveToPlayerEvent(const FinishedMovementEvent& event);
+	~MoveTask();
+	void onFinishedMovementEvent(const FinishedMovementEvent& event);
+	virtual void run() {};
+};
+
+// Task to move closer to closest player
+class MoveToClosestPlayerTask : public MoveTask
+{
+public:
 	void run();
 };
 
-// Task to move closer to closest mob
-class MoveToMobTask : public Task
+// Task to move closer to farthest player
+class MoveToFarthestPlayerTask : public MoveTask
 {
 public:
-	~MoveToMobTask();
-	void onFinishedMoveToMobEvent(const FinishedMovementEvent& event);
+	void run();
+};
+
+// Task to move closer to weakest player (low HP)
+class MoveToWeakestPlayerTask : public MoveTask
+{
+public:
+	void run();
+};
+
+// Task to move closer to weakest mob
+// May use later - maybe for protecting
+class MoveToWeakestMobTask : public MoveTask
+{
+public:
 	void run();
 };
 
 // Task to run away from closest player
-class RunAwayTask : public Task
+class RunAwayTask : public MoveTask
 {
 public:
-	~RunAwayTask();
-	void onFinishedRunAwayEvent(const FinishedMovementEvent& event);
 	void run();
 };
 
