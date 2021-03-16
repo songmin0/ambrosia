@@ -502,8 +502,10 @@ void WorldSystem::initAudio()
 	 *
 	 * I only included the looped tracks. Most of them have a separate intro track that can be played before playing the
 	 * looped track, but that's tricky to implement with SDL_mixer, so I kept it simple, using only the looped ones.
+	 *
+	 * NOTE: Ambrosia_Theme.wav was composed by Emma! \o/
 	 * */
-	music[MusicType::MAIN_MENU] = Mix_LoadMUS(audioPath("music/Title_screen.wav").c_str());
+	music[MusicType::START_SCREEN] = Mix_LoadMUS(audioPath("music/Ambrosia_Theme.wav").c_str());
 	music[MusicType::SHOP] = Mix_LoadMUS(audioPath("music/Overworld_Theme.wav").c_str());
 	music[MusicType::VICTORY] = Mix_LoadMUS(audioPath("music/Victory_Fanfare_Loop.wav").c_str());
 	music[MusicType::BOSS] = Mix_LoadMUS(audioPath("music/Boss_Battle_Loop.wav").c_str());
@@ -513,6 +515,7 @@ void WorldSystem::initAudio()
 	music[MusicType::PLACEHOLDER2] = Mix_LoadMUS(audioPath("music/Evil_Gloating_Loop.wav").c_str());
 	music[MusicType::PLACEHOLDER3] = Mix_LoadMUS(audioPath("music/Deep_Forest.wav").c_str());
 	music[MusicType::PLACEHOLDER4] = Mix_LoadMUS(audioPath("music/Time_Cave.wav").c_str());
+	music[MusicType::PLACEHOLDER5] = Mix_LoadMUS(audioPath("music/Title_screen.wav").c_str());
 
 	// Check that all music was loaded
 	for (auto& musicItem : music)
