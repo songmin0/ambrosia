@@ -145,10 +145,7 @@ void AISystem::startMobMoveToPlayer(ECS::Entity entity)
 		//Find the direction to travel towards the player
 		vec2 direction = normalize(closestPlayer.get<Motion>().position - motion.position);
 
-		//Calculate the point to walk to
-		//TODO properly define and decide how far a mob can move in a turn
-		float movementDistance = 100.0f;
-		vec2 destintation = motion.position + (direction * movementDistance);
+		vec2 destintation = motion.position + (direction * motion.moveRange);
 		motion.path = pathFindingSystem.getShortestPath(entity, destintation);
 	}
 }
@@ -168,7 +165,7 @@ void AISystem::startMobMoveToMob(ECS::Entity entity)
 		//Calculate the point to walk to
 		//TODO properly define and decide how far a mob can move in a turn
 		float movementDistance = 100.0f;
-		vec2 destintation = motion.position + (direction * movementDistance);
+		vec2 destintation = motion.position + (direction * motion.moveRange);
 		motion.path = pathFindingSystem.getShortestPath(entity, destintation);
 	}
 }
@@ -185,7 +182,7 @@ void AISystem::startMobRunAway(ECS::Entity entity)
 		vec2 direction = normalize(motion.position - closestPlayer.get<Motion>().position);
 
 		float movementDistance = 100.0f;
-		vec2 destintation = motion.position + (direction * movementDistance);
+		vec2 destintation = motion.position + (direction * motion.moveRange);
 		motion.path = pathFindingSystem.getShortestPath(entity, destintation);
 	}
 }

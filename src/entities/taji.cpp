@@ -91,6 +91,7 @@ ECS::Entity Taji::createTaji(json configValues)
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = vec2(configValues.at("position")[0], configValues.at("position")[1]);
+	motion.moveRange = 100.f;
 	motion.scale = vec2({ 0.97f, 0.97f });
 	motion.colliderType = CollisionGroup::PLAYER;
 
