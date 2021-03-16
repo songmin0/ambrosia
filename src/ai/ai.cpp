@@ -109,7 +109,7 @@ bool AISystem::setTargetToFarthestPlayer(ECS::Entity& mob)
 			auto& playerMotion = player.get<Motion>();
 			float playerDistance = distance(mobMotion.position, playerMotion.position);
 
-			// If this player is closer, update the closest player
+			// If this player is farther, update the farthest player
 			if (playerDistance > farthestDistance)
 			{
 				farthestDistance = playerDistance;
@@ -128,7 +128,6 @@ bool AISystem::setTargetToWeakestPlayer(ECS::Entity& mob)
 	// Given mob variable should be a mob
 	assert(mob.has<MobComponent>());
 	auto& mobComponent = mob.get<MobComponent>();
-	auto& mobMotion = mob.get<Motion>();
 
 	auto& playerContainer = ECS::registry<PlayerComponent>;
 	// There should always be at least one player in a game
@@ -220,11 +219,11 @@ void AISystem::startMobSkill(ECS::Entity entity)
 	ECS::Entity target = mobComponent.getTarget();
 	// Get position of target
 	assert(target.has<Motion>());
-	vec2 closestTargetPosition = target.get<Motion>().position;
+	vec2 targetPosition = target.get<Motion>().position;
 
 	PerformActiveSkillEvent performActiveSkillEvent;
 	performActiveSkillEvent.entity = entity;
-	performActiveSkillEvent.target = closestTargetPosition;
+	performActiveSkillEvent.target = targetPosition;
 	EventSystem<PerformActiveSkillEvent>::instance().sendEvent(performActiveSkillEvent);
 }
 
@@ -254,7 +253,7 @@ void AISystem::onStartMobMoveEvent(const StartMobMoveEvent& event)
 	}
 	// Mob turn should only start when players are alive
 	assert(targetExists);
-	startMobMove(event.entity, event.movement);
+	startMobMove(entity, event.movement);
 }
 
 void AISystem::onStartMobSkillEvent(const StartMobSkillEvent& event)

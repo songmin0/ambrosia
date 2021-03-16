@@ -266,6 +266,7 @@ ECS::Entity Potato::createPotato(vec2 pos, float orientation)
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = pos;
+	motion.moveRange = 0.f;
 	motion.scale = vec2(1.4f);
 	motion.orientation = orientation;
 	auto hitboxScale = vec2({ 0.7f, 1.f });

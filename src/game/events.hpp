@@ -73,10 +73,7 @@ struct HealEvent
 	float amount;
 };
 
-struct StartMobTurnEvent
-{
-
-};
+struct StartMobTurnEvent { };
 
 struct StartMobMoveEvent
 {

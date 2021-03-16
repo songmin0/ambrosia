@@ -132,6 +132,15 @@ public:
 	void run();
 };
 
+// Composite selector to choose melee or AOE skill
+// Root node of Potato BehaviourTree
+class PotatoSkillSelector : public Selector
+{
+public:
+	PotatoSkillSelector();
+	void run();
+};
+
 // Make egg move closer to player or run away (if low HP)
 class EggMoveSelector : public Selector
 {
@@ -185,19 +194,34 @@ public:
 	MilkBehaviourTree();
 };
 
-// Parent class of all leaf nodes
-struct Task : public Node
+// Potato BehaviourTree
+struct PotatoBehaviourTree : public BehaviourTree
 {
+public:
+	PotatoBehaviourTree();
+};
+
+// Parent class of all leaf nodes
+// Make sure to implement destructors of the correct Event type for children
+class Task : public Node
+{
+public:
 	EventListenerInfo taskCompletedListener;
+	virtual void onFinishedTaskEvent();
 };
 
 // Parent class to all movement tasks
-class MoveTask : public Task
+class MoveTask : public Task 
 {
 public:
 	~MoveTask();
-	void onFinishedMovementEvent(const FinishedMovementEvent& event);
-	virtual void run() {};
+};
+
+// Parent class to all skill tasks
+class SkillTask : public Task 
+{
+public:
+	~SkillTask();
 };
 
 // Task to move closer to closest player
@@ -237,19 +261,22 @@ public:
 };
 
 // Task to attack closest player
-class AttackTask : public Task
+class AttackTask : public SkillTask
 {
 public:
-	~AttackTask();
-	void onFinishedAttackEvent(const FinishedSkillEvent& event);
+	void run();
+};
+
+// Task to use AOE attack
+class AOEAttackTask : public SkillTask
+{
+public:
 	void run();
 };
 
 // Task to heal closest mob
-class HealTask : public Task
+class HealTask : public SkillTask
 {
 public:
-	~HealTask();
-	void onFinishedHealEvent(const FinishedSkillEvent& event);
 	void run();
 };

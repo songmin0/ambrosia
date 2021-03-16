@@ -13,7 +13,6 @@ void StateSystem::onStartMobTurnEvent(const StartMobTurnEvent& event)
 	switch (mobBTreeType)
 	{
 	case MobType::EGG:
-	case MobType::POTATO:
 		activeTree = std::make_shared<BehaviourTree>(EggBehaviourTree());
 		break;
 	case MobType::PEPPER:
@@ -22,6 +21,8 @@ void StateSystem::onStartMobTurnEvent(const StartMobTurnEvent& event)
 	case MobType::MILK:
 		activeTree = std::make_shared<BehaviourTree>(MilkBehaviourTree());
 		break;
+	case MobType::POTATO:
+		activeTree = std::make_shared<BehaviourTree>(PotatoBehaviourTree());
 	default:
 		break;
 	}
@@ -169,6 +170,32 @@ void MilkTurnSequence::run()
 	Sequence::run();
 }
 
+PotatoSkillSelector::PotatoSkillSelector()
+{
+	addChild(std::make_shared<AttackTask>(AttackTask()));
+	addChild(std::make_shared<AOEAttackTask>(AOEAttackTask()));
+}
+
+void PotatoSkillSelector::run()
+{
+	Node::run();
+	ECS::Entity mob = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+	auto& mobStats = mob.get<StatsComponent>();
+	float hp = mobStats.getStatValue(StatType::HP);
+	float maxHP = mobStats.getStatValue(StatType::MAXHP);
+	std::shared_ptr<Node> attack = children.front();
+	std::shared_ptr<Node> AOEAttack = children.back();
+	if (hp / maxHP < 0.5 || hp / maxHP < 0.2)
+	{
+		attack->onTerminate(Status::FAILURE);
+	}
+	else
+	{
+		AOEAttack->onTerminate(Status::FAILURE);
+	}
+	Selector::run();
+}
+
 // COMPOSITE BEHAVIOUR NODES
 
 EggMoveSelector::EggMoveSelector()
@@ -258,7 +285,7 @@ void MilkSkillSelector::run()
 	{
 		auto& allyStats = entity.get<StatsComponent>();
 		// Check if there is an ally that needs healing
-		if (entity.has<BehaviourTreeType>() && !entity.has<TurnSystem::TurnComponentIsActive>() &&
+		if (entity.has<BehaviourTreeType>() && !entity.has<TurnSystem::TurnComponentIsActive>() && !entity.has<DeathTimer>() &&
 			allyStats.getStatValue(StatType::HP) < allyStats.getStatValue(StatType::MAXHP))
 		{
 			shouldHeal = true;
@@ -291,9 +318,20 @@ MilkBehaviourTree::MilkBehaviourTree()
 	root = std::make_shared<MilkTurnSequence>(MilkTurnSequence());
 }
 
+PotatoBehaviourTree::PotatoBehaviourTree()
+{
+	root = std::make_shared<PotatoSkillSelector>(PotatoSkillSelector());
+}
+
 // TASKS
 // Public tasks not meant for any single mob
 // =====================================================================
+
+void Task::onFinishedTaskEvent()
+{
+	std::cout << "Finished task\n";
+	this->onTerminate(Status::SUCCESS);
+}
 
 MoveTask::~MoveTask()
 {
@@ -303,9 +341,12 @@ MoveTask::~MoveTask()
 	}
 }
 
-void MoveTask::onFinishedMovementEvent(const FinishedMovementEvent& event)
+SkillTask::~SkillTask()
 {
-	this->onTerminate(Status::SUCCESS);
+	if (taskCompletedListener.isValid())
+	{
+		EventSystem<FinishedSkillEvent>::instance().unregisterListener(taskCompletedListener);
+	}
 }
 
 void MoveToClosestPlayerTask::run()
@@ -315,7 +356,7 @@ void MoveToClosestPlayerTask::run()
 		std::cout << "Moving to closest player\n";
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
-			std::bind(&MoveToClosestPlayerTask::onFinishedMovementEvent, this, std::placeholders::_1));
+			std::bind(&MoveToClosestPlayerTask::onFinishedTaskEvent, this));
 		StartMobMoveEvent event;
 		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 		event.movement.moveType = MoveType::TO_CLOSEST_PLAYER;
@@ -330,7 +371,7 @@ void MoveToFarthestPlayerTask::run()
 		std::cout << "Moving to farthest player\n";
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
-			std::bind(&MoveToFarthestPlayerTask::onFinishedMovementEvent, this, std::placeholders::_1));
+			std::bind(&MoveToFarthestPlayerTask::onFinishedTaskEvent, this));
 		StartMobMoveEvent event;
 		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 		event.movement.moveType = MoveType::TO_FARTHEST_PLAYER;
@@ -346,7 +387,7 @@ void MoveToWeakestPlayerTask::run()
 		std::cout << "Moving to weakest player\n";
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
-			std::bind(&MoveToWeakestPlayerTask::onFinishedMovementEvent, this, std::placeholders::_1));
+			std::bind(&MoveToWeakestPlayerTask::onFinishedTaskEvent, this));
 		StartMobMoveEvent event;
 		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 		event.movement.moveType = MoveType::TO_WEAKEST_PLAYER;
@@ -362,7 +403,7 @@ void MoveToWeakestMobTask::run()
 		std::cout << "Moving to ally with lowest HP\n";
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
-			std::bind(&MoveToWeakestMobTask::onFinishedMovementEvent, this, std::placeholders::_1));
+			std::bind(&MoveToWeakestMobTask::onFinishedTaskEvent, this));
 		StartMobMoveEvent event;
 		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 		event.movement.moveType = MoveType::TO_WEAKEST_MOB;
@@ -377,7 +418,7 @@ void RunAwayTask::run()
 		std::cout << "Running away from closest player\n";
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
-			std::bind(&RunAwayTask::onFinishedMovementEvent, this, std::placeholders::_1));
+			std::bind(&RunAwayTask::onFinishedTaskEvent, this));
 		StartMobMoveEvent event;
 		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 		event.movement.moveType = MoveType::AWAY_CLOSEST_PLAYER;
@@ -387,19 +428,6 @@ void RunAwayTask::run()
 
 // ATTACKING
 
-AttackTask::~AttackTask()
-{
-	if (taskCompletedListener.isValid())
-	{
-		EventSystem<FinishedSkillEvent>::instance().unregisterListener(taskCompletedListener);
-	}
-}
-
-void AttackTask::onFinishedAttackEvent(const FinishedSkillEvent& event)
-{
-	this->onTerminate(Status::SUCCESS);
-}
-
 void AttackTask::run()
 {
 	if (this->status == Status::INVALID)
@@ -407,7 +435,7 @@ void AttackTask::run()
 		std::cout << "Attacking closest player\n";
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
-			std::bind(&AttackTask::onFinishedAttackEvent, this, std::placeholders::_1));
+			std::bind(&AttackTask::onFinishedTaskEvent, this));
 		ECS::Entity activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 		SetActiveSkillEvent activeEvent;
 		activeEvent.entity = activeEntity;
@@ -436,20 +464,40 @@ void AttackTask::run()
 	}
 }
 
-// HEALING
-
-HealTask::~HealTask()
+void AOEAttackTask::run()
 {
-	if (taskCompletedListener.isValid())
+	if (this->status == Status::INVALID)
 	{
-		EventSystem<FinishedSkillEvent>::instance().unregisterListener(taskCompletedListener);
+		std::cout << "Attacking with AOE\n";
+		Node::run();
+		taskCompletedListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
+			std::bind(&AOEAttackTask::onFinishedTaskEvent, this));
+		ECS::Entity activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+		SetActiveSkillEvent activeEvent;
+		activeEvent.entity = activeEntity;
+		auto& mobType = activeEntity.get<BehaviourTreeType>().mobType;
+		// Choose correct skill based on active mob entity
+		switch (mobType)
+		{
+		case MobType::POTATO:
+			activeEvent.type = SkillType::SKILL2;
+			break;
+		default:
+			std::cout << "Mob without AOE attack was called in AOEAttackTask\n";
+			activeEvent.type = SkillType::SKILL1;
+			break;
+		}
+		EventSystem<SetActiveSkillEvent>::instance().sendEvent(activeEvent);
+
+		StartMobSkillEvent skillEvent;
+		skillEvent.entity = activeEntity;
+		// Not necessary but we can keep it here for directional AOE later
+		skillEvent.targetIsPlayer = true;
+		EventSystem<StartMobSkillEvent>::instance().sendEvent(skillEvent);
 	}
 }
 
-void HealTask::onFinishedHealEvent(const FinishedSkillEvent& event)
-{
-	this->onTerminate(Status::SUCCESS);
-}
+// HEALING
 
 void HealTask::run()
 {
@@ -458,7 +506,7 @@ void HealTask::run()
 		std::cout << "Healing ally with lowest HP\n";
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
-			std::bind(&HealTask::onFinishedHealEvent, this, std::placeholders::_1));
+			std::bind(&HealTask::onFinishedTaskEvent, this));
 		ECS::Entity activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 		SetActiveSkillEvent activeEvent;
 		activeEvent.entity = activeEntity;
