@@ -74,10 +74,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	auto mouseHoverRedirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->onMouseHover(_0, _1); };
 	glfwSetCursorPosCallback(window, mouseHoverRedirect);
 
-
-	LevelLoader lc;
 	curr_level = 0;
-
 	recipe = lc.readLevel("recipe-2");
 
 	initAudio();
@@ -131,8 +128,11 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 
 	if (ECS::registry<AISystem::MobComponent>.entities.size() == 0) {
-		// advance level
+		// advance level and save
 		curr_level++;
+
+		lc.save(recipe["name"], curr_level);
+		
 		if (curr_level >= recipe["maps"].size()) {
 			curr_level = 0;
 			// small hack to prevent crashing after beating everything on dessert map
@@ -471,7 +471,6 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	}
 	current_speed = std::max(0.f, current_speed);
 
-	LevelLoader lc;
 	// swap maps for swapping between pizza and dessert maps for recipe 1
 	if (action == GLFW_RELEASE && key == GLFW_KEY_M) {
 		curr_level = 1;
@@ -480,6 +479,14 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 
 	if (action == GLFW_RELEASE && key == GLFW_KEY_N) {
 		curr_level = 0;
+		restart();
+	}
+
+	// load save
+	if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
+		json save_obj = lc.load();
+		recipe = lc.readLevel(save_obj["recipe"]);
+		curr_level = save_obj["level"];
 		restart();
 	}
 

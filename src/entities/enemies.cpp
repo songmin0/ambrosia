@@ -35,7 +35,6 @@ ECS::Entity Egg::createEgg(json stats, json position)
 	motion.position = vec2(position[0], position[1]);
 	motion.scale = vec2({ 0.8f, 0.8f });
 	motion.orientation = position[2];
-	std::cout << motion.orientation;
 	motion.colliderType = CollisionGroup::MOB;
 	motion.collidesWith = CollisionGroup::PLAYER;
 
