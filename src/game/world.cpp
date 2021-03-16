@@ -357,21 +357,12 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 	//PotatoChunk::createPotatoChunk({ 900.f, 800.f });
 
 	// Milk test
-	Milk::createMilk(vec2(900.f, 800.f), -1.f);
+	//Milk::createMilk(vec2(900.f, 800.f), -1.f);
 
 	// TODO: come back and expand this when we have multiple mobs
 	auto mobs = GameStateSystem::instance().currentLevel.at("mobs");
 
-	for (json mob : mobs) {
-		auto type = mob["type"];
-		if (type == "egg") {
-			Egg::createEgg({ mob.at("position")[0], mob["position"][1] });
-		}
-		else if (type == "pepper")
-		{
-			Pepper::createPepper({ mob.at("position")[0], mob["position"][1] });
-		}
-	}
+	createEnemies(mobs);
 }
 
 // On key callback
@@ -463,16 +454,24 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	}
 	current_speed = std::max(0.f, current_speed);
 
-	LevelLoader lc;
-	// swap maps
+	// swap maps for swapping between pizza and dessert maps for recipe 1
 	if (action == GLFW_RELEASE && key == GLFW_KEY_M) {
-			GameStateSystem::instance().currentLevelIndex = -1;
-			GameStateSystem::instance().nextMap();
+			GameStateSystem::instance().currentLevelIndex = 1;
+			GameStateSystem::instance().restartMap();
 	}
 
 	if (action == GLFW_RELEASE && key == GLFW_KEY_N) {
-			GameStateSystem::instance().currentLevelIndex = 0;
-			GameStateSystem::instance().nextMap();
+		GameStateSystem::instance().currentLevelIndex = 0;
+		GameStateSystem::instance().restartMap();
+	}
+
+	// load save
+	//TODO make this work with GameState
+	if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
+		json save_obj = lc.load();
+		GameStateSystem::instance().recipe = lc.readLevel(save_obj["recipe"]);
+		GameStateSystem::instance().currentLevelIndex = save_obj["level"];
+		GameStateSystem::instance().restartMap();
 	}
 
 	// Play the next audio track (this is just so that we can give all of them a try)

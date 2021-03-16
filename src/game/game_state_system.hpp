@@ -32,6 +32,7 @@ public:
 		bool isInMainScreen;
 		bool isInHelpScreen;
 		json currentLevel;
+		json recipe;
 		//THIS SHOULD NOT BE PUBLIC but for now this easily lets me debug change maps
 		int currentLevelIndex;
 
@@ -56,8 +57,8 @@ public:
 private:
 		
 		GameStateSystem();
-
-		ECS::Entity currentRecipeEntity;
+		
+		//ECS::Entity currentRecipeEntity;
 		GLFWwindow* window;
 		//This is the index for which level we are on in the recipe
 		

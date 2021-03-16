@@ -2,6 +2,7 @@
 #include <level_loader/level_loader.hpp>
 #include "ui/menus.hpp"
 #include "camera.hpp"
+#include "level_loader/level_loader.hpp"
 
 
 
@@ -12,16 +13,19 @@ GameStateSystem::GameStateSystem() {
 		isInHelpScreen = false;
 		currentLevelIndex = -1;
 
+		LevelLoader lc;
+		recipe = lc.readLevel("recipe-1");
+
 		//Create all the recipes here
-		auto firstRecipe = ECS::Entity();
-		auto& recipe = firstRecipe.emplace<Recipe>();
-		recipe.levels.push_back("pizza-arena");
-		recipe.levels.push_back("dessert-arena");
+		//auto firstRecipe = ECS::Entity();
+		//auto& recipe = firstRecipe.emplace<Recipe>();
+		//recipe.levels.push_back("pizza-arena");
+		//recipe.levels.push_back("dessert-arena");
 		//TODO add the victory and defeat screens
 
 
 		//For now start with the firstRecipe as the currentRecipeEntity but in the future it should start as nothing and we will start in the main menu which will select a recipe
-		currentRecipeEntity = firstRecipe;
+		//currentRecipeEntity = firstRecipe;
 
 }
 
@@ -33,14 +37,24 @@ bool GameStateSystem::inGameState() {
 
 void GameStateSystem::nextMap()
 {
+
+	//Save the game
+	LevelLoader lc;
+	lc.save(recipe["name"], currentLevelIndex);
+
 		currentLevelIndex++;
-		assert(currentRecipeEntity.has<Recipe>());
-		auto& currentRecipe = currentRecipeEntity.get<Recipe>();
-		if (currentLevelIndex < currentRecipe.levels.size()) {
-				//Read the next level from the recipe
-				LevelLoader lc;
-				currentLevel = lc.readLevel(currentRecipe.levels[currentLevelIndex]);
-				EventSystem<LoadLevelEvent>::instance().sendEvent(LoadLevelEvent{});
+
+		//auto& currentRecipe = currentRecipeEntity.get<Recipe>();
+		if (currentLevelIndex < recipe["maps"].size()) {
+			//Read the next level from the recipe
+			currentLevel = recipe["maps"][currentLevelIndex];
+			EventSystem<LoadLevelEvent>::instance().sendEvent(LoadLevelEvent{});
+		}
+		else {
+			//TODO handle finishing the recipe here but for now just restart the recipe.
+			currentLevelIndex = 0;
+			currentLevel = recipe["maps"][currentLevelIndex];
+			EventSystem<LoadLevelEvent>::instance().sendEvent(LoadLevelEvent{});
 		}
 }
 
