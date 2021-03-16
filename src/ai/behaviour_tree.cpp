@@ -29,17 +29,17 @@ void StateSystem::onStartMobTurnEvent(const StartMobTurnEvent& event)
 
 void StateSystem::step(float elapsed_ms)
 {
-		if (GameStateSystem::instance().inGameState()) {
-				if (activeTree != nullptr && activeTree->root != nullptr)
-				{
-						if (activeTree->root->getStatus() == Status::INVALID)
-								activeTree->root->run();
-						else if (activeTree->root->getStatus() == Status::RUNNING)
-								activeTree->root->run();
-						else
-								activeTree = nullptr;
-				}
+	if (GameStateSystem::instance().inGameState()) {
+		if (activeTree != nullptr && activeTree->root != nullptr)
+		{
+			if (activeTree->root->getStatus() == Status::INVALID)
+				activeTree->root->run();
+			else if (activeTree->root->getStatus() == Status::RUNNING)
+				activeTree->root->run();
+			else
+				activeTree = nullptr;
 		}
+	}
 }
 
 void Conditional::setConditional(std::shared_ptr<Node> child, bool condition)

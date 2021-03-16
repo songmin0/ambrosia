@@ -34,31 +34,31 @@ SkillSystem::~SkillSystem()
 
 void SkillSystem::step(float elapsed_ms)
 {
-		if (GameStateSystem::instance().inGameState()) {
-				const float elapsed_s = elapsed_ms / 1000.f;
-				std::vector<int> toRemove;
+	if (GameStateSystem::instance().inGameState()) {
+		const float elapsed_s = elapsed_ms / 1000.f;
+		std::vector<int> toRemove;
 
-				// Go through the queued skills and execute the ones whose timer have reached zero. The purpose of the timer is to
-				// allow us to sync up the animation with the execution of the skill
-				for (int i = 0; i < queuedSkills.size(); i++)
-				{
-						auto& queuedSkill = queuedSkills[i];
-
-		queuedSkill.delay -= elapsed_s;
-		if (queuedSkill.delay <= 0.f)
+		// Go through the queued skills and execute the ones whose timer have reached zero. The purpose of the timer is to
+		// allow us to sync up the animation with the execution of the skill
+		for (int i = 0; i < queuedSkills.size(); i++)
 		{
-			// If the timer has reached zero, perform the skill and get ready to remove it from the queuedSkills list
-			queuedSkill.skill->performSkill(queuedSkill.target);
-			toRemove.push_back(i);
+			auto& queuedSkill = queuedSkills[i];
+
+			queuedSkill.delay -= elapsed_s;
+			if (queuedSkill.delay <= 0.f)
+			{
+				// If the timer has reached zero, perform the skill and get ready to remove it from the queuedSkills list
+				queuedSkill.skill->performSkill(queuedSkill.target);
+				toRemove.push_back(i);
+			}
+		}
+
+		// Remove the skills that were performed
+		for (int i = toRemove.size() - 1; i >= 0; i--)
+		{
+			queuedSkills.erase(queuedSkills.begin() + toRemove[i]);
 		}
 	}
-
-				// Remove the skills that were performed
-				for (int i = toRemove.size() - 1; i >= 0; i--)
-				{
-						queuedSkills.erase(queuedSkills.begin() + toRemove[i]);
-				}
-		}
 }
 
 // Every time a skill button is pressed, we change the active skill

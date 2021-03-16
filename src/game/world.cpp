@@ -96,45 +96,45 @@ WorldSystem::~WorldSystem(){
 // Update our game world
 void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
-		if (GameStateSystem::instance().inGameState()) {
-				// Updating window title with points
-				std::stringstream title_ss;
-				title_ss << "Points: " << points;
-				glfwSetWindowTitle(window, title_ss.str().c_str());
+	if (GameStateSystem::instance().inGameState()) {
+		// Updating window title with points
+		std::stringstream title_ss;
+		title_ss << "Points: " << points;
+		glfwSetWindowTitle(window, title_ss.str().c_str());
 
-				// Check for player defeat
-				assert(ECS::registry<ScreenState>.components.size() == 1);
-				auto& screen = ECS::registry<ScreenState>.components[0];
+		// Check for player defeat
+		assert(ECS::registry<ScreenState>.components.size() == 1);
+		auto& screen = ECS::registry<ScreenState>.components[0];
 
-				for (auto entity : ECS::registry<DeathTimer>.entities)
+		for (auto entity : ECS::registry<DeathTimer>.entities)
+		{
+			// Progress timer
+			auto& counter = ECS::registry<DeathTimer>.get(entity);
+			counter.counter_ms -= elapsed_ms;
+
+			// Remove player/mob once death timer expires
+			if (counter.counter_ms < 0)
+			{
+				//If the entity has a stats component get rid of the health bar too
+				if (entity.has<StatsComponent>()) {
+					ECS::ContainerInterface::removeAllComponentsOf(entity.get<StatsComponent>().healthBar);
+				}
+				ECS::ContainerInterface::removeAllComponentsOf(entity);
+				// Check if there are no more players left, restart game
+				if (ECS::registry<PlayerComponent>.entities.empty())
 				{
-						// Progress timer
-						auto& counter = ECS::registry<DeathTimer>.get(entity);
-						counter.counter_ms -= elapsed_ms;
-
-						// Remove player/mob once death timer expires
-						if (counter.counter_ms < 0)
-						{
-								//If the entity has a stats component get rid of the health bar too
-								if (entity.has<StatsComponent>()) {
-										ECS::ContainerInterface::removeAllComponentsOf(entity.get<StatsComponent>().healthBar);
-								}
-								ECS::ContainerInterface::removeAllComponentsOf(entity);
-								// Check if there are no more players left, restart game
-								if (ECS::registry<PlayerComponent>.entities.empty())
-								{
-										EventSystem<PlaySoundEffectEvent>::instance().sendEvent({ SoundEffect::GAME_OVER });
-										//TODO this should launch the defeat screen once that is implemented
-										GameStateSystem::instance().restartMap();
-										return;
-								}
-						}
+					EventSystem<PlaySoundEffectEvent>::instance().sendEvent({ SoundEffect::GAME_OVER });
+					//TODO this should launch the defeat screen once that is implemented
+					GameStateSystem::instance().restartMap();
+					return;
 				}
-				if (ECS::registry<AISystem::MobComponent>.entities.size() == 0) {
-						//TODO make this go to the victory screen. For now launch into the next map
-						GameStateSystem::instance().nextMap();
-				}
+			}
 		}
+		if (ECS::registry<AISystem::MobComponent>.entities.size() == 0) {
+			//TODO make this go to the victory screen. For now launch into the next map
+			GameStateSystem::instance().nextMap();
+		}
+	}
 }
 
 // Reset the world state to its initial state
