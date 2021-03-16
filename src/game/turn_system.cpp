@@ -156,7 +156,7 @@ void TurnSystem::step(float elapsed_ms)
 				// Event should be heard by StateSystem in behaviour_tree.hpp
 				if (turnComponent.canStartMoving())
 				{
-					std::cout << "Making mob turn event\n";
+					std::cout << "Starting mob turn\n";
 					StartMobTurnEvent event;
 					//event.entity = activeEntity;
 					EventSystem<StartMobTurnEvent>::instance().sendEvent(event);

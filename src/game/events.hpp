@@ -3,7 +3,6 @@
 
 #include "entities/tiny_ecs.hpp"
 #include "skills/skill_component.hpp"
-#include "physics/projectile.hpp"
 
 #include <functional>
 
@@ -26,12 +25,7 @@ struct RawMouseHoverEvent
 
 struct LaunchEvent
 {
-	ProjectileType projectileType;
-
-	ECS::Entity instigator;
-	vec2 targetPosition;
-	float damage;
-	CollisionGroup collisionMask;
+	ProjectileSkillParams skillParams;
 
 	// Callback to be executed at end of projectile trajectory
 	std::function<void()> callback;
@@ -72,24 +66,41 @@ struct BuffEvent
 	StatModifier statModifier;
 };
 
+struct HealEvent
+{
+	ECS::Entity entity;
+	float amount;
+};
+
 struct StartMobTurnEvent
 {
 
 };
 
-struct StartMobMoveCloserEvent
+struct StartMobMoveToPlayerEvent
 {
+	// Moving mob
+	ECS::Entity entity;
+};
+
+struct StartMobMoveToMobEvent
+{
+	// Moving mob
 	ECS::Entity entity;
 };
 
 struct StartMobRunAwayEvent
 {
+	// Moving mob
 	ECS::Entity entity;
 };
 
 struct StartMobSkillEvent
 {
+	// Active mob
 	ECS::Entity entity;
+	// Skill target type; player or mob
+	bool targetIsPlayer;
 };
 
 struct FinishedMovementEvent

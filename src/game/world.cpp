@@ -194,23 +194,11 @@ void WorldSystem::handleCollisions()
 		auto entity = registry.entities[i];
 		auto entity_other = registry.components[i].other;
 
-		// Check for projectiles colliding with the player or with the eggs
+		// Check for projectiles colliding with the player or mobs
 		if (ECS::registry<ProjectileComponent>.has(entity))
 		{
 			auto& projComponent = entity.get<ProjectileComponent>();
-
-			// Only allowing a projectile to collide with an entity once. It can collide with multiple entities, but only once
-			// per entity
-			if (projComponent.canCollideWith(entity_other))
-			{
-				projComponent.collideWith(entity_other);
-
-				HitEvent event;
-				event.instigator = projComponent.instigator;
-				event.target = entity_other;
-				event.damage = projComponent.params.damage;
-				EventSystem<HitEvent>::instance().sendEvent(event);
-			}
+			projComponent.processCollision(entity_other);
 		}
 	}
 
@@ -228,7 +216,7 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 {
 	// !! Temporary Start Menu Test
 	// this will throw an assert if you try to click outside the buttons, since it's not a pathfindable map
-	// StartMenu::createStartMenu(frameBufferWidth, frameBufferHeight);
+	 //StartMenu::createStartMenu(frameBufferWidth, frameBufferHeight);
 
 	// Create the map
 	MapComponent::createMap(config.at("map"), {frameBufferWidth, frameBufferHeight});
@@ -359,7 +347,7 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 	//PotatoChunk::createPotatoChunk({ 900.f, 800.f });
 
 	// Milk test
-	//Milk::createMilk(vec2(700.f, 500.f), -1.f);
+	Milk::createMilk(vec2(900.f, 800.f), -1.f);
 
 	auto mobs = config.at("mobs");
 
@@ -521,8 +509,10 @@ void WorldSystem::initAudio()
 	 *
 	 * I only included the looped tracks. Most of them have a separate intro track that can be played before playing the
 	 * looped track, but that's tricky to implement with SDL_mixer, so I kept it simple, using only the looped ones.
+	 *
+	 * NOTE: Ambrosia_Theme.wav was composed by Emma! \o/
 	 * */
-	music[MusicType::MAIN_MENU] = Mix_LoadMUS(audioPath("music/Title_screen.wav").c_str());
+	music[MusicType::START_SCREEN] = Mix_LoadMUS(audioPath("music/Ambrosia_Theme.wav").c_str());
 	music[MusicType::SHOP] = Mix_LoadMUS(audioPath("music/Overworld_Theme.wav").c_str());
 	music[MusicType::VICTORY] = Mix_LoadMUS(audioPath("music/Victory_Fanfare_Loop.wav").c_str());
 	music[MusicType::BOSS] = Mix_LoadMUS(audioPath("music/Boss_Battle_Loop.wav").c_str());
@@ -532,6 +522,7 @@ void WorldSystem::initAudio()
 	music[MusicType::PLACEHOLDER2] = Mix_LoadMUS(audioPath("music/Evil_Gloating_Loop.wav").c_str());
 	music[MusicType::PLACEHOLDER3] = Mix_LoadMUS(audioPath("music/Deep_Forest.wav").c_str());
 	music[MusicType::PLACEHOLDER4] = Mix_LoadMUS(audioPath("music/Time_Cave.wav").c_str());
+	music[MusicType::PLACEHOLDER5] = Mix_LoadMUS(audioPath("music/Title_screen.wav").c_str());
 
 	// Check that all music was loaded
 	for (auto& musicItem : music)

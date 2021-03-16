@@ -20,7 +20,10 @@ enum class Status
 
 enum class MobType
 {
-	EGG
+	EGG,
+	PEPPER,
+	MILK,
+	POTATO
 };
 
 struct BehaviourTreeType
@@ -69,6 +72,16 @@ public:
 	void step(float elapsed_ms);
 };
 
+// Check condition before running child; always return SUCCESS
+class Conditional : public Node
+{
+public:
+	std::shared_ptr<Node> child;
+	bool condition;
+	void setConditional(std::shared_ptr<Node>, bool);
+	virtual void run();
+};
+
 // Parent class for all composite nodes
 class Composite : public Node
 {
@@ -93,23 +106,89 @@ public:
 	virtual void run();
 };
 
-// Composite sequence of moving (selection) and attacking
-class MobTurnSequence : public Sequence
+// Composite sequence of moving (closer or away) and attacking
+// Root node of Egg BehaviourTree
+class EggTurnSequence : public Sequence
 {
 public:
-	MobTurnSequence();
+	EggTurnSequence();
 	void run();
 };
 
-// Make mob move closer to player or run away (if low HP)
-class MoveSelector : public Selector
+// Composite sequence of moving closer and attacking
+// Root node of Pepper BehaviourTree
+class PepperTurnSequence : public Sequence
 {
-private:
-	// HP of active mob entity
-	float hp;
 public:
-	MoveSelector(float);
+	PepperTurnSequence();
 	void run();
+};
+
+// Make milk run away if low HP then heal mob or attack if no allies left
+// Root node of Milk BehaviourTree
+class MilkTurnSequence : public Sequence
+{
+public:
+	MilkTurnSequence();
+	void run();
+};
+
+// Make egg move closer to player or run away (if low HP)
+class EggMoveSelector : public Selector
+{
+public:
+	EggMoveSelector();
+	void run();
+};
+
+class PepperMoveSelector : public Selector
+{
+public:
+	PepperMoveSelector();
+	void run();
+};
+
+class MilkSkillSelector : public Selector
+{
+public:
+	MilkSkillSelector();
+	void run();
+};
+
+// Make milk move closer to player or run away (if low HP)
+class MilkMoveSelector : public Selector
+{
+public:
+	MilkMoveSelector();
+	void run();
+};
+
+class MilkMoveConditional : public Conditional
+{
+public:
+	MilkMoveConditional();
+	void run();
+};
+
+// Egg BehaviourTree
+struct EggBehaviourTree : public BehaviourTree
+{
+public:
+	EggBehaviourTree();
+};
+
+// Pepper BehaviourTree
+struct PepperBehaviourTree : public BehaviourTree
+{
+public:
+	PepperBehaviourTree();
+};
+
+// Milk BehaviourTree
+struct MilkBehaviourTree : public BehaviourTree
+{
+public:
+	MilkBehaviourTree();
 };
 
 struct Task : public Node
@@ -118,11 +197,20 @@ struct Task : public Node
 };
 
 // Task to move closer to closest player
-class MoveCloserTask : public Task
+class MoveToPlayerTask : public Task
 {
 public:
-	~MoveCloserTask();
-	void onFinishedMoveCloserEvent(const FinishedMovementEvent& event);
+	~MoveToPlayerTask();
+	void onFinishedMoveToPlayerEvent(const FinishedMovementEvent& event);
+	void run();
+};
+
+// Task to move closer to closest mob
+class MoveToMobTask : public Task
+{
+public:
+	~MoveToMobTask();
+	void onFinishedMoveToMobEvent(const FinishedMovementEvent& event);
 	void run();
 };
 
@@ -144,10 +232,11 @@ public:
 	void run();
 };
 
-// Egg mob Behaviour Tree
-// Root node is a MobTurnSequence
-struct EggBehaviourTree : public BehaviourTree
+// Task to heal closest mob
+class HealTask : public Task
 {
 public:
-	EggBehaviourTree();
+	~HealTask();
+	void onFinishedHealEvent(const FinishedSkillEvent& event);
+	void run();
 };

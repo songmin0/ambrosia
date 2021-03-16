@@ -2,6 +2,9 @@
 #include "game/common.hpp"
 #include "entities/tiny_ecs.hpp"
 
+const float THRESHOLD = 3.f;
+const float DEFAULT_SPEED = 150.f;
+
 struct BoundingBox
 {
 	inline vec2 center() const {return vec2((left + right) / 2.f, (top + bottom) / 2.f);}

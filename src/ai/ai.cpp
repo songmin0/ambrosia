@@ -9,8 +9,11 @@
 AISystem::AISystem(PathFindingSystem& pfs)
 	: pathFindingSystem(pfs)
 {
-	startMobMoveCloserListener = EventSystem<StartMobMoveCloserEvent>::instance().registerListener(
-			std::bind(&AISystem::onStartMobMoveCloserEvent, this, std::placeholders::_1));
+	startMobMoveToPlayerListener = EventSystem<StartMobMoveToPlayerEvent>::instance().registerListener(
+			std::bind(&AISystem::onStartMobMoveToPlayerEvent, this, std::placeholders::_1));
+
+	startMobMoveToMobListener = EventSystem<StartMobMoveToMobEvent>::instance().registerListener(
+		std::bind(&AISystem::onStartMobMoveToMobEvent, this, std::placeholders::_1));
 
 	startMobRunAwayListener = EventSystem<StartMobRunAwayEvent>::instance().registerListener(
 		std::bind(&AISystem::onStartMobRunAwayEvent, this, std::placeholders::_1));
@@ -21,9 +24,14 @@ AISystem::AISystem(PathFindingSystem& pfs)
 
 AISystem::~AISystem()
 {
-	if (startMobMoveCloserListener.isValid())
+	if (startMobMoveToPlayerListener.isValid())
 	{
-		EventSystem<StartMobMoveCloserEvent>::instance().unregisterListener(startMobMoveCloserListener);
+		EventSystem<StartMobMoveToPlayerEvent>::instance().unregisterListener(startMobMoveToPlayerListener);
+	}
+
+	if (startMobMoveToMobListener.isValid())
+	{
+		EventSystem<StartMobMoveToMobEvent>::instance().unregisterListener(startMobMoveToMobListener);
 	}
 
 	if (startMobRunAwayListener.isValid())
@@ -43,17 +51,17 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	(void)window_size_in_game_units; // placeholder to silence unused warning until implemented
 }
 
-ECS::Entity AISystem::MobComponent::getClosestPlayer()
+ECS::Entity AISystem::MobComponent::getTarget()
 {
-	return this->closestPlayer;
+	return this->target;
 }
 
-void AISystem::MobComponent::setClosestPlayer(ECS::Entity target)
+void AISystem::MobComponent::setTarget(ECS::Entity target)
 {
-	this->closestPlayer = target;
+	this->target = target;
 }
 
-bool AISystem::getClosestPlayer(ECS::Entity& mob)
+bool AISystem::setTargetToClosestPlayer(ECS::Entity& mob)
 {
 	// Movement for mobs - move to closest player
 	ECS::Entity closestPlayer;
@@ -87,28 +95,75 @@ bool AISystem::getClosestPlayer(ECS::Entity& mob)
 			}
 		}
 	}
-	mobComponent.setClosestPlayer(closestPlayer);
+	mobComponent.setTarget(closestPlayer);
 	return closestDistance != float_max;
 }
 
-void AISystem::startMobMoveCloser(ECS::Entity entity)
+bool AISystem::setTargetToAllyMob(ECS::Entity& mob)
+{
+	ECS::Entity targetAlly;
+	// Given mob variable should be a mob
+	assert(mob.has<MobComponent>());
+	auto& mobComponent = mob.get<MobComponent>();
+
+	auto& mobContainer = ECS::registry<MobComponent>;
+	// When called, there should always be current active mob and one ally
+	assert(mobContainer.entities.size() > 1);
+
+	// Find the ally with lowest HP
+	constexpr auto float_max = std::numeric_limits<float>::max();
+	float lowestHP = float_max;
+
+	for (auto ally : mobContainer.entities)
+	{
+		// Check for all other mobs that are alive and has Motion component
+		if (!(ally.id == mob.id) && !ally.has<DeathTimer>() && ally.has<Motion>())
+		{
+			auto& allyStats = ally.get<StatsComponent>();
+			auto allyHP = allyStats.getStatValue(StatType::HP);
+			// Update ally to find mob with lowest HP
+			if (allyHP < allyStats.getStatValue(StatType::MAXHP) && allyHP < lowestHP)
+			{
+				lowestHP = allyHP;
+				targetAlly = ally;
+			}
+		}
+	}
+	mobComponent.setTarget(targetAlly);
+	return lowestHP != float_max;
+}
+
+void AISystem::startMobMoveToPlayer(ECS::Entity entity)
 {
 	assert(entity.has<MobComponent>());
 	// Motion component is mandatory
 	assert(entity.has<Motion>());
 	auto& motion = entity.get<Motion>();
 
-	std::cout << "Moving towards player\n";
-
-	if (getClosestPlayer(entity)) {
-		ECS::Entity closestPlayer = entity.get<MobComponent>().getClosestPlayer();
-		//Find the direction to travel towards the player
+	if (setTargetToClosestPlayer(entity)) {
+		ECS::Entity closestPlayer = entity.get<MobComponent>().getTarget();
+		//Find the direction to travel towards the closest player
 		vec2 direction = normalize(closestPlayer.get<Motion>().position - motion.position);
 
-		//Calculate the point to walk to
-		//TODO properly define and decide how far a mob can move in a turn
+		vec2 destintation = motion.position + (direction * motion.moveRange);
+		motion.path = pathFindingSystem.getShortestPath(entity, destintation);
+	}
+}
+
+void AISystem::startMobMoveToMob(ECS::Entity entity)
+{
+	assert(entity.has<MobComponent>());
+	// Motion component is mandatory
+	assert(entity.has<Motion>());
+	auto& motion = entity.get<Motion>();
+
+	if (setTargetToAllyMob(entity)) {
+		ECS::Entity closestMob = entity.get<MobComponent>().getTarget();
+		//Find the direction to travel towards the mob with lowestHP
+		vec2 direction = normalize(closestMob.get<Motion>().position - motion.position);
+
 		float movementDistance = 100.0f;
-		vec2 destintation = motion.position + (direction * movementDistance);
+		vec2 destintation = motion.position + (direction * motion.moveRange);
 		motion.path = pathFindingSystem.getShortestPath(entity, destintation);
 	}
 }
@@ -119,15 +174,13 @@ void AISystem::startMobRunAway(ECS::Entity entity)
 	assert(entity.has<Motion>());
 	auto& motion = entity.get<Motion>();
 
-	std::cout << "Running away from player\n";
-
-	if (getClosestPlayer(entity)) {
-		ECS::Entity closestPlayer = entity.get<MobComponent>().getClosestPlayer();
-		//Find the direction to travel away from the player
+	if (setTargetToClosestPlayer(entity)) {
+		ECS::Entity closestPlayer = entity.get<MobComponent>().getTarget();
+		//Find the direction to travel away from the closest player
 		vec2 direction = normalize(motion.position - closestPlayer.get<Motion>().position);
 
 		float movementDistance = 100.0f;
-		vec2 destintation = motion.position + (direction * movementDistance);
+		vec2 destintation = motion.position + (direction * motion.moveRange);
 		motion.path = pathFindingSystem.getShortestPath(entity, destintation);
 	}
 }
@@ -140,24 +193,25 @@ void AISystem::startMobSkill(ECS::Entity entity)
 	auto& motion = entity.get<Motion>();
 	auto& mobComponent = entity.get<MobComponent>();
 
-	std::cout << "Attacking player\n";
-
-	// Skill currently targets the closest player
-	// TODO: This can change with cooperative actions like buffing between mobs
-	ECS::Entity closestPlayer = mobComponent.getClosestPlayer();
-	// Get position of closest player
-	assert(closestPlayer.has<Motion>());
-	vec2 closestPlayerPosition = closestPlayer.get<Motion>().position;
+	ECS::Entity target = mobComponent.getTarget();
+	// Get position of target
+	assert(target.has<Motion>());
+	vec2 closestTargetPosition = target.get<Motion>().position;
 
 	PerformActiveSkillEvent performActiveSkillEvent;
 	performActiveSkillEvent.entity = entity;
-	performActiveSkillEvent.target = closestPlayerPosition;
+	performActiveSkillEvent.target = closestTargetPosition;
 	EventSystem<PerformActiveSkillEvent>::instance().sendEvent(performActiveSkillEvent);
 }
 
-void AISystem::onStartMobMoveCloserEvent(const StartMobMoveCloserEvent& event)
+void AISystem::onStartMobMoveToPlayerEvent(const StartMobMoveToPlayerEvent& event)
 {
-	startMobMoveCloser(event.entity);
+	startMobMoveToPlayer(event.entity);
+}
+
+void AISystem::onStartMobMoveToMobEvent(const StartMobMoveToMobEvent& event)
+{
+	startMobMoveToMob(event.entity);
 }
 
 void AISystem::onStartMobRunAwayEvent(const StartMobRunAwayEvent& event)
@@ -167,5 +221,12 @@ void AISystem::onStartMobRunAwayEvent(const StartMobRunAwayEvent& event)
 
 void AISystem::onStartMobSkillEvent(const StartMobSkillEvent& event)
 {
+	ECS::Entity entity = event.entity;
+	// Set the correct target depending on target type
+	// This is important within startMobSkill which calls getTarget()
+	if (event.targetIsPlayer)
+		setTargetToClosestPlayer(entity);
+	else
+		setTargetToAllyMob(entity);
 	startMobSkill(event.entity);
 }
