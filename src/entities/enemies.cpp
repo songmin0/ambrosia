@@ -30,7 +30,6 @@ ECS::Entity Egg::createEgg(vec2 pos, float orientation)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = pos;
 	motion.scale = vec2({ 0.8f, 0.8f });
-	motion.moveRange = 100.f;
 	motion.orientation = orientation;
 	motion.colliderType = CollisionGroup::MOB;
 
@@ -181,7 +180,6 @@ ECS::Entity Milk::createMilk(vec2 pos, float orientation)
 
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = pos;
-	motion.moveRange = 100.f;
 	motion.orientation = orientation;
 	auto hitboxScale = vec2({ 0.4f, 0.7f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
@@ -269,7 +267,6 @@ ECS::Entity Potato::createPotato(vec2 pos, float orientation)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = pos;
 	motion.scale = vec2(1.4f);
-	motion.moveRange = 100.f;
 	motion.orientation = orientation;
 	auto hitboxScale = vec2({ 0.7f, 1.f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
@@ -360,7 +357,6 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = pos;
 	motion.scale = vec2(1.4f);
-	motion.moveRange = 100.f;
 	motion.orientation = orientation;
 	auto hitboxScale = vec2({ 0.7f, 1.f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
@@ -439,7 +435,6 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
 
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = pos;
-	motion.moveRange = 100.f;
 	motion.orientation = orientation; // which way the chunk faces when spawned
 	auto hitboxScale = vec2({ 0.7f, 1.f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });

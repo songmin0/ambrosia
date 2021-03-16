@@ -64,7 +64,7 @@ struct Motion {
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 1, 1 };
 	vec2 boundingBox = { 0, 0 };
-	float moveRange = 0.f;
+	float moveRange = 100.f;
 
 	// (orientation * scale.x) faces right when positive 
 	// ie. if a sprite's texture faces left, then orientation should be -1
