@@ -313,6 +313,18 @@ void WorldSystem::createEffects(int frameBufferWidth, int frameBufferHeight)
 {
 	MouseClickFX::createMouseClickFX();
 	ActiveSkillFX::createActiveSkillFX();
+
+	//// !!! FX Test !!!
+	//// some of these don't cycle so ya gotta catch it fast (or change the cycle parameter to true in their inner init function)
+
+	//BlueberriedFX::createBlueberriedFX(vec2(800.f, 700));
+	//BuffedFX::createBuffedFX(vec2(600, 600));
+	//DebuffedFX::createDebuffedFX(vec2(500, 600));
+	//HealedFX::createHealedFX(vec2(400, 700));
+	//ShieldedFX::createShieldedFX(vec2(400, 600));
+	//Candy1FX::createCandy1FX(vec2(500, 300));
+	//Candy2FX::createCandy2FX(vec2(400, 300));
+	//StunnedFX::createStunnedFX(vec2(850, 700));
 }
 
 void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
