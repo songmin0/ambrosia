@@ -56,7 +56,7 @@ ECS::Entity Egg::createEgg(json stats, json position)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAXHP] = stats["hp"];
+	statsComponent.stats[StatType::MAX_HP] = stats["hp"];
 	statsComponent.stats[StatType::HP] = stats["hp"];
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
@@ -130,7 +130,7 @@ ECS::Entity Pepper::createPepper(json stats, json position)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAXHP] = stats["hp"];
+	statsComponent.stats[StatType::MAX_HP] = stats["hp"];
 	statsComponent.stats[StatType::HP] = stats["hp"];
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
@@ -203,7 +203,7 @@ ECS::Entity Milk::createMilk(json stats, json position)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAXHP] = stats["hp"];
+	statsComponent.stats[StatType::MAX_HP] = stats["hp"];
 	statsComponent.stats[StatType::HP] = stats["hp"];
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
@@ -292,7 +292,7 @@ ECS::Entity Potato::createPotato(json stats, json position)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAXHP] = stats["hp"];
+	statsComponent.stats[StatType::MAX_HP] = stats["hp"];
 	statsComponent.stats[StatType::HP] = stats["hp"];
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
