@@ -48,10 +48,11 @@ AISystem::~AISystem()
 
 void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
-	if (GameStateSystem::instance().inGameState()) {
-		(void)elapsed_ms; // placeholder to silence unused warning until implemented
-		(void)window_size_in_game_units; // placeholder to silence unused warning until implemented
+	if (!GameStateSystem::instance().inGameState()) {
+		return;
 	}
+	(void)elapsed_ms; // placeholder to silence unused warning until implemented
+	(void)window_size_in_game_units; // placeholder to silence unused warning until implemented
 }
 
 ECS::Entity AISystem::MobComponent::getTarget()

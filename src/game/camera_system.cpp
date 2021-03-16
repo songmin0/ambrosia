@@ -18,25 +18,26 @@ CameraSystem::~CameraSystem() {
 
 // Move camera entity
 void CameraSystem::step(float elapsed_ms) {
-	if (GameStateSystem::instance().inGameState()) {
-		for (auto camera : ECS::registry<CameraComponent>.entities) {
-			auto& cameraComponent = camera.get<CameraComponent>();
+	if (!GameStateSystem::instance().inGameState()) {
+		return;
+	}
+	for (auto camera : ECS::registry<CameraComponent>.entities) {
+		auto& cameraComponent = camera.get<CameraComponent>();
 
-			float step_seconds = 1.0f * (elapsed_ms / 1000.f);
+		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
 
-			// Handle delayed camera move
-			if (camera.has<CameraDelayedMoveComponent>()) {
-				auto& cameraDelayedMoveComponent = camera.get<CameraDelayedMoveComponent>();
-				cameraDelayedMoveComponent.delay -= step_seconds;
-				if (cameraDelayedMoveComponent.delay <= 0) {
-					viewPosition(cameraDelayedMoveComponent.position, window_size_in_px);
-					camera.remove<CameraDelayedMoveComponent>();
-				}
+		// Handle delayed camera move
+		if (camera.has<CameraDelayedMoveComponent>()) {
+			auto& cameraDelayedMoveComponent = camera.get<CameraDelayedMoveComponent>();
+			cameraDelayedMoveComponent.delay -= step_seconds;
+			if (cameraDelayedMoveComponent.delay <= 0) {
+				viewPosition(cameraDelayedMoveComponent.position, window_size_in_px);
+				camera.remove<CameraDelayedMoveComponent>();
 			}
-
-			cameraComponent.position += step_seconds * cameraComponent.velocity;
-			preventViewingOutOfBounds(camera, window_size_in_px);
 		}
+
+		cameraComponent.position += step_seconds * cameraComponent.velocity;
+		preventViewingOutOfBounds(camera, window_size_in_px);
 	}
 }
 

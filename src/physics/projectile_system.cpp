@@ -25,37 +25,38 @@ ProjectileSystem::~ProjectileSystem()
 
 void ProjectileSystem::step(float elapsed_ms)
 {
-	if (GameStateSystem::instance().inGameState()) {
-		const float elapsed_s = elapsed_ms / 1000.f;
+	if (!GameStateSystem::instance().inGameState()) {
+		return;
+	}
+	const float elapsed_s = elapsed_ms / 1000.f;
 
-		// Update the projectile velocities and remove any projectiles that have finished
-		for (int i = ECS::registry<ProjectileComponent>.entities.size() - 1; i >= 0; i--)
+	// Update the projectile velocities and remove any projectiles that have finished
+	for (int i = ECS::registry<ProjectileComponent>.entities.size() - 1; i >= 0; i--)
+	{
+		auto& projEntity = ECS::registry<ProjectileComponent>.entities[i];
+		auto& projComponent = projEntity.get<ProjectileComponent>();
+
+		projComponent.timeSinceLaunch += elapsed_s;
+
+		// Projectile handling based on trajectory type
+		if (projComponent.params.trajectory == Trajectory::LINEAR)
 		{
-			auto& projEntity = ECS::registry<ProjectileComponent>.entities[i];
-			auto& projComponent = projEntity.get<ProjectileComponent>();
+			updateLinearTrajectory(elapsed_s, projEntity, projComponent);
+		}
+		else
+		{
+			updateBoomerangTrajectory(elapsed_s, projEntity, projComponent);
+		}
 
-			projComponent.timeSinceLaunch += elapsed_s;
-
-			// Projectile handling based on trajectory type
-			if (projComponent.params.trajectory == Trajectory::LINEAR)
+		// Remove projectile if needed
+		if (projComponent.phase == Phase::END)
+		{
+			if (projComponent.callback)
 			{
-				updateLinearTrajectory(elapsed_s, projEntity, projComponent);
-			}
-			else
-			{
-				updateBoomerangTrajectory(elapsed_s, projEntity, projComponent);
+				projComponent.callback();
 			}
 
-			// Remove projectile if needed
-			if (projComponent.phase == Phase::END)
-			{
-				if (projComponent.callback)
-				{
-					projComponent.callback();
-				}
-
-				ECS::ContainerInterface::removeAllComponentsOf(projEntity);
-			}
+			ECS::ContainerInterface::removeAllComponentsOf(projEntity);
 		}
 	}
 }
