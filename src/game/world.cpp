@@ -346,9 +346,6 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 	//MashedPotato::createMashedPotato({ 900.f, 750.f });
 	//PotatoChunk::createPotatoChunk({ 900.f, 800.f });
 
-	// Milk test
-	Milk::createMilk(vec2(900.f, 800.f), -1.f);
-
 	auto mobs = config.at("mobs");
 
 	createEnemies(mobs);
