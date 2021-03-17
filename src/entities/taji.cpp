@@ -48,6 +48,7 @@ ECS::Entity Taji::commonInit()
 	aoeParams->entityProvider = std::make_shared<MouseClickProvider>(250.f);
 	aoeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
 	aoeParams->entityHandler = std::make_shared<DamageHandler>(12.f);
+	aoeParams->entityHandler->addFX(FXType::CANDY1);
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(aoeParams));
 
 	// Single-target ranged attack, deals damage and makes the target skip a turn (that part is not supported yet)
@@ -60,6 +61,7 @@ ECS::Entity Taji::commonInit()
 	castAttackParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
 	castAttackParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
 	castAttackParams->entityHandler = std::make_shared<DamageHandler>(20.f);
+	castAttackParams->entityHandler->addFX(FXType::CANDY2);
 	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(castAttackParams));
 
 	// Small damage to all enemies, small heal to all allies

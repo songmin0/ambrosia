@@ -13,6 +13,16 @@ public:
 	void step(float elapsed_ms);
 
 private:
+	void addStatModifier(ECS::Entity entity,
+											 StatsComponent& statsComponent,
+											 StatModifier statModifier);
+
+	void removeStatModifier(ECS::Entity entity,
+													StatsComponent& statsComponent,
+													StatType statType);
+
+	FXType getFXType(StatModifier statModifier);
+
 	void onHitEvent(const HitEvent& event);
 	void onBuffEvent(const BuffEvent& event);
 	void onHealEvent(const HealEvent& event);
