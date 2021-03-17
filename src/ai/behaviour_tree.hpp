@@ -47,6 +47,7 @@ class BehaviourTree
 {
 public:
 	std::shared_ptr<Node> root;
+
 	BehaviourTree() : root(new Node) {};
 	BehaviourTree(std::shared_ptr<Node> root) : root(root) {};
 	~BehaviourTree() { root = nullptr; };
@@ -63,11 +64,11 @@ public:
 	StateSystem()
 	{
 		startMobTurnListener = EventSystem<StartMobTurnEvent>::instance().registerListener(
-			std::bind(&StateSystem::onStartMobTurnEvent, this, std::placeholders::_1));
+			std::bind(&StateSystem::onStartMobTurnEvent, this));
 		activeTree = nullptr;
 	};
 
-	void onStartMobTurnEvent(const StartMobTurnEvent& event);
+	void onStartMobTurnEvent();
 	void step(float elapsed_ms);
 };
 
@@ -76,7 +77,7 @@ class Conditional : public Node
 {
 public:
 	std::shared_ptr<Node> child;
-	bool condition;
+	bool condition = false;
 	void setConditional(std::shared_ptr<Node>, bool);
 	virtual void run();
 };
@@ -136,7 +137,6 @@ public:
 // Root node of Potato BehaviourTree
 class PotatoSkillSelector : public Selector
 {
-	const int MAX_NUM_ULT = 2;
 public:
 	PotatoSkillSelector();
 	void run();

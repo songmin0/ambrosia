@@ -214,10 +214,7 @@ void AISystem::startMobMove(ECS::Entity entity, MovementType movement)
 
 void AISystem::startMobSkill(ECS::Entity entity)
 {
-	// Motion component is mandatory
-	assert(entity.has<Motion>());
 	assert(entity.has<MobComponent>());
-	auto& motion = entity.get<Motion>();
 	auto& mobComponent = entity.get<MobComponent>();
 
 	ECS::Entity target = mobComponent.getTarget();

@@ -4,8 +4,10 @@
 #include "game/game_state_system.hpp"
 
 const float MOB_LOW_HEALTH = 25.f;
+const int MAX_POTATO_NUM_ULT = 2;
+int numPotatoUltLeft = MAX_POTATO_NUM_ULT;
 
-void StateSystem::onStartMobTurnEvent(const StartMobTurnEvent& event)
+void StateSystem::onStartMobTurnEvent()
 {
 	ECS::Entity mob = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 	assert(mob.has<BehaviourTreeType>());
@@ -187,15 +189,27 @@ void PotatoSkillSelector::run()
 	auto& mobStats = mob.get<StatsComponent>();
 	float hp = mobStats.getStatValue(StatType::HP);
 	float maxHP = mobStats.getStatValue(StatType::MAX_HP);
-	std::shared_ptr<Node> attack = children.front();
-	std::shared_ptr<Node> AOEAttack = children.back();
-	if (hp / maxHP < 0.5 || hp / maxHP < 0.2)
+	float hpPercent = hp / maxHP;
+	std::shared_ptr<Node> basicAttack = children.front();
+	std::shared_ptr<Node> ultimateAttack = children.back();
+	
+	// Currently uses ult on first turn and then the first time it goes below 50% HP
+	if  (numPotatoUltLeft == MAX_POTATO_NUM_ULT || 
+		(numPotatoUltLeft == (MAX_POTATO_NUM_ULT-1) && hpPercent < 0.5))
 	{
-		attack->onTerminate(Status::FAILURE);
+		basicAttack->onTerminate(Status::FAILURE);
+		switch (ultimateAttack->getStatus())
+		{
+		case Status::SUCCESS:
+			numPotatoUltLeft--;
+			break;
+		default:
+			break;
+		}
 	}
 	else
 	{
-		AOEAttack->onTerminate(Status::FAILURE);
+		ultimateAttack->onTerminate(Status::FAILURE);
 	}
 	Selector::run();
 }
@@ -471,7 +485,7 @@ void UltimateAttackTask::run()
 {
 	if (this->status == Status::INVALID)
 	{
-		std::cout << "Attacking with AOE\n";
+		std::cout << "Attacking with ultimate\n";
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
 			std::bind(&UltimateAttackTask::onFinishedTaskEvent, this));
