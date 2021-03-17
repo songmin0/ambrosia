@@ -48,6 +48,7 @@ ECS::Entity Chia::commonInit()
 	blueberryParams->entityFilters.push_back(std::make_shared<InstigatorFilter>(entity));
 	blueberryParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER | CollisionGroup::MOB));
 	blueberryParams->entityHandler = std::make_shared<HealAndDamageHandler>(CollisionGroup::PLAYER, 30.f, CollisionGroup::MOB, 20.f);
+	blueberryParams->entityHandler->addFX(FXType::BLUEBERRIED);
 	blueberryParams->projectileType = ProjectileType::BLUEBERRY;
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(blueberryParams));
 

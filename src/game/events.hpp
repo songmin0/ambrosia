@@ -118,6 +118,18 @@ struct PlaySoundEffectEvent
 	SoundEffect effect = SoundEffect::NONE;
 };
 
+struct StartFXEvent
+{
+	ECS::Entity entity;
+	FXType fxType = FXType::NONE;
+};
+
+struct StopFXEvent
+{
+	ECS::Entity entity;
+	FXType fxType = FXType::NONE;
+};
+
 struct LoadLevelEvent {
 
 };
