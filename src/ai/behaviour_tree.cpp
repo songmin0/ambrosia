@@ -137,7 +137,7 @@ void Sequence::run()
 EggTurnSequence::EggTurnSequence()
 {
 	addChild(std::make_shared<EggMoveSelector>(EggMoveSelector()));
-	addChild(std::make_shared<AttackTask>(AttackTask()));
+	addChild(std::make_shared<BasicAttackTask>(BasicAttackTask()));
 }
 
 void EggTurnSequence::run()
@@ -149,7 +149,7 @@ void EggTurnSequence::run()
 PepperTurnSequence::PepperTurnSequence()
 {
 	addChild(std::make_shared<PepperMoveSelector>(PepperMoveSelector()));
-	addChild(std::make_shared<AttackTask>(AttackTask()));
+	addChild(std::make_shared<BasicAttackTask>(BasicAttackTask()));
 }
 
 void PepperTurnSequence::run()
@@ -172,8 +172,8 @@ void MilkTurnSequence::run()
 
 PotatoSkillSelector::PotatoSkillSelector()
 {
-	addChild(std::make_shared<AttackTask>(AttackTask()));
-	addChild(std::make_shared<AOEAttackTask>(AOEAttackTask()));
+	addChild(std::make_shared<BasicAttackTask>(BasicAttackTask()));
+	addChild(std::make_shared<UltimateAttackTask>(UltimateAttackTask()));
 }
 
 void PotatoSkillSelector::run()
@@ -271,7 +271,7 @@ void MilkMoveConditional::run()
 MilkSkillSelector::MilkSkillSelector()
 {
 	addChild(std::make_shared<HealTask>(HealTask()));
-	addChild(std::make_shared<AttackTask>(AttackTask()));
+	addChild(std::make_shared<BasicAttackTask>(BasicAttackTask()));
 }
 
 void MilkSkillSelector::run()
@@ -427,14 +427,14 @@ void RunAwayTask::run()
 
 // ATTACKING
 
-void AttackTask::run()
+void BasicAttackTask::run()
 {
 	if (this->status == Status::INVALID)
 	{
 		std::cout << "Attacking closest player\n";
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
-			std::bind(&AttackTask::onFinishedTaskEvent, this));
+			std::bind(&BasicAttackTask::onFinishedTaskEvent, this));
 		ECS::Entity activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 		SetActiveSkillEvent activeEvent;
 		activeEvent.entity = activeEntity;
@@ -463,14 +463,14 @@ void AttackTask::run()
 	}
 }
 
-void AOEAttackTask::run()
+void UltimateAttackTask::run()
 {
 	if (this->status == Status::INVALID)
 	{
 		std::cout << "Attacking with AOE\n";
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
-			std::bind(&AOEAttackTask::onFinishedTaskEvent, this));
+			std::bind(&UltimateAttackTask::onFinishedTaskEvent, this));
 		ECS::Entity activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 		SetActiveSkillEvent activeEvent;
 		activeEvent.entity = activeEntity;
@@ -482,7 +482,7 @@ void AOEAttackTask::run()
 			activeEvent.type = SkillType::SKILL2;
 			break;
 		default:
-			std::cout << "Mob without AOE attack was called in AOEAttackTask\n";
+			std::cout << "Mob without ultimate attack was called in UltimateAttackTask\n";
 			activeEvent.type = SkillType::SKILL1;
 			break;
 		}

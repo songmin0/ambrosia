@@ -97,8 +97,7 @@ ECS::Entity Pepper::createPepper(json stats, json position)
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
 
-	// TODO: Figure this out for Pepper
-	// Give it a Mob component
+	// Give it a mob component
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
 	btType.mobType = MobType::PEPPER;
@@ -172,6 +171,7 @@ ECS::Entity Milk::createMilk(json stats, json position)
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
 
+	// Give it a mob component
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
 	btType.mobType = MobType::MILK;
@@ -256,6 +256,7 @@ ECS::Entity Potato::createPotato(json stats, json position)
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
 	
+	// Give it a mob component
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
 	btType.mobType = MobType::POTATO;

@@ -136,6 +136,7 @@ public:
 // Root node of Potato BehaviourTree
 class PotatoSkillSelector : public Selector
 {
+	const int MAX_NUM_ULT = 2;
 public:
 	PotatoSkillSelector();
 	void run();
@@ -260,15 +261,15 @@ public:
 	void run();
 };
 
-// Task to attack closest player
-class AttackTask : public SkillTask
+// Task to use basic attack on closest player
+class BasicAttackTask : public SkillTask
 {
 public:
 	void run();
 };
 
-// Task to use AOE attack
-class AOEAttackTask : public SkillTask
+// Task to use ultimate attack
+class UltimateAttackTask : public SkillTask
 {
 public:
 	void run();
