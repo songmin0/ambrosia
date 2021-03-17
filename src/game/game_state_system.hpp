@@ -35,6 +35,8 @@ public:
 	int currentLevelIndex; //THIS SHOULD NOT BE PUBLIC but for now this easily lets me debug change maps
 	int currentTutorialIndex;
 
+	// Load a fresh playthrough with tutorial on, does not save
+	void newGame();
 	//Load the next map in the current recipe
 	void nextMap();
 	//If the players lose restart the current map

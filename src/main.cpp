@@ -61,7 +61,7 @@ int main()
 	// Set all states to default
 	//TODO once the main menu is hooked up this should launch the main menu not the next map.
 	GameStateSystem::instance().setWindow(world.window);
-	GameStateSystem::instance().launchMainMenu();
+	world.preloadResources();
 	GameStateSystem::instance().launchMainMenu();
 
 

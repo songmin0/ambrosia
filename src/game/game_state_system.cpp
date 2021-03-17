@@ -16,7 +16,7 @@ GameStateSystem::GameStateSystem() {
 
 	LevelLoader lc;
 	recipe = lc.readLevel("recipe-1");
-
+	currentLevel = recipe["maps"][0];
 	//Create all the recipes here
 	//auto firstRecipe = ECS::Entity();
 	//auto& recipe = firstRecipe.emplace<Recipe>();
@@ -38,6 +38,8 @@ bool GameStateSystem::inGameState() {
 void GameStateSystem::newGame()
 {
 	isInTutorial = true;
+	hasDoneTutorial = false;
+	currentTutorialIndex = 0;
 	currentLevelIndex = 0;
 	currentLevel = recipe["maps"][currentLevelIndex];
 	EventSystem<LoadLevelEvent>::instance().sendEvent(LoadLevelEvent{});

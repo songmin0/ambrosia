@@ -50,7 +50,7 @@ void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 		[]() {
 			std::cout << "Start button clicked!" << std::endl;
 			GameStateSystem::instance().isInMainScreen = false;
-			GameStateSystem::instance().nextMap();
+			GameStateSystem::instance().newGame();
 		});
 
 	Button::createButton(ButtonShape::RECTANGLE,

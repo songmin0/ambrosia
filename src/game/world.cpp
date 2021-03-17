@@ -176,6 +176,32 @@ void WorldSystem::restart()
 	shouldPlayAudioAtStartOfTurn = false;
 } 
 
+void WorldSystem::preloadResources()
+{
+	std::cout << "Preloading... \n";
+	ECS::ContainerInterface::listAllComponents();
+
+	int frameBufferWidth, frameBufferHeight;
+	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
+
+	createMap(frameBufferWidth, frameBufferHeight);
+	createPlayers(frameBufferWidth, frameBufferHeight);
+	createMobs(frameBufferWidth, frameBufferHeight);
+	createButtons(frameBufferWidth, frameBufferHeight);
+	createEffects(frameBufferWidth, frameBufferHeight);
+
+	std::cout << "Preload complete. Unloading... \n";
+	while (!ECS::registry<Motion>.entities.empty())
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Motion>.entities.back());
+
+	while (!ECS::registry<CameraComponent>.entities.empty()) {
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<CameraComponent>.entities.back());
+	}
+
+	ECS::ContainerInterface::listAllComponents();
+	std::cout << "Unload complete. \n";
+}
+
 // Compute collisions between entities
 void WorldSystem::handleCollisions()
 {
@@ -210,7 +236,6 @@ bool WorldSystem::isOver() const
 
 void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 {
-
 	// Create the map
 	MapComponent::createMap(GameStateSystem::instance().currentLevel.at("map"), { frameBufferWidth, frameBufferHeight });
 
