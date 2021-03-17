@@ -9,6 +9,7 @@
 #include "animation/animation_components.hpp"
 #include "ui/ui_entities.hpp"
 #include <ai/ai.hpp>
+#include "game/game_state_system.hpp"
 
 #include <iostream>
 
@@ -47,9 +48,12 @@ bool collides(const BoundingBox& box1, const BoundingBox& box2)
 
 void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
+	if (!GameStateSystem::instance().inGameState()) {
+		return;
+	}
 	// Move entities based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
-	
+
 	for (auto entity : ECS::registry<Motion>.entities)
 	{
 		auto& motion = entity.get<Motion>();
@@ -75,7 +79,7 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			// If no path, make sure velocity is zero
 			if (motion.path.empty())
 			{
-				motion.velocity = {0.f, 0.f};
+				motion.velocity = { 0.f, 0.f };
 			}
 			else
 			{
@@ -104,13 +108,13 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 		//If the entity also has a stats component then move their HP bar
 		if (entity.has<StatsComponent>()) {
-				auto& statsComp = ECS::registry<StatsComponent>.get(entity);
-				//make sure the stats component's hpbar has a motion component and is valid
-				if (statsComp.healthBar.has<Motion>()) {
-						auto& hpBarMotion = ECS::registry<Motion>.get(statsComp.healthBar);
-						auto& hpBar = ECS::registry<HPBar>.get(statsComp.healthBar);
-						hpBarMotion.position = motion.position + hpBar.offset;
-				}
+			auto& statsComp = ECS::registry<StatsComponent>.get(entity);
+			//make sure the stats component's hpbar has a motion component and is valid
+			if (statsComp.healthBar.has<Motion>()) {
+				auto& hpBarMotion = ECS::registry<Motion>.get(statsComp.healthBar);
+				auto& hpBar = ECS::registry<HPBar>.get(statsComp.healthBar);
+				hpBarMotion.position = motion.position + hpBar.offset;
+			}
 		}
 
 	}
@@ -146,10 +150,11 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 	}
 
+
 	// Check for collisions between all moving entities
 	auto& motion_container = ECS::registry<Motion>;
 	// for (auto [i, motion_i] : enumerate(motion_container.components)) // in c++ 17 we will be able to do this instead of the next three lines
-	for (unsigned int i=0; i<motion_container.components.size(); i++)
+	for (unsigned int i = 0; i < motion_container.components.size(); i++)
 	{
 		Motion& motion_i = motion_container.components[i];
 		ECS::Entity entity_i = motion_container.entities[i];
@@ -163,7 +168,7 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		// Calculate the current bounds for entity_i
 		BoundingBox boundingBox_i = getBoundingBox(entity_i, motion_i);
 
-		for (unsigned int j=i+1; j<motion_container.components.size(); j++)
+		for (unsigned int j = i + 1; j < motion_container.components.size(); j++)
 		{
 			Motion& motion_j = motion_container.components[j];
 			ECS::Entity entity_j = motion_container.entities[j];

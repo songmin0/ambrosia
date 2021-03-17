@@ -1,6 +1,7 @@
 #include "camera_system.hpp"
 #include "camera.hpp"
 #include "maps/map.hpp"
+#include "game/game_state_system.hpp"
 
 CameraSystem::CameraSystem(vec2 window_size_in_px) {
 	this->window_size_in_px = window_size_in_px;
@@ -17,6 +18,9 @@ CameraSystem::~CameraSystem() {
 
 // Move camera entity
 void CameraSystem::step(float elapsed_ms) {
+	if (!GameStateSystem::instance().inGameState()) {
+		return;
+	}
 	for (auto camera : ECS::registry<CameraComponent>.entities) {
 		auto& cameraComponent = camera.get<CameraComponent>();
 

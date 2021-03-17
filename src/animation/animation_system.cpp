@@ -1,6 +1,7 @@
 #pragma once
 #include "animation_system.hpp"
 #include "animation_components.hpp"
+#include "game/game_state_system.hpp"
 
 AnimationSystem::AnimationSystem()
 {
@@ -60,13 +61,13 @@ void AnimationSystem::step()
 		}
 
 		///////////////////////////////////
-	   /// else it's time to animate /////
-	  ///////////////////////////////////
+				/// else it's time to animate /////
+			///////////////////////////////////
 
 		// Check if we should switch between move and idle animations
 		checkAnimation(entity);
 
-	   // reset the timer
+		// reset the timer
 		currAnim->delayTimer = currAnim->delay;
 
 		//calculate it's current frame...

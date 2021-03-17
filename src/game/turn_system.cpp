@@ -3,6 +3,7 @@
 #include "ai/ai.hpp"
 #include "game/camera.hpp"
 #include "rendering/render_components.hpp"
+#include "game/game_state_system.hpp"
 
 #include <string.h>
 #include <cassert>
@@ -132,7 +133,11 @@ void TurnSystem::nextTurn()
 
 void TurnSystem::step(float elapsed_ms)
 {
+	if (!GameStateSystem::instance().inGameState()) {
+		return;
+	}
 	timer -= elapsed_ms;
+
 	if (timer > 0.f)
 	{
 		return;
@@ -168,7 +173,7 @@ void TurnSystem::step(float elapsed_ms)
 					StartMobTurnEvent event;
 					//event.entity = activeEntity;
 					EventSystem<StartMobTurnEvent>::instance().sendEvent(event);
-					turnComponent.isMoving = true;					
+					turnComponent.isMoving = true;
 				}
 			}
 		}

@@ -1,5 +1,6 @@
 #include "skill_system.hpp"
 #include "skill_component.hpp"
+#include "game/game_state_system.hpp"
 
 SkillSystem::SkillSystem()
 {
@@ -33,6 +34,9 @@ SkillSystem::~SkillSystem()
 
 void SkillSystem::step(float elapsed_ms)
 {
+	if (!GameStateSystem::instance().inGameState()) {
+		return;
+	}
 	const float elapsed_s = elapsed_ms / 1000.f;
 	std::vector<int> toRemove;
 

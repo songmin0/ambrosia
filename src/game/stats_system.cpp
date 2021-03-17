@@ -1,4 +1,5 @@
 #include "stats_system.hpp"
+#include "game/game_state_system.hpp"
 
 StatsSystem::StatsSystem()
 {
@@ -32,6 +33,9 @@ StatsSystem::~StatsSystem()
 
 void StatsSystem::step(float elapsed_ms)
 {
+	if (!GameStateSystem::instance().inGameState()) {
+		return;
+	}
 	const float elapsed_s = elapsed_ms / 1000.f;
 
 	// Remove expired stat modifiers
