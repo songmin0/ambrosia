@@ -179,26 +179,27 @@ void WorldSystem::restart()
 // Compute collisions between entities
 void WorldSystem::handleCollisions()
 {
-		if (GameStateSystem::instance().inGameState()) {
-				// Loop over all collisions detected by the physics system
-				auto& registry = ECS::registry<PhysicsSystem::Collision>;
-				for (unsigned int i = 0; i < registry.components.size(); i++)
-				{
-						// The entity and its collider
-						auto entity = registry.entities[i];
-						auto entity_other = registry.components[i].other;
-
-		// Check for projectiles colliding with the player or mobs
-		if (ECS::registry<ProjectileComponent>.has(entity))
+	if (GameStateSystem::instance().inGameState()) 
+	{
+		// Loop over all collisions detected by the physics system
+		auto& registry = ECS::registry<PhysicsSystem::Collision>;
+		for (unsigned int i = 0; i < registry.components.size(); i++)
 		{
-			auto& projComponent = entity.get<ProjectileComponent>();
-			projComponent.processCollision(entity_other);
-		}
-	}
+			// The entity and its collider
+			auto entity = registry.entities[i];
+			auto entity_other = registry.components[i].other;
 
-				// Remove all collisions from this simulation step
-				ECS::registry<PhysicsSystem::Collision>.clear();
+			// Check for projectiles colliding with the player or mobs
+			if (ECS::registry<ProjectileComponent>.has(entity))
+			{
+				auto& projComponent = entity.get<ProjectileComponent>();
+				projComponent.processCollision(entity_other);
+			}
 		}
+
+		// Remove all collisions from this simulation step
+		ECS::registry<PhysicsSystem::Collision>.clear();
+	}
 }
 
 // Should the game be over ?
@@ -209,12 +210,8 @@ bool WorldSystem::isOver() const
 
 void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 {
-	// !! Temporary Start Menu Test
-	// this will throw an assert if you try to click outside the buttons, since it's not a pathfindable map
-	//StartMenu::createStartMenu(frameBufferWidth, frameBufferHeight);
 
 	// Create the map
-	
 	MapComponent::createMap(GameStateSystem::instance().currentLevel.at("map"), { frameBufferWidth, frameBufferHeight });
 
 	// Create a deforming blob for pizza arena
@@ -224,10 +221,8 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 	}
 
 	if (GameStateSystem::instance().currentLevel.at("map") == "dessert-arena") {
-			
 		DessertForeground::createDessertForeground({ 1920, 672 });
 	}
-	
 }
 
 void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
@@ -670,5 +665,5 @@ void WorldSystem::onPlayerChangeEvent(const PlayerChangeEvent& event)
 
 void WorldSystem::onLoadLevel(LoadLevelEvent)
 {
-		restart();
+	restart();
 }
