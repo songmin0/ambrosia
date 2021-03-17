@@ -161,55 +161,55 @@ void ParticleSystem::updateGPU() {
 
 void ParticleSystem::step(float elapsed_ms)
 {
-		//Call the step function for each emitter in the world NOTE this does nothing right now because emitters haven't been fully built
-		for (int i = 0; i < emitters.size(); i ++) {
-				emitters[i]->step(elapsed_ms);
+	//Call the step function for each emitter in the world NOTE this does nothing right now because emitters haven't been fully built
+	for (int i = 0; i < emitters.size(); i++) {
+		emitters[i]->step(elapsed_ms);
+	}
+
+	//Reference http://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
+	float elapsed_time_sec = elapsed_ms / 1000.0f;
+
+	secSinceLastParticleSpawn += elapsed_time_sec;
+	int newParticles = (int)(secSinceLastParticleSpawn * 1);
+	if (newParticles != 0) {
+		secSinceLastParticleSpawn = 0.0f;
+	}
+
+	createParticles(newParticles);
+
+	// Simulate all particles
+	particlesCount = 0;
+	for (int i = 0; i < MaxParticles; i++) {
+
+		//Get a reference to the current particle
+		Particle& p = ParticlesContainer[i];
+
+		if (p.life > 0.0f) {
+
+			// Decrease life
+			p.life -= elapsed_ms;
+			if (p.life > 0.0f) {
+
+				p.pos += p.speed * ((float)elapsed_time_sec);
+
+				// Fill the GPU buffer
+				particleCenterPositionAndSizeData[4 * particlesCount + 0] = p.pos.x;
+				particleCenterPositionAndSizeData[4 * particlesCount + 1] = p.pos.y;
+				particleCenterPositionAndSizeData[4 * particlesCount + 2] = p.pos.z;
+
+				particleCenterPositionAndSizeData[4 * particlesCount + 3] = p.size;
+
+				particleColorData[4 * particlesCount + 0] = p.r;
+				particleColorData[4 * particlesCount + 1] = p.g;
+				particleColorData[4 * particlesCount + 2] = p.b;
+				particleColorData[4 * particlesCount + 3] = p.a;
+
+			}
+
+			particlesCount++;
+
 		}
-
-		//Reference http://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
-		float elapsed_time_sec = elapsed_ms / 1000.0f;
-
-		secSinceLastParticleSpawn += elapsed_time_sec;
-		int newParticles = (int)(secSinceLastParticleSpawn * 1);
-		if (newParticles != 0) {
-				secSinceLastParticleSpawn = 0.0f;
-		}
-
-		createParticles(newParticles);
-
-		// Simulate all particles
-		particlesCount = 0;
-		for (int i = 0; i < MaxParticles; i++) {
-
-				//Get a reference to the current particle
-				Particle& p = ParticlesContainer[i];
-
-				if (p.life > 0.0f) {
-
-						// Decrease life
-						p.life -= elapsed_ms;
-						if (p.life > 0.0f) {
-								
-								p.pos += p.speed * ((float)elapsed_time_sec);
-
-								// Fill the GPU buffer
-								particleCenterPositionAndSizeData[4 * particlesCount + 0] = p.pos.x;
-								particleCenterPositionAndSizeData[4 * particlesCount + 1] = p.pos.y;
-								particleCenterPositionAndSizeData[4 * particlesCount + 2] = p.pos.z;
-
-								particleCenterPositionAndSizeData[4 * particlesCount + 3] = p.size;
-
-								particleColorData[4 * particlesCount + 0] = p.r;
-								particleColorData[4 * particlesCount + 1] = p.g;
-								particleColorData[4 * particlesCount + 2] = p.b;
-								particleColorData[4 * particlesCount + 3] = p.a;
-
-						}
-
-						particlesCount++;
-
-				}
-		}
+	}
 }
 
 void ParticleSystem::initParticles()

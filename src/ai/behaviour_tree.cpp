@@ -1,6 +1,7 @@
 #include "behaviour_tree.hpp"
 #include "game/stats_component.hpp"
 #include "tree_components.hpp"
+#include "game/game_state_system.hpp"
 
 const float MOB_LOW_HEALTH = 25.f;
 
@@ -30,6 +31,9 @@ void StateSystem::onStartMobTurnEvent(const StartMobTurnEvent& event)
 
 void StateSystem::step(float elapsed_ms)
 {
+	if (!GameStateSystem::instance().inGameState()) {
+		return;
+	}
 	if (activeTree != nullptr && activeTree->root != nullptr)
 	{
 		if (activeTree->root->getStatus() == Status::INVALID)

@@ -20,12 +20,12 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
 	Transform transform;
 	if (entity.has<UIComponent>()) {
-		transform.translate(motion.position);
+			transform.translate(motion.position);
 	}
 	else {
-		auto camera = ECS::registry<CameraComponent>.entities[0];
-		auto& cameraComponent = camera.get<CameraComponent>();
-		transform.translate(motion.position - cameraComponent.position);
+			auto camera = ECS::registry<CameraComponent>.entities[0];
+			auto& cameraComponent = camera.get<CameraComponent>();
+			transform.translate(motion.position - cameraComponent.position);
 	}
 	transform.rotate(motion.angle);
 
@@ -453,12 +453,13 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 
 		gl_has_errors();
 	}
-	auto camera = ECS::registry<CameraComponent>.entities[0];
-	auto& cameraComponent = camera.get<CameraComponent>();
-	assert(!ECS::registry<CameraComponent>.entities.empty());
-	particleSystem->drawParticles(projection_2D,cameraComponent.position);
-	// Truely render to the screen
-	drawToScreen();
+		assert(!ECS::registry<CameraComponent>.entities.empty());
+		auto camera = ECS::registry<CameraComponent>.entities[0];
+		auto& cameraComponent = camera.get<CameraComponent>();
+			
+		particleSystem->drawParticles(projection_2D, cameraComponent.position);
+		// Truely render to the screen
+		drawToScreen();
 
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(&window);

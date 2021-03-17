@@ -3,6 +3,7 @@
 #include "entities/tiny_ecs.hpp"
 #include "physics/physics.hpp"
 #include "game/turn_system.hpp"
+#include "game/game_state_system.hpp"
 
 #include <iostream>
 
@@ -31,6 +32,9 @@ AISystem::~AISystem()
 
 void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
+	if (!GameStateSystem::instance().inGameState()) {
+		return;
+	}
 	(void)elapsed_ms; // placeholder to silence unused warning until implemented
 	(void)window_size_in_game_units; // placeholder to silence unused warning until implemented
 }
@@ -45,7 +49,7 @@ void AISystem::MobComponent::setTarget(ECS::Entity target)
 	this->target = target;
 }
 
-bool AISystem::setTargetToClosestPlayer(ECS::Entity& mob)
+bool AISystem::setTargetToClosestPlayer(ECS::Entity & mob)
 {
 	// Movement for mobs - move to closest player
 	ECS::Entity closestPlayer;

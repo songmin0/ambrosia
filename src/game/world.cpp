@@ -22,6 +22,7 @@
 #include "ui/menus.hpp"
 #include "ai/ai.hpp"
 #include <level_loader/level_loader.hpp>
+#include "game_state_system.hpp"
 
 // stlib
 #include <string.h>
@@ -74,11 +75,12 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	auto mouseHoverRedirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->onMouseHover(_0, _1); };
 	glfwSetCursorPosCallback(window, mouseHoverRedirect);
 
-	curr_level = 0;
-	recipe = lc.readLevel("recipe-1");
-
 	initAudio();
 	std::cout << "Loaded music\n";
+
+	//Register the loadLevelEvent listener
+	loadLevelListener = EventSystem<LoadLevelEvent>::instance().registerListener(
+			std::bind(&WorldSystem::onLoadLevel, this, std::placeholders::_1));
 }
 
 WorldSystem::~WorldSystem(){
@@ -94,6 +96,9 @@ WorldSystem::~WorldSystem(){
 // Update our game world
 void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
+	if (!GameStateSystem::instance().inGameState()) {
+		return;
+	}
 	// Updating window title with points
 	std::stringstream title_ss;
 	title_ss << "Points: " << points;
@@ -112,33 +117,24 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		// Remove player/mob once death timer expires
 		if (counter.counter_ms < 0)
 		{
-				//If the entity has a stats component get rid of the health bar too
+			//If the entity has a stats component get rid of the health bar too
 			if (entity.has<StatsComponent>()) {
-						ECS::ContainerInterface::removeAllComponentsOf(entity.get<StatsComponent>().healthBar);
+				ECS::ContainerInterface::removeAllComponentsOf(entity.get<StatsComponent>().healthBar);
 			}
 			ECS::ContainerInterface::removeAllComponentsOf(entity);
 			// Check if there are no more players left, restart game
 			if (ECS::registry<PlayerComponent>.entities.empty())
 			{
-				EventSystem<PlaySoundEffectEvent>::instance().sendEvent({SoundEffect::GAME_OVER});
-				restart();
+				EventSystem<PlaySoundEffectEvent>::instance().sendEvent({ SoundEffect::GAME_OVER });
+				//TODO this should launch the defeat screen once that is implemented
+				GameStateSystem::instance().restartMap();
 				return;
 			}
 		}
 	}
-
 	if (ECS::registry<AISystem::MobComponent>.entities.size() == 0) {
-		// advance level and save
-		curr_level++;
-
-		lc.save(recipe["name"], curr_level);
-		
-		if (curr_level >= recipe["maps"].size()) {
-			curr_level = 0;
-			// small hack to prevent crashing after beating everything on dessert map
-			// once we have the ending, can put check here
-		}
-		restart();
+		//TODO make this go to the victory screen. For now launch into the next map
+		GameStateSystem::instance().nextMap();
 	}
 }
 
@@ -151,9 +147,6 @@ void WorldSystem::restart()
 
 	// Reset the game speed
 	current_speed = 1.f;
-
-	// set config vals for current level
-	config = recipe["maps"][curr_level];
 
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
@@ -171,8 +164,8 @@ void WorldSystem::restart()
 	// Get screen/buffer size
 	int frameBufferWidth, frameBufferHeight;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
-
-	Camera::createCamera(config.at("camera"));
+	
+	Camera::createCamera(GameStateSystem::instance().currentLevel.at("camera"));
 	createMap(frameBufferWidth, frameBufferHeight);
 	createPlayers(frameBufferWidth, frameBufferHeight);
 	createMobs(frameBufferWidth, frameBufferHeight);
@@ -186,13 +179,14 @@ void WorldSystem::restart()
 // Compute collisions between entities
 void WorldSystem::handleCollisions()
 {
-	// Loop over all collisions detected by the physics system
-	auto& registry = ECS::registry<PhysicsSystem::Collision>;
-	for (unsigned int i=0; i< registry.components.size(); i++)
-	{
-		// The entity and its collider
-		auto entity = registry.entities[i];
-		auto entity_other = registry.components[i].other;
+		if (GameStateSystem::instance().inGameState()) {
+				// Loop over all collisions detected by the physics system
+				auto& registry = ECS::registry<PhysicsSystem::Collision>;
+				for (unsigned int i = 0; i < registry.components.size(); i++)
+				{
+						// The entity and its collider
+						auto entity = registry.entities[i];
+						auto entity_other = registry.components[i].other;
 
 		// Check for projectiles colliding with the player or mobs
 		if (ECS::registry<ProjectileComponent>.has(entity))
@@ -202,8 +196,9 @@ void WorldSystem::handleCollisions()
 		}
 	}
 
-	// Remove all collisions from this simulation step
-	ECS::registry<PhysicsSystem::Collision>.clear();
+				// Remove all collisions from this simulation step
+				ECS::registry<PhysicsSystem::Collision>.clear();
+		}
 }
 
 // Should the game be over ?
@@ -216,20 +211,23 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 {
 	// !! Temporary Start Menu Test
 	// this will throw an assert if you try to click outside the buttons, since it's not a pathfindable map
-	 //StartMenu::createStartMenu(frameBufferWidth, frameBufferHeight);
+	//StartMenu::createStartMenu(frameBufferWidth, frameBufferHeight);
 
 	// Create the map
-	MapComponent::createMap(config.at("map"), {frameBufferWidth, frameBufferHeight});
+	
+	MapComponent::createMap(GameStateSystem::instance().currentLevel.at("map"), { frameBufferWidth, frameBufferHeight });
 
 	// Create a deforming blob for pizza arena
 	// maybe add own section in level file we have more of these
-	if (config.at("map") == "pizza-arena") {
+	if (GameStateSystem::instance().currentLevel.at("map") == "pizza-arena") {
 		CheeseBlob::createCheeseBlob({ 700, 950 });
 	}
 
-	if (config.at("map") == "dessert-arena") {
+	if (GameStateSystem::instance().currentLevel.at("map") == "dessert-arena") {
+			
 		DessertForeground::createDessertForeground({ 1920, 672 });
 	}
+	
 }
 
 void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
@@ -343,10 +341,10 @@ void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 	// eg: playerRaoul = Raoul::createRaoul(vec2( 640, 512 ));
 	// please specify vec2(x, y), as {x , y} is also valid json
 
-	playerRaoul = Raoul::createRaoul(config.at("raoul"));
-	playerTaji = Taji::createTaji(config.at("taji"));
-	playerEmber = Ember::createEmber(config.at("ember"));
-	playerChia = Chia::createChia(config.at("chia"));
+		playerRaoul = Raoul::createRaoul(GameStateSystem::instance().currentLevel.at("raoul"));
+		playerTaji = Taji::createTaji(GameStateSystem::instance().currentLevel.at("taji"));
+		playerEmber = Ember::createEmber(GameStateSystem::instance().currentLevel.at("ember"));
+		playerChia = Chia::createChia(GameStateSystem::instance().currentLevel.at("chia"));
 }
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
@@ -358,7 +356,11 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 	//MashedPotato::createMashedPotato({ 900.f, 750.f });
 	//PotatoChunk::createPotatoChunk({ 900.f, 800.f });
 
-	auto mobs = config.at("mobs");
+	// Milk test
+	//Milk::createMilk(vec2(900.f, 800.f), -1.f);
+
+	// TODO: come back and expand this when we have multiple mobs
+	auto mobs = GameStateSystem::instance().currentLevel.at("mobs");
 
 	createEnemies(mobs);
 }
@@ -454,21 +456,22 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 
 	// swap maps for swapping between pizza and dessert maps for recipe 1
 	if (action == GLFW_RELEASE && key == GLFW_KEY_M) {
-		curr_level = 1;
-		restart();
+			GameStateSystem::instance().currentLevelIndex = 1;
+			GameStateSystem::instance().restartMap();
 	}
 
 	if (action == GLFW_RELEASE && key == GLFW_KEY_N) {
-		curr_level = 0;
-		restart();
+		GameStateSystem::instance().currentLevelIndex = 0;
+		GameStateSystem::instance().restartMap();
 	}
 
 	// load save
+	//TODO make this work with GameState
 	if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
 		json save_obj = lc.load();
-		recipe = lc.readLevel(save_obj["recipe"]);
-		curr_level = save_obj["level"];
-		restart();
+		GameStateSystem::instance().recipe = lc.readLevel(save_obj["recipe"]);
+		GameStateSystem::instance().currentLevelIndex = save_obj["level"];
+		GameStateSystem::instance().restartMap();
 	}
 
 	// Play the next audio track (this is just so that we can give all of them a try)
@@ -623,11 +626,11 @@ void WorldSystem::playAudio()
 {
 	MusicType nextMusicType;
 
-	if (config.at("map") == "pizza-arena")
+	if (GameStateSystem::instance().currentLevel.at("map") == "pizza-arena")
 	{
 		nextMusicType = MusicType::PIZZA_ARENA;
 	}
-	else if (config.at("map") == "dessert-arena")
+	else if (GameStateSystem::instance().currentLevel.at("map") == "dessert-arena")
 	{
 		nextMusicType = MusicType::DESSERT_ARENA;
 	}
@@ -663,4 +666,9 @@ void WorldSystem::onPlayerChangeEvent(const PlayerChangeEvent& event)
 		Mix_PlayChannel(-1, soundEffects[SoundEffect::TURN_START], 0);
 	}
 	shouldPlayAudioAtStartOfTurn = true;
+}
+
+void WorldSystem::onLoadLevel(LoadLevelEvent)
+{
+		restart();
 }

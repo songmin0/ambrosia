@@ -105,3 +105,7 @@ struct PlaySoundEffectEvent
 {
 	SoundEffect effect = SoundEffect::NONE;
 };
+
+struct LoadLevelEvent {
+
+};

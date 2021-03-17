@@ -6,6 +6,8 @@
 
 #include <functional>
 
+#include "game/game_state_system.hpp"
+
 
 ProjectileSystem::ProjectileSystem()
 {
@@ -23,6 +25,9 @@ ProjectileSystem::~ProjectileSystem()
 
 void ProjectileSystem::step(float elapsed_ms)
 {
+	if (!GameStateSystem::instance().inGameState()) {
+		return;
+	}
 	const float elapsed_s = elapsed_ms / 1000.f;
 
 	// Update the projectile velocities and remove any projectiles that have finished

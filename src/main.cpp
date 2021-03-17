@@ -23,6 +23,7 @@
 #include "particles/particle_system.hpp"
 #include "skills/skill_system.hpp"
 #include "game/stats_system.hpp"
+#include "game/game_state_system.hpp"
 
 
 using Clock = std::chrono::high_resolution_clock;
@@ -58,7 +59,9 @@ int main()
 	StatsSystem statsSystem;
 
 	// Set all states to default
-	world.restart();
+	//TODO once the main menu is hooked up this should launch the main menu not the next map.
+	GameStateSystem::instance().setWindow(world.window);
+	GameStateSystem::instance().launchMainMenu();
 
 
 	float dtMax = (1.f / 60.f) * 1000.f; // 60 FPS

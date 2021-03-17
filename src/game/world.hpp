@@ -4,6 +4,7 @@
 #include "../ext/nlohmann/json.hpp"
 #include "event_system.hpp"
 #include "events.hpp"
+#include <functional>
 
 using json = nlohmann::json;
 
@@ -95,6 +96,10 @@ private:
 	LevelLoader lc;
 
 	//config obj
-	json config;
-	json recipe;
+	//json config;
+
+	//Event listener for load level event
+	void onLoadLevel(LoadLevelEvent);
+	EventListenerInfo loadLevelListener;
+
 };
