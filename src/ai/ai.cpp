@@ -202,14 +202,24 @@ void AISystem::startMobMove(ECS::Entity entity, MovementType movement)
 
 	ECS::Entity target = entity.get<MobComponent>().getTarget();
 	//Find the direction to travel based on movement type
-	vec2 direction = normalize(target.get<Motion>().position - motion.position);
+	vec2 direction = { 0.f, 0.f };
+	float magnitude = 0.f;
 	if (movement.moveType == MoveType::AWAY_CLOSEST_PLAYER)
 	{
 		direction = normalize(motion.position - target.get<Motion>().position);
+		magnitude = motion.moveRange;
+	}
+	else
+	{
+		direction = normalize(target.get<Motion>().position - motion.position);
+		magnitude = length(target.get<Motion>().position - motion.position) - 50.f;
+		// Limit desired distance by allowed movement range
+		if (magnitude > motion.moveRange)
+			magnitude = motion.moveRange;
 	}
 
-	vec2 destintation = motion.position + (direction * motion.moveRange);
-	motion.path = pathFindingSystem.getShortestPath(entity, destintation);
+	vec2 destination = motion.position + (direction * magnitude);
+	motion.path = pathFindingSystem.getShortestPath(entity, destination);
 }
 
 void AISystem::startMobSkill(ECS::Entity entity)
