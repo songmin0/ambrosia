@@ -118,6 +118,6 @@ struct PlaySoundEffectEvent
 	SoundEffect effect = SoundEffect::NONE;
 };
 
-struct LoadLevelEvent {
+struct LoadLevelEvent {};
 
-};
+struct AdvanceTutorialEvent {};

@@ -87,6 +87,22 @@ void UISystem::onMouseClick(const RawMouseClickEvent& event)
 	// Plays a mouse click fx
 	playMouseClickFX(event.mousePos);
 
+	// Filters mouse clicks through ClickFilters first - only clicks within a filter can continue
+	bool didPassFilter = false;
+	for (auto entity : ECS::registry<ClickFilter>.entities)
+	{
+		if (handleClick< ClickableRectangleComponent>(entity, event))
+		{
+			didPassFilter = true;
+		}
+	}
+
+	// Only proceed to handle mouse click if it passes a filter
+	if (!didPassFilter)
+	{
+		return;
+	}
+
 	// Handles if any button entities are clicked
 	for (auto entity : ECS::registry<Button>.entities) {
 		if (handleClick<ClickableCircleComponent>(entity, event)) {

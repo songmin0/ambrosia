@@ -47,3 +47,4 @@ struct SkillInfoComponent
 struct UIComponent {};
 struct MoveToolTipComponent {};
 struct MoveButtonComponent {};
+struct TutorialComponent {};

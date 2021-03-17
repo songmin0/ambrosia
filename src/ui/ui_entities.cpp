@@ -1,5 +1,7 @@
 #include "ui_entities.hpp"
 #include "rendering/render.hpp"
+#include "game/game_state_system.hpp"
+#include <iostream>
 
 ECS::Entity HPBar::createHPBar(vec2 position, vec2 scale)
 {
@@ -114,13 +116,57 @@ ECS::Entity TajiHelper::createTajiHelper(vec2 position)
 
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<UIComponent>();
-	entity.emplace<RenderableComponent>(RenderLayer::UI_TUTORIAL);
+	entity.emplace<TutorialComponent>();
+	entity.emplace<RenderableComponent>(RenderLayer::UI_TUTORIAL1);
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
 	motion.position = position;
 
 	auto effect_anim = AnimationData("tajihelper_anim", uiPath("tutorial/taji_help/taji_help"), 10);
 	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::EFFECT, std::make_shared<AnimationData>(effect_anim));
+	entity.emplace<TajiHelper>();
 
+	return entity;
+}
+
+ECS::Entity ClickFilter::createClickFilter(vec2 position, bool isLarge, vec2 scale)
+{
+	auto entity = ECS::Entity();
+
+	void(*callback)() = []() {
+		std::cout << "Mouse click detected within click filter." << std::endl;
+		EventSystem<AdvanceTutorialEvent>::instance().sendEvent(AdvanceTutorialEvent{});
+	};
+
+	if (isLarge)
+	{
+		ShadedMesh& resource = cacheResource("clickfilter_large");
+		if (resource.effect.program.resource == 0)
+		{
+			RenderSystem::createSprite(resource, uiPath("tutorial/clickfilter-large.png"), "textured");
+		}
+		entity.emplace<ShadedMeshRef>(resource);
+		entity.emplace<ClickableRectangleComponent>(position, resource.texture.size.x, resource.texture.size.y, callback);
+	}
+	else
+	{
+		ShadedMesh& resource = cacheResource("clickfilter_small");
+		if (resource.effect.program.resource == 0)
+		{
+			RenderSystem::createSprite(resource, uiPath("tutorial/clickfilter-small.png"), "textured");
+		}
+		entity.emplace<ShadedMeshRef>(resource);
+		entity.emplace<ClickableRectangleComponent>(position, resource.texture.size.x, resource.texture.size.y, callback);
+	}
+
+	entity.emplace<UIComponent>();
+	entity.emplace<TutorialComponent>();
+	entity.emplace<RenderableComponent>(RenderLayer::UI_TUTORIAL2);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+	motion.scale = scale;
+
+	entity.emplace<ClickFilter>();
 	return entity;
 }
