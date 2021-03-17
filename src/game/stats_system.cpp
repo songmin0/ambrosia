@@ -39,27 +39,80 @@ void StatsSystem::step(float elapsed_ms)
 	const float elapsed_s = elapsed_ms / 1000.f;
 
 	// Remove expired stat modifiers
-	for (auto& statsComponent : ECS::registry<StatsComponent>.components)
+	for (int i = 0; i < ECS::registry<StatsComponent>.entities.size(); i++)
 	{
+		auto entity = ECS::registry<StatsComponent>.entities[i];
+		auto& statsComponent = ECS::registry<StatsComponent>.components[i];
+
 		std::vector<StatType> toRemove;
+		bool isEntityDead = entity.has<DeathTimer>();
 
 		// Decrement the StatModifier timers. Add the finished ones to the toRemove list
 		for (auto& statModifier : statsComponent.statModifiers)
 		{
 			statModifier.second.timer -= elapsed_s;
 
-			if (statModifier.second.timer <= 0.f)
+			// Remove expired modifiers; if entity is dead, remove all modifiers
+			if (statModifier.second.timer <= 0.f || isEntityDead)
 			{
 				toRemove.push_back(statModifier.first);
 			}
 		}
 
-		// Remove the expired modifiers
+		// Remove the modifiers
 		for (auto type : toRemove)
 		{
-			statsComponent.statModifiers.erase(type);
+			removeStatModifier(entity, statsComponent, type);
 		}
 	}
+}
+
+void StatsSystem::addStatModifier(ECS::Entity entity,
+																	StatsComponent& statsComponent,
+																	StatModifier statModifier)
+{
+	// These are the only stats that make sense to buff/debuff at the moment
+	assert(statModifier.statType == StatType::STRENGTH ||
+				 statModifier.statType == StatType::HP_SHIELD);
+
+	// Remove existing modifier if one exists
+	removeStatModifier(entity, statsComponent, statModifier.statType);
+
+	// Start the FX
+	FXType fxType = getFXType(statModifier);
+	EventSystem<StartFXEvent>::instance().sendEvent({entity, fxType});
+
+	// Add the modifier
+	statsComponent.statModifiers[statModifier.statType] = statModifier;
+}
+
+void StatsSystem::removeStatModifier(ECS::Entity entity,
+																		 StatsComponent& statsComponent,
+																		 StatType statType)
+{
+	// Remove the modifier if it exists
+	auto it = statsComponent.statModifiers.find(statType);
+	if (it != statsComponent.statModifiers.end())
+	{
+		// Stop the FX
+		FXType fxType = getFXType(it->second);
+		EventSystem<StopFXEvent>::instance().sendEvent({entity, fxType});
+
+		// Remove the modifier
+		statsComponent.statModifiers.erase(it);
+	}
+}
+
+FXType StatsSystem::getFXType(StatModifier statModifier)
+{
+	FXType type = FXType::SHIELDED;
+
+	if (statModifier.statType == StatType::STRENGTH)
+	{
+		type = statModifier.value >= 0.f ? FXType::BUFFED : FXType::DEBUFFED;
+	}
+
+	return type;
 }
 
 void StatsSystem::onHitEvent(const HitEvent &event)
@@ -99,6 +152,12 @@ void StatsSystem::onHitEvent(const HitEvent &event)
 			it->second.value = std::max(0.f, hpShieldBefore - actualDamage);
 			float hpShieldAfter = it->second.value;
 
+			// Remove HP shield when it runs out
+			if (hpShieldAfter == 0.f)
+			{
+				removeStatModifier(target, statsComponent, StatType::HP_SHIELD);
+			}
+
 			// Update the amount of damage that still needs to be applied
 			actualDamage -= hpShieldBefore - hpShieldAfter;
 		}
@@ -120,7 +179,6 @@ void StatsSystem::onHitEvent(const HitEvent &event)
 			{
 				ECS::registry<DeathTimer>.emplace(target);
 				soundEffect = SoundEffect::DEFEAT;
-				statsComponent.statModifiers.erase(StatType::HP);
 			}
 		}
 
@@ -137,20 +195,13 @@ void StatsSystem::onHitEvent(const HitEvent &event)
 
 void StatsSystem::onBuffEvent(const BuffEvent &event)
 {
-	// These are the only stats that make sense to buff/debuff at the moment
-	assert(event.statModifier.statType == StatType::STRENGTH ||
-				 event.statModifier.statType == StatType::MAX_HP ||
-				 event.statModifier.statType == StatType::HP_SHIELD);
-
-	auto entity = event.entity;
-
 	// A character can only be buffed/debuffed when there's no DeathTimer
+	auto entity = event.entity;
 	if (!entity.has<DeathTimer>() && entity.has<StatsComponent>())
 	{
 		auto& statsComponent = entity.get<StatsComponent>();
 
-		// Apply the given stat modifier
-		statsComponent.statModifiers[event.statModifier.statType] = event.statModifier;
+		addStatModifier(event.entity, statsComponent, event.statModifier);
 	}
 }
 
@@ -179,12 +230,7 @@ void StatsSystem::onHealEvent(const HealEvent &event)
 		float newHP = std::min(currentHP + event.amount, maxHP);
 		statsComponent.stats[StatType::HP] = newHP;
 
-		// If a stat modifier is currently applied, update its value if it causes
-		// the HP to go above the maximum
-		auto it = statsComponent.statModifiers.find(StatType::HP);
-		if (it != statsComponent.statModifiers.end() && (newHP + it->second.value > maxHP))
-		{
-			it->second.value = maxHP - newHP;
-		}
+		// Start the FX
+		EventSystem<StartFXEvent>::instance().sendEvent({entity, FXType::HEALED});
 	}
 }

@@ -7,10 +7,19 @@
 class EntityHandler
 {
 public:
-	EntityHandler() = default;
+	EntityHandler()
+		: fxType(FXType::NONE)
+	{}
+
 	virtual ~EntityHandler() = default;
 
-	virtual void process(ECS::Entity instigator, ECS::Entity target) = 0;
+	void process(ECS::Entity instigator, ECS::Entity target);
+	inline void addFX(FXType fxType) {this->fxType = fxType;}
+
+private:
+	virtual void processInternal(ECS::Entity instigator, ECS::Entity target) = 0;
+
+	FXType fxType;
 };
 
 // Applies damage to the given target
@@ -23,7 +32,7 @@ public:
 
 	~DamageHandler() override = default;
 
-	void process(ECS::Entity instigator, ECS::Entity target) override;
+	void processInternal(ECS::Entity instigator, ECS::Entity target) override;
 
 private:
 	float damage;
@@ -39,7 +48,7 @@ public:
 
 	~HealHandler() override = default;
 
-	void process(ECS::Entity instigator, ECS::Entity target) override;
+	void processInternal(ECS::Entity instigator, ECS::Entity target) override;
 
 private:
 	float healAmount;
@@ -57,7 +66,7 @@ public:
 
 	~BuffHandler() override = default;
 
-	void process(ECS::Entity instigator, ECS::Entity target) override;
+	void processInternal(ECS::Entity instigator, ECS::Entity target) override;
 
 private:
 	StatType statType;
@@ -79,7 +88,7 @@ public:
 
 	~HealAndDamageHandler() override = default;
 
-	void process(ECS::Entity instigator, ECS::Entity target) override;
+	void processInternal(ECS::Entity instigator, ECS::Entity target) override;
 
 private:
 	CollisionGroup typeToHeal;
@@ -104,7 +113,7 @@ public:
 
 	~DebuffAndDamageHandler() override = default;
 
-	void process(ECS::Entity instigator, ECS::Entity target) override;
+	void processInternal(ECS::Entity instigator, ECS::Entity target) override;
 
 private:
 	StatType statType;

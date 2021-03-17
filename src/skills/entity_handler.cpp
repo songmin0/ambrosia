@@ -3,7 +3,17 @@
 #include "game/event_system.hpp"
 #include "game/events.hpp"
 
-void DamageHandler::process(ECS::Entity instigator, ECS::Entity target)
+void EntityHandler::process(ECS::Entity instigator, ECS::Entity target)
+{
+	if (fxType != FXType::NONE)
+	{
+		EventSystem<StartFXEvent>::instance().sendEvent({target, fxType});
+	}
+
+	processInternal(instigator, target);
+}
+
+void DamageHandler::processInternal(ECS::Entity instigator, ECS::Entity target)
 {
 	HitEvent hitEvent;
 	hitEvent.instigator = instigator;
@@ -12,7 +22,7 @@ void DamageHandler::process(ECS::Entity instigator, ECS::Entity target)
 	EventSystem<HitEvent>::instance().sendEvent(hitEvent);
 }
 
-void HealHandler::process(ECS::Entity instigator, ECS::Entity target)
+void HealHandler::processInternal(ECS::Entity instigator, ECS::Entity target)
 {
 	HealEvent healEvent;
 	healEvent.entity = target;
@@ -20,7 +30,7 @@ void HealHandler::process(ECS::Entity instigator, ECS::Entity target)
 	EventSystem<HealEvent>::instance().sendEvent(healEvent);
 }
 
-void BuffHandler::process(ECS::Entity instigator, ECS::Entity target)
+void BuffHandler::processInternal(ECS::Entity instigator, ECS::Entity target)
 {
 	StatModifier statModifier;
 	statModifier.statType = statType;
@@ -33,7 +43,7 @@ void BuffHandler::process(ECS::Entity instigator, ECS::Entity target)
 	EventSystem<BuffEvent>::instance().sendEvent(buffEvent);
 }
 
-void HealAndDamageHandler::process(ECS::Entity instigator, ECS::Entity target)
+void HealAndDamageHandler::processInternal(ECS::Entity instigator, ECS::Entity target)
 {
 	assert(target.has<Motion>());
 	auto& targetMotion = target.get<Motion>();
@@ -55,7 +65,7 @@ void HealAndDamageHandler::process(ECS::Entity instigator, ECS::Entity target)
 	}
 }
 
-void DebuffAndDamageHandler::process(ECS::Entity instigator, ECS::Entity target)
+void DebuffAndDamageHandler::processInternal(ECS::Entity instigator, ECS::Entity target)
 {
 	// DEBUFF
 	StatModifier statModifier;
