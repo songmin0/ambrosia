@@ -266,7 +266,6 @@ ECS::Entity Potato::createPotato(json stats, json position)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = vec2(position[0], position[1]);
 	motion.orientation = position[2];
-	motion.position = pos;
 	motion.moveRange = 0.f;
 	motion.scale = vec2(1.4f);
 	auto hitboxScale = vec2({ 0.7f, 1.f });

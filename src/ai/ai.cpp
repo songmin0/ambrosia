@@ -145,7 +145,7 @@ bool AISystem::setTargetToWeakestPlayer(ECS::Entity& mob)
 			auto& playerStats = player.get<StatsComponent>();
 			auto playerHP = playerStats.getStatValue(StatType::HP);
 
-			if (playerHP < playerStats.getStatValue(StatType::MAXHP) && playerHP < lowestHP)
+			if (playerHP < playerStats.getStatValue(StatType::MAX_HP) && playerHP < lowestHP)
 			{
 				lowestHP = playerHP;
 				weakestPlayer = player;

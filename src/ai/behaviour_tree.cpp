@@ -182,7 +182,7 @@ void PotatoSkillSelector::run()
 	ECS::Entity mob = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 	auto& mobStats = mob.get<StatsComponent>();
 	float hp = mobStats.getStatValue(StatType::HP);
-	float maxHP = mobStats.getStatValue(StatType::MAXHP);
+	float maxHP = mobStats.getStatValue(StatType::MAX_HP);
 	std::shared_ptr<Node> attack = children.front();
 	std::shared_ptr<Node> AOEAttack = children.back();
 	if (hp / maxHP < 0.5 || hp / maxHP < 0.2)
@@ -241,7 +241,7 @@ void PepperMoveSelector::run()
 	{
 		auto& playerStats = player.get<StatsComponent>();
 		// Check if there is a living player that is injured
-		if (!player.has<DeathTimer>() && playerStats.getStatValue(StatType::HP) < playerStats.getStatValue(StatType::MAXHP))
+		if (!player.has<DeathTimer>() && playerStats.getStatValue(StatType::HP) < playerStats.getStatValue(StatType::MAX_HP))
 		{
 			weakPlayerExists = true;
 			break;
@@ -286,7 +286,7 @@ void MilkSkillSelector::run()
 		auto& allyStats = entity.get<StatsComponent>();
 		// Check if there is an ally that needs healing
 		if (entity.has<BehaviourTreeType>() && !entity.has<TurnSystem::TurnComponentIsActive>() && !entity.has<DeathTimer>() &&
-			allyStats.getStatValue(StatType::HP) < allyStats.getStatValue(StatType::MAXHP))
+			allyStats.getStatValue(StatType::HP) < allyStats.getStatValue(StatType::MAX_HP))
 		{
 			shouldHeal = true;
 			break;
@@ -329,7 +329,6 @@ PotatoBehaviourTree::PotatoBehaviourTree()
 
 void Task::onFinishedTaskEvent()
 {
-	std::cout << "Finished task\n";
 	this->onTerminate(Status::SUCCESS);
 }
 
