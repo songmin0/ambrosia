@@ -17,3 +17,5 @@ struct ToolTip
 	static ECS::Entity createToolTip(PlayerType player, SkillType skillType, vec2 position = vec2(0.f));
 	static ECS::Entity createMoveToolTip(vec2 position = vec2(0.f));
 };
+
+struct TajiHelper { static ECS::Entity createTajiHelper(vec2 position); };

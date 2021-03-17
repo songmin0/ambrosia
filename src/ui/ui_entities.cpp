@@ -100,4 +100,27 @@ ECS::Entity ToolTip::createMoveToolTip(vec2 position)
 	entity.emplace<ToolTip>();
 
 	return entity;
+};
+
+ECS::Entity TajiHelper::createTajiHelper(vec2 position)
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource("tajihelper_static");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, uiPath("tutorial/taji_help/taji_help_003.png"), "textured");
+	}
+
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<UIComponent>();
+	entity.emplace<RenderableComponent>(RenderLayer::UI_TUTORIAL);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+
+	auto effect_anim = AnimationData("tajihelper_anim", uiPath("tutorial/taji_help/taji_help"), 10);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::EFFECT, std::make_shared<AnimationData>(effect_anim));
+
+	return entity;
 }

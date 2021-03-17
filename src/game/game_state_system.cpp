@@ -12,6 +12,7 @@ GameStateSystem::GameStateSystem() {
 		isInMainScreen = false;
 		isInHelpScreen = false;
 		currentLevelIndex = -1;
+		currentTutorialIndex = 0;
 
 		LevelLoader lc;
 		recipe = lc.readLevel("recipe-1");
