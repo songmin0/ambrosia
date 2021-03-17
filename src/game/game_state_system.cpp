@@ -60,7 +60,9 @@ void GameStateSystem::nextMap()
 
 void GameStateSystem::restartMap()
 {
+		currentLevel = recipe["maps"][currentLevelIndex];
 		EventSystem<LoadLevelEvent>::instance().sendEvent(LoadLevelEvent{});
+
 		//TODO fill in
 }
 
