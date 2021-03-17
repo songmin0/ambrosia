@@ -101,7 +101,7 @@ ECS::Entity Ember::createEmber(json configValues)
 	auto& statsComponent = entity.emplace<StatsComponent>();
 	json stats = configValues.at("stats");
 	statsComponent.stats[StatType::HP] = stats.at("hp");
-	statsComponent.stats[StatType::MAXHP] = stats.at("hp");
+	statsComponent.stats[StatType::MAX_HP] = stats.at("hp");
 	statsComponent.stats[StatType::AMBROSIA] = stats.at("ambrosia");
 	statsComponent.stats[StatType::STRENGTH] = stats.at("strength");
 
@@ -135,7 +135,7 @@ ECS::Entity Ember::createEmber(vec2 position)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAXHP] = 80.f;
+	statsComponent.stats[StatType::MAX_HP] = 80.f;
 	statsComponent.stats[StatType::HP] = 80.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;

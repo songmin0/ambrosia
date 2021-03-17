@@ -36,6 +36,7 @@ inline std::string mapsPath(const std::string& name) { return dataPath() + "/map
 inline std::string objectsPath(const std::string& name) { return dataPath() + "/objects/" + name; };
 inline std::string uiPath(const std::string& name) { return dataPath() + "/ui/" + name; };
 inline std::string levelsPath(const std::string& name) { return dataPath() + "/levels/" + name; };
+inline std::string fxPath(const std::string& name) { return dataPath() + "/effects/" + name; };
 
 enum class PlayerType { RAOUL, TAJI, CHIA, EMBER };
 float playerToFloat(const PlayerType& player);
@@ -49,13 +50,27 @@ struct Transform {
 	void translate(vec2 offset);
 };
 
-enum CollisionGroup
+//////////////////////////////////////////
+// Collider flags
+enum CollisionGroup : std::uint8_t
 {
-	NONE = 0,
-	PLAYER = 1 << 0,
-	MOB = 1 << 1,
-	ALL = ~NONE
+	NONE = 0u,
+	PLAYER = 1u << 0u,
+	MOB = 1u << 1u,
 };
+constexpr CollisionGroup operator&(CollisionGroup a, CollisionGroup b)
+{
+	return static_cast<CollisionGroup>(
+			static_cast<std::underlying_type_t<CollisionGroup>>(a) &
+			static_cast<std::underlying_type_t<CollisionGroup>>(b));
+}
+constexpr CollisionGroup operator|(CollisionGroup a, CollisionGroup b)
+{
+	return static_cast<CollisionGroup>(
+			static_cast<std::underlying_type_t<CollisionGroup>>(a) |
+			static_cast<std::underlying_type_t<CollisionGroup>>(b));
+}
+//////////////////////////////////////////
 
 // All data relevant to the shape and motion of entities
 struct Motion {
@@ -82,7 +97,7 @@ struct PlayerComponent {
 
 enum MusicType
 {
-	MAIN_MENU,
+	START_SCREEN,
 	SHOP,
 	VICTORY,
 	BOSS,
@@ -92,6 +107,7 @@ enum MusicType
 	PLACEHOLDER2,
 	PLACEHOLDER3,
 	PLACEHOLDER4,
+	PLACEHOLDER5,
 
 	// The `LAST` value is only needed because WorldSystem::playNextAudioTrack_DEBUG()
 	// needs to be able to loop through the music.

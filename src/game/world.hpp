@@ -69,6 +69,7 @@ private:
 
 	// Game state
 	float current_speed;
+	int curr_level;
 
 	// Player test
 	ECS::Entity playerRaoul;
@@ -90,6 +91,10 @@ private:
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 
+	// level loader
+	LevelLoader lc;
+
 	//config obj
 	json config;
+	json recipe;
 };

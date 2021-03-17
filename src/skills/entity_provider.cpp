@@ -16,30 +16,16 @@ namespace
 	vec2 getClosestPointOnBoundingBox(vec2 source, const Motion& targetMotion)
 	{
 		vec2 boundingBox = abs(targetMotion.boundingBox);
-		vec2 closestPoint = source;
-
 		float boundingBoxHalfWidth = boundingBox.x / 2.f;
-		if (source.x < (targetMotion.position.x - boundingBoxHalfWidth))
-		{
-			// The closest point is somewhere on the left edge of the bounding box
-			closestPoint.x = targetMotion.position.x - boundingBoxHalfWidth;
-		}
-		else if (source.x > (targetMotion.position.x + boundingBoxHalfWidth))
-		{
-			// The closest point is somewhere on the right edge of the bounding box
-			closestPoint.x = targetMotion.position.x + boundingBoxHalfWidth;
-		}
 
-		if (source.y < (targetMotion.position.y - boundingBox.y))
-		{
-			// The closest point is somewhere on the top edge of the bounding box
-			closestPoint.y = targetMotion.position.y - boundingBox.y;
-		}
-		else if (source.y > targetMotion.position.y)
-		{
-			// The closest point is somewhere on the bottom edge of the bounding box
-			closestPoint.x = targetMotion.position.y;
-		}
+		float left = targetMotion.position.x - boundingBoxHalfWidth;
+		float right = targetMotion.position.x + boundingBoxHalfWidth;
+		float top = targetMotion.position.y - boundingBox.y;
+		float bottom = targetMotion.position.y;
+
+		vec2 closestPoint;
+		closestPoint.x = clamp(source.x, left, right);
+		closestPoint.y = clamp(source.y, top, bottom);
 
 		return closestPoint;
 	}
@@ -62,6 +48,12 @@ namespace
 
 		return sortedEntities;
 	}
+}
+
+std::vector<ECS::Entity> AllEntitiesProvider::getEntities(ECS::Entity instigator,
+																													vec2 targetPosition)
+{
+	return ECS::registry<Motion>.entities;
 }
 
 std::vector<ECS::Entity> CircularProvider::getEntities(ECS::Entity instigator,
@@ -134,21 +126,17 @@ std::vector<ECS::Entity> MouseClickProvider::getEntities(ECS::Entity instigator,
 	// We should search in a circle around the mouse click position
 	vec2 mouseClickPosition = targetPosition;
 
-	// Find all targets whose bounding box intersects with the circle
+	// Find all targets whose center is within the circle
 	for (int i = 0; i < ECS::registry<Motion>.entities.size(); i++)
 	{
 		auto entity = ECS::registry<Motion>.entities[i];
-		auto& motion = ECS::registry<Motion>.components[i];
 
-		float dist = distance(mouseClickPosition,
-													getClosestPointOnBoundingBox(mouseClickPosition, motion));
+		float dist = distance(mouseClickPosition, getCenterOfEntity(entity));
 		if (dist <= radius)
 		{
-			// Targets will be sorted based on the distance from the targets ground/foot
-			// position to the instigator's ground/foot position
-			float distanceForSorting = distance(mouseClickPosition, motion.position);
-
-			entities.emplace_back(entity, distanceForSorting);
+			// Targets will be sorted based on distance (the distance from the mouse
+			// click to the center of the entity)
+			entities.emplace_back(entity, dist);
 		}
 	}
 

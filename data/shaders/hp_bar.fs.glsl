@@ -18,7 +18,7 @@ void main()
 	color = vec4(fcolor, 1.0) * texture(sampler0, vec2(texcoord.x, texcoord.y));
 
 	// make available, unshielded HP green
-	if (texcoord.x <= percentHP - percentShield)
+	if (texcoord.x <= percentHP)
 	{
 		if (isMob == 1)
 		{
@@ -33,7 +33,7 @@ void main()
 		}
 	}
 	// make shielded HP blue
-	else if (texcoord.x <= percentHP)
+	else if (texcoord.x <= percentHP + percentShield)
 	{
 		color.xyz -= vec3(0.3, 0.0, 0.0);
 		color.xyz += vec3(color.x * 0.0, color. y * 0.5,  color.z * 3.0);

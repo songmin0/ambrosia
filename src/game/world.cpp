@@ -74,9 +74,8 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	auto mouseHoverRedirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->onMouseHover(_0, _1); };
 	glfwSetCursorPosCallback(window, mouseHoverRedirect);
 
-
-	LevelLoader lc;
-	config = lc.readLevel("pizza-arena");
+	curr_level = 0;
+	recipe = lc.readLevel("recipe-1");
 
 	initAudio();
 	std::cout << "Loaded music\n";
@@ -129,8 +128,16 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 
 	if (ECS::registry<AISystem::MobComponent>.entities.size() == 0) {
-		LevelLoader lc;
-		config = lc.readLevel("dessert-arena");
+		// advance level and save
+		curr_level++;
+
+		lc.save(recipe["name"], curr_level);
+		
+		if (curr_level >= recipe["maps"].size()) {
+			curr_level = 0;
+			// small hack to prevent crashing after beating everything on dessert map
+			// once we have the ending, can put check here
+		}
 		restart();
 	}
 }
@@ -144,6 +151,9 @@ void WorldSystem::restart()
 
 	// Reset the game speed
 	current_speed = 1.f;
+
+	// set config vals for current level
+	config = recipe["maps"][curr_level];
 
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
@@ -313,6 +323,18 @@ void WorldSystem::createEffects(int frameBufferWidth, int frameBufferHeight)
 {
 	MouseClickFX::createMouseClickFX();
 	ActiveSkillFX::createActiveSkillFX();
+
+	//// !!! FX Test !!!
+	//// some of these don't cycle so ya gotta catch it fast (or change the cycle parameter to true in their inner init function)
+
+	//BlueberriedFX::createBlueberriedFX(vec2(800.f, 700));
+	//BuffedFX::createBuffedFX(vec2(600, 600));
+	//DebuffedFX::createDebuffedFX(vec2(500, 600));
+	//HealedFX::createHealedFX(vec2(400, 700));
+	//ShieldedFX::createShieldedFX(vec2(400, 600));
+	//Candy1FX::createCandy1FX(vec2(500, 300));
+	//Candy2FX::createCandy2FX(vec2(400, 300));
+	//StunnedFX::createStunnedFX(vec2(850, 700));
 }
 
 void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
@@ -336,22 +358,9 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 	//MashedPotato::createMashedPotato({ 900.f, 750.f });
 	//PotatoChunk::createPotatoChunk({ 900.f, 800.f });
 
-	// Milk test
-	Milk::createMilk(vec2(900.f, 700.f), -1.f);
+	auto mobs = config.at("mobs");
 
-	//// TODO: come back and expand this when we have multiple mobs
-	//auto mobs = config.at("mobs");
-
-	//for (json mob : mobs) {
-	//	auto type = mob["type"];
-	//	if (type == "egg") {
-	//		Egg::createEgg({ mob.at("position")[0], mob["position"][1] });
-	//	}
-	//	else if (type == "pepper")
-	//	{
-	//		Pepper::createPepper({ mob.at("position")[0], mob["position"][1] });
-	//	}
-	//}
+	createEnemies(mobs);
 }
 
 // On key callback
@@ -443,15 +452,22 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	}
 	current_speed = std::max(0.f, current_speed);
 
-	LevelLoader lc;
-	// swap maps
+	// swap maps for swapping between pizza and dessert maps for recipe 1
 	if (action == GLFW_RELEASE && key == GLFW_KEY_M) {
-		config = lc.readLevel("dessert-arena");
+		curr_level = 1;
 		restart();
 	}
 
 	if (action == GLFW_RELEASE && key == GLFW_KEY_N) {
-		config = lc.readLevel("pizza-arena");
+		curr_level = 0;
+		restart();
+	}
+
+	// load save
+	if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
+		json save_obj = lc.load();
+		recipe = lc.readLevel(save_obj["recipe"]);
+		curr_level = save_obj["level"];
 		restart();
 	}
 
@@ -502,8 +518,10 @@ void WorldSystem::initAudio()
 	 *
 	 * I only included the looped tracks. Most of them have a separate intro track that can be played before playing the
 	 * looped track, but that's tricky to implement with SDL_mixer, so I kept it simple, using only the looped ones.
+	 *
+	 * NOTE: Ambrosia_Theme.wav was composed by Emma! \o/
 	 * */
-	music[MusicType::MAIN_MENU] = Mix_LoadMUS(audioPath("music/Title_screen.wav").c_str());
+	music[MusicType::START_SCREEN] = Mix_LoadMUS(audioPath("music/Ambrosia_Theme.wav").c_str());
 	music[MusicType::SHOP] = Mix_LoadMUS(audioPath("music/Overworld_Theme.wav").c_str());
 	music[MusicType::VICTORY] = Mix_LoadMUS(audioPath("music/Victory_Fanfare_Loop.wav").c_str());
 	music[MusicType::BOSS] = Mix_LoadMUS(audioPath("music/Boss_Battle_Loop.wav").c_str());
@@ -513,6 +531,7 @@ void WorldSystem::initAudio()
 	music[MusicType::PLACEHOLDER2] = Mix_LoadMUS(audioPath("music/Evil_Gloating_Loop.wav").c_str());
 	music[MusicType::PLACEHOLDER3] = Mix_LoadMUS(audioPath("music/Deep_Forest.wav").c_str());
 	music[MusicType::PLACEHOLDER4] = Mix_LoadMUS(audioPath("music/Time_Cave.wav").c_str());
+	music[MusicType::PLACEHOLDER5] = Mix_LoadMUS(audioPath("music/Title_screen.wav").c_str());
 
 	// Check that all music was loaded
 	for (auto& musicItem : music)
