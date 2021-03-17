@@ -4,8 +4,6 @@
 #include "game/game_state_system.hpp"
 
 const float MOB_LOW_HEALTH = 25.f;
-const int MAX_POTATO_NUM_ULT = 2;
-int numPotatoUltLeft = MAX_POTATO_NUM_ULT;
 
 void StateSystem::onStartMobTurnEvent()
 {
@@ -190,18 +188,19 @@ void PotatoSkillSelector::run()
 	float hp = mobStats.getStatValue(StatType::HP);
 	float maxHP = mobStats.getStatValue(StatType::MAX_HP);
 	float hpPercent = hp / maxHP;
+	float numUltLeft = mobStats.getStatValue(StatType::NUM_ULT_LEFT);
 	std::shared_ptr<Node> basicAttack = children.front();
 	std::shared_ptr<Node> ultimateAttack = children.back();
 	
 	// Currently uses ult on first turn and then the first time it goes below 50% HP
-	if  (numPotatoUltLeft == MAX_POTATO_NUM_ULT || 
-		(numPotatoUltLeft == (MAX_POTATO_NUM_ULT-1) && hpPercent < 0.5))
+	if  (numUltLeft == MAX_NUM_ULT || 
+		(numUltLeft == (MAX_NUM_ULT-1) && hpPercent < 0.5))
 	{
 		basicAttack->onTerminate(Status::FAILURE);
 		switch (ultimateAttack->getStatus())
 		{
 		case Status::SUCCESS:
-			numPotatoUltLeft--;
+			mobStats.stats[StatType::NUM_ULT_LEFT]--;
 			break;
 		default:
 			break;
