@@ -4,6 +4,8 @@
 
 #include <unordered_map>
 
+const int MAX_NUM_ULT = 2;
+
 enum class StatType
 {
 	INVALID,
@@ -11,7 +13,8 @@ enum class StatType
 	MAX_HP,
 	HP_SHIELD, // Should only be set using a BuffEvent (and should never be negative)
 	AMBROSIA,
-	STRENGTH
+	STRENGTH,
+	NUM_ULT_LEFT // Given to mobs with ultimate attacks
 };
 
 struct StatModifier

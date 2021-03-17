@@ -47,6 +47,7 @@ class BehaviourTree
 {
 public:
 	std::shared_ptr<Node> root;
+
 	BehaviourTree() : root(new Node) {};
 	BehaviourTree(std::shared_ptr<Node> root) : root(root) {};
 	~BehaviourTree() { root = nullptr; };
@@ -63,12 +64,11 @@ public:
 	StateSystem()
 	{
 		startMobTurnListener = EventSystem<StartMobTurnEvent>::instance().registerListener(
-			std::bind(&StateSystem::onStartMobTurnEvent, this, std::placeholders::_1));
+			std::bind(&StateSystem::onStartMobTurnEvent, this));
 		activeTree = nullptr;
 	};
 
-	void onStartMobTurnEvent(const StartMobTurnEvent& event);
-	//static ECS::Entity getCurrentMobEntity() { return currentMobEntity; };
+	void onStartMobTurnEvent();
 	void step(float elapsed_ms);
 };
 
@@ -77,7 +77,7 @@ class Conditional : public Node
 {
 public:
 	std::shared_ptr<Node> child;
-	bool condition;
+	bool condition = false;
 	void setConditional(std::shared_ptr<Node>, bool);
 	virtual void run();
 };
@@ -133,6 +133,15 @@ public:
 	void run();
 };
 
+// Composite selector to choose melee or AOE skill
+// Root node of Potato BehaviourTree
+class PotatoSkillSelector : public Selector
+{
+public:
+	PotatoSkillSelector();
+	void run();
+};
+
 // Make egg move closer to player or run away (if low HP)
 class EggMoveSelector : public Selector
 {
@@ -141,6 +150,7 @@ public:
 	void run();
 };
 
+// Make pepper move closer to weakest player or farthest player (if all full HP)
 class PepperMoveSelector : public Selector
 {
 public:
@@ -148,25 +158,19 @@ public:
 	void run();
 };
 
-class MilkSkillSelector : public Selector
-{
-public:
-	MilkSkillSelector();
-	void run();
-};
-
-// Make milk move closer to player or run away (if low HP)
-class MilkMoveSelector : public Selector
-{
-public:
-	MilkMoveSelector();
-	void run();
-};
-
+// Run away if low HP; otherwise, don't move
 class MilkMoveConditional : public Conditional
 {
 public:
 	MilkMoveConditional();
+	void run();
+};
+
+// Make milk heal weakest mob or attack (if all full HP)
+class MilkSkillSelector : public Selector
+{
+public:
+	MilkSkillSelector();
 	void run();
 };
 
@@ -191,52 +195,89 @@ public:
 	MilkBehaviourTree();
 };
 
-struct Task : public Node
+// Potato BehaviourTree
+struct PotatoBehaviourTree : public BehaviourTree
 {
+public:
+	PotatoBehaviourTree();
+};
+
+// Parent class of all leaf nodes
+// Make sure to implement destructors of the correct Event type for children
+class Task : public Node
+{
+public:
 	EventListenerInfo taskCompletedListener;
+	virtual void onFinishedTaskEvent();
+};
+
+// Parent class to all movement tasks
+class MoveTask : public Task 
+{
+public:
+	~MoveTask();
+};
+
+// Parent class to all skill tasks
+class SkillTask : public Task 
+{
+public:
+	~SkillTask();
 };
 
 // Task to move closer to closest player
-class MoveToPlayerTask : public Task
+class MoveToClosestPlayerTask : public MoveTask
 {
 public:
-	~MoveToPlayerTask();
-	void onFinishedMoveToPlayerEvent(const FinishedMovementEvent& event);
 	void run();
 };
 
-// Task to move closer to closest mob
-class MoveToMobTask : public Task
+// Task to move closer to farthest player
+class MoveToFarthestPlayerTask : public MoveTask
 {
 public:
-	~MoveToMobTask();
-	void onFinishedMoveToMobEvent(const FinishedMovementEvent& event);
+	void run();
+};
+
+// Task to move closer to weakest player (low HP)
+class MoveToWeakestPlayerTask : public MoveTask
+{
+public:
+	void run();
+};
+
+// Task to move closer to weakest mob
+// May use later - maybe for protecting
+class MoveToWeakestMobTask : public MoveTask
+{
+public:
 	void run();
 };
 
 // Task to run away from closest player
-class RunAwayTask : public Task
+class RunAwayTask : public MoveTask
 {
 public:
-	~RunAwayTask();
-	void onFinishedRunAwayEvent(const FinishedMovementEvent& event);
 	void run();
 };
 
-// Task to attack closest player
-class AttackTask : public Task
+// Task to use basic attack on closest player
+class BasicAttackTask : public SkillTask
 {
 public:
-	~AttackTask();
-	void onFinishedAttackEvent(const FinishedSkillEvent& event);
+	void run();
+};
+
+// Task to use ultimate attack
+class UltimateAttackTask : public SkillTask
+{
+public:
 	void run();
 };
 
 // Task to heal closest mob
-class HealTask : public Task
+class HealTask : public SkillTask
 {
 public:
-	~HealTask();
-	void onFinishedHealEvent(const FinishedSkillEvent& event);
 	void run();
 };

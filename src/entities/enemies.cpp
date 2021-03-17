@@ -97,8 +97,7 @@ ECS::Entity Pepper::createPepper(json stats, json position)
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
 
-	// TODO: Figure this out for Pepper
-	// Give it a Mob component
+	// Give it a mob component
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
 	btType.mobType = MobType::PEPPER;
@@ -109,7 +108,7 @@ ECS::Entity Pepper::createPepper(json stats, json position)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = vec2(position[0], position[1]);
 	motion.scale = vec2(0.9f);
-	motion.moveRange = 300.f;
+	motion.moveRange = 1500.f;
 	motion.orientation = position[2];
 	auto hitboxScale = vec2({ 0.4f, 0.7f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
@@ -172,6 +171,7 @@ ECS::Entity Milk::createMilk(json stats, json position)
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
 
+	// Give it a mob component
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
 	btType.mobType = MobType::MILK;
@@ -256,6 +256,7 @@ ECS::Entity Potato::createPotato(json stats, json position)
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
 	
+	// Give it a mob component
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
 	btType.mobType = MobType::POTATO;
@@ -266,6 +267,7 @@ ECS::Entity Potato::createPotato(json stats, json position)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = vec2(position[0], position[1]);
 	motion.orientation = position[2];
+	motion.moveRange = 0.f;
 	motion.scale = vec2(1.4f);
 	auto hitboxScale = vec2({ 0.7f, 1.f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
@@ -296,6 +298,7 @@ ECS::Entity Potato::createPotato(json stats, json position)
 	statsComponent.stats[StatType::HP] = stats["hp"];
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
+	statsComponent.stats[StatType::NUM_ULT_LEFT] = MAX_NUM_ULT;
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f }, { 1.f, 0.55f });

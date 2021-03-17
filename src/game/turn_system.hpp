@@ -21,6 +21,8 @@ public:
 		void nextTurn();
 
 		void step(float elapsed_ms);
+
+		bool playersLeft();
 		
 
 		// Stucture to store turn information

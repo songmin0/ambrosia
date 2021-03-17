@@ -8,7 +8,7 @@
 
 #include <vector>
 
-// A simple AI system that moves the enemies (mobs and bosses)
+// AI system that moves the enemies (mobs and bosses)
 class AISystem
 {
 public:
@@ -27,21 +27,17 @@ public:
 
 private:
 	bool setTargetToClosestPlayer(ECS::Entity& mob);
-	bool setTargetToAllyMob(ECS::Entity& mob);
+	bool setTargetToFarthestPlayer(ECS::Entity& mob);
+	bool setTargetToWeakestPlayer(ECS::Entity& mob);
+	bool setTargetToWeakestMob(ECS::Entity& mob);
 
-	void startMobMoveToPlayer(ECS::Entity entity);
-	void startMobMoveToMob(ECS::Entity entity);
-	void startMobRunAway(ECS::Entity entity);
+	void startMobMove(ECS::Entity entity, MovementType movement);
 	void startMobSkill(ECS::Entity entity);
 
-	void onStartMobMoveToPlayerEvent(const StartMobMoveToPlayerEvent& event);
-	void onStartMobMoveToMobEvent(const StartMobMoveToMobEvent& event);
-	void onStartMobRunAwayEvent(const StartMobRunAwayEvent& event);
+	void onStartMobMoveEvent(const StartMobMoveEvent& event);
 	void onStartMobSkillEvent(const StartMobSkillEvent& event);
 
-	EventListenerInfo startMobMoveToPlayerListener;
-	EventListenerInfo startMobMoveToMobListener;
-	EventListenerInfo startMobRunAwayListener;
+	EventListenerInfo startMobMoveListener;
 	EventListenerInfo startMobSkillListener;
 
 	PathFindingSystem& pathFindingSystem;

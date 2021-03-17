@@ -1,5 +1,6 @@
 #pragma once
 #include "stats_component.hpp"
+#include "ai/tree_components.hpp"
 
 #include "entities/tiny_ecs.hpp"
 #include "skills/skill_component.hpp"
@@ -72,34 +73,21 @@ struct HealEvent
 	float amount;
 };
 
-struct StartMobTurnEvent
-{
+struct StartMobTurnEvent { };
 
-};
-
-struct StartMobMoveToPlayerEvent
+struct StartMobMoveEvent
 {
 	// Moving mob
 	ECS::Entity entity;
-};
-
-struct StartMobMoveToMobEvent
-{
-	// Moving mob
-	ECS::Entity entity;
-};
-
-struct StartMobRunAwayEvent
-{
-	// Moving mob
-	ECS::Entity entity;
+	// Type of movement
+	MovementType movement;
 };
 
 struct StartMobSkillEvent
 {
 	// Active mob
 	ECS::Entity entity;
-	// Skill target type; player or mob
+	// Target player or mob
 	bool targetIsPlayer;
 };
 
