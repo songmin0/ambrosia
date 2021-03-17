@@ -62,6 +62,7 @@ int main()
 	//TODO once the main menu is hooked up this should launch the main menu not the next map.
 	GameStateSystem::instance().setWindow(world.window);
 	GameStateSystem::instance().launchMainMenu();
+	GameStateSystem::instance().launchMainMenu();
 
 
 	float dtMax = (1.f / 60.f) * 1000.f; // 60 FPS

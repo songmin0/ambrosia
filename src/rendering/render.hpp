@@ -35,6 +35,9 @@ public:
 	// Animations
 	static void createAnimatedSprite(ShadedMesh& sprite, int maxFrames, const std::string& texture_path, const std::string& shader_name);
 
+	// Preload the resource cache for assets in the game
+	static void preloadAssets();
+
 private:
 	// Initialize the screeen texture used as intermediate render target
 	// The draw loop first renders to this texture, then it is used for the water shader

@@ -37,9 +37,6 @@ public:
 	// Check for collisions
 	void handleCollisions();
 
-	// Renders our scene
-	void draw();
-
 	// Should the game be over ?
 	bool isOver() const;
 

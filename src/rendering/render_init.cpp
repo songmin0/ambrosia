@@ -243,3 +243,13 @@ void RenderSystem::initScreenTexture()
 	screen_sprite.texture.createFromScreen(&window, depth_render_buffer_id.data());
 	ECS::registry<ScreenState>.emplace(screen_state_entity);
 }
+
+void RenderSystem::preloadAssets()
+{
+	// Player Textures
+	ShadedMesh& resource = cacheResource("raoul_static");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, spritePath("players/raoul/raoul_static.png"), "textured");
+	}
+}
