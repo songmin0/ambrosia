@@ -208,6 +208,12 @@ ECS::Entity HelpOverlay::createHelpOverlay(vec2 scale)
 
 ECS::Entity HelpButton::createHelpButton(vec2 position)
 {
+	// There should only ever be one of this type of entity
+	while (!ECS::ComponentContainer<HelpButton>().entities.empty())
+	{
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<HelpButton>.entities.back());
+	}
+
 	auto entity = ECS::Entity();
 
 	void(*callback)() = []() {

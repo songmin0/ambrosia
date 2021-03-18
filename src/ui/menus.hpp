@@ -13,3 +13,8 @@ struct StartMenu
 {
 	static void createStartMenu(int frameBufferWidth, int frameBufferHeight);
 };
+
+struct Screens
+{
+	static void createVictoryScreen(int frameBufferWidth, int frameBufferHeight, int type = 1);
+};

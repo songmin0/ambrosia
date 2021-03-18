@@ -186,3 +186,13 @@ struct RenderableComponent
 	RenderLayer layer;
 	RenderableComponent(RenderLayer layer);
 };
+
+struct DistendableComponent
+{
+	float xamplitude = 0.1f;
+	float xfrequency = 0.2f;
+	float yamplitude = 0.2f;
+	float yfrequency = 0.5f;
+	DistendableComponent() : xamplitude{ 0.1f }, xfrequency{ 0.2f }, yamplitude{ 0.2f }, yfrequency{ 0.5f } {};
+	DistendableComponent(float xA, float xF, float yA, float yF) : xamplitude{ xA }, xfrequency{ xF }, yamplitude{ yA }, yfrequency{ yF } {};
+};
