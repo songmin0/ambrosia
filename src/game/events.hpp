@@ -118,6 +118,9 @@ struct StopFXEvent
 	FXType fxType = FXType::NONE;
 };
 
-struct LoadLevelEvent {
-
-};
+struct LoadLevelEvent {};
+struct StartTutorialEvent {};
+struct AdvanceTutorialEvent {};
+struct EndTutorialEvent {};
+struct ShowHelpEvent {};
+struct HideHelpEvent {};

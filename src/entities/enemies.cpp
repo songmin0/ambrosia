@@ -29,8 +29,8 @@ ECS::Entity Egg::createEgg(json stats, json position)
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = vec2(position[0], position[1]);
-	motion.scale = vec2({ 0.8f, 0.8f });
-	motion.orientation = position[2];
+	motion.orientation = -1;
+	motion.scale = vec2({ 0.8f * position[2] , 0.8f});
 	motion.colliderType = CollisionGroup::MOB;
 
 
@@ -107,10 +107,10 @@ ECS::Entity Pepper::createPepper(json stats, json position)
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = vec2(position[0], position[1]);
-	motion.scale = vec2(0.9f);
 	motion.moveRange = 1500.f;
-	motion.orientation = position[2];
+	motion.orientation = -1;
 	auto hitboxScale = vec2({ 0.4f, 0.7f });
+	motion.scale = vec2(0.9f * position[2], 0.9f);
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
 
@@ -180,7 +180,8 @@ ECS::Entity Milk::createMilk(json stats, json position)
 
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = vec2(position[0], position[1]);
-	motion.orientation = position[2];
+	motion.orientation = -1;
+	motion.scale = vec2(position[2], 1.f);
 	auto hitboxScale = vec2({ 0.4f, 0.7f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
@@ -266,9 +267,9 @@ ECS::Entity Potato::createPotato(json stats, json position)
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = vec2(position[0], position[1]);
-	motion.orientation = position[2];
+	motion.orientation = -1;
 	motion.moveRange = 0.f;
-	motion.scale = vec2(1.4f);
+	motion.scale = vec2(1.4f * position[2], 1.4f);
 	auto hitboxScale = vec2({ 0.7f, 1.f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
@@ -358,8 +359,8 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = pos;
-	motion.scale = vec2(1.4f);
-	motion.orientation = orientation;
+	motion.orientation = -1;
+	motion.scale = vec2(1.4f * orientation, 1.4f);
 	auto hitboxScale = vec2({ 0.7f, 1.f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
@@ -437,7 +438,8 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
 
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = pos;
-	motion.orientation = orientation; // which way the chunk faces when spawned
+	motion.orientation = 1;
+	motion.scale = vec2(orientation, 1.f);
 	auto hitboxScale = vec2({ 0.7f, 1.f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;

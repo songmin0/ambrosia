@@ -1,6 +1,7 @@
 #include "ui_system.hpp"
 #include "game/camera.hpp"
 #include <iostream>
+#include <game/game_state_system.hpp>
 
 UISystem::UISystem()
 {
@@ -86,6 +87,38 @@ void UISystem::onMouseClick(const RawMouseClickEvent& event)
 {
 	// Plays a mouse click fx
 	playMouseClickFX(event.mousePos);
+
+	// Filters mouse clicks through ClickFilters first - only clicks within a filter can continue
+	if (!ECS::registry<ClickFilter>.entities.empty())
+	{
+		bool didPassFilter = false;
+		for (auto entity : ECS::registry<ClickFilter>.entities)
+		{
+			// filters can "absorb" clicks, in which case they are handled by the filter callback and not passed further
+			// create a copy in case handling the click removes the filter
+			bool doesAbsorbClick = entity.get<ClickFilter>().doAbsorbClick;
+			if (handleClick<ClickableRectangleComponent>(entity, event) && !doesAbsorbClick)
+			{
+				didPassFilter = true;
+			}
+		}
+
+		// Only proceed to handle mouse click if it passes a filter
+		if (!didPassFilter)
+		{
+			return;
+		}
+	}
+
+	// When in help overlay, only listen for clicks on the help button
+	if (!ECS::registry<HelpOverlay>.entities.empty())
+	{
+		for (auto entity : ECS::registry<HelpButton>.entities)
+		{
+			handleClick<ClickableRectangleComponent>(entity, event);
+		}
+		return;
+	}
 
 	// Handles if any button entities are clicked
 	for (auto entity : ECS::registry<Button>.entities) {
@@ -233,6 +266,13 @@ void UISystem::onPlayerChange(const PlayerChangeEvent& event)
 		{
 			animComponent.changeAnimation(AnimationType::DISABLED);
 		}
+	}
+
+	int tutorialIndex = GameStateSystem::instance().currentTutorialIndex;
+	if (GameStateSystem::instance().isInTutorial 
+		&& (tutorialIndex == 6 || tutorialIndex == 7 || tutorialIndex == 9))
+	{
+		EventSystem<AdvanceTutorialEvent>::instance().sendEvent(AdvanceTutorialEvent{});
 	}
 }
 

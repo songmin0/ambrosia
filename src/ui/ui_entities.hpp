@@ -17,3 +17,13 @@ struct ToolTip
 	static ECS::Entity createToolTip(PlayerType player, SkillType skillType, vec2 position = vec2(0.f));
 	static ECS::Entity createMoveToolTip(vec2 position = vec2(0.f));
 };
+
+struct TajiHelper { static ECS::Entity createTajiHelper(vec2 position, vec2 scale = vec2(1.f)); };
+struct ClickFilter 
+{ 
+	static ECS::Entity createClickFilter(vec2 position, bool doAbsorbClick = false, bool isLarge = false, vec2 scale = vec2(1.f));
+	bool doAbsorbClick = false; // if true, clicks within the clickfilter will not allow clicks to pass (be "absorbed")
+};
+
+struct HelpOverlay { static ECS::Entity createHelpOverlay(vec2 scale = vec2(1.f)); };
+struct HelpButton { static ECS::Entity createHelpButton(vec2 position); };

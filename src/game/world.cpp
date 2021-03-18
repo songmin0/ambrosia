@@ -21,7 +21,7 @@
 #include "ui/ui_entities.hpp"
 #include "ui/menus.hpp"
 #include "ai/ai.hpp"
-#include <level_loader/level_loader.hpp>
+#include "level_loader/level_loader.hpp"
 #include "game_state_system.hpp"
 
 // stlib
@@ -176,29 +176,56 @@ void WorldSystem::restart()
 	shouldPlayAudioAtStartOfTurn = false;
 } 
 
+void WorldSystem::preloadResources()
+{
+	ECS::ContainerInterface::listAllComponents();
+	std::cout << "Preloading... \n";
+
+	int frameBufferWidth, frameBufferHeight;
+	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
+
+	createMap(frameBufferWidth, frameBufferHeight);
+	createPlayers(frameBufferWidth, frameBufferHeight);
+	createMobs(frameBufferWidth, frameBufferHeight);
+	createButtons(frameBufferWidth, frameBufferHeight);
+	createEffects(frameBufferWidth, frameBufferHeight);
+
+	std::cout << "Preload complete. Unloading... \n";
+	while (!ECS::registry<Motion>.entities.empty())
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Motion>.entities.back());
+
+	while (!ECS::registry<CameraComponent>.entities.empty()) {
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<CameraComponent>.entities.back());
+	}
+
+	ECS::ContainerInterface::listAllComponents();
+	std::cout << "Unload complete. \n";
+}
+
 // Compute collisions between entities
 void WorldSystem::handleCollisions()
 {
-		if (GameStateSystem::instance().inGameState()) {
-				// Loop over all collisions detected by the physics system
-				auto& registry = ECS::registry<PhysicsSystem::Collision>;
-				for (unsigned int i = 0; i < registry.components.size(); i++)
-				{
-						// The entity and its collider
-						auto entity = registry.entities[i];
-						auto entity_other = registry.components[i].other;
-
-		// Check for projectiles colliding with the player or mobs
-		if (ECS::registry<ProjectileComponent>.has(entity))
+	if (GameStateSystem::instance().inGameState()) 
+	{
+		// Loop over all collisions detected by the physics system
+		auto& registry = ECS::registry<PhysicsSystem::Collision>;
+		for (unsigned int i = 0; i < registry.components.size(); i++)
 		{
-			auto& projComponent = entity.get<ProjectileComponent>();
-			projComponent.processCollision(entity_other);
-		}
-	}
+			// The entity and its collider
+			auto entity = registry.entities[i];
+			auto entity_other = registry.components[i].other;
 
-				// Remove all collisions from this simulation step
-				ECS::registry<PhysicsSystem::Collision>.clear();
+			// Check for projectiles colliding with the player or mobs
+			if (ECS::registry<ProjectileComponent>.has(entity))
+			{
+				auto& projComponent = entity.get<ProjectileComponent>();
+				projComponent.processCollision(entity_other);
+			}
 		}
+
+		// Remove all collisions from this simulation step
+		ECS::registry<PhysicsSystem::Collision>.clear();
+	}
 }
 
 // Should the game be over ?
@@ -209,12 +236,7 @@ bool WorldSystem::isOver() const
 
 void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 {
-	// !! Temporary Start Menu Test
-	// this will throw an assert if you try to click outside the buttons, since it's not a pathfindable map
-	//StartMenu::createStartMenu(frameBufferWidth, frameBufferHeight);
-
 	// Create the map
-	
 	MapComponent::createMap(GameStateSystem::instance().currentLevel.at("map"), { frameBufferWidth, frameBufferHeight });
 
 	// Create a deforming blob for pizza arena
@@ -224,10 +246,8 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 	}
 
 	if (GameStateSystem::instance().currentLevel.at("map") == "dessert-arena") {
-			
 		DessertForeground::createDessertForeground({ 1920, 672 });
 	}
-	
 }
 
 void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
@@ -267,6 +287,11 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 					event.type = SkillType::SKILL1;
 
 					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
+
+					if (GameStateSystem::instance().isInTutorial && GameStateSystem::instance().currentTutorialIndex == 5)
+					{
+						EventSystem<AdvanceTutorialEvent>::instance().sendEvent(AdvanceTutorialEvent{});
+					}
 				}
 			}
 		});
@@ -307,6 +332,11 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 					event.type = SkillType::SKILL3;
 
 					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
+
+					if (GameStateSystem::instance().isInTutorial && GameStateSystem::instance().currentTutorialIndex == 8)
+					{
+						EventSystem<AdvanceTutorialEvent>::instance().sendEvent(AdvanceTutorialEvent{});
+					}
 				}
 			}
 		});
@@ -315,6 +345,8 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 	ToolTip::createToolTip(PlayerType::RAOUL, SkillType::SKILL1, { 250, frameBufferHeight - 120 });
 	ToolTip::createToolTip(PlayerType::RAOUL, SkillType::SKILL2, { 400, frameBufferHeight - 120 });
 	ToolTip::createToolTip(PlayerType::RAOUL, SkillType::SKILL3, { 550, frameBufferHeight - 120 });
+
+	HelpButton::createHelpButton(vec2(frameBufferWidth - 60.f, 30.f));
 }
 
 void WorldSystem::createEffects(int frameBufferWidth, int frameBufferHeight)
@@ -435,6 +467,18 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		glfwGetWindowSize(window, &w, &h);
 
 		restart();
+	}
+
+	if (key == GLFW_KEY_H && action == GLFW_RELEASE)
+	{
+		if (GameStateSystem::instance().isInHelpScreen)
+		{
+			EventSystem<HideHelpEvent>::instance().sendEvent(HideHelpEvent{});
+		}
+		else if (!GameStateSystem::instance().isInTutorial)
+		{
+			EventSystem<ShowHelpEvent>::instance().sendEvent(ShowHelpEvent{});
+		}
 	}
 
 	// Debugging
@@ -670,5 +714,5 @@ void WorldSystem::onPlayerChangeEvent(const PlayerChangeEvent& event)
 
 void WorldSystem::onLoadLevel(LoadLevelEvent)
 {
-		restart();
+	restart();
 }

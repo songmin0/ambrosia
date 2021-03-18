@@ -281,6 +281,11 @@ void TurnSystem::onFinishedMovement(const FinishedMovementEvent& event)
 
 		turnComponent.isMoving = false;
 		turnComponent.hasMoved = true;
+
+		if (GameStateSystem::instance().isInTutorial && GameStateSystem::instance().currentTutorialIndex == 4)
+		{
+			EventSystem<AdvanceTutorialEvent>::instance().sendEvent(AdvanceTutorialEvent{});
+		}
 	}
 
 	timer = TIMER_PERIOD;

@@ -31,14 +31,14 @@ public:
 	// restart level
 	void restart();
 
+	// preload resource cache
+	void preloadResources();
+
 	// Steps the game ahead by ms milliseconds
 	void step(float elapsed_ms, vec2 window_size_in_game_units);
 
 	// Check for collisions
 	void handleCollisions();
-
-	// Renders our scene
-	void draw();
 
 	// Should the game be over ?
 	bool isOver() const;

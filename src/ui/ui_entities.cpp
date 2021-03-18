@@ -1,5 +1,8 @@
 #include "ui_entities.hpp"
 #include "rendering/render.hpp"
+#include "game/game_state_system.hpp"
+#include "ui/tutorials.hpp"
+#include <iostream>
 
 ECS::Entity HPBar::createHPBar(vec2 position, vec2 scale)
 {
@@ -16,13 +19,9 @@ ECS::Entity HPBar::createHPBar(vec2 position, vec2 scale)
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
 	motion.position = position;
-	motion.angle = 0.f;
-	motion.velocity = vec2(0.f);
 	motion.scale = scale;
-	motion.boundingBox = vec2(0.f);
 
 	ECS::registry<HPBar>.emplace(entity);
-
 	return entity;
 }
 
@@ -59,10 +58,6 @@ ECS::Entity ToolTip::createToolTip(PlayerType player, SkillType skillType, vec2 
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
 	motion.position = position + vec2(resource.texture.size.x / 2.f, -resource.texture.size.y) / 2.f;
-	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
-	motion.scale = vec2({ 1.f, 1.f });
-	motion.boundingBox = vec2(0.f);
 
 	entity.emplace<SkillInfoComponent>(player, skillType);
 	entity.emplace<VisibilityComponent>().isVisible = false;
@@ -100,4 +95,147 @@ ECS::Entity ToolTip::createMoveToolTip(vec2 position)
 	entity.emplace<ToolTip>();
 
 	return entity;
+};
+
+ECS::Entity TajiHelper::createTajiHelper(vec2 position, vec2 scale)
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource("tajihelper_static");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, uiPath("tutorial/taji_help/taji_help_003.png"), "textured");
+	}
+
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<UIComponent>();
+	entity.emplace<TutorialComponent>();
+	entity.emplace<RenderableComponent>(RenderLayer::UI_TUTORIAL1);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+	motion.scale = scale;
+
+	auto effect_anim = AnimationData("tajihelper_anim", uiPath("tutorial/taji_help/taji_help"), 10);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::EFFECT, std::make_shared<AnimationData>(effect_anim));
+	entity.emplace<TajiHelper>();
+
+	return entity;
 }
+
+ECS::Entity ClickFilter::createClickFilter(vec2 position, bool doAbsorbClick, bool isLarge, vec2 scale)
+{
+	auto entity = ECS::Entity();
+
+	void(*callback)() = []() {
+		std::cout << "Mouse click detected within click filter." << std::endl;
+		TutorialSystem::cleanTutorial();
+
+		int index = GameStateSystem::instance().currentTutorialIndex;
+		// tutorial states 0, 1, 2 proceed right away
+		// TODO: tutorial states 4, 9, 10 need to wait for turn system refactor
+		if (index <= 2 || index == 3 || index == 9 || index == 10)
+		{
+			EventSystem<AdvanceTutorialEvent>::instance().sendEvent(AdvanceTutorialEvent{});
+		}
+		else if (index == 11)
+		{
+			EventSystem<EndTutorialEvent>::instance().sendEvent(EndTutorialEvent{});
+		}
+		else
+		{
+			// fake filter to nullify all mouseclick events while waiting
+			ClickFilter::createClickFilter(vec2(0.f), true, false, vec2(0.f));
+		}
+	};
+
+	if (isLarge)
+	{
+		ShadedMesh& resource = cacheResource("clickfilter_large");
+		if (resource.effect.program.resource == 0)
+		{
+			RenderSystem::createSprite(resource, uiPath("tutorial/clickfilter-large.png"), "textured");
+		}
+		entity.emplace<ShadedMeshRef>(resource);
+		entity.emplace<ClickableRectangleComponent>(position, resource.texture.size.x * scale.x * 0.8f, resource.texture.size.y * scale.y * 0.8f, callback);
+	}
+	else
+	{
+		ShadedMesh& resource = cacheResource("clickfilter_small");
+		if (resource.effect.program.resource == 0)
+		{
+			RenderSystem::createSprite(resource, uiPath("tutorial/clickfilter-small.png"), "textured");
+		}
+		entity.emplace<ShadedMeshRef>(resource);
+
+		// small click filters usually overlay buttons, decrease their clickable area to ensure only the center is clickable
+		entity.emplace<ClickableRectangleComponent>(position, resource.texture.size.x * scale.x * 0.5f, resource.texture.size.y * scale.y * 0.5f, callback);
+	}
+
+	entity.emplace<UIComponent>();
+	entity.emplace<TutorialComponent>();
+	entity.emplace<RenderableComponent>(RenderLayer::UI_TUTORIAL2);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+	motion.scale = scale;
+
+	entity.emplace<ClickFilter>().doAbsorbClick = doAbsorbClick;
+	return entity;
+}
+
+ECS::Entity HelpOverlay::createHelpOverlay(vec2 scale)
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource("help_overlay");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, uiPath("tutorial/help-overlay.png"), "textured");
+	}
+
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<UIComponent>();
+	entity.emplace<RenderableComponent>(RenderLayer::UI_TUTORIAL1);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.scale = scale;
+	motion.position = vec2(683.f, 450.f);
+
+	entity.emplace<HelpOverlay>();
+	return entity;
+}
+
+ECS::Entity HelpButton::createHelpButton(vec2 position)
+{
+	auto entity = ECS::Entity();
+
+	void(*callback)() = []() {
+		std::cout << "Help button clicked." << std::endl;
+		if (GameStateSystem::instance().isInHelpScreen)
+		{
+			EventSystem<HideHelpEvent>::instance().sendEvent(HideHelpEvent{});
+		}
+		else if (!GameStateSystem::instance().isInTutorial)
+		{
+			EventSystem<ShowHelpEvent>::instance().sendEvent(ShowHelpEvent{});
+		}
+	};
+
+	ShadedMesh& resource = cacheResource("help_button");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, uiPath("tutorial/help-button.png"), "textured");
+	}
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<ClickableRectangleComponent>(position, resource.texture.size.x, resource.texture.size.y, callback);
+	entity.emplace<Button>();
+	entity.emplace<UIComponent>();
+	entity.emplace<RenderableComponent>(RenderLayer::HELP_BUTTON);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+
+	entity.emplace<HelpButton>();
+	return entity;
+};

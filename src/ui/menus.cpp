@@ -1,16 +1,16 @@
 #include "menus.hpp"
 #include "map.hpp"
-#include <iostream>
 #include "game/game_state_system.hpp"
-
-#define SDL_MAIN_HANDLED
+#include <iostream>
 #include <SDL.h>
 #include <SDL_mixer.h>
+#define SDL_MAIN_HANDLED
 
 void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 {
 	//Play menu music
 	Mix_PlayMusic(Mix_LoadMUS(audioPath("music/Ambrosia_Theme.wav").c_str()), -1);
+
 	// Background
 	auto background = ECS::Entity();
 	ShadedMesh& splashResource = cacheResource("start_splash");
@@ -50,7 +50,7 @@ void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 		[]() {
 			std::cout << "Start button clicked!" << std::endl;
 			GameStateSystem::instance().isInMainScreen = false;
-			GameStateSystem::instance().nextMap();
+			GameStateSystem::instance().newGame();
 		});
 
 	Button::createButton(ButtonShape::RECTANGLE,
