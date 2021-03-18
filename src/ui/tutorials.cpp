@@ -13,6 +13,12 @@ TutorialSystem::TutorialSystem()
 
 	tutorialEndListener = EventSystem<EndTutorialEvent>::instance().registerListener(
 		std::bind(&TutorialSystem::onTutorialEnd, this, std::placeholders::_1));
+
+	hideHelpListener = EventSystem<HideHelpEvent>::instance().registerListener(
+		std::bind(&TutorialSystem::onHideHelp, this, std::placeholders::_1));
+
+	showHelpListener = EventSystem<ShowHelpEvent>::instance().registerListener(
+		std::bind(&TutorialSystem::onShowHelp, this, std::placeholders::_1));
 };
 
 TutorialSystem::~TutorialSystem()
@@ -27,6 +33,14 @@ TutorialSystem::~TutorialSystem()
 
 	if (tutorialEndListener.isValid()) {
 		EventSystem<EndTutorialEvent>::instance().unregisterListener(tutorialEndListener);
+	}
+
+	if (hideHelpListener.isValid()) {
+		EventSystem<HideHelpEvent>::instance().unregisterListener(hideHelpListener);
+	}
+
+	if (showHelpListener.isValid()) {
+		EventSystem<ShowHelpEvent>::instance().unregisterListener(showHelpListener);
 	}
 };
 
@@ -99,7 +113,7 @@ void TutorialSystem::onTutorialAdvance(const AdvanceTutorialEvent& event)
 			TutorialText::createTutorialText(vec2(screenSize.x / 2.f, 250.f), 10);
 			break;
 		case 11: // Conclusion
-			TajiHelper::createTajiHelper(screenSize / 2.f);
+			TajiHelper::createTajiHelper(screenSize / 2.f + vec2(0.f, 100.f));
 			ClickFilter::createClickFilter(screenSize / 2.f + vec2(0.f, -60.f), true, true, vec2(1.5f, 1.7f));
 			TutorialText::createTutorialText(vec2(screenSize.x / 2.f, 300.f), 11);
 			break;
@@ -112,7 +126,26 @@ void TutorialSystem::onTutorialEnd(const EndTutorialEvent& event)
 {
 	GameStateSystem::instance().isInTutorial = false;
 	GameStateSystem::instance().currentTutorialIndex = 0;
+	GameStateSystem::instance().hasDoneTutorial = true;
 	TutorialSystem::cleanTutorial();
+};
+
+void TutorialSystem::onShowHelp(const ShowHelpEvent& event)
+{
+	if (!GameStateSystem::instance().isInTutorial)
+	{
+		HelpOverlay::createHelpOverlay();
+		GameStateSystem::instance().isInHelpScreen = true;
+	}
+};
+
+void TutorialSystem::onHideHelp(const HideHelpEvent& event)
+{
+	while (!ECS::registry<HelpOverlay>.entities.empty())
+	{
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<HelpOverlay>.entities.back());
+	}
+	GameStateSystem::instance().isInHelpScreen = false;
 };
 
 

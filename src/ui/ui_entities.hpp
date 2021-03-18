@@ -24,3 +24,5 @@ struct ClickFilter
 	static ECS::Entity createClickFilter(vec2 position, bool doAbsorbClick = false, bool isLarge = false, vec2 scale = vec2(1.f));
 	bool doAbsorbClick = false; // if true, clicks within the clickfilter will not allow clicks to pass (be "absorbed")
 };
+
+struct HelpOverlay { static ECS::Entity createHelpOverlay(vec2 scale = vec2(1.f)); };

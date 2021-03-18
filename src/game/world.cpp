@@ -468,6 +468,18 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		restart();
 	}
 
+	if (key == GLFW_KEY_H && action == GLFW_RELEASE)
+	{
+		if (GameStateSystem::instance().isInHelpScreen)
+		{
+			EventSystem<HideHelpEvent>::instance().sendEvent(HideHelpEvent{});
+		}
+		else if (!GameStateSystem::instance().isInTutorial)
+		{
+			EventSystem<ShowHelpEvent>::instance().sendEvent(ShowHelpEvent{});
+		}
+	}
+
 	// Debugging
 	if (key == GLFW_KEY_D)
 		DebugSystem::in_debug_mode = (action != GLFW_RELEASE);

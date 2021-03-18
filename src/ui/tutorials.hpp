@@ -30,6 +30,12 @@ private:
 
 	EventListenerInfo tutorialEndListener;
 	void onTutorialEnd(const EndTutorialEvent& event);
+
+	EventListenerInfo showHelpListener;
+	void onShowHelp(const ShowHelpEvent& event);
+
+	EventListenerInfo hideHelpListener;
+	void onHideHelp(const HideHelpEvent& event);
 };
 
 struct TutorialText

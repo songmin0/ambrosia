@@ -122,3 +122,5 @@ struct LoadLevelEvent {};
 struct StartTutorialEvent {};
 struct AdvanceTutorialEvent {};
 struct EndTutorialEvent {};
+struct ShowHelpEvent {};
+struct HideHelpEvent {};

@@ -110,6 +110,11 @@ void UISystem::onMouseClick(const RawMouseClickEvent& event)
 		}
 	}
 
+	if (!ECS::registry<HelpOverlay>.entities.empty())
+	{
+		return;
+	}
+
 	// Handles if any button entities are clicked
 	for (auto entity : ECS::registry<Button>.entities) {
 		if (handleClick<ClickableCircleComponent>(entity, event)) {

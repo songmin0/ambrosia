@@ -134,7 +134,7 @@ ECS::Entity ClickFilter::createClickFilter(vec2 position, bool doAbsorbClick, bo
 		int index = GameStateSystem::instance().currentTutorialIndex;
 		// tutorial states 0, 1, 2 proceed right away
 		// TODO: tutorial states 4, 9, 10 need to wait for turn system refactor
-		if (index <= 2 || index == 3 || index >= 9)
+		if (index <= 2 || index == 3 || index == 9 || index == 10)
 		{
 			EventSystem<AdvanceTutorialEvent>::instance().sendEvent(AdvanceTutorialEvent{});
 		}
@@ -181,5 +181,28 @@ ECS::Entity ClickFilter::createClickFilter(vec2 position, bool doAbsorbClick, bo
 	motion.scale = scale;
 
 	entity.emplace<ClickFilter>().doAbsorbClick = doAbsorbClick;
+	return entity;
+}
+
+ECS::Entity HelpOverlay::createHelpOverlay(vec2 scale)
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource("help_overlay");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, uiPath("tutorial/help-overlay.png"), "textured");
+	}
+
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<UIComponent>();
+	entity.emplace<TutorialComponent>();
+	entity.emplace<RenderableComponent>(RenderLayer::UI_TUTORIAL1);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.scale = scale;
+	motion.position = vec2(683.f, 450.f);
+
+	entity.emplace<HelpOverlay>();
 	return entity;
 }
