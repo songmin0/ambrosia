@@ -20,9 +20,8 @@
 #include "ui/effects.hpp"
 #include "ui/ui_entities.hpp"
 #include "ui/menus.hpp"
-#include "ui/menus.hpp"
 #include "ai/ai.hpp"
-#include <level_loader/level_loader.hpp>
+#include "level_loader/level_loader.hpp"
 #include "game_state_system.hpp"
 
 // stlib

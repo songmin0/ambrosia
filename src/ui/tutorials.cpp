@@ -1,5 +1,4 @@
 #include "tutorials.hpp"
-#include "game/camera.hpp"
 #include "game/game_state_system.hpp"
 #include <iostream>
 

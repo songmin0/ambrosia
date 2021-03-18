@@ -1,15 +1,9 @@
 #pragma once
-#include "ui_components.hpp"
-#include "button.hpp"
-#include "effects.hpp"
 #include "ui_entities.hpp"
-
 #include "game/common.hpp"
 #include "game/event_system.hpp"
 #include "game/events.hpp"
-#include "game/turn_system.hpp"
 #include "entities/tiny_ecs.hpp"
-#include "animation/animation_components.hpp"
 
 #include <functional>
 

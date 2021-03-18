@@ -1,8 +1,8 @@
 #include "ui_entities.hpp"
 #include "rendering/render.hpp"
 #include "game/game_state_system.hpp"
+#include "ui/tutorials.hpp"
 #include <iostream>
-#include <ui/tutorials.hpp>
 
 ECS::Entity HPBar::createHPBar(vec2 position, vec2 scale)
 {
