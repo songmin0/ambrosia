@@ -110,8 +110,13 @@ void UISystem::onMouseClick(const RawMouseClickEvent& event)
 		}
 	}
 
+	// When in help overlay, only listen for clicks on the help button
 	if (!ECS::registry<HelpOverlay>.entities.empty())
 	{
+		for (auto entity : ECS::registry<HelpButton>.entities)
+		{
+			handleClick<ClickableRectangleComponent>(entity, event);
+		}
 		return;
 	}
 

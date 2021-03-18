@@ -196,7 +196,6 @@ ECS::Entity HelpOverlay::createHelpOverlay(vec2 scale)
 
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<UIComponent>();
-	entity.emplace<TutorialComponent>();
 	entity.emplace<RenderableComponent>(RenderLayer::UI_TUTORIAL1);
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
@@ -206,3 +205,37 @@ ECS::Entity HelpOverlay::createHelpOverlay(vec2 scale)
 	entity.emplace<HelpOverlay>();
 	return entity;
 }
+
+ECS::Entity HelpButton::createHelpButton(vec2 position)
+{
+	auto entity = ECS::Entity();
+
+	void(*callback)() = []() {
+		std::cout << "Help button clicked." << std::endl;
+		if (GameStateSystem::instance().isInHelpScreen)
+		{
+			EventSystem<HideHelpEvent>::instance().sendEvent(HideHelpEvent{});
+		}
+		else if (!GameStateSystem::instance().isInTutorial)
+		{
+			EventSystem<ShowHelpEvent>::instance().sendEvent(ShowHelpEvent{});
+		}
+	};
+
+	ShadedMesh& resource = cacheResource("help_button");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, uiPath("tutorial/help-button.png"), "textured");
+	}
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<ClickableRectangleComponent>(position, resource.texture.size.x, resource.texture.size.y, callback);
+	entity.emplace<Button>();
+	entity.emplace<UIComponent>();
+	entity.emplace<RenderableComponent>(RenderLayer::HELP_BUTTON);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+
+	entity.emplace<HelpButton>();
+	return entity;
+};
