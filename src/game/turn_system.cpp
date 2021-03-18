@@ -96,7 +96,7 @@ void TurnSystem::changeActiveEntity(ECS::Entity nextEntity)
 			std::cout << "The requested player is already the active player\n";
 		}
 		else {
-			std::cout << "switching to the next active entity \n";
+			std::cout << "\nSwitching to the next active entity\n";
 			//Remove the active entity
 			ECS::registry<TurnComponentIsActive>.clear();
 
@@ -113,7 +113,7 @@ void TurnSystem::changeActiveEntity(ECS::Entity nextEntity)
 //All players and mobs have completed their turn. This makes sure the next turn starts properly
 void TurnSystem::nextTurn()
 {
-	std::cout << "Starting the next turn \n";
+	std::cout << "Starting the next turn\n";
 	//Clear the register for TurnComponentIsActive
 	ECS::registry<TurnComponentIsActive>.clear();
 	//Loop through all TurnComponents and set all the attributes back to false
@@ -165,13 +165,12 @@ void TurnSystem::step(float elapsed_ms)
 			// For mobs, need to tell them when its time to move and to perform a skill
 			else if (activeEntity.has<AISystem::MobComponent>())
 			{
-				// Start behaviour tree for active mob entity
-				// Event should be heard by StateSystem in behaviour_tree.hpp
-				if (turnComponent.canStartMoving())
+				// Start behaviour tree for active mob entity if there are players left
+				if (turnComponent.canStartMoving() && this->playersLeft())
 				{
 					std::cout << "Starting mob turn\n";
 					StartMobTurnEvent event;
-					//event.entity = activeEntity;
+					// Event should be heard by StateSystem in behaviour_tree.hpp
 					EventSystem<StartMobTurnEvent>::instance().sendEvent(event);
 					turnComponent.isMoving = true;
 				}
@@ -184,6 +183,19 @@ void TurnSystem::step(float elapsed_ms)
 		//The current user is dead so switch to the next
 		nextActiveEntity();
 	}
+}
+
+// Helper function to check that there are players to fight against before starting mob turn
+bool TurnSystem::playersLeft()
+{
+	bool playersLeft = false;
+	auto& playerContainer = ECS::registry<PlayerComponent>;
+	for (ECS::Entity player : playerContainer.entities)
+	{
+		if (!player.has<DeathTimer>())
+			playersLeft = true;
+	}
+	return playersLeft;
 }
 
 bool TurnSystem::hasCompletedTurn(TurnComponent tc)

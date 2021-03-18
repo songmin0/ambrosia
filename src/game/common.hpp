@@ -52,11 +52,12 @@ struct Transform {
 
 //////////////////////////////////////////
 // Collider flags
-enum CollisionGroup : std::uint8_t
+enum CollisionGroup : unsigned int
 {
 	NONE = 0u,
 	PLAYER = 1u << 0u,
 	MOB = 1u << 1u,
+	ALL = ~0u
 };
 constexpr CollisionGroup operator&(CollisionGroup a, CollisionGroup b)
 {
@@ -127,4 +128,17 @@ enum class SoundEffect
 	PROJECTILE,
 	BUFF,
 	DEBUFF
+};
+
+enum class FXType
+{
+	NONE,
+	BUFFED,
+	DEBUFFED,
+	HEALED,
+	SHIELDED,
+	CANDY1,
+	CANDY2,
+	BLUEBERRIED,
+	STUNNED
 };
