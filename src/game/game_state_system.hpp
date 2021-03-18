@@ -52,6 +52,8 @@ public:
 	//This will call the main menu
 	void launchMainMenu();
 
+	const vec2 getScreenBufferSize();
+
 	void setWindow(GLFWwindow* window);
 
 private:	

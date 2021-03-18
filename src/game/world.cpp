@@ -20,6 +20,7 @@
 #include "ui/effects.hpp"
 #include "ui/ui_entities.hpp"
 #include "ui/menus.hpp"
+#include "ui/menus.hpp"
 #include "ai/ai.hpp"
 #include <level_loader/level_loader.hpp>
 #include "game_state_system.hpp"
@@ -178,8 +179,8 @@ void WorldSystem::restart()
 
 void WorldSystem::preloadResources()
 {
-	std::cout << "Preloading... \n";
 	ECS::ContainerInterface::listAllComponents();
+	std::cout << "Preloading... \n";
 
 	int frameBufferWidth, frameBufferHeight;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
@@ -287,6 +288,11 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 					event.type = SkillType::SKILL1;
 
 					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
+
+					if (GameStateSystem::instance().isInTutorial && GameStateSystem::instance().currentTutorialIndex == 5)
+					{
+						EventSystem<AdvanceTutorialEvent>::instance().sendEvent(AdvanceTutorialEvent{});
+					}
 				}
 			}
 		});
@@ -327,6 +333,11 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 					event.type = SkillType::SKILL3;
 
 					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
+
+					if (GameStateSystem::instance().isInTutorial && GameStateSystem::instance().currentTutorialIndex == 8)
+					{
+						EventSystem<AdvanceTutorialEvent>::instance().sendEvent(AdvanceTutorialEvent{});
+					}
 				}
 			}
 		});

@@ -29,6 +29,12 @@ GameStateSystem::GameStateSystem() {
 	//currentRecipeEntity = firstRecipe;
 }
 
+const vec2 GameStateSystem::getScreenBufferSize()
+{
+	int frameBufferWidth, frameBufferHeight;
+	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
+	return vec2(frameBufferWidth, frameBufferHeight);
+}
 
 bool GameStateSystem::inGameState() {
 	//TODO if we add more states that the game can be in add them here if they are relevant.
@@ -43,6 +49,7 @@ void GameStateSystem::newGame()
 	currentLevelIndex = 0;
 	currentLevel = recipe["maps"][currentLevelIndex];
 	EventSystem<LoadLevelEvent>::instance().sendEvent(LoadLevelEvent{});
+	EventSystem<StartTutorialEvent>::instance().sendEvent(StartTutorialEvent{});
 }
 
 void GameStateSystem::nextMap()
@@ -97,14 +104,10 @@ void GameStateSystem::launchDefeatScreen()
 
 void GameStateSystem::launchMainMenu()
 {
-	//TODO fill in
 	isInMainScreen = true;
 	Camera::createCamera(vec2{ 0.0f,0.0f });
-
-	int frameBufferWidth, frameBufferHeight;
-	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
-
-	StartMenu::createStartMenu(frameBufferWidth, frameBufferHeight);
+	vec2 screenBufferSize = getScreenBufferSize();
+	StartMenu::createStartMenu(screenBufferSize.x, screenBufferSize.y);
 }
 
 void GameStateSystem::setWindow(GLFWwindow* window)

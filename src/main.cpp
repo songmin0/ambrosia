@@ -20,6 +20,7 @@
 #include "animation/animation_system.hpp"
 #include "maps/path_finding_system.hpp"
 #include "ui/ui_system.hpp"
+#include "ui/tutorials.hpp"
 #include "particles/particle_system.hpp"
 #include "skills/skill_system.hpp"
 #include "game/stats_system.hpp"
@@ -57,6 +58,7 @@ int main()
 	ProjectileSystem projectileSystem;
 	SkillSystem skillSystem;
 	StatsSystem statsSystem;
+	TutorialSystem tutorialSystem;
 
 	// Set all states to default
 	//TODO once the main menu is hooked up this should launch the main menu not the next map.

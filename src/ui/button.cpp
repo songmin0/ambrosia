@@ -20,10 +20,6 @@ ECS::Entity Button::createButton(ButtonShape shape, vec2 position, const std::st
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
 	motion.position = position;
-	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
-	motion.scale = vec2({ 1.f, 1.f });
-	motion.boundingBox = vec2(0.f);
 
 	// Add clickable component to button depending on shape
 	switch (shape) {
@@ -99,10 +95,6 @@ ECS::Entity SkillButton::createSkillButton(vec2 position, PlayerType player, Ski
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
 	motion.position = position;
-	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
-	motion.scale = vec2({ 1.f, 1.f });
-	motion.boundingBox = vec2(0.f);
 
 	entity.emplace<ClickableCircleComponent>(position, resource.texture.size.x / 2, callback);
 	entity.emplace<ButtonStateComponent>();
@@ -130,10 +122,6 @@ ECS::Entity SkillButton::createMoveButton(vec2 position, const std::string& text
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
 	motion.position = position;
-	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
-	motion.scale = vec2({ 1.f, 1.f });
-	motion.boundingBox = vec2(0.f);
 
 	entity.emplace<ClickableCircleComponent>(position, resource.texture.size.x / 2, callback);
 	entity.emplace<ButtonStateComponent>();

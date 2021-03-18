@@ -119,5 +119,6 @@ struct PlaySoundEffectEvent
 };
 
 struct LoadLevelEvent {};
-
+struct StartTutorialEvent {};
 struct AdvanceTutorialEvent {};
+struct EndTutorialEvent {};
