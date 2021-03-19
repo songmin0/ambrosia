@@ -1,3 +1,4 @@
+#include "swarm_behaviour.hpp"
 #include "stats_system.hpp"
 #include "game/game_state_system.hpp"
 
@@ -179,6 +180,12 @@ void StatsSystem::onHitEvent(const HitEvent &event)
 			{
 				ECS::registry<DeathTimer>.emplace(target);
 				soundEffect = SoundEffect::DEFEAT;
+			}
+
+			if (ECS::registry<HasSwarmBehaviour>.has(target))
+			{
+				SwarmBehaviour sb;
+				sb.startWait(target);
 			}
 		}
 

@@ -21,7 +21,7 @@ ECS::Entity MapComponent::createMap(const std::string& name, vec2 screenSize)
 	// Create rendering primitives
 	ShadedMesh& resource = cacheResource(name);
 	if (resource.effect.program.resource == 0)
-		RenderSystem::createSprite(resource, mapPath, "textured");
+		RenderSystem::createSprite(resource, debugPath, "textured");
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::MAP);
 
@@ -65,10 +65,10 @@ ECS::Entity MapComponent::createMap(const std::string& name, vec2 screenSize)
 			else {
 				matrix[y][x] = 3;
 			}
-			//std::cout << matrix[y][x]; // uncomment these two lines out if you would like to see the map that is being generated in the debug console
+			std::cout << matrix[y][x]; // uncomment these two lines out if you would like to see the map that is being generated in the debug console
 			pixelX += mapComponent.tileSize;
 		}
-		//std::cout << std::endl;
+		std::cout << std::endl;
 		pixelY += mapComponent.tileSize;
 	}
 

@@ -6,6 +6,7 @@
 #include "ai/behaviour_tree.hpp"
 #include "game/turn_system.hpp"
 #include "ui/ui_entities.hpp"
+#include <game/swarm_behaviour.hpp>
 
 ECS::Entity Egg::createEgg(json stats, json position)
 {
@@ -259,6 +260,7 @@ ECS::Entity Potato::createPotato(json stats, json position)
 	
 	// Give it a mob component
 	entity.emplace<AISystem::MobComponent>();
+	entity.emplace<HasSwarmBehaviour>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
 	btType.mobType = MobType::POTATO;
 
@@ -415,7 +417,7 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	return entity;
 };
 
-ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
+ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, ECS::Entity potato, float orientation)
 {
 	auto entity = ECS::Entity();
 
@@ -426,6 +428,7 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
 	}
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
+	entity.emplace<ActivePotatoChunks>(potato);
 
 	// TODO: Swarm behaviour
 	// ~6 chunks should be spawned in a well-spaced pattern within a certain range of the defeated potato boss

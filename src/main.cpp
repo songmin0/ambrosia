@@ -25,6 +25,7 @@
 #include "skills/skill_system.hpp"
 #include "game/stats_system.hpp"
 #include "game/game_state_system.hpp"
+#include "game/swarm_behaviour.hpp"
 
 
 using Clock = std::chrono::high_resolution_clock;
@@ -59,6 +60,7 @@ int main()
 	SkillSystem skillSystem;
 	StatsSystem statsSystem;
 	TutorialSystem tutorialSystem;
+	SwarmBehaviour swarmBehaviour;
 
 	// Set all states to default
 	//TODO once the main menu is hooked up this should launch the main menu not the next map.
@@ -100,6 +102,7 @@ int main()
 			stateSystem.step(deltaTime);
 			particleSystem.step(deltaTime);
 			renderer.draw(window_size_in_game_units);
+			swarmBehaviour.step(deltaTime, window_size_in_game_units);
 
 
 			elapsed_ms -= deltaTime;
