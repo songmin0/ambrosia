@@ -105,9 +105,15 @@ void GameStateSystem::launchDefeatScreen()
 void GameStateSystem::launchMainMenu()
 {
 	isInMainScreen = true;
-	Camera::createCamera(vec2{ 0.0f,0.0f });
+	Camera::createCamera(vec2(0.f));
+	MouseClickFX::createMouseClickFX();
+
 	vec2 screenBufferSize = getScreenBufferSize();
 	StartMenu::createStartMenu(screenBufferSize.x, screenBufferSize.y);
+
+	// replace the start menu with these to test other screens
+	//Screens::createVictoryScreen(screenBufferSize.x, screenBufferSize.y);
+	//Screens::createDefeatScreen(screenBufferSize.x, screenBufferSize.y);
 }
 
 void GameStateSystem::setWindow(GLFWwindow* window)

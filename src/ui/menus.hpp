@@ -13,3 +13,9 @@ struct StartMenu
 {
 	static void createStartMenu(int frameBufferWidth, int frameBufferHeight);
 };
+
+namespace Screens
+{
+	void createVictoryScreen(int frameBufferWidth, int frameBufferHeight, int type = 1);
+	void createDefeatScreen(int frameBufferWidth, int frameBufferHeight, int type = 1);
+};

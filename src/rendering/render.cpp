@@ -176,6 +176,30 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 		}
 	}
 
+	// Uniforms for distendable shader
+	GLuint xamplitude_uloc = glGetUniformLocation(texmesh.effect.program, "xamplitude");
+	if (xamplitude_uloc >= 0)
+	{
+		GLuint xfrequency_uloc = glGetUniformLocation(texmesh.effect.program, "xfrequency");
+		GLuint yamplitude_uloc = glGetUniformLocation(texmesh.effect.program, "yamplitude");
+		GLuint yfrequency_uloc = glGetUniformLocation(texmesh.effect.program, "yfrequency");
+		if (entity.has<DistendableComponent>())
+		{
+			auto& params = entity.get<DistendableComponent>();
+			glUniform1f(xamplitude_uloc, params.xamplitude);
+			glUniform1f(xfrequency_uloc, params.xfrequency);
+			glUniform1f(yamplitude_uloc, params.yamplitude);
+			glUniform1f(yfrequency_uloc, params.yfrequency);
+		}
+		else
+		{
+			glUniform1f(xamplitude_uloc, 0.f);
+			glUniform1f(xfrequency_uloc, 0.f);
+			glUniform1f(yamplitude_uloc, 0.f);
+			glUniform1f(yfrequency_uloc, 0.f);
+		}
+	}
+
 	// Getting uniform locations for glUniform* calls
 	GLint color_uloc = glGetUniformLocation(texmesh.effect.program, "fcolor");
 	glUniform3fv(color_uloc, 1, (float*)&texmesh.texture.color);
