@@ -109,10 +109,11 @@ void GameStateSystem::launchMainMenu()
 	MouseClickFX::createMouseClickFX();
 
 	vec2 screenBufferSize = getScreenBufferSize();
-	StartMenu::createStartMenu(screenBufferSize.x, screenBufferSize.y);
+	//StartMenu::createStartMenu(screenBufferSize.x, screenBufferSize.y);
 
 	// replace the start menu with these to test other screens
 	//Screens::createVictoryScreen(screenBufferSize.x, screenBufferSize.y);
+	//Screens::createDefeatScreen(screenBufferSize.x, screenBufferSize.y);
 }
 
 void GameStateSystem::setWindow(GLFWwindow* window)

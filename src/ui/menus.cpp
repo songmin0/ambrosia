@@ -102,3 +102,54 @@ void Screens::createVictoryScreen(int frameBufferWidth, int frameBufferHeight, i
 			std::cout << "Next button clicked!" << std::endl;
 		});
 };
+
+void Screens::createDefeatScreen(int frameBufferWidth, int frameBufferHeight, int type)
+{
+	auto background = ECS::Entity();
+	const std::string key = "defeat-" + std::to_string(type);
+	ShadedMesh& splashResource = cacheResource(key);
+	if (splashResource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(splashResource, uiPath("menus/" + key + ".png"), "textured");
+	}
+	background.emplace<ShadedMeshRef>(splashResource);
+	background.emplace<RenderableComponent>(RenderLayer::MAP);
+	background.emplace<Motion>();
+	auto& mapComponent = background.emplace<MapComponent>();
+	mapComponent.name = key;
+	mapComponent.mapSize = static_cast<vec2>(splashResource.texture.size);
+
+	auto logo = ECS::Entity();
+	ShadedMesh& logoResource = cacheResource("defeat_logo");
+	if (logoResource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(logoResource, uiPath("menus/defeat-logo.png"), "distendable");
+	}
+	logo.emplace<DistendableComponent>(0.05f, 0.1f, 0.1f, 0.25f);
+	logo.emplace<ShadedMeshRef>(logoResource);
+	logo.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
+	logo.emplace<Motion>().position = vec2(frameBufferWidth / 2, frameBufferHeight / 2 - 180);
+
+	auto tryAgain = ECS::Entity();
+	ShadedMesh& tryagainResource = cacheResource("tryagain_logo");
+	if (tryagainResource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(tryagainResource, uiPath("menus/try-again.png"), "textured");
+	}
+	tryAgain.emplace<ShadedMeshRef>(tryagainResource);
+	tryAgain.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
+	tryAgain.emplace<Motion>().position = vec2(frameBufferWidth / 2, frameBufferHeight / 2 + 20);
+
+	// TODO: Hook up 
+	Button::createButton(ButtonShape::RECTANGLE,
+		{ frameBufferWidth / 2 - 120, frameBufferHeight / 2 + 180 }, "menus/yes-button",
+		[]() {
+			std::cout << "Yes button clicked!" << std::endl;
+		});
+
+	Button::createButton(ButtonShape::RECTANGLE,
+		{ frameBufferWidth / 2 + 120, frameBufferHeight / 2 + 180 }, "menus/no-button",
+		[]() {
+			std::cout << "No button clicked..." << std::endl;
+		});
+};

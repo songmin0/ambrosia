@@ -17,4 +17,5 @@ struct StartMenu
 struct Screens
 {
 	static void createVictoryScreen(int frameBufferWidth, int frameBufferHeight, int type = 1);
+	static void createDefeatScreen(int frameBufferWidth, int frameBufferHeight, int type = 1);
 };
