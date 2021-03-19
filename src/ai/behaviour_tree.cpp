@@ -24,6 +24,8 @@ void StateSystem::onStartMobTurnEvent()
 		break;
 	case MobType::POTATO:
 		activeTree = std::make_shared<BehaviourTree>(PotatoBehaviourTree());
+	case MobType::POTATO_CHUNK:
+		activeTree = std::make_shared<BehaviourTree>(PotatoChunkBehaviourTree());
 	default:
 		break;
 	}
@@ -174,6 +176,18 @@ void MilkTurnSequence::run()
 	Sequence::run();
 }
 
+PotatoChunkTurnSequence::PotatoChunkTurnSequence()
+{
+	addChild(std::make_shared<MoveToDeadPotato>(MoveToDeadPotato()));
+	addChild(std::make_shared<BasicAttackTask>(BasicAttackTask()));
+}
+
+void PotatoChunkTurnSequence::run()
+{
+	Node::run();
+	Sequence::run();
+}
+
 PotatoSkillSelector::PotatoSkillSelector()
 {
 	addChild(std::make_shared<BasicAttackTask>(BasicAttackTask()));
@@ -285,6 +299,19 @@ void MilkMoveConditional::run()
 	Conditional::run();
 }
 
+PotatoChunkMoveSelector::PotatoChunkMoveSelector()
+{
+	addChild(std::make_shared<MoveToDeadPotato>(MoveToDeadPotato()));
+}
+
+void PotatoChunkMoveSelector::run()
+{
+	Node::run();
+
+
+	Selector::run();
+}
+
 MilkSkillSelector::MilkSkillSelector()
 {
 	addChild(std::make_shared<HealTask>(HealTask()));
@@ -340,6 +367,10 @@ PotatoBehaviourTree::PotatoBehaviourTree()
 	root = std::make_shared<PotatoSkillSelector>(PotatoSkillSelector());
 }
 
+PotatoChunkBehaviourTree::PotatoChunkBehaviourTree()
+{
+	root = std::make_shared<PotatoChunkTurnSequence>(PotatoChunkTurnSequence());
+}
 // TASKS
 // Public tasks not meant for any single mob
 // =====================================================================
@@ -412,6 +443,22 @@ void MoveToWeakestPlayerTask::run()
 
 }
 
+void MoveToDeadPotato::run()
+{
+	if (this->status == Status::INVALID)
+	{
+		std::cout << "Moving to dead potato\n";
+		Node::run();
+		taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
+			std::bind(&MoveToWeakestPlayerTask::onFinishedTaskEvent, this));
+		StartMobMoveEvent event;
+		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+		event.movement.moveType = MoveType::TO_DEAD_POTATO;
+		EventSystem<StartMobMoveEvent>::instance().sendEvent(event);
+	}
+
+}
+
 void MoveToWeakestMobTask::run()
 {
 	if (this->status == Status::INVALID)
@@ -466,6 +513,9 @@ void BasicAttackTask::run()
 			break;
 		case MobType::MILK:
 			activeEvent.type = SkillType::SKILL2;
+			break;
+		case MobType::POTATO_CHUNK:
+			activeEvent.type = SkillType::SKILL1;
 			break;
 		default:
 			activeEvent.type = SkillType::SKILL1;

@@ -30,6 +30,7 @@ private:
 	bool setTargetToFarthestPlayer(ECS::Entity& mob);
 	bool setTargetToWeakestPlayer(ECS::Entity& mob);
 	bool setTargetToWeakestMob(ECS::Entity& mob);
+	bool setTargetToDeadPotato(ECS::Entity& mob);
 
 	void startMobMove(ECS::Entity entity, MovementType movement);
 	void startMobSkill(ECS::Entity entity);

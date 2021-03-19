@@ -70,16 +70,20 @@ std::vector<vec2> getPointsAroundCentre(int radius, vec2 centre, int totalPoints
 void SwarmBehaviour::spawnExplodedChunks(ECS::Entity potato)
 {
 	std::cout << "Spawning potato chunks";
-	vec2 potato_pos = ECS::registry<Motion>.get(potato).position;
-
+	auto potato_pos = ECS::registry<Motion>.get(potato).position;
 	// make 5 chunks
 	int num_chunks = 5;
 	auto map = ECS::registry<MapComponent>.components.front();
 	auto points = getPointsAroundCentre(300, potato_pos, num_chunks);
 
 	for (int i = 0; i < num_chunks; i++) {
-		PotatoChunk::createPotatoChunk(points[i], potato, -1);
+		PotatoChunk::createPotatoChunk(points[i], potato_pos, -1);
 	}
+}
+
+void SwarmBehaviour::startWait(ECS::Entity potato) {
+	waitingForPotatoToExplode = 500;
+	curr_potato = potato;
 }
 
 void SwarmBehaviour::step(float elapsed_ms, vec2 window_size_in_game_units) {
@@ -88,6 +92,6 @@ void SwarmBehaviour::step(float elapsed_ms, vec2 window_size_in_game_units) {
 	
 }
 
-ActivePotatoChunks::ActivePotatoChunks(ECS::Entity potato) {
-	this->potato = potato;
+ActivePotatoChunks::ActivePotatoChunks(vec2 potato_pos) {
+	this->potato_pos = potato_pos;
 }

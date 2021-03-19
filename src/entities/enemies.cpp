@@ -417,7 +417,7 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	return entity;
 };
 
-ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, ECS::Entity potato, float orientation)
+ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, vec2 potato_pos, float orientation)
 {
 	auto entity = ECS::Entity();
 
@@ -428,14 +428,14 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, ECS::Entity potato, float o
 	}
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
-	entity.emplace<ActivePotatoChunks>(potato);
+	entity.emplace<ActivePotatoChunks>(potato_pos);
 
 	// TODO: Swarm behaviour
 	// ~6 chunks should be spawned in a well-spaced pattern within a certain range of the defeated potato boss
 	// during their turn, the chunks should try to move together to reform into mashed potato
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
-	btType.mobType = MobType::EGG;
+	btType.mobType = MobType::POTATO_CHUNK;
 
 	entity.emplace<TurnSystem::TurnComponent>();
 
@@ -477,7 +477,7 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, ECS::Entity potato, float o
 	// A fake Skill 1 to keep the turn system happy, but chunks don't actually use skills
 	auto meleeParams = std::make_shared<AoESkillParams>();
 	meleeParams->instigator = entity;
-	meleeParams->soundEffect = SoundEffect::MELEE;
+	meleeParams->soundEffect = SoundEffect::NONE;
 	meleeParams->animationType = AnimationType::IDLE;
 	meleeParams->delay = 0.f;
 	meleeParams->entityProvider = std::make_shared<CircularProvider>(0.f);

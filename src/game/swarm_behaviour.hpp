@@ -6,6 +6,7 @@ class SwarmBehaviour
 {
 	public:
 		void spawnExplodedChunks(ECS::Entity potato);
+		void startWait(ECS::Entity potato);
 		void step(float elapsed_ms, vec2 window_size_in_game_units);
 	private:
 		int waitingForPotatoToExplode;
@@ -21,8 +22,8 @@ struct HasSwarmBehaviour
 struct ActivePotatoChunks
 {
 	// the potato it belongs to
-	ECS::Entity potato;
-	ActivePotatoChunks(ECS::Entity potato);
+	vec2 potato_pos;
+	ActivePotatoChunks(vec2 potato_pos);
 };
 
 
