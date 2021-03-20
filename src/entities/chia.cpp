@@ -61,7 +61,7 @@ ECS::Entity Chia::commonInit()
 	debuffAndDamageParams->entityProvider = std::make_shared<MouseClickProvider>(100.f);
 	debuffAndDamageParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
 	debuffAndDamageParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
-	debuffAndDamageParams->entityHandler = std::make_shared<DebuffAndDamageHandler>(StatType::STRENGTH, -0.1f, 60.f, 8.f);
+	debuffAndDamageParams->entityHandler = std::make_shared<DebuffAndDamageHandler>(StatType::STRENGTH, -0.4f, 60.f, 15.f);
 	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(debuffAndDamageParams));
 
 	// Grant x amount of HP shield to all allies (for 60 seconds...but change it to one turn when buffs become turn-based)
@@ -72,7 +72,7 @@ ECS::Entity Chia::commonInit()
 	hpShieldParams->delay = 0.6f;
 	hpShieldParams->entityProvider = std::make_shared<AllEntitiesProvider>();
 	hpShieldParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
-	hpShieldParams->entityHandler = std::make_shared<BuffHandler>(StatType::HP_SHIELD, 25.f, 60.f);
+	hpShieldParams->entityHandler = std::make_shared<BuffHandler>(StatType::HP_SHIELD, 20.f, 60.f);
 	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<AreaOfEffectSkill>(hpShieldParams));
 
 	entity.emplace<Chia>();

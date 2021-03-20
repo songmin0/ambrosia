@@ -11,7 +11,7 @@
             },
             "taji": {
                 "stats": {
-                    "hp": 100,
+                    "hp": 70,
                     "strength": 1,
                     "ambrosia": 0
                 },
@@ -22,7 +22,7 @@
             },
             "chia": {
                 "stats": {
-                    "hp": 100,
+                    "hp": 80,
                     "strength": 1,
                     "ambrosia": 0
                 },
@@ -44,7 +44,7 @@
             },
             "ember": {
                 "stats": {
-                    "hp": 100,
+                    "hp": 80,
                     "strength": 1,
                     "ambrosia": 0
                 },
@@ -90,7 +90,7 @@
             },
             "taji": {
                 "stats": {
-                    "hp": 50,
+                    "hp": 70,
                     "strength": 1,
                     "ambrosia": 0
                 },
@@ -101,7 +101,7 @@
             },
             "chia": {
                 "stats": {
-                    "hp": 70,
+                    "hp": 80,
                     "strength": 1,
                     "ambrosia": 0
                 },
@@ -155,7 +155,7 @@
                 {
                     "type": "pepper",
                     "stats": {
-                        "hp": 80,
+                        "hp": 50,
                         "strength": 1
                     },
                     "positions": [
@@ -197,7 +197,7 @@
             },
             "taji": {
                 "stats": {
-                    "hp": 100,
+                    "hp": 70,
                     "strength": 1,
                     "ambrosia": 0
                 },
@@ -208,7 +208,7 @@
             },
             "chia": {
                 "stats": {
-                    "hp": 100,
+                    "hp": 80,
                     "strength": 1,
                     "ambrosia": 0
                 },
@@ -230,7 +230,7 @@
             },
             "ember": {
                 "stats": {
-                    "hp": 100,
+                    "hp": 80,
                     "strength": 1,
                     "ambrosia": 0
                 },
@@ -243,7 +243,7 @@
                 {
                     "type": "potato",
                     "stats": {
-                        "hp": 200,
+                        "hp": 400,
                         "strength": 1
                     },
                     "positions": [

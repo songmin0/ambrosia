@@ -28,8 +28,8 @@ public:
 		// Structure to store turn information
 		struct TurnComponent
 		{
-			inline bool canStartMoving() {return !hasMoved && !isMoving && !isUsingSkill && stunDuration == 0;}
-			inline bool canStartSkill() {return !isMoving && !hasUsedSkill && !isUsingSkill && stunDuration == 0;}
+			inline bool canStartMoving() {return !hasMoved && !isMoving && !isUsingSkill;}
+			inline bool canStartSkill() {return !isMoving && !hasUsedSkill && !isUsingSkill;}
 
 			bool isMoving = false;
 			bool isUsingSkill = false;

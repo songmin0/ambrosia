@@ -47,7 +47,7 @@ ECS::Entity Ember::commonInit()
 	meleeParams->delay = 1.f;
 	meleeParams->entityProvider = std::make_shared<CircularProvider>(300.f);
 	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
-	meleeParams->entityHandler = std::make_shared<DamageHandler>(30.f);
+	meleeParams->entityHandler = std::make_shared<DamageHandler>(25.f);
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(meleeParams));
 
 	// Skill 2 Melee hit
@@ -59,7 +59,7 @@ ECS::Entity Ember::commonInit()
 	melee2Params->entityProvider = std::make_shared<CircularProvider>(250.f);
 	melee2Params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
 	melee2Params->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
-	melee2Params->entityHandler = std::make_shared<DamageHandler>(60.f);
+	melee2Params->entityHandler = std::make_shared<DamageHandler>(50.f);
 	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(melee2Params));
 
 	// Skill 3 AOE Knockback, without the knockback

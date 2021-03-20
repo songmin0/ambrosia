@@ -7,19 +7,16 @@
 class EntityHandler
 {
 public:
-	EntityHandler()
-		: fxType(FXType::NONE)
-	{}
-
+	EntityHandler() = default;
 	virtual ~EntityHandler() = default;
 
 	void process(ECS::Entity instigator, ECS::Entity target);
-	inline void addFX(FXType fxType) {this->fxType = fxType;}
+	inline void addFX(FXType fxType) {this->fxTypes.push_back(fxType);}
 
 private:
 	virtual void processInternal(ECS::Entity instigator, ECS::Entity target) = 0;
 
-	FXType fxType;
+	std::vector<FXType> fxTypes;
 };
 
 // Applies damage to the given target

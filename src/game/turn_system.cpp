@@ -124,6 +124,15 @@ void TurnSystem::nextTurn()
 		turnComponent.hasMoved = false;
 		turnComponent.hasMoved = false;
 		turnComponent.hasUsedSkill = false;
+
+		if (turnComponent.stunDuration <= 0)
+		{
+			turnComponent.stunDuration = 0;
+			StopFXEvent event;
+			event.entity = registry.entities[i];
+			event.fxType = FXType::STUNNED;
+			EventSystem<StopFXEvent>::instance().sendEvent(event);
+		}
 	}
 
 	//start the next turn
@@ -150,11 +159,19 @@ void TurnSystem::step(float elapsed_ms)
 	}
 	// Check happens with above if statement.
 	auto& activeEntity = ECS::registry<TurnComponentIsActive>.entities[0];
-	if (!activeEntity.has<DeathTimer>()) {
-		if (activeEntity.has<TurnComponent>()) {
+	if (!activeEntity.has<DeathTimer>()) 
+	{
+		if (activeEntity.has<TurnComponent>()) 
+		{
 			auto& turnComponent = activeEntity.get<TurnComponent>();
 
-			if (hasCompletedTurn(turnComponent))
+			if (turnComponent.stunDuration > 0)
+			{
+				turnComponent.stunDuration--;
+				turnComponent.hasUsedSkill = true; // skip their turn
+				nextActiveEntity();
+			}
+			else if (hasCompletedTurn(turnComponent))
 			{
 				// Add a hardcoded delay before moving the camera so player can see animations
 				assert(!ECS::registry<CameraComponent>.entities.empty());
@@ -166,7 +183,7 @@ void TurnSystem::step(float elapsed_ms)
 			else if (activeEntity.has<AISystem::MobComponent>())
 			{
 				// Start behaviour tree for active mob entity if there are players left
-				if (turnComponent.canStartMoving() && this->playersLeft())
+				if (turnComponent.canStartMoving() && this->playersLeft() && turnComponent.stunDuration <= 0)
 				{
 					std::cout << "Starting mob turn\n";
 					StartMobTurnEvent event;
@@ -177,7 +194,8 @@ void TurnSystem::step(float elapsed_ms)
 			}
 		}
 	}
-	else {
+	else 
+	{
 		//The current user is dead so switch to the next
 		nextActiveEntity();
 	}
