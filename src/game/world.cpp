@@ -373,10 +373,13 @@ void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 	// eg: playerRaoul = Raoul::createRaoul(vec2( 640, 512 ));
 	// please specify vec2(x, y), as {x , y} is also valid json
 
-		playerRaoul = Raoul::createRaoul(GameStateSystem::instance().currentLevel.at("raoul"));
-		playerTaji = Taji::createTaji(GameStateSystem::instance().currentLevel.at("taji"));
-		playerEmber = Ember::createEmber(GameStateSystem::instance().currentLevel.at("ember"));
-		playerChia = Chia::createChia(GameStateSystem::instance().currentLevel.at("chia"));
+	playerRaoul = Raoul::createRaoul(GameStateSystem::instance().currentLevel.at("raoul"));
+	playerTaji = Taji::createTaji(GameStateSystem::instance().currentLevel.at("taji"));
+	playerEmber = Ember::createEmber(GameStateSystem::instance().currentLevel.at("ember"));
+	playerChia = Chia::createChia(GameStateSystem::instance().currentLevel.at("chia"));
+
+	// ! Test Active Arrow
+	ActiveArrow::createActiveArrow(vec2(640, 250));
 }
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
