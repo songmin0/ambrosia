@@ -268,6 +268,24 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 	SkillButton::createMoveButton({ 100, frameBufferHeight - 80 }, "skill_buttons/skill_generic_move",
 		[]() {
 		std::cout << "Move button clicked!" << std::endl;
+		if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
+		{
+			auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
+			if (!activeEntity.has<PlayerComponent>())
+			{
+				return;
+			}
+			
+			auto& turnComponent = activeEntity.get<TurnSystem::TurnComponent>();
+			if (turnComponent.canStartMoving())
+			{
+				turnComponent.activeAction = SkillType::MOVE;
+				SetActiveSkillEvent event;
+				event.entity = activeEntity;
+				event.type = SkillType::MOVE;
+				EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
+			}
+		};
 	});
 
 	SkillButton::createSkillButton({ 250, frameBufferHeight - 80 }, PlayerType::RAOUL, SkillType::SKILL1, "skill1",
@@ -277,10 +295,15 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
 			{
 				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-
-				// Skill buttons should only affect players
-				if (activeEntity.has<PlayerComponent>())
+				if (!activeEntity.has<PlayerComponent>())
 				{
+					return;
+				}
+
+				auto& turnComponent = activeEntity.get<TurnSystem::TurnComponent>();
+				if (turnComponent.canStartSkill())
+				{
+					turnComponent.activeAction = SkillType::SKILL1;
 					SetActiveSkillEvent event;
 					event.entity = activeEntity;
 					event.type = SkillType::SKILL1;
@@ -302,10 +325,15 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
 			{
 				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-
-				// Skill buttons should only affect players
-				if (activeEntity.has<PlayerComponent>())
+				if (!activeEntity.has<PlayerComponent>())
 				{
+					return;
+				}
+
+				auto& turnComponent = activeEntity.get<TurnSystem::TurnComponent>();
+				if (turnComponent.canStartSkill())
+				{
+					turnComponent.activeAction = SkillType::SKILL2;
 					SetActiveSkillEvent event;
 					event.entity = activeEntity;
 					event.type = SkillType::SKILL2;
@@ -322,10 +350,15 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
 			{
 				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-
-				// Skill buttons should only affect players
-				if (activeEntity.has<PlayerComponent>())
+				if (!activeEntity.has<PlayerComponent>())
 				{
+					return;
+				}
+
+				auto& turnComponent = activeEntity.get<TurnSystem::TurnComponent>();
+				if (turnComponent.canStartSkill())
+				{
+					turnComponent.activeAction = SkillType::SKILL3;
 					SetActiveSkillEvent event;
 					event.entity = activeEntity;
 					event.type = SkillType::SKILL3;
@@ -371,19 +404,7 @@ void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 {
-	// ! It is recommended to comment out all other mobs and test just one enemy at a time
-
-	// Potato tests
-	//Potato::createPotato({ 800.f, 700.f }, -1.f);
-	//MashedPotato::createMashedPotato({ 900.f, 750.f });
-	//PotatoChunk::createPotatoChunk({ 900.f, 800.f });
-
-	// Milk test
-	//Milk::createMilk(vec2(900.f, 800.f), -1.f);
-
-	// TODO: come back and expand this when we have multiple mobs
 	auto mobs = GameStateSystem::instance().currentLevel.at("mobs");
-
 	createEnemies(mobs);
 }
 

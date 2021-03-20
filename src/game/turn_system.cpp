@@ -215,7 +215,12 @@ void TurnSystem::onMouseClick(const MouseClickEvent& event)
 	{
 		auto& turnComponent = activeEntity.get<TurnComponent>();
 
-		if (turnComponent.canStartMoving())
+		if (turnComponent.stunDuration > 0)
+		{
+			return;
+		}
+
+		if (turnComponent.activeAction == SkillType::MOVE && turnComponent.canStartMoving())
 		{
 			// Motion component is mandatory
 			assert(activeEntity.has<Motion>());
@@ -285,6 +290,10 @@ void TurnSystem::onFinishedMovement(const FinishedMovementEvent& event)
 
 		turnComponent.isMoving = false;
 		turnComponent.hasMoved = true;
+
+		// Reset to Null state
+		entity.get<SkillComponent>().setActiveSkill(SkillType::NONE);
+		turnComponent.activeAction = SkillType::NONE;
 
 		if (GameStateSystem::instance().isInTutorial && GameStateSystem::instance().currentTutorialIndex == 4)
 		{

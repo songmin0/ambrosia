@@ -183,19 +183,14 @@ void UISystem::updatePlayerSkillButton(ECS::Entity& entity)
 			buttonInfo.player = player;
 		}
 
-		// sync buttons to current action
-		if (turnComponent.canStartMoving()) // for now, this means they can't use skills yet
+		// Null State depending on what is available
+		if (turnComponent.canStartMoving())
 		{
 			enableMoveButton(true);
-			enableSkillButtons(false);
-			activateSkillButton(SkillType::MOVE);
 		}
-		else if (turnComponent.canStartSkill())
+		if (turnComponent.canStartSkill())
 		{
-			enableMoveButton(false);
 			enableSkillButtons(true);
-			const auto& skillType = entity.get<SkillComponent>().getActiveSkillType();
-			activateSkillButton(skillType);
 		}
 	}
 	else
@@ -212,8 +207,9 @@ void UISystem::onMoveFinished(const FinishedMovementEvent& event)
 	{
 		enableMoveButton(false);
 		enableSkillButtons(true);
-		const auto& skillType = entity.get<SkillComponent>().getActiveSkillType();
-		activateSkillButton(skillType);
+		assert(ECS::registry<ActiveSkillFX>.entities.size() > 0);
+		auto& activeFX = ECS::registry<ActiveSkillFX>.entities.front();
+		activeFX.get<VisibilityComponent>().isVisible = false;
 	}
 }
 
@@ -309,49 +305,6 @@ void UISystem::clearToolTips()
 	}
 }
 
-void printSkillButtonHoverDebug(PlayerType player, SkillType skillType)
-{
-	std::string playerName = "???";
-	std::string skillName = "???";
-	switch (player) {
-	case PlayerType::RAOUL:
-		playerName = "raoul";
-		break;
-	case PlayerType::TAJI:
-		playerName = "taji";
-		break;
-	case PlayerType::CHIA:
-		playerName = "chia";
-		break;
-	case PlayerType::EMBER:
-		playerName = "ember";
-		break;
-	default:
-		break;
-	}
-
-	switch (skillType) {
-	case SkillType::MOVE:
-		skillName = "move";
-		break;
-	case SkillType::SKILL1:
-		skillName = "skill 1";
-		break;
-	case SkillType::SKILL2:
-		skillName = "skill 2";
-		break;
-	case SkillType::SKILL3:
-		skillName = "skill 3";
-		break;
-	case SkillType::SKILL4:
-		skillName = "skill 4";
-		break;
-	default:
-		break;
-	}
-	std::cout << "hovering over: " << playerName << "'s " << skillName << " button" << std::endl;
-}
-
 void UISystem::onMouseHover(const RawMouseHoverEvent& event)
 {
 	bool didTriggerTooltip = false;
@@ -369,8 +322,6 @@ void UISystem::onMouseHover(const RawMouseHoverEvent& event)
 			ECS::Entity& toolTip = getToolTip(skillType);
 			auto& vis = toolTip.get<VisibilityComponent>();
 			vis.isVisible = true;
-
-			//printSkillButtonHoverDebug(player, skillType);
 		}
 	}
 
@@ -411,11 +362,7 @@ void UISystem::onSkillActivate(const SetActiveSkillEvent& event)
 		return;
 	}
 
-	auto& turnComponent = player.get<TurnSystem::TurnComponent>();
-	if (turnComponent.canStartSkill())
-	{
-		activateSkillButton(event.type);
-	}
+	activateSkillButton(event.type);
 }
 
 void UISystem::onSkillFinished(const FinishedSkillEvent& event)

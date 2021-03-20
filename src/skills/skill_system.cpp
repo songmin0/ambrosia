@@ -95,7 +95,7 @@ void SkillSystem::onPerformSkillEvent(const PerformActiveSkillEvent &event)
 	}
 }
 
-// When a turn starts, set that entity's selected skill back to SKILL1
+// When a turn starts, set that entity's selected skill back to null state
 void SkillSystem::onPlayerChangeEvent(const PlayerChangeEvent &event)
 {
 	auto entity = event.newActiveEntity;
