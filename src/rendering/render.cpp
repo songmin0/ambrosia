@@ -1,11 +1,11 @@
 #include "render.hpp"
 #include "render_components.hpp"
 
+#include "effects/effects.hpp"
 #include "entities/tiny_ecs.hpp"
 #include "animation/animation_components.hpp"
 #include "ai/ai.hpp"
 #include "ui/ui_components.hpp"
-#include "ui/effects.hpp"
 #include "ui/ui_entities.hpp"
 #include "game/camera.hpp"
 
@@ -242,13 +242,20 @@ void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 	else {
 		auto camera = ECS::registry<CameraComponent>.entities[0];
 		auto& cameraComponent = camera.get<CameraComponent>();
-		transform.translate(motion.position - cameraComponent.position);
+		// Add skill fx offset to translate
+		if (entity.has<SkillFX>()) {
+			auto& fxOffset = entity.get<SkillFX>().offset;
+			transform.translate(motion.position + fxOffset - cameraComponent.position);
+		}
+		else {
+			transform.translate(motion.position - cameraComponent.position);
+		}
 	}
 	transform.rotate(motion.angle);
 	transform.scale(motion.scale * static_cast<vec2>(texmesh.texture.size));
 
 	// The entity's feet are at the bottom of the texture, so move it upward by half the texture size
-	if (entity.has<PlayerComponent>() || entity.has<AISystem::MobComponent>())
+	if (entity.has<PlayerComponent>() || entity.has<AISystem::MobComponent>() || entity.has<SkillFX>())
 	{
 		transform.translate(vec2(0.f, -0.5f));
 	}
@@ -407,13 +414,29 @@ struct CompareRenderableEntity
 		auto& renderable1 = entity1.get<RenderableComponent>();
 		auto& renderable2 = entity2.get<RenderableComponent>();
 
-		// Compare players and mob by their y-position
-		if (renderable1.layer == RenderLayer::PLAYER_AND_MOB && renderable2.layer == RenderLayer::PLAYER_AND_MOB) {
-			assert(entity1.has<Motion>());
-			assert(entity2.has<Motion>());
-			auto& motion1 = entity1.get<Motion>();
-			auto& motion2 = entity2.get<Motion>();
+		assert(entity1.has<Motion>());
+		assert(entity2.has<Motion>());
+		auto& motion1 = entity1.get<Motion>();
+		auto& motion2 = entity2.get<Motion>();
+
+		// Compare players and mobs by their y-position
+		if (renderable1.layer == renderable2.layer && renderable1.layer == RenderLayer::PLAYER_AND_MOB) {
 			return motion1.position.y < motion2.position.y;
+		}
+
+		// Last skill fx applied should render on top
+		if (renderable1.layer == renderable2.layer && renderable1.layer == RenderLayer::SKILL) {
+			auto& skillFXOrder1 = entity1.get<SkillFX>().order;
+			auto& skillFXOrder2 = entity2.get<SkillFX>().order;
+			return motion1.position.y + skillFXOrder1 < motion2.position.y + skillFXOrder2;
+		}
+
+		// Skill FXs should render on top of players and mobs
+		if ((renderable1.layer == RenderLayer::PLAYER_AND_MOB && renderable2.layer == RenderLayer::SKILL)) {
+			return motion1.position.y - float(RenderLayer::PLAYER_AND_MOB) < motion2.position.y - float(RenderLayer::SKILL);
+		}
+		else if ((renderable1.layer == RenderLayer::SKILL && renderable2.layer == RenderLayer::PLAYER_AND_MOB)) {
+			return motion1.position.y - float(RenderLayer::SKILL) < motion2.position.y - float(RenderLayer::PLAYER_AND_MOB);
 		}
 
 		return renderable1.layer > renderable2.layer;
