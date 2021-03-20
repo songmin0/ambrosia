@@ -24,7 +24,7 @@ void main()
 
 	if (doesBob == 1)
 	{
-		float bobY = cos(time) * 0.2f;
+		float bobY = cos(time * 0.5f) * 0.1f;
 		distention[2][1] = bobY;
 	}
 

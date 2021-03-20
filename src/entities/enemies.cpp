@@ -504,7 +504,6 @@ void createEnemies(json enemies) {
 
 		if (type == "milk") {
 			for (json position : enemy["positions"]) {
-				std::cout << "hi";
 				Milk::createMilk(enemy["stats"], position);
 			}
 		}

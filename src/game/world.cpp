@@ -364,9 +364,6 @@ void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 	playerTaji = Taji::createTaji(GameStateSystem::instance().currentLevel.at("taji"));
 	playerEmber = Ember::createEmber(GameStateSystem::instance().currentLevel.at("ember"));
 	playerChia = Chia::createChia(GameStateSystem::instance().currentLevel.at("chia"));
-
-	// ! Test Active Arrow
-	ActiveArrow::createActiveArrow(vec2(640, 250));
 }
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)

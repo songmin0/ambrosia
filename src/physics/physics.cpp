@@ -106,6 +106,14 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			CameraSystem::moveCamera(step_seconds * motion.velocity, window_size_in_game_units);
 		}
 
+		// Position active arrow above active entity
+		if (entity.has<TurnSystem::TurnComponentIsActive>()) {
+			for (auto activeArrow : ECS::registry<ActiveArrow>.entities) {
+				auto& offset = activeArrow.get<ActiveArrow>().offset;
+				activeArrow.get<Motion>().position = motion.position + offset;
+			}
+		}
+
 		//If the entity also has a stats component then move their HP bar
 		if (entity.has<StatsComponent>()) {
 			auto& statsComp = ECS::registry<StatsComponent>.get(entity);
