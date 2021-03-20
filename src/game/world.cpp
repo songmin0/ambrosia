@@ -284,6 +284,12 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 				event.entity = activeEntity;
 				event.type = SkillType::MOVE;
 				EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
+
+
+				if (GameStateSystem::instance().isInTutorial && GameStateSystem::instance().currentTutorialIndex == 3)
+				{
+					EventSystem<AdvanceTutorialEvent>::instance().sendEvent(AdvanceTutorialEvent{});
+				}
 			}
 		};
 	});

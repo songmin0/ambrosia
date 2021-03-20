@@ -72,7 +72,7 @@ ECS::Entity Chia::commonInit()
 	hpShieldParams->delay = 0.6f;
 	hpShieldParams->entityProvider = std::make_shared<AllEntitiesProvider>();
 	hpShieldParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
-	hpShieldParams->entityHandler = std::make_shared<BuffHandler>(StatType::HP_SHIELD, 20.f, 60.f);
+	hpShieldParams->entityHandler = std::make_shared<BuffHandler>(StatType::HP_SHIELD, 30.f, 60.f);
 	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<AreaOfEffectSkill>(hpShieldParams));
 
 	entity.emplace<Chia>();

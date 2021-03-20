@@ -14,13 +14,8 @@ void EntityHandler::process(ECS::Entity instigator, ECS::Entity target)
 			EventSystem<StartFXEvent>::instance().sendEvent({target, fxType});
 		}
 
-		if (fxType == FXType::STUNNED && target.has<TurnSystem::TurnComponent>())
+		if (fxType == FXType::STUNNED && target.has<TurnSystem::TurnComponent>() && !target.has<CCImmunityComponent>())
 		{
-			// "cc-immune" should probably be a stat, but hard-code this for now...
-			if (target.has<Potato>() || target.has<MashedPotato>() || target.has<PotatoChunk>())
-			{
-				continue;
-			}
 			// For now, all stuns are 1 turn and do not stack
 			target.get<TurnSystem::TurnComponent>().stunDuration = 1;
 		}

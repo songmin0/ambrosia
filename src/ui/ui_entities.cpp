@@ -133,8 +133,7 @@ ECS::Entity ClickFilter::createClickFilter(vec2 position, bool doAbsorbClick, bo
 
 		int index = GameStateSystem::instance().currentTutorialIndex;
 		// tutorial states 0, 1, 2 proceed right away
-		// TODO: tutorial states 4, 9, 10 need to wait for turn system refactor
-		if (index <= 2 || index == 3 || index == 9 || index == 10)
+		if (index <= 2 || index == 10)
 		{
 			EventSystem<AdvanceTutorialEvent>::instance().sendEvent(AdvanceTutorialEvent{});
 		}
