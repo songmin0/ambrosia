@@ -12,15 +12,14 @@ uniform mat3 transform;
 uniform mat3 projection;
 uniform float time;
 uniform float orientation;
+uniform float xamplitude;
+uniform float xfrequency;
+uniform float yamplitude;
+uniform float yfrequency;
 
 void main()
 {
 	texcoord = in_texcoord;
-
-	float xamplitude = 0.1;
-	float xfrequency = 0.2;
-	float yamplitude = 0.2;
-	float yfrequency = 0.5;
 	mat3 distention;
 
 	float variationx = 1 + cos(time*xfrequency) * xamplitude;

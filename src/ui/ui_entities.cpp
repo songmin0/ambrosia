@@ -208,6 +208,12 @@ ECS::Entity HelpOverlay::createHelpOverlay(vec2 scale)
 
 ECS::Entity HelpButton::createHelpButton(vec2 position)
 {
+	// There should only ever be one of this type of entity
+	while (!ECS::ComponentContainer<HelpButton>().entities.empty())
+	{
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<HelpButton>.entities.back());
+	}
+
 	auto entity = ECS::Entity();
 
 	void(*callback)() = []() {
@@ -239,3 +245,29 @@ ECS::Entity HelpButton::createHelpButton(vec2 position)
 	entity.emplace<HelpButton>();
 	return entity;
 };
+
+ECS::Entity ActiveArrow::createActiveArrow(vec2 position, vec2 scale)
+{
+	// There should only ever be one of this type of entity
+	while (!ECS::ComponentContainer<ActiveArrow>().entities.empty())
+	{
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<ActiveArrow>.entities.back());
+	}
+
+	auto entity = ECS::Entity();
+	ShadedMesh& resource = cacheResource("active_arrow");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, uiPath("active_arrow.png"), "textured");
+	}
+
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::UI);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+	motion.scale = scale;
+
+	ECS::registry<ActiveArrow>.emplace(entity);
+	return entity;
+}

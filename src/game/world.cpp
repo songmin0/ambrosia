@@ -17,7 +17,6 @@
 #include "maps/map_objects.hpp"
 #include "ui/button.hpp"
 #include "ui/ui_system.hpp"
-#include "ui/effects.hpp"
 #include "ui/ui_entities.hpp"
 #include "ui/menus.hpp"
 #include "ai/ai.hpp"
@@ -353,18 +352,6 @@ void WorldSystem::createEffects(int frameBufferWidth, int frameBufferHeight)
 {
 	MouseClickFX::createMouseClickFX();
 	ActiveSkillFX::createActiveSkillFX();
-
-	//// !!! FX Test !!!
-	//// some of these don't cycle so ya gotta catch it fast (or change the cycle parameter to true in their inner init function)
-
-	//BlueberriedFX::createBlueberriedFX(vec2(800.f, 700));
-	//BuffedFX::createBuffedFX(vec2(600, 600));
-	//DebuffedFX::createDebuffedFX(vec2(500, 600));
-	//HealedFX::createHealedFX(vec2(400, 700));
-	//ShieldedFX::createShieldedFX(vec2(400, 600));
-	//Candy1FX::createCandy1FX(vec2(500, 300));
-	//Candy2FX::createCandy2FX(vec2(400, 300));
-	//StunnedFX::createStunnedFX(vec2(850, 700));
 }
 
 void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
@@ -373,10 +360,13 @@ void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 	// eg: playerRaoul = Raoul::createRaoul(vec2( 640, 512 ));
 	// please specify vec2(x, y), as {x , y} is also valid json
 
-		playerRaoul = Raoul::createRaoul(GameStateSystem::instance().currentLevel.at("raoul"));
-		playerTaji = Taji::createTaji(GameStateSystem::instance().currentLevel.at("taji"));
-		playerEmber = Ember::createEmber(GameStateSystem::instance().currentLevel.at("ember"));
-		playerChia = Chia::createChia(GameStateSystem::instance().currentLevel.at("chia"));
+	playerRaoul = Raoul::createRaoul(GameStateSystem::instance().currentLevel.at("raoul"));
+	playerTaji = Taji::createTaji(GameStateSystem::instance().currentLevel.at("taji"));
+	playerEmber = Ember::createEmber(GameStateSystem::instance().currentLevel.at("ember"));
+	playerChia = Chia::createChia(GameStateSystem::instance().currentLevel.at("chia"));
+
+	// ! Test Active Arrow
+	ActiveArrow::createActiveArrow(vec2(640, 250));
 }
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
