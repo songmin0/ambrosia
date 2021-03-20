@@ -176,6 +176,12 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 		}
 	}
 
+	if (entity.has<ActiveArrow>())
+	{
+		GLuint doesBob_uloc = glGetUniformLocation(texmesh.effect.program, "doesBob");
+		glUniform1i(doesBob_uloc, true);
+	}
+
 	// Uniforms for distendable shader
 	GLuint xamplitude_uloc = glGetUniformLocation(texmesh.effect.program, "xamplitude");
 	if (xamplitude_uloc >= 0)
