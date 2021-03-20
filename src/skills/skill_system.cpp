@@ -102,6 +102,6 @@ void SkillSystem::onPlayerChangeEvent(const PlayerChangeEvent &event)
 
 	if (entity.has<SkillComponent>())
 	{
-		entity.get<SkillComponent>().setActiveSkill(SkillType::SKILL1);
+		entity.get<SkillComponent>().setActiveSkill(SkillType::NONE);
 	}
 }

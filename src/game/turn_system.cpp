@@ -159,7 +159,7 @@ void TurnSystem::step(float elapsed_ms)
 				// Add a hardcoded delay before moving the camera so player can see animations
 				assert(!ECS::registry<CameraComponent>.entities.empty());
 				auto camera = ECS::registry<CameraComponent>.entities[0];
-				camera.emplace<CameraDelayedMoveComponent>(0.5f);
+				camera.emplace<CameraDelayedMoveComponent>(0.4f);
 				nextActiveEntity();
 			}
 			// For mobs, need to tell them when its time to move and to perform a skill
@@ -178,8 +178,6 @@ void TurnSystem::step(float elapsed_ms)
 		}
 	}
 	else {
-		//Pretty sure whis will be needed once we get multiple players but that depends 
-		//		on how we handle death leaving for now as it doesn't hurt anything
 		//The current user is dead so switch to the next
 		nextActiveEntity();
 	}
@@ -205,38 +203,44 @@ bool TurnSystem::hasCompletedTurn(TurnComponent tc)
 
 void TurnSystem::onMouseClick(const MouseClickEvent& event)
 {
-	if (!ECS::registry<TurnComponentIsActive>.entities.empty())
+	if (ECS::registry<TurnComponentIsActive>.entities.empty())
 	{
-		// Get the active entity
-		// Check already occurs with if statement above
-		auto& activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+		return;
+	}
 
-		// Check that it's a player and has a TurnComponent
-		if (activeEntity.has<PlayerComponent>() && activeEntity.has<TurnComponent>())
+	auto& activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+
+	// Check that it's a player and has a TurnComponent
+	if (activeEntity.has<PlayerComponent>() && activeEntity.has<TurnComponent>())
+	{
+		auto& turnComponent = activeEntity.get<TurnComponent>();
+
+		if (turnComponent.canStartMoving())
 		{
-			auto& turnComponent = activeEntity.get<TurnComponent>();
+			// Motion component is mandatory
+			assert(activeEntity.has<Motion>());
 
-			if (turnComponent.canStartMoving())
+			auto& motion = activeEntity.get<Motion>();
+			motion.path = pathFindingSystem.getShortestPath(activeEntity, event.mousePos);
+
+			// Only set isMoving to true if a path was actually generated. If the user clicked too close to their character,
+			// then no path would be generated, for example
+			turnComponent.isMoving = !motion.path.empty();
+		}
+		else if (turnComponent.canStartSkill())
+		{
+			// Don't use a skill if in Null State
+			if (activeEntity.get<SkillComponent>().getActiveSkillType() == SkillType::NONE)
 			{
-				// Motion component is mandatory
-				assert(activeEntity.has<Motion>());
-
-				auto& motion = activeEntity.get<Motion>();
-				motion.path = pathFindingSystem.getShortestPath(activeEntity, event.mousePos);
-
-				// Only set isMoving to true if a path was actually generated. If the user clicked too close to their character,
-				// then no path would be generated, for example
-				turnComponent.isMoving = !motion.path.empty();
+				return;
 			}
-			else if (turnComponent.canStartSkill())
-			{
-				turnComponent.isUsingSkill = true;
 
-				PerformActiveSkillEvent performActiveSkillEvent;
-				performActiveSkillEvent.entity = activeEntity;
-				performActiveSkillEvent.target = event.mousePos;
-				EventSystem<PerformActiveSkillEvent>::instance().sendEvent(performActiveSkillEvent);
-			}
+			turnComponent.isUsingSkill = true;
+
+			PerformActiveSkillEvent performActiveSkillEvent;
+			performActiveSkillEvent.entity = activeEntity;
+			performActiveSkillEvent.target = event.mousePos;
+			EventSystem<PerformActiveSkillEvent>::instance().sendEvent(performActiveSkillEvent);
 		}
 	}
 }

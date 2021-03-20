@@ -133,8 +133,12 @@ void AnimationSystem::onPerformSkillEvent(const PerformActiveSkillEvent& event)
 		if (entity.has<AnimationsComponent>())
 		{
 			auto& anim = entity.get<AnimationsComponent>();
-			std::shared_ptr<Skill> activeSkill = entity.get<SkillComponent>().getActiveSkill();
-			anim.changeAnimation(activeSkill->getAnimationType());
+			auto& skillComponent = entity.get<SkillComponent>();
+			if (skillComponent.getActiveSkillType() != SkillType::NONE)
+			{
+				std::shared_ptr<Skill> activeSkill = skillComponent.getActiveSkill();
+				anim.changeAnimation(activeSkill->getAnimationType());
+			}
 		}
 	}
 }

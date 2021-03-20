@@ -43,13 +43,13 @@ bool GameStateSystem::inGameState() {
 
 void GameStateSystem::newGame()
 {
-	isInTutorial = true;
-	hasDoneTutorial = false;
+	/*isInTutorial = true;
+	hasDoneTutorial = false;*/
 	currentTutorialIndex = 0;
 	currentLevelIndex = 0;
 	currentLevel = recipe["maps"][currentLevelIndex];
 	EventSystem<LoadLevelEvent>::instance().sendEvent(LoadLevelEvent{});
-	EventSystem<StartTutorialEvent>::instance().sendEvent(StartTutorialEvent{});
+	//EventSystem<StartTutorialEvent>::instance().sendEvent(StartTutorialEvent{});
 }
 
 void GameStateSystem::nextMap()
