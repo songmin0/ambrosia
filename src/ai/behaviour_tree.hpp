@@ -184,6 +184,13 @@ public:
 	void run();
 };
 
+class PotatoChunkMoveConditional : public Conditional
+{
+public:
+	PotatoChunkMoveConditional();
+	void run();
+};
+
 // Run away if low HP; otherwise, don't move
 class PotatoChunkMoveSelector : public Selector
 {

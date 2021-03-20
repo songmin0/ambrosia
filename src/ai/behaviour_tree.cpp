@@ -2,6 +2,7 @@
 #include "game/stats_component.hpp"
 #include "tree_components.hpp"
 #include "game/game_state_system.hpp"
+#include <game/swarm_behaviour.hpp>
 
 const float MOB_LOW_HEALTH = 25.f;
 
@@ -178,7 +179,8 @@ void MilkTurnSequence::run()
 
 PotatoChunkTurnSequence::PotatoChunkTurnSequence()
 {
-	addChild(std::make_shared<MoveToDeadPotato>(MoveToDeadPotato()));
+	//addChild(std::make_shared<EggMoveSelector>(EggMoveSelector()));
+	addChild(std::make_shared<PotatoChunkMoveConditional>(PotatoChunkMoveConditional()));
 	addChild(std::make_shared<BasicAttackTask>(BasicAttackTask()));
 }
 
@@ -298,6 +300,26 @@ void MilkMoveConditional::run()
 	Node::run();
 	Conditional::run();
 }
+
+PotatoChunkMoveConditional::PotatoChunkMoveConditional()
+{
+	// WHEN I RETURN
+	// CAN I JUST SEND THE EVENT IF THE COMPONENT IS ACTIVE?
+	ECS::Entity chunk = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+	auto chunk_pos = ECS::registry<Motion>.get(chunk).position;
+	auto potato_pos = ECS::registry<ActivePotatoChunks>.get(chunk).potato_pos;
+	auto chunk_grid_pos = vec2(floor(chunk_pos.x / 32), floor(chunk_pos.y / 32));
+	auto potato_grid_pos = vec2(floor(potato_pos.x / 32), floor(potato_pos.y / 32));
+	// only move if far enough
+	setConditional(std::make_shared<MoveToDeadPotato>(MoveToDeadPotato()), chunk_grid_pos != potato_grid_pos);
+}
+
+void PotatoChunkMoveConditional::run()
+{
+	Node::run();
+	Conditional::run();
+}
+
 
 PotatoChunkMoveSelector::PotatoChunkMoveSelector()
 {
@@ -450,7 +472,7 @@ void MoveToDeadPotato::run()
 		std::cout << "Moving to dead potato\n";
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
-			std::bind(&MoveToWeakestPlayerTask::onFinishedTaskEvent, this));
+			std::bind(&MoveToDeadPotato::onFinishedTaskEvent, this));
 		StartMobMoveEvent event;
 		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 		event.movement.moveType = MoveType::TO_DEAD_POTATO;

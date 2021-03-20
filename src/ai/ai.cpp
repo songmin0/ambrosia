@@ -206,11 +206,11 @@ bool AISystem::setTargetToDeadPotato(ECS::Entity& mob)
 	//targetAlly = ECS::registry<ActivePotatoChunks>.get(mob).
 	//auto pos = ECS::registry<Motion>.get(targetAlly).position;
 	//std::cout << pos.x << "   " << pos.y << std::endl;
-
 	auto entity = ECS::Entity();
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = ECS::registry<ActivePotatoChunks>.get(mob).potato_pos;
 	mobComponent.setTarget(entity);
+	ECS::Entity target = mobComponent.getTarget();
 
 	return true;
 }

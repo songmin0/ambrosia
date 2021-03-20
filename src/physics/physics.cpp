@@ -12,6 +12,7 @@
 #include "game/game_state_system.hpp"
 
 #include <iostream>
+#include <game/swarm_behaviour.hpp>
 
 // Returns a BoundingBox representing the entity's current bounds in world coords
 BoundingBox getBoundingBox(ECS::Entity entity, const Motion& motion)
@@ -60,6 +61,14 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 		// Projectiles don't use `motion.path`, so they need to skip this block of code. Their
 		// path/velocity is managed by the ProjectileSystem.
+		//if (ECS::registry<ActivePotatoChunks>.has(entity) && ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0].id == entity.id
+		//	&& motion.path.empty()) {
+		//	std::cout << "my path is this long : " << motion.path.size() << std::endl;;
+		//	FinishedMovementEvent event;
+		//	event.entity = entity;
+		//	EventSystem<FinishedMovementEvent>::instance().sendEvent(event);
+		//}
+
 		if (!entity.has<ProjectileComponent>())
 		{
 			// Get rid of any points that are close enough that no movement is needed
