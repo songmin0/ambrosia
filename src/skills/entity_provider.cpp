@@ -78,7 +78,7 @@ std::vector<ECS::Entity> CircularProvider::getEntities(ECS::Entity instigator,
 													getClosestPointOnBoundingBox(centerOfInstigator, motion));
 		if (dist <= radius)
 		{
-			// Targets will be sorted based on the distance from the targets ground/foot
+			// Targets will be sorted based on the distance from the target's ground/foot
 			// position to the instigator's ground/foot position
 			float distanceForSorting = distance(instigatorPosition, motion.position);
 
@@ -126,17 +126,21 @@ std::vector<ECS::Entity> MouseClickProvider::getEntities(ECS::Entity instigator,
 	// We should search in a circle around the mouse click position
 	vec2 mouseClickPosition = targetPosition;
 
-	// Find all targets whose center is within the circle
 	for (int i = 0; i < ECS::registry<Motion>.entities.size(); i++)
 	{
 		auto entity = ECS::registry<Motion>.entities[i];
+		auto& motion = ECS::registry<Motion>.components[i];
 
-		float dist = distance(mouseClickPosition, getCenterOfEntity(entity));
+		// Find all targets whose bounding box intersects with the circle
+		float dist = distance(mouseClickPosition,
+													getClosestPointOnBoundingBox(mouseClickPosition, motion));
 		if (dist <= radius)
 		{
-			// Targets will be sorted based on distance (the distance from the mouse
-			// click to the center of the entity)
-			entities.emplace_back(entity, dist);
+			// Targets will be sorted based on the distance from the target's center
+			// to the mouse click position
+			float distanceForSorting = distance(mouseClickPosition, getCenterOfEntity(entity));
+
+			entities.emplace_back(entity, distanceForSorting);
 		}
 	}
 
