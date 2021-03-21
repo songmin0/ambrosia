@@ -31,7 +31,7 @@ ECS::Entity Egg::createEgg(json stats, json position)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = vec2(position[0], position[1]);
 	motion.orientation = -1;
-	motion.scale = vec2({ 0.8f * position[2] , 0.8f});
+	motion.scale = vec2({ 0.8f * (float) position[2] , 0.8f});
 	motion.colliderType = CollisionGroup::MOB;
 
 
@@ -111,7 +111,7 @@ ECS::Entity Pepper::createPepper(json stats, json position)
 	motion.moveRange = 1500.f;
 	motion.orientation = -1;
 	auto hitboxScale = vec2({ 0.4f, 0.7f });
-	motion.scale = vec2(0.9f * position[2], 0.9f);
+	motion.scale = vec2(0.9f * (float) position[2], 0.9f);
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
 
@@ -271,7 +271,7 @@ ECS::Entity Potato::createPotato(json stats, json position)
 	motion.position = vec2(position[0], position[1]);
 	motion.orientation = -1;
 	motion.moveRange = 0.f;
-	motion.scale = vec2(1.4f * position[2], 1.4f);
+	motion.scale = vec2(1.4f * (float) position[2], 1.4f);
 	auto hitboxScale = vec2({ 0.7f, 1.f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
@@ -302,6 +302,7 @@ ECS::Entity Potato::createPotato(json stats, json position)
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
 	statsComponent.stats[StatType::NUM_ULT_LEFT] = MAX_NUM_ULT;
+	entity.emplace<CCImmunityComponent>();
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f }, { 1.f, 0.55f });
@@ -392,6 +393,7 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	statsComponent.stats[StatType::HP] = 180.f * initHPPercent;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
+	entity.emplace<CCImmunityComponent>();
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f }, { 1.f, 0.55f });
@@ -410,7 +412,7 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	meleeParams->delay = 0.3f;
 	meleeParams->entityProvider = std::make_shared<CircularProvider>(400.f);
 	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
-	meleeParams->entityHandler = std::make_shared<DamageHandler>(40.f);
+	meleeParams->entityHandler = std::make_shared<DamageHandler>(30.f);
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(meleeParams));
 
 	entity.emplace<MashedPotato>();
@@ -467,6 +469,7 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, vec2 potato_pos, float orie
 	statsComponent.stats[StatType::HP] = 30.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
+	entity.emplace<CCImmunityComponent>();
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
@@ -510,7 +513,6 @@ void createEnemies(json enemies) {
 
 		if (type == "milk") {
 			for (json position : enemy["positions"]) {
-				std::cout << "hi";
 				Milk::createMilk(enemy["stats"], position);
 			}
 		}

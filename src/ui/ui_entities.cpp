@@ -133,8 +133,7 @@ ECS::Entity ClickFilter::createClickFilter(vec2 position, bool doAbsorbClick, bo
 
 		int index = GameStateSystem::instance().currentTutorialIndex;
 		// tutorial states 0, 1, 2 proceed right away
-		// TODO: tutorial states 4, 9, 10 need to wait for turn system refactor
-		if (index <= 2 || index == 3 || index == 9 || index == 10)
+		if (index <= 2 || index == 10)
 		{
 			EventSystem<AdvanceTutorialEvent>::instance().sendEvent(AdvanceTutorialEvent{});
 		}
@@ -208,6 +207,12 @@ ECS::Entity HelpOverlay::createHelpOverlay(vec2 scale)
 
 ECS::Entity HelpButton::createHelpButton(vec2 position)
 {
+	// There should only ever be one of this type of entity
+	while (!ECS::ComponentContainer<HelpButton>().entities.empty())
+	{
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<HelpButton>.entities.back());
+	}
+
 	auto entity = ECS::Entity();
 
 	void(*callback)() = []() {
@@ -239,3 +244,29 @@ ECS::Entity HelpButton::createHelpButton(vec2 position)
 	entity.emplace<HelpButton>();
 	return entity;
 };
+
+ECS::Entity ActiveArrow::createActiveArrow(vec2 position, vec2 scale)
+{
+	// There should only ever be one of this type of entity
+	while (!ECS::ComponentContainer<ActiveArrow>().entities.empty())
+	{
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<ActiveArrow>.entities.back());
+	}
+
+	auto entity = ECS::Entity();
+	ShadedMesh& resource = cacheResource("active_arrow");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, uiPath("active_arrow.png"), "textured");
+	}
+
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::UI);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+	motion.scale = scale;
+
+	ECS::registry<ActiveArrow>.emplace(entity);
+	return entity;
+}

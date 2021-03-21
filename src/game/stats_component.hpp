@@ -39,3 +39,5 @@ struct StatsComponent
 
 	ECS::Entity healthBar;
 };
+
+struct CCImmunityComponent {};

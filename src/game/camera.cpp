@@ -5,8 +5,13 @@ ECS::Entity Camera::createCamera(json configValues) {
 }
 
 ECS::Entity Camera::createCamera(vec2 position) {
+	// There should only ever be one of this type of entity
+	while (!ECS::ComponentContainer<Camera>().entities.empty())
+	{
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Camera>.entities.back());
+	}
+
 	auto entity = ECS::Entity();
-	CameraComponent& cameraComponent = entity.emplace<CameraComponent>();
-	cameraComponent.position = position;
+	entity.emplace<CameraComponent>().position = position;
 	return entity;
 }

@@ -49,6 +49,7 @@ private:
 	void activateSkillButton(const SkillType& skillType);
 	void enableMoveButton(bool doEnable = true);
 	void enableSkillButtons(bool doEnable = true);
+	void enableActiveSkillFX(bool doEnable = true);
 
 	void clearToolTips();
 	ECS::Entity& getToolTip(SkillType skill);

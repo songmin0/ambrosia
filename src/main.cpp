@@ -26,6 +26,7 @@
 #include "game/stats_system.hpp"
 #include "game/game_state_system.hpp"
 #include "game/swarm_behaviour.hpp"
+#include "effects/effect_system.hpp"
 
 
 using Clock = std::chrono::high_resolution_clock;
@@ -55,6 +56,7 @@ int main()
 	StateSystem stateSystem;
 	TurnSystem turnSystem(pathFindingSystem);
 	AnimationSystem animations;
+	EffectSystem effectSystem;
 	UISystem ui;
 	ProjectileSystem projectileSystem;
 	SkillSystem skillSystem;
@@ -99,6 +101,7 @@ int main()
 			skillSystem.step(deltaTime);
 			statsSystem.step(deltaTime);
 			animations.step();
+			effectSystem.step();
 			turnSystem.step(deltaTime);
 			stateSystem.step(deltaTime);
 			particleSystem.step(deltaTime);

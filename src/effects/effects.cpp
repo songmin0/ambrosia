@@ -3,6 +3,12 @@
 
 ECS::Entity MouseClickFX::createMouseClickFX()
 {
+	// There should only ever be one of this type of entity
+	while (!ECS::ComponentContainer<MouseClickFX>().entities.empty())
+	{
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<MouseClickFX>.entities.back());
+	}
+
 	auto entity = ECS::Entity();
 
 	ShadedMesh& resource = cacheResource("mouseclick_static");
@@ -33,6 +39,12 @@ ECS::Entity MouseClickFX::createMouseClickFX()
 
 ECS::Entity ActiveSkillFX::createActiveSkillFX()
 {
+	// There should only ever be one of this type of entity
+	while (!ECS::ComponentContainer<ActiveSkillFX>().entities.empty())
+	{
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<ActiveSkillFX>.entities.back());
+	}
+
 	auto entity = ECS::Entity();
 
 	std::string key = "fx_activeskill";
@@ -71,6 +83,7 @@ ECS::Entity commonInitFX(const std::string& key, const int numFrames, const bool
 	}
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::SKILL);
+	entity.emplace<SkillFX>();
 
 	auto effect_anim = AnimationData(key + "_anim", fxPath(key + "/" + key), numFrames, 1, false, doesCycle);
 	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::EFFECT, std::make_shared<AnimationData>(effect_anim));

@@ -17,7 +17,6 @@
 #include "maps/map_objects.hpp"
 #include "ui/button.hpp"
 #include "ui/ui_system.hpp"
-#include "ui/effects.hpp"
 #include "ui/ui_entities.hpp"
 #include "ui/menus.hpp"
 #include "ai/ai.hpp"
@@ -278,6 +277,30 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 	SkillButton::createMoveButton({ 100, frameBufferHeight - 80 }, "skill_buttons/skill_generic_move",
 		[]() {
 		std::cout << "Move button clicked!" << std::endl;
+		if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
+		{
+			auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
+			if (!activeEntity.has<PlayerComponent>())
+			{
+				return;
+			}
+			
+			auto& turnComponent = activeEntity.get<TurnSystem::TurnComponent>();
+			if (turnComponent.canStartMoving())
+			{
+				turnComponent.activeAction = SkillType::MOVE;
+				SetActiveSkillEvent event;
+				event.entity = activeEntity;
+				event.type = SkillType::MOVE;
+				EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
+
+
+				if (GameStateSystem::instance().isInTutorial && GameStateSystem::instance().currentTutorialIndex == 3)
+				{
+					EventSystem<AdvanceTutorialEvent>::instance().sendEvent(AdvanceTutorialEvent{});
+				}
+			}
+		};
 	});
 
 	SkillButton::createSkillButton({ 250, frameBufferHeight - 80 }, PlayerType::RAOUL, SkillType::SKILL1, "skill1",
@@ -287,10 +310,15 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
 			{
 				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-
-				// Skill buttons should only affect players
-				if (activeEntity.has<PlayerComponent>())
+				if (!activeEntity.has<PlayerComponent>())
 				{
+					return;
+				}
+
+				auto& turnComponent = activeEntity.get<TurnSystem::TurnComponent>();
+				if (turnComponent.canStartSkill())
+				{
+					turnComponent.activeAction = SkillType::SKILL1;
 					SetActiveSkillEvent event;
 					event.entity = activeEntity;
 					event.type = SkillType::SKILL1;
@@ -312,10 +340,15 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
 			{
 				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-
-				// Skill buttons should only affect players
-				if (activeEntity.has<PlayerComponent>())
+				if (!activeEntity.has<PlayerComponent>())
 				{
+					return;
+				}
+
+				auto& turnComponent = activeEntity.get<TurnSystem::TurnComponent>();
+				if (turnComponent.canStartSkill())
+				{
+					turnComponent.activeAction = SkillType::SKILL2;
 					SetActiveSkillEvent event;
 					event.entity = activeEntity;
 					event.type = SkillType::SKILL2;
@@ -332,10 +365,15 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
 			{
 				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-
-				// Skill buttons should only affect players
-				if (activeEntity.has<PlayerComponent>())
+				if (!activeEntity.has<PlayerComponent>())
 				{
+					return;
+				}
+
+				auto& turnComponent = activeEntity.get<TurnSystem::TurnComponent>();
+				if (turnComponent.canStartSkill())
+				{
+					turnComponent.activeAction = SkillType::SKILL3;
 					SetActiveSkillEvent event;
 					event.entity = activeEntity;
 					event.type = SkillType::SKILL3;
@@ -362,18 +400,6 @@ void WorldSystem::createEffects(int frameBufferWidth, int frameBufferHeight)
 {
 	MouseClickFX::createMouseClickFX();
 	ActiveSkillFX::createActiveSkillFX();
-
-	//// !!! FX Test !!!
-	//// some of these don't cycle so ya gotta catch it fast (or change the cycle parameter to true in their inner init function)
-
-	//BlueberriedFX::createBlueberriedFX(vec2(800.f, 700));
-	//BuffedFX::createBuffedFX(vec2(600, 600));
-	//DebuffedFX::createDebuffedFX(vec2(500, 600));
-	//HealedFX::createHealedFX(vec2(400, 700));
-	//ShieldedFX::createShieldedFX(vec2(400, 600));
-	//Candy1FX::createCandy1FX(vec2(500, 300));
-	//Candy2FX::createCandy2FX(vec2(400, 300));
-	//StunnedFX::createStunnedFX(vec2(850, 700));
 }
 
 void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
@@ -382,14 +408,15 @@ void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 	// eg: playerRaoul = Raoul::createRaoul(vec2( 640, 512 ));
 	// please specify vec2(x, y), as {x , y} is also valid json
 
-		playerRaoul = Raoul::createRaoul(GameStateSystem::instance().currentLevel.at("raoul"));
-		playerTaji = Taji::createTaji(GameStateSystem::instance().currentLevel.at("taji"));
-		playerEmber = Ember::createEmber(GameStateSystem::instance().currentLevel.at("ember"));
-		playerChia = Chia::createChia(GameStateSystem::instance().currentLevel.at("chia"));
+	playerRaoul = Raoul::createRaoul(GameStateSystem::instance().currentLevel.at("raoul"));
+	playerTaji = Taji::createTaji(GameStateSystem::instance().currentLevel.at("taji"));
+	playerEmber = Ember::createEmber(GameStateSystem::instance().currentLevel.at("ember"));
+	playerChia = Chia::createChia(GameStateSystem::instance().currentLevel.at("chia"));
 }
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 {
+<<<<<<< HEAD
 	// ! It is recommended to comment out all other mobs and test just one enemy at a time
 
 	// Potato tests
@@ -401,8 +428,9 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 	//Milk::createMilk(vec2(900.f, 800.f), -1.f);
 
 	// TODO: come back and expand this when we have multiple mobs
+=======
+>>>>>>> master
 	auto mobs = GameStateSystem::instance().currentLevel.at("mobs");
-
 	createEnemies(mobs);
 }
 
