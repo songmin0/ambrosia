@@ -24,6 +24,11 @@ struct RawMouseHoverEvent
 	vec2 mousePos;
 };
 
+struct MouseHoverEvent
+{
+	vec2 mousePos;
+};
+
 struct LaunchEvent
 {
 	ProjectileSkillParams skillParams;

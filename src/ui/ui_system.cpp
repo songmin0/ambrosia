@@ -387,6 +387,11 @@ void UISystem::onMouseHover(const RawMouseHoverEvent& event)
 	{
 		clearToolTips();
 	}
+	// Sends a MouseHoverEvent to event system that takes into account the camera position
+	assert(!ECS::registry<CameraComponent>.entities.empty());
+	auto camera = ECS::registry<CameraComponent>.entities[0];
+	auto& cameraPos = camera.get<CameraComponent>().position;
+	EventSystem<MouseHoverEvent>::instance().sendEvent(MouseHoverEvent{ event.mousePos + cameraPos });
 }
 
 void UISystem::activateSkillButton(const SkillType& skillType)

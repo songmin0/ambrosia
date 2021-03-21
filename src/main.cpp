@@ -26,6 +26,7 @@
 #include "game/stats_system.hpp"
 #include "game/game_state_system.hpp"
 #include "effects/effect_system.hpp"
+#include "game/range_indicator_system.hpp"
 
 
 using Clock = std::chrono::high_resolution_clock;
@@ -61,6 +62,7 @@ int main()
 	SkillSystem skillSystem;
 	StatsSystem statsSystem;
 	TutorialSystem tutorialSystem;
+	RangeIndicatorSystem rangeIndicatorSystem;
 
 	// Set all states to default
 	//TODO once the main menu is hooked up this should launch the main menu not the next map.

@@ -89,6 +89,11 @@ std::vector<ECS::Entity> CircularProvider::getEntities(ECS::Entity instigator,
 	return getSortedEntities(entities);
 }
 
+float CircularProvider::getRadius()
+{
+	return radius;
+}
+
 std::vector<ECS::Entity> ConicalProvider::getEntities(ECS::Entity instigator,
 																											vec2 targetPosition)
 {
@@ -141,4 +146,9 @@ std::vector<ECS::Entity> MouseClickProvider::getEntities(ECS::Entity instigator,
 	}
 
 	return getSortedEntities(entities);
+}
+
+float MouseClickProvider::getRadius()
+{
+	return radius;
 }

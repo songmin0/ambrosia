@@ -39,6 +39,8 @@ public:
 	std::vector<ECS::Entity> getEntities(ECS::Entity instigator,
 																			 vec2 targetPosition) override;
 
+	float getRadius();
+
 private:
 	float radius;
 };
@@ -75,6 +77,8 @@ public:
 
 	std::vector<ECS::Entity> getEntities(ECS::Entity instigator,
 																			 vec2 targetPosition) override;
+
+	float getRadius();
 
 private:
 	float radius;

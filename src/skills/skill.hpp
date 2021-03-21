@@ -27,6 +27,9 @@ public:
 
 	float getDelay() const;
 	AnimationType getAnimationType() const;
+	virtual float getRange() = 0;
+	//Using this in the RangeIndicator to find out if the skill is centered around the character or the mouse.
+	std::shared_ptr<SkillParams> getParams();
 
 private:
 	virtual void performSkillInternal() = 0;
@@ -48,6 +51,8 @@ public:
 	AreaOfEffectSkill(std::shared_ptr<AoESkillParams> params);
 	~AreaOfEffectSkill() override = default;
 
+	float getRange();
+
 private:
 	void performSkillInternal() override;
 };
@@ -64,6 +69,8 @@ class ProjectileSkill : public Skill
 public:
 	ProjectileSkill(std::shared_ptr<ProjectileSkillParams> params);
 	~ProjectileSkill() override = default;
+
+	float getRange();
 
 private:
 	void performSkillInternal() override;

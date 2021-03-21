@@ -2,6 +2,7 @@
 #include "skill_component.hpp"
 #include "game/game_state_system.hpp"
 
+
 SkillSystem::SkillSystem()
 {
 	setActiveSkillListener = EventSystem<SetActiveSkillEvent>::instance().registerListener(
