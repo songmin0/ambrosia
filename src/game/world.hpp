@@ -64,6 +64,7 @@ private:
 	void playNextAudioTrack_DEBUG();
 	void onPlaySoundEffectEvent(const PlaySoundEffectEvent& event);
 	void onPlayerChangeEvent(const PlayerChangeEvent& event);
+	void processTimers(float elapsed_ms);
 
 	// Number of fish eaten by the salmon, displayed in the window title
 	unsigned int points;
@@ -102,4 +103,7 @@ private:
 	void onLoadLevel(LoadLevelEvent);
 	EventListenerInfo loadLevelListener;
 
+	void onTransition(TransitionEvent);
+	EventListenerInfo transitionEventListener;
+	void (*transition)();
 };

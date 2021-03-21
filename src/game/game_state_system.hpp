@@ -30,6 +30,7 @@ public:
 	bool hasDoneTutorial;
 	bool isInMainScreen;
 	bool isInHelpScreen;
+	bool isTransitioning;
 	json currentLevel;
 	json recipe;
 	int currentLevelIndex; //THIS SHOULD NOT BE PUBLIC but for now this easily lets me debug change maps

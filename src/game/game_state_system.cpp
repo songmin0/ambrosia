@@ -38,7 +38,7 @@ const vec2 GameStateSystem::getScreenBufferSize()
 
 bool GameStateSystem::inGameState() {
 	//TODO if we add more states that the game can be in add them here if they are relevant.
-	return !isInMainScreen;
+	return !isInMainScreen && !isTransitioning;
 }
 
 void GameStateSystem::newGame()

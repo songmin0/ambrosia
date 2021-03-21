@@ -80,6 +80,9 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	//Register the loadLevelEvent listener
 	loadLevelListener = EventSystem<LoadLevelEvent>::instance().registerListener(
 			std::bind(&WorldSystem::onLoadLevel, this, std::placeholders::_1));
+
+	transitionEventListener = EventSystem<TransitionEvent>::instance().registerListener(
+		std::bind(&WorldSystem::onTransition, this, std::placeholders::_1));
 }
 
 WorldSystem::~WorldSystem(){
@@ -95,6 +98,8 @@ WorldSystem::~WorldSystem(){
 // Update our game world
 void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
+	processTimers(elapsed_ms);
+
 	if (!GameStateSystem::instance().inGameState()) {
 		return;
 	}
@@ -134,6 +139,71 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	if (ECS::registry<AISystem::MobComponent>.entities.size() == 0) {
 		//TODO make this go to the victory screen. For now launch into the next map
 		GameStateSystem::instance().nextMap();
+	}
+}
+
+void WorldSystem::processTimers(float elapsed_ms)
+{
+	for (auto& timer : ECS::registry<TimerComponent>.components)
+	{
+		if (timer.isCountingUp)
+		{
+			if (timer.counter_ms > timer.maxTime_ms)
+			{
+				timer.counter_ms = timer.maxTime_ms;
+			}
+			else if (timer.counter_ms < timer.maxTime_ms)
+			{
+				timer.counter_ms += elapsed_ms;
+			}
+		}
+		else if (!timer.isCountingUp)
+		{
+			if (timer.counter_ms < 0.f)
+			{
+				timer.counter_ms = 0.f;
+			}
+			else if (timer.counter_ms > 0.f)
+			{
+				timer.counter_ms -= elapsed_ms;
+			}
+		}
+	}
+
+	// update screen state with its timer
+	if (!ECS::registry<ScreenState>.entities.empty())
+	{
+		auto& screenEntity = ECS::registry<ScreenState>.entities.front();
+		if (screenEntity.has<TimerComponent>())
+		{
+			auto& screenTimer = screenEntity.get<TimerComponent>();
+			if (screenTimer.complete)
+			{
+				return;
+			}
+
+			assert(screenTimer.maxTime_ms > 0); // cannot divide by 0
+			screenEntity.get<ScreenState>().darken_screen_factor = screenTimer.counter_ms / screenTimer.maxTime_ms;
+
+			// start transition if timer is done
+			if (screenTimer.isCountingUp && screenTimer.counter_ms >= screenTimer.maxTime_ms)
+			{
+				screenTimer.complete = true;
+				transition();
+
+				TransitionEvent event;
+				event.callback = []() { return; };
+				event.isFadingOut = false;
+				EventSystem<TransitionEvent>::instance().sendEvent(event);
+			}
+			// finish transition
+			else if (!screenTimer.isCountingUp && screenTimer.counter_ms <= 0.f)
+			{
+				screenTimer.complete = true;
+				GameStateSystem::instance().isTransitioning = false;
+				std::cout << "Transition complete" << std::endl;
+			}
+		}
 	}
 }
 
@@ -251,7 +321,6 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 
 void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 {
-
 	// Create UI buttons
 	auto player_button_1 = Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth / 2.f - 300, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::RAOUL }); });
@@ -547,6 +616,11 @@ void WorldSystem::onMouseClick(int button, int action, int mods) const
 
 		std::cout << "Mouse click (release): {" << mousePosX << ", " << mousePosY << "}" << std::endl;
 
+		if (GameStateSystem::instance().isTransitioning)
+		{
+			return;
+		}
+
 		RawMouseClickEvent event;
 		event.mousePos = {mousePosX, mousePosY};
 		EventSystem<RawMouseClickEvent>::instance().sendEvent(event);
@@ -729,4 +803,33 @@ void WorldSystem::onPlayerChangeEvent(const PlayerChangeEvent& event)
 void WorldSystem::onLoadLevel(LoadLevelEvent)
 {
 	restart();
+}
+
+void WorldSystem::onTransition(TransitionEvent event)
+{
+	assert(!ECS::registry<ScreenState>.entities.empty());
+	auto& screenEntity = ECS::registry<ScreenState>.entities.front();
+	transition = event.callback;
+
+	if (!screenEntity.has<TimerComponent>())
+	{
+		screenEntity.emplace<TimerComponent>();
+	}
+	
+	auto& screenTimer = screenEntity.get<TimerComponent>();
+	if (event.isFadingOut)
+	{
+		std::cout << "Beginning transition out" << std::endl;
+		screenTimer.isCountingUp = true;
+		screenTimer.maxTime_ms = event.duration;
+		screenTimer.counter_ms = 0.f;
+		screenTimer.complete = false;
+	}
+	else // fading in
+	{
+		screenTimer.isCountingUp = false;
+		screenTimer.maxTime_ms = event.duration;
+		screenTimer.counter_ms = event.duration;
+		screenTimer.complete = false;
+	}
 }

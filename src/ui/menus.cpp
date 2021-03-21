@@ -47,12 +47,17 @@ void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 	logo.emplace<RenderableComponent>(RenderLayer::UI);
 	logo.emplace<Motion>().position = vec2(frameBufferWidth / 2 - 30, frameBufferHeight / 3 - 50);
 
-	Button::createButton(ButtonShape::RECTANGLE, 
+	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth - 250, frameBufferHeight / 2 + 50 }, "menus/start/start-button",
 		[]() {
 			std::cout << "Start button clicked!" << std::endl;
-			GameStateSystem::instance().isInMainScreen = false;
-			GameStateSystem::instance().newGame();
+			GameStateSystem::instance().isTransitioning = true;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInMainScreen = false;
+				GameStateSystem::instance().newGame();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
 
 	Button::createButton(ButtonShape::RECTANGLE,
