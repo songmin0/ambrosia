@@ -83,6 +83,7 @@ ECS::Entity commonInitFX(const std::string& key, const int numFrames, const bool
 	}
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::SKILL);
+	entity.emplace<SkillFX>();
 
 	auto effect_anim = AnimationData(key + "_anim", fxPath(key + "/" + key), numFrames, 1, false, doesCycle);
 	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::EFFECT, std::make_shared<AnimationData>(effect_anim));

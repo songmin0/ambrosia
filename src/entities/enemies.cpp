@@ -30,7 +30,7 @@ ECS::Entity Egg::createEgg(json stats, json position)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = vec2(position[0], position[1]);
 	motion.orientation = -1;
-	motion.scale = vec2({ 0.8f * position[2] , 0.8f});
+	motion.scale = vec2({ 0.8f * (float) position[2] , 0.8f});
 	motion.colliderType = CollisionGroup::MOB;
 
 
@@ -110,7 +110,7 @@ ECS::Entity Pepper::createPepper(json stats, json position)
 	motion.moveRange = 1500.f;
 	motion.orientation = -1;
 	auto hitboxScale = vec2({ 0.4f, 0.7f });
-	motion.scale = vec2(0.9f * position[2], 0.9f);
+	motion.scale = vec2(0.9f * (float) position[2], 0.9f);
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
 
@@ -269,7 +269,7 @@ ECS::Entity Potato::createPotato(json stats, json position)
 	motion.position = vec2(position[0], position[1]);
 	motion.orientation = -1;
 	motion.moveRange = 0.f;
-	motion.scale = vec2(1.4f * position[2], 1.4f);
+	motion.scale = vec2(1.4f * (float) position[2], 1.4f);
 	auto hitboxScale = vec2({ 0.7f, 1.f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 	motion.colliderType = CollisionGroup::MOB;
@@ -504,7 +504,6 @@ void createEnemies(json enemies) {
 
 		if (type == "milk") {
 			for (json position : enemy["positions"]) {
-				std::cout << "hi";
 				Milk::createMilk(enemy["stats"], position);
 			}
 		}

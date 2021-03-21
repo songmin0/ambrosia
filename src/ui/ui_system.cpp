@@ -1,7 +1,7 @@
 #include "ui_system.hpp"
 #include "game/camera.hpp"
-#include <iostream>
 #include <game/game_state_system.hpp>
+#include <iostream>
 
 UISystem::UISystem()
 {
@@ -266,6 +266,15 @@ void UISystem::onPlayerChange(const PlayerChangeEvent& event)
 		{
 			animComponent.changeAnimation(AnimationType::DISABLED);
 		}
+	}
+
+	// Create active arrow when a player is active
+	if (newPlayer.has<PlayerComponent>() && ECS::registry<ActiveArrow>.entities.empty()) {
+		ActiveArrow::createActiveArrow();
+	}
+	// Remove active arrow when a mob is active
+	else if (!newPlayer.has<PlayerComponent>() && !ECS::registry<ActiveArrow>.entities.empty()) {
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<ActiveArrow>.entities.back());
 	}
 
 	int tutorialIndex = GameStateSystem::instance().currentTutorialIndex;

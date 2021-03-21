@@ -27,3 +27,8 @@ struct ClickFilter
 
 struct HelpOverlay { static ECS::Entity createHelpOverlay(vec2 scale = vec2(1.f)); };
 struct HelpButton { static ECS::Entity createHelpButton(vec2 position); };
+
+struct ActiveArrow {
+	static ECS::Entity createActiveArrow(vec2 position = vec2(0.f), vec2 scale = vec2(1.f));
+	vec2 offset = { 0.f, -275.f };
+};
