@@ -60,7 +60,7 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		auto& motion = entity.get<Motion>();
 
 		// Projectiles don't use `motion.path`, so they need to skip this block of code. Their
-
+		// path/velocity is managed by the ProjectileSystem.
 		if (!entity.has<ProjectileComponent>())
 		{
 			// Get rid of any points that are close enough that no movement is needed

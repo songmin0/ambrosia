@@ -430,14 +430,14 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, vec2 potato_pos, float orie
 	}
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
+
+	// we create a dummy potato entity that only holds position, as the potato is removed when it dies
+	// this dummy entity will also serve as the target for the behaviour trees
 	auto potato = ECS::Entity();
 	potato.emplace<Motion>();
 	ECS::registry<Motion>.get(potato).position = potato_pos;
 	entity.emplace<ActivePotatoChunks>(potato);
 
-	// TODO: Swarm behaviour
-	// ~6 chunks should be spawned in a well-spaced pattern within a certain range of the defeated potato boss
-	// during their turn, the chunks should try to move together to reform into mashed potato
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
 	btType.mobType = MobType::POTATO_CHUNK;

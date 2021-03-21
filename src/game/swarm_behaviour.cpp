@@ -10,10 +10,6 @@
 #include <cmath>
 using namespace std;
 
-// Takes a world position and converts it to the position of a tile in the grid
-vec2 getGridPosition(vec2 worldPosition, MapComponent map) {
-	return floor(worldPosition / map.tileSize);
-}
 // Takes the position of a tile in the grid and returns the world position on the actual map
 vec2 getWorldPosition(vec2 gridPosition, MapComponent map) {
 	return gridPosition * map.tileSize;

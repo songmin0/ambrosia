@@ -185,12 +185,6 @@ void StatsSystem::onHitEvent(const HitEvent &event)
 				EventSystem<StopFXEvent>::instance().sendEvent(event);
 				soundEffect = SoundEffect::DEFEAT;
 			}
-
-			//if (ECS::registry<HasSwarmBehaviour>.has(target))
-			//{
-			//	SwarmBehaviour sb;
-			//	sb.startWait(target);
-			//}
 		}
 
 		// Activate target's animation

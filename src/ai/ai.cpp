@@ -203,9 +203,6 @@ bool AISystem::setTargetToDeadPotato(ECS::Entity& mob)
 	auto& mobComponent = mob.get<MobComponent>();
 
 	//// set target as dead potato
-	//targetAlly = ECS::registry<ActivePotatoChunks>.get(mob).
-	//auto pos = ECS::registry<Motion>.get(targetAlly).position;
-	//std::cout << pos.x << "   " << pos.y << std::endl;
 	mobComponent.setTarget(ECS::registry<ActivePotatoChunks>.get(mob).potato);
 	ECS::Entity target = mobComponent.getTarget();
 
@@ -219,7 +216,6 @@ void AISystem::startMobMove(ECS::Entity entity, MovementType movement)
 	auto& motion = entity.get<Motion>();
 
 	ECS::Entity target = entity.get<MobComponent>().getTarget();
-	auto test = target.get<Motion>().position;
 	//Find the direction to travel based on movement type
 	vec2 direction = { 0.f, 0.f };
 	float magnitude = 0.f;

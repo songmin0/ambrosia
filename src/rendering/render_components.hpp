@@ -167,7 +167,7 @@ struct DebugComponent
 // A timer that will be associated to dying players/mobs
 struct DeathTimer
 {
-	float counter_ms;
+	float counter_ms = 1500;
 	void CustomDeathTimer(float counter_ms);
 };
 

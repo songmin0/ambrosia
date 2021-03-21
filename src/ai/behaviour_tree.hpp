@@ -191,15 +191,6 @@ public:
 	void run();
 };
 
-// Run away if low HP; otherwise, don't move
-class PotatoChunkMoveSelector : public Selector
-{
-public:
-	PotatoChunkMoveSelector();
-	void run();
-};
-
-
 // Egg BehaviourTree
 struct EggBehaviourTree : public BehaviourTree
 {
