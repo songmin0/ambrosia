@@ -78,7 +78,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 
 	//Register the loadLevelEvent listener
 	loadLevelListener = EventSystem<LoadLevelEvent>::instance().registerListener(
-			std::bind(&WorldSystem::onLoadLevel, this, std::placeholders::_1));
+			std::bind(&WorldSystem::onLoadLevelEvent, this, std::placeholders::_1));
 
 	transitionEventListener = EventSystem<TransitionEvent>::instance().registerListener(
 		std::bind(&WorldSystem::onTransition, this, std::placeholders::_1));
@@ -133,16 +133,30 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			// Check if there are no more players left, restart game
 			if (ECS::registry<PlayerComponent>.entities.empty())
 			{
-				EventSystem<PlaySoundEffectEvent>::instance().sendEvent({ SoundEffect::GAME_OVER });
-				//TODO this should launch the defeat screen once that is implemented
-				GameStateSystem::instance().launchDefeatScreen();
-				return;
+				if (!GameStateSystem::instance().isTransitioning)
+				{
+					GameStateSystem::instance().isTransitioning = true;
+					EventSystem<PlaySoundEffectEvent>::instance().sendEvent({ SoundEffect::GAME_OVER });
+					TransitionEvent event;
+					event.callback = []() {
+						GameStateSystem::instance().launchDefeatScreen();
+					};
+					EventSystem<TransitionEvent>::instance().sendEvent(event);
+					return;
+				}
 			}
 		}
 	}
 	if (ECS::registry<AISystem::MobComponent>.entities.size() == 0) {
-		//TODO make this go to the victory screen. For now launch into the next map
-		GameStateSystem::instance().launchVictoryScreen();
+		if (!GameStateSystem::instance().isTransitioning)
+		{
+			GameStateSystem::instance().isTransitioning = true;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().launchVictoryScreen();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
+		}
 	}
 }
 
@@ -611,6 +625,31 @@ void WorldSystem::onMouseClick(int button, int action, int mods) const
 		if (GameStateSystem::instance().isTransitioning)
 		{
 			return;
+		}
+
+		if (GameStateSystem::instance().isInStory)
+		{
+			int storyIndex = ++GameStateSystem::instance().currentStoryIndex;
+			std::cout << "Advancing story to index: " << storyIndex << std::endl;
+
+			if (storyIndex > 9)
+			{
+				GameStateSystem::instance().isTransitioning = true;
+				TransitionEvent event;
+				event.callback = []() {
+					GameStateSystem::instance().newGame();
+				};
+				EventSystem<TransitionEvent>::instance().sendEvent(event);
+			}
+			else
+			{
+				GameStateSystem::instance().isTransitioning = true;
+				TransitionEvent event;
+				event.callback = []() {
+					EventSystem<AdvanceStoryEvent>::instance().sendEvent(AdvanceStoryEvent{});
+				};
+				EventSystem<TransitionEvent>::instance().sendEvent(event);
+			}
 		}
 
 		RawMouseClickEvent event;

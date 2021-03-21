@@ -137,3 +137,4 @@ struct AdvanceTutorialEvent {};
 struct EndTutorialEvent {};
 struct ShowHelpEvent {};
 struct HideHelpEvent {};
+struct AdvanceStoryEvent {};
