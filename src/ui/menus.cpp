@@ -150,7 +150,7 @@ void Screens::createDefeatScreen(int frameBufferWidth, int frameBufferHeight, in
 		[]() {
 			//Load save
 			GameStateSystem::instance().isInDefeatScreen = false;
-			GameStateSystem::instance().loadSave();
+			GameStateSystem::instance().restartMap();
 			std::cout << "Yes button clicked!" << std::endl;
 		});
 
