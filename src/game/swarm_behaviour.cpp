@@ -6,8 +6,7 @@
 
 #include <math.h>
 #include <iostream>
-#define _USE_MATH_DEFINES
-#include <cmath>
+
 using namespace std;
 
 // Takes the position of a tile in the grid and returns the world position on the actual map
@@ -110,7 +109,7 @@ void SwarmBehaviour::step(float elapsed_ms, vec2 window_size_in_game_units) {
 		}
 
 		auto mashed_potato_hp = remaining_hp / max_hp;
-
+		std::cout << "Spawning mashed potato";
 		MashedPotato::createMashedPotato(potato_pos, mashed_potato_hp);
 	}
 }
