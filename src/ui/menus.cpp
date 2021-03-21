@@ -58,6 +58,8 @@ void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth - 250, frameBufferHeight / 2 + 150 }, "menus/start/load-button",
 		[]() {
+			GameStateSystem::instance().isInMainScreen = false;
+			GameStateSystem::instance().loadSave();
 			std::cout << "Load button clicked!" << std::endl;
 		});
 
@@ -99,6 +101,8 @@ void Screens::createVictoryScreen(int frameBufferWidth, int frameBufferHeight, i
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth / 2, frameBufferHeight / 2 + 180 }, "menus/next-button",
 		[]() {
+			GameStateSystem::instance().isInVictoryScreen = false;
+			GameStateSystem::instance().nextMap();
 			std::cout << "Next button clicked!" << std::endl;
 		});
 };
@@ -144,12 +148,18 @@ void Screens::createDefeatScreen(int frameBufferWidth, int frameBufferHeight, in
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth / 2 - 120, frameBufferHeight / 2 + 180 }, "menus/yes-button",
 		[]() {
+			//Load save
+			GameStateSystem::instance().isInDefeatScreen = false;
+			GameStateSystem::instance().restartMap();
 			std::cout << "Yes button clicked!" << std::endl;
 		});
 
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth / 2 + 120, frameBufferHeight / 2 + 180 }, "menus/no-button",
 		[]() {
+			//Go to main menu
+			GameStateSystem::instance().isInDefeatScreen = false;
+			GameStateSystem::instance().launchMainMenu();
 			std::cout << "No button clicked..." << std::endl;
 		});
 };
