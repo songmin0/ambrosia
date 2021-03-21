@@ -49,8 +49,8 @@ int main()
 	particleSystem.emitters.push_back(std::make_shared<BasicEmitter>(BasicEmitter(5)));
 	CameraSystem camera(window_size_in_px);
 	RenderSystem renderer(*world.window, &particleSystem);
-	PhysicsSystem physics;
 	PathFindingSystem pathFindingSystem;
+	PhysicsSystem physics(pathFindingSystem);
 	AISystem ai(pathFindingSystem);
 	StateSystem stateSystem;
 	TurnSystem turnSystem(pathFindingSystem);
@@ -68,45 +68,51 @@ int main()
 	world.preloadResources();
 	GameStateSystem::instance().launchMainMenu();
 
+	// Reference: https://gafferongames.com/post/fix_your_timestep/#the-final-touch
+	float t = 0.f;
+	float dt = 16.67f; // milliseconds
 
-	float dtMax = (1.f / 60.f) * 1000.f; // 60 FPS
+	auto prevTime = Clock::now();
+	float accumulator = 0.0;
 
-	auto t = Clock::now();
 	// Variable timestep loop
 	while (!world.isOver())
 	{
-		// Calculating elapsed times in milliseconds from the previous iteration
-		auto now = Clock::now();
-		float elapsed_ms = static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count()) / 1000.f;
-		t = now;
+		// Calculate elapsed time in milliseconds from the previous iteration
+		auto currTime = Clock::now();
+		float frameTime = static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(currTime - prevTime)).count()) / 1000.f;
+		prevTime = currTime;
 
-		while (elapsed_ms > 0.f)
+		accumulator += frameTime;
+		while (accumulator >= dt)
 		{
-			// Reference: https://gafferongames.com/post/fix_your_timestep/#semi-fixed-timestep
-			float deltaTime = std::min(elapsed_ms, dtMax);
-
 			// Processes system messages, if this wasn't present the window would become unresponsive
 			glfwPollEvents();
 
 			DebugSystem::clearDebugComponents();
-			ai.step(deltaTime, window_size_in_game_units);
-			world.step(deltaTime, window_size_in_game_units);
-			camera.step(deltaTime);
-			physics.step(deltaTime, window_size_in_game_units);
+			ai.step(dt, window_size_in_game_units);
+			world.step(dt, window_size_in_game_units);
+			camera.step(dt);
+			physics.step(dt, window_size_in_game_units);
 			world.handleCollisions();
-			projectileSystem.step(deltaTime);
-			skillSystem.step(deltaTime);
-			statsSystem.step(deltaTime);
+			projectileSystem.step(dt);
+			skillSystem.step(dt);
+			statsSystem.step(dt);
 			animations.step();
 			effectSystem.step();
-			turnSystem.step(deltaTime);
-			stateSystem.step(deltaTime);
-			particleSystem.step(deltaTime);
-			renderer.draw(window_size_in_game_units);
+			turnSystem.step(dt);
+			stateSystem.step(dt);
+			particleSystem.step(dt);
 
-
-			elapsed_ms -= deltaTime;
+			t += dt;
+			accumulator -= dt;
 		}
+
+		// Blend physics data between previous and current state
+		float alpha = accumulator / dt;
+		physics.blendMotionData(alpha);
+
+		renderer.draw(window_size_in_game_units);
 	}
 
 	return EXIT_SUCCESS;
