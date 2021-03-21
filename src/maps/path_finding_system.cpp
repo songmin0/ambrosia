@@ -130,6 +130,20 @@ std::stack<vec2> PathFindingSystem::getShortestPath(ECS::Entity sourceEntity, ve
 	return shortestPath;
 }
 
+bool PathFindingSystem::isWalkablePoint(ECS::Entity entity, vec2 point)
+{
+	assert(ECS::registry<MapComponent>.components.size() == 1);
+	assert(!ECS::registry<MapComponent>.components.front().grid.empty());
+
+	// Populate the list of obstacles
+	setCurrentObstacles(entity);
+
+	// Check the given point
+	const MapComponent& map = getMap();
+	vec2 gridPosition = getGridPosition(point);
+	return isValidPoint(map, gridPosition) && isWalkablePoint(map, gridPosition);
+}
+
 bool PathFindingSystem::isValidPoint(const MapComponent& map, vec2 point) const
 {
 	// Check that the point is within the bounds of the map

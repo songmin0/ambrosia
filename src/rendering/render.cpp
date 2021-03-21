@@ -20,14 +20,14 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
 	Transform transform;
 	if (entity.has<UIComponent>()) {
-			transform.translate(motion.position);
+			transform.translate(motion.renderPosition);
 	}
 	else {
 			auto camera = ECS::registry<CameraComponent>.entities[0];
 			auto& cameraComponent = camera.get<CameraComponent>();
-			transform.translate(motion.position - cameraComponent.position);
+			transform.translate(motion.renderPosition - cameraComponent.position);
 	}
-	transform.rotate(motion.angle);
+	transform.rotate(motion.renderAngle);
 
 	// Adjust position of map texture so that top left is at { 0.f, 0.f }
 	if (entity.has<MapComponent>())
@@ -237,7 +237,7 @@ void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 	auto& texmesh = *anims.referenceToCache;
 	Transform transform;
 	if (entity.has<UIComponent>()) {
-		transform.translate(motion.position);
+		transform.translate(motion.renderPosition);
 	}
 	else {
 		auto camera = ECS::registry<CameraComponent>.entities[0];
@@ -245,13 +245,13 @@ void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 		// Add skill fx offset to translate
 		if (entity.has<SkillFX>()) {
 			auto& fxOffset = entity.get<SkillFX>().offset;
-			transform.translate(motion.position + fxOffset - cameraComponent.position);
+			transform.translate(motion.renderPosition + fxOffset - cameraComponent.position);
 		}
 		else {
-			transform.translate(motion.position - cameraComponent.position);
+			transform.translate(motion.renderPosition - cameraComponent.position);
 		}
 	}
-	transform.rotate(motion.angle);
+	transform.rotate(motion.renderAngle);
 	transform.scale(motion.scale * static_cast<vec2>(texmesh.texture.size));
 
 	// The entity's feet are at the bottom of the texture, so move it upward by half the texture size
@@ -421,22 +421,22 @@ struct CompareRenderableEntity
 
 		// Compare players and mobs by their y-position
 		if (renderable1.layer == renderable2.layer && renderable1.layer == RenderLayer::PLAYER_AND_MOB) {
-			return motion1.position.y < motion2.position.y;
+			return motion1.renderPosition.y < motion2.renderPosition.y;
 		}
 
 		// Last skill fx applied should render on top
 		if (renderable1.layer == renderable2.layer && renderable1.layer == RenderLayer::SKILL) {
 			auto& skillFXOrder1 = entity1.get<SkillFX>().order;
 			auto& skillFXOrder2 = entity2.get<SkillFX>().order;
-			return motion1.position.y + skillFXOrder1 < motion2.position.y + skillFXOrder2;
+			return motion1.renderPosition.y + skillFXOrder1 < motion2.renderPosition.y + skillFXOrder2;
 		}
 
 		// Skill FXs should render on top of players and mobs
 		if ((renderable1.layer == RenderLayer::PLAYER_AND_MOB && renderable2.layer == RenderLayer::SKILL)) {
-			return motion1.position.y - float(RenderLayer::PLAYER_AND_MOB) < motion2.position.y - float(RenderLayer::SKILL);
+			return motion1.renderPosition.y - float(RenderLayer::PLAYER_AND_MOB) < motion2.renderPosition.y - float(RenderLayer::SKILL);
 		}
 		else if ((renderable1.layer == RenderLayer::SKILL && renderable2.layer == RenderLayer::PLAYER_AND_MOB)) {
-			return motion1.position.y - float(RenderLayer::SKILL) < motion2.position.y - float(RenderLayer::PLAYER_AND_MOB);
+			return motion1.renderPosition.y - float(RenderLayer::SKILL) < motion2.renderPosition.y - float(RenderLayer::PLAYER_AND_MOB);
 		}
 
 		return renderable1.layer > renderable2.layer;

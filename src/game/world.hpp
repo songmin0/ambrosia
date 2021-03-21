@@ -65,12 +65,8 @@ private:
 	void onPlaySoundEffectEvent(const PlaySoundEffectEvent& event);
 	void onPlayerChangeEvent(const PlayerChangeEvent& event);
 
-	// Number of fish eaten by the salmon, displayed in the window title
-	unsigned int points;
-
-	// Game state
-	float current_speed;
-	int curr_level;
+	// Level loading
+	void onLoadLevelEvent(const LoadLevelEvent& event);
 
 	// Player test
 	ECS::Entity playerRaoul;
@@ -92,14 +88,9 @@ private:
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 
-	// level loader
+	// Level loading
 	LevelLoader lc;
-
 	//config obj
 	//json config;
-
-	//Event listener for load level event
-	void onLoadLevel(LoadLevelEvent);
 	EventListenerInfo loadLevelListener;
-
 };

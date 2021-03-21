@@ -102,10 +102,10 @@ class DebuffAndDamageHandler : public EntityHandler
 public:
 	DebuffAndDamageHandler(StatType statType, float value, float timer,
 												 float damage)
-			: statType(statType)
-			, value(value)
-			, timer(timer)
-			, damage(damage)
+		: statType(statType)
+		, value(value)
+		, timer(timer)
+		, damage(damage)
 	{}
 
 	~DebuffAndDamageHandler() override = default;
@@ -118,4 +118,23 @@ private:
 	float timer;
 
 	float damage;
+};
+
+class KnockbackHandler : public EntityHandler
+{
+public:
+	KnockbackHandler(float radius, float maxForce, float maxDamage)
+		: radius(radius)
+		, maxForce(maxForce)
+		, maxDamage(maxDamage)
+	{}
+
+	~KnockbackHandler() override = default;
+
+	void processInternal(ECS::Entity instigator, ECS::Entity target) override;
+
+private:
+	float radius;
+	float maxForce;
+	float maxDamage;
 };
