@@ -6,10 +6,10 @@
 #include "game/camera.hpp"
 #include "game/camera_system.hpp"
 #include "game/turn_system.hpp"
+#include "game/game_state_system.hpp"
 #include "animation/animation_components.hpp"
 #include "ui/ui_entities.hpp"
-#include <ai/ai.hpp>
-#include "game/game_state_system.hpp"
+#include "ai/ai.hpp"
 
 #include <iostream>
 #include <game/swarm_behaviour.hpp>
@@ -47,6 +47,24 @@ bool collides(const BoundingBox& box1, const BoundingBox& box2)
 				 (box1.top < box2.bottom) && (box1.bottom > box2.top);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// PhysicsSystem
+
+PhysicsSystem::PhysicsSystem(PathFindingSystem& pfs)
+	: pathFindingSystem(pfs)
+{
+	impulseEventListener = EventSystem<ImpulseEvent>::instance().registerListener(
+			std::bind(&PhysicsSystem::onImpulseEvent, this, std::placeholders::_1));
+}
+
+PhysicsSystem::~PhysicsSystem()
+{
+	if (impulseEventListener.isValid())
+	{
+		EventSystem<ImpulseEvent>::instance().unregisterListener(impulseEventListener);
+	}
+}
+
 void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
 	if (!GameStateSystem::instance().inGameState()) {
@@ -54,14 +72,23 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 	// Move entities based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
+	float step_seconds = 1.0f * (elapsed_ms / 1000.f);
 
 	for (auto entity : ECS::registry<Motion>.entities)
 	{
 		auto& motion = entity.get<Motion>();
 
-		// Projectiles don't use `motion.path`, so they need to skip this block of code. Their
+		// See PhysicsSystem::blendMotionData for usage
+		motion.prevPosition = motion.position;
+		motion.prevAngle = motion.angle;
+
+		// Projectiles don't use `motion.path` and don't experience friction. Their
 		// path/velocity is managed by the ProjectileSystem.
-		if (!entity.has<ProjectileComponent>())
+		if (entity.has<ProjectileComponent>())
+		{
+			motion.position += step_seconds * motion.velocity;
+		}
+		else
 		{
 			// Get rid of any points that are close enough that no movement is needed
 			while (!motion.path.empty() && length(motion.position - motion.path.top()) < THRESHOLD)
@@ -74,15 +101,13 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 					FinishedMovementEvent event;
 					event.entity = entity;
 					EventSystem<FinishedMovementEvent>::instance().sendEvent(event);
+
+					motion.velocity = { 0.f, 0.f };
 				}
 			}
 
-			// If no path, make sure velocity is zero
-			if (motion.path.empty())
-			{
-				motion.velocity = { 0.f, 0.f };
-			}
-			else
+			// If the are still points in the path, set the entity's velocity based on the next point
+			if (!motion.path.empty())
 			{
 				// The position at the top of the stack is where the entity wants to go next. We will give the entity
 				// velocity in order to reach that point, and we leave the point on the stack until the entity is within
@@ -92,10 +117,20 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 				// Set velocity based on the desired direction of travel
 				motion.velocity = normalize(desiredPos - motion.position) * DEFAULT_SPEED;
 			}
-		}
 
-		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
-		motion.position += step_seconds * motion.velocity;
+			// Apply friction in x and y directions
+			applyFriction(motion.velocity.x, step_seconds);
+			applyFriction(motion.velocity.y, step_seconds);
+
+			// Calculate next position
+			vec2 newPosition = motion.position + (motion.velocity * step_seconds);
+
+			// Only move the entity to the next position if it's a walkable point
+			if (pathFindingSystem.isWalkablePoint(entity, newPosition))
+			{
+				motion.position = newPosition;
+			}
+		}
 
 		// Camera follows the moving entity
 		if ((entity.has<PlayerComponent>() || entity.has<AISystem::MobComponent>()) && ECS::registry<CameraDelayedMoveComponent>.entities.empty()) {
@@ -162,7 +197,6 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 	// Check for collisions between all moving entities
 	auto& motion_container = ECS::registry<Motion>;
-	// for (auto [i, motion_i] : enumerate(motion_container.components)) // in c++ 17 we will be able to do this instead of the next three lines
 	for (unsigned int i = 0; i < motion_container.components.size(); i++)
 	{
 		Motion& motion_i = motion_container.components[i];
@@ -202,7 +236,56 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 }
 
+void PhysicsSystem::blendMotionData(float alpha)
+{
+	for (auto& motion : ECS::registry<Motion>.components)
+	{
+		// Blend prev and curr position unless prev is uninitialized
+		motion.renderPosition = motion.prevPosition == vec2(FLOAT_MIN) ?
+														motion.position :
+														mix(motion.prevPosition, motion.position, alpha);
+
+		// Blend prev and curr angle unless prev is uninitialized
+		motion.renderAngle = motion.prevAngle == FLOAT_MIN ?
+												 motion.angle :
+												 mix(motion.prevAngle, motion.angle, alpha);
+	}
+}
+
 PhysicsSystem::Collision::Collision(ECS::Entity& other)
 {
 	this->other = other;
+}
+
+void PhysicsSystem::applyFriction(float& speed, float step_seconds)
+{
+	constexpr float COEFFICIENT_OF_FRICTION = 0.4f;
+	constexpr float GRAVITATIONAL_FORCE = 300.f;
+
+	// acceleration = F/m = μmg/m = μg
+	constexpr float frictionAccel = COEFFICIENT_OF_FRICTION * GRAVITATIONAL_FORCE;
+
+	// Speed reduction due to friction
+	float deltaSpeed = frictionAccel * step_seconds;
+
+	// Perform the speed reduction
+	if (speed < 0.f)
+	{
+		speed = std::min(0.f, speed + deltaSpeed);
+	}
+	else
+	{
+		speed = std::max(0.f, speed - deltaSpeed);
+	}
+}
+
+void PhysicsSystem::onImpulseEvent(const ImpulseEvent& event)
+{
+	auto entity = event.entity;
+
+	assert(entity.has<Motion>());
+	auto& motion = entity.get<Motion>();
+
+	// delta velocity = impulse / mass
+	motion.velocity += event.impulse / motion.mass;
 }

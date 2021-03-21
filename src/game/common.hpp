@@ -23,7 +23,9 @@
 using json = nlohmann::json;
 
 using namespace glm;
-static const float PI = 3.14159265359f;
+static constexpr float PI = 3.14159265359f;
+static constexpr float FLOAT_MIN = std::numeric_limits<float>::min();
+static constexpr float FLOAT_MAX = std::numeric_limits<float>::max();
 
 // Simple utility functions to avoid mistyping directory name
 inline std::string dataPath() { return "data"; };
@@ -75,16 +77,26 @@ constexpr CollisionGroup operator|(CollisionGroup a, CollisionGroup b)
 
 // All data relevant to the shape and motion of entities
 struct Motion {
-	vec2 position = { 0, 0 };
-	float angle = 0;
-	vec2 velocity = { 0, 0 };
-	vec2 scale = { 1, 1 };
-	vec2 boundingBox = { 0, 0 };
+	vec2 position = vec2(0.f);
+	vec2 velocity = vec2(0.f);
+	float angle = 0.f;
+
+	// Values from previous simulation step
+	vec2 prevPosition = vec2(FLOAT_MIN);
+	float prevAngle = FLOAT_MIN;
+
+	// Interpolated between previous and current
+	vec2 renderPosition = vec2(0.f);
+	float renderAngle = 0.f;
+
+	vec2 scale = vec2(1.f);
+	vec2 boundingBox = vec2(0.f);
 	float moveRange = 100.f;
+	float mass = 1.f;
 
 	// (orientation * scale.x) faces right when positive 
 	// ie. if a sprite's texture faces left, then orientation should be -1
-	float orientation = 1;
+	float orientation = 1.f;
 
 	std::stack<vec2> path;
 

@@ -68,9 +68,9 @@ ECS::Entity Ember::commonInit()
 	melee3Params->soundEffect = SoundEffect::MELEE;
 	melee3Params->animationType = AnimationType::ATTACK3;
 	melee3Params->delay = 1.5f;
-	melee3Params->entityProvider = std::make_shared<CircularProvider>(200.f);
+	melee3Params->entityProvider = std::make_shared<CircularProvider>(350.f);
 	melee3Params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
-	melee3Params->entityHandler = std::make_shared<DamageHandler>(40.f);
+	melee3Params->entityHandler = std::make_shared<KnockbackHandler>(350.f, 300.f, 40.f);
 	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<AreaOfEffectSkill>(melee3Params));
 
 	entity.emplace<Ember>();
