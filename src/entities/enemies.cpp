@@ -300,6 +300,7 @@ ECS::Entity Potato::createPotato(json stats, json position)
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
 	statsComponent.stats[StatType::NUM_ULT_LEFT] = MAX_NUM_ULT;
+	entity.emplace<CCImmunityComponent>();
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f }, { 1.f, 0.55f });
@@ -390,6 +391,7 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	statsComponent.stats[StatType::HP] = 180.f * initHPPercent;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
+	entity.emplace<CCImmunityComponent>();
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f }, { 1.f, 0.55f });
@@ -408,7 +410,7 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	meleeParams->delay = 0.3f;
 	meleeParams->entityProvider = std::make_shared<CircularProvider>(400.f);
 	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
-	meleeParams->entityHandler = std::make_shared<DamageHandler>(40.f);
+	meleeParams->entityHandler = std::make_shared<DamageHandler>(30.f);
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(meleeParams));
 
 	entity.emplace<MashedPotato>();
@@ -461,6 +463,7 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
 	statsComponent.stats[StatType::HP] = 30.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
+	entity.emplace<CCImmunityComponent>();
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });

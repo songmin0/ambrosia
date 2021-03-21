@@ -175,9 +175,13 @@ void StatsSystem::onHitEvent(const HitEvent &event)
 		{
 			animationToPerform = AnimationType::DEFEAT;
 
-			if (!ECS::registry<DeathTimer>.has(target))
+			if (!target.has<DeathTimer>())
 			{
-				ECS::registry<DeathTimer>.emplace(target);
+				target.emplace<DeathTimer>();
+				StopFXEvent event;
+				event.entity = target;
+				event.fxType = FXType::STUNNED;
+				EventSystem<StopFXEvent>::instance().sendEvent(event);
 				soundEffect = SoundEffect::DEFEAT;
 			}
 		}

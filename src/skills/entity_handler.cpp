@@ -2,12 +2,23 @@
 
 #include "game/event_system.hpp"
 #include "game/events.hpp"
+#include "game/turn_system.hpp"
+#include "entities/enemies.hpp"
 
 void EntityHandler::process(ECS::Entity instigator, ECS::Entity target)
 {
-	if (fxType != FXType::NONE)
+	for (auto fxType : fxTypes)
 	{
-		EventSystem<StartFXEvent>::instance().sendEvent({target, fxType});
+		if (fxType != FXType::NONE)
+		{
+			EventSystem<StartFXEvent>::instance().sendEvent({target, fxType});
+		}
+
+		if (fxType == FXType::STUNNED && target.has<TurnSystem::TurnComponent>() && !target.has<CCImmunityComponent>())
+		{
+			// For now, all stuns are 1 turn and do not stack
+			target.get<TurnSystem::TurnComponent>().stunDuration = 1;
+		}
 	}
 
 	processInternal(instigator, target);
