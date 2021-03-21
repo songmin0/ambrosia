@@ -4,6 +4,11 @@
 #include "camera.hpp"
 #include "level_loader/level_loader.hpp"
 
+#include <string.h>
+#include <cassert>
+#include <sstream>
+#include <iostream>
+
 
 
 GameStateSystem::GameStateSystem() {
@@ -130,6 +135,9 @@ void GameStateSystem::removeAllMotionEntities()
 {
 	while (!ECS::registry<Motion>.entities.empty())
 		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Motion>.entities.back());
+
+	std::cout << "Entity removal complete. \n";
+	ECS::ContainerInterface::listAllComponents();
 }
 
 void GameStateSystem::setWindow(GLFWwindow* window)
