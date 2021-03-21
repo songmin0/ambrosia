@@ -4,6 +4,11 @@
 #include "camera.hpp"
 #include "level_loader/level_loader.hpp"
 
+#include <string.h>
+#include <cassert>
+#include <sstream>
+#include <iostream>
+
 
 
 GameStateSystem::GameStateSystem() {
@@ -38,13 +43,15 @@ const vec2 GameStateSystem::getScreenBufferSize()
 
 bool GameStateSystem::inGameState() {
 	//TODO if we add more states that the game can be in add them here if they are relevant.
-	return !isInMainScreen && !isTransitioning;
+	return !isInMainScreen && !isInVictoryScreen && !isInDefeatScreen;
 }
 
 void GameStateSystem::newGame()
 {
 	isInTutorial = true;
 	hasDoneTutorial = false;
+	isInDefeatScreen = false;
+	isInVictoryScreen = false;
 	currentTutorialIndex = 0;
 	currentLevelIndex = 0;
 	currentLevel = recipe["maps"][currentLevelIndex];
@@ -84,7 +91,11 @@ void GameStateSystem::restartMap()
 
 void GameStateSystem::loadSave()
 {
-	//TODO fill in if necessary
+	LevelLoader lc;
+	json save_obj = lc.load();
+	GameStateSystem::instance().recipe = lc.readLevel(save_obj["recipe"]);
+	GameStateSystem::instance().currentLevelIndex = save_obj["level"];
+	GameStateSystem::instance().restartMap();
 }
 
 void GameStateSystem::save()
@@ -94,12 +105,20 @@ void GameStateSystem::save()
 
 void GameStateSystem::launchVictoryScreen()
 {
-	//TODO fill in once the victory screen has been hooked up
+	Camera::createCamera(vec2(0.f));
+	isInVictoryScreen = true;
+	removeAllMotionEntities();
+	vec2 screenBufferSize = getScreenBufferSize();
+	Screens::createVictoryScreen(screenBufferSize.x, screenBufferSize.y);
 }
 
 void GameStateSystem::launchDefeatScreen()
 {
-	//TODO fill in once the victory screen has been hooked up
+	Camera::createCamera(vec2(0.f));
+	isInDefeatScreen = true;
+	removeAllMotionEntities();
+	vec2 screenBufferSize = getScreenBufferSize();
+	Screens::createDefeatScreen(screenBufferSize.x, screenBufferSize.y);
 }
 
 void GameStateSystem::launchMainMenu()
@@ -107,13 +126,18 @@ void GameStateSystem::launchMainMenu()
 	isInMainScreen = true;
 	Camera::createCamera(vec2(0.f));
 	MouseClickFX::createMouseClickFX();
-
+	removeAllMotionEntities();
 	vec2 screenBufferSize = getScreenBufferSize();
 	StartMenu::createStartMenu(screenBufferSize.x, screenBufferSize.y);
+}
 
-	// replace the start menu with these to test other screens
-	//Screens::createVictoryScreen(screenBufferSize.x, screenBufferSize.y);
-	//Screens::createDefeatScreen(screenBufferSize.x, screenBufferSize.y);
+void GameStateSystem::removeAllMotionEntities()
+{
+	while (!ECS::registry<Motion>.entities.empty())
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Motion>.entities.back());
+
+	std::cout << "Entity removal complete. \n";
+	ECS::ContainerInterface::listAllComponents();
 }
 
 void GameStateSystem::setWindow(GLFWwindow* window)
