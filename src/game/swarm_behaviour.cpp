@@ -73,8 +73,6 @@ void SwarmBehaviour::spawnExplodedChunks(ECS::Entity potato)
 {
 	std::cout << "Spawning potato chunks";
 	auto potato_pos = ECS::registry<Motion>.get(potato).position;
-	// make 5 chunks
-	int num_chunks = 5;
 	auto map = ECS::registry<MapComponent>.components.front();
 	auto points = getPointsAroundCentre(200, potato_pos, num_chunks);
 
@@ -108,34 +106,17 @@ void SwarmBehaviour::step(float elapsed_ms, vec2 window_size_in_game_units) {
 				return;
 			}
 		}
-
+		auto max_hp = chunks[0].get<StatsComponent>().stats[StatType::MAX_HP] * num_chunks;
+		auto remaining_hp = 0.f;
 		for (auto chunk : chunks) {
-			
-			ECS::registry<DeathTimer>.emplace(chunk);
-			//ECS::ContainerInterface::removeAllComponentsOf(chunk);
+			remaining_hp += chunk.get<StatsComponent>().stats[StatType::HP];
+			ECS::registry<DeathTimer>.emplace(chunk).CustomDeathTimer(100.f);
 		}
 
-		//MashedPotato::createMashedPotato(potato_pos);
+		auto mashed_potato_hp = remaining_hp / max_hp;
 
-
-		//if (chunks.size() == 0 && !(spawnedBoss == true)) {
-		//	
-		//	spawnedBoss = true;
-		//}
-		// if they are, kill the chunks
-		
-		std::cout << "swpan potato" << std::endl;
-		//for (auto chunk : chunks) {
-		//	
-		//	ECS::registry<DeathTimer>.emplace(chunk);
-		//	/*ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<ActivePotatoChunks>.entities.back());*/
-		//}
-		//
-		//ECS::ContainerInterface::removeAllComponentsOf(chunks[0]);
-		//ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<ActivePotatoChunks>.entities.back());
-
+		MashedPotato::createMashedPotato(potato_pos, mashed_potato_hp);
 	}
-	
 }
 
 ActivePotatoChunks::ActivePotatoChunks(ECS::Entity potato) {

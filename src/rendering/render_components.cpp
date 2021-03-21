@@ -423,3 +423,7 @@ ShadedMeshRef::ShadedMeshRef(ShadedMesh& mesh) :
 RenderableComponent::RenderableComponent(RenderLayer layer) {
 	this->layer = layer;
 }
+
+void DeathTimer::CustomDeathTimer(float counter_ms) {
+	this->counter_ms = counter_ms;
+}

@@ -12,6 +12,7 @@ class SwarmBehaviour
 		int waitingForPotatoToExplode;
 		bool spawnedBoss;
 		ECS::Entity curr_potato;
+		int num_chunks = 5;
 };
 
 

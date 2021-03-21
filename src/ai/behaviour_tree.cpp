@@ -25,8 +25,10 @@ void StateSystem::onStartMobTurnEvent()
 		break;
 	case MobType::POTATO:
 		activeTree = std::make_shared<BehaviourTree>(PotatoBehaviourTree());
+		break;
 	case MobType::POTATO_CHUNK:
 		activeTree = std::make_shared<BehaviourTree>(PotatoChunkBehaviourTree());
+		break;
 	default:
 		break;
 	}
