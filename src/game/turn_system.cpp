@@ -50,11 +50,19 @@ void TurnSystem::nextActiveEntity()
 	auto& registry = ECS::registry<PlayerComponent>;
 	for (unsigned int i = 0; i < registry.components.size(); i++) {
 		ECS::Entity entity = registry.entities[i];
+		auto& turnComponent = ECS::registry<TurnComponent>.get(entity);
+
+		// Skip the turn of stunned entities
+		if (turnComponent.stunDuration > 0)
+		{
+			turnComponent.stunDuration--;
+			turnComponent.hasUsedSkill = true;
+			continue;
+		}
 
 		// Make sure the entity is alive
 		if (!entity.has<DeathTimer>())
 		{
-			auto& turnComponent = ECS::registry<TurnComponent>.get(entity);
 			if (!hasCompletedTurn(turnComponent)) {
 				ECS::registry<TurnComponentIsActive>.emplace(entity);
 				EventSystem<PlayerChangeEvent>::instance().sendEvent(PlayerChangeEvent{ entity });
@@ -69,6 +77,13 @@ void TurnSystem::nextActiveEntity()
 		for (unsigned int i = 0; i < registry.components.size(); i++) {
 			ECS::Entity entity = registry.entities[i];
 			auto& turnComponent = ECS::registry<TurnComponent>.get(entity);
+			// Skip the turn of stunned entities
+			if (turnComponent.stunDuration > 0)
+			{
+				turnComponent.stunDuration--;
+				turnComponent.hasUsedSkill = true;
+				continue;
+			}
 			if (!hasCompletedTurn(turnComponent)) {
 				ECS::registry<TurnComponentIsActive>.emplace(entity);
 				EventSystem<PlayerChangeEvent>::instance().sendEvent(PlayerChangeEvent{ entity });
@@ -164,14 +179,8 @@ void TurnSystem::step(float elapsed_ms)
 		if (activeEntity.has<TurnComponent>()) 
 		{
 			auto& turnComponent = activeEntity.get<TurnComponent>();
-
-			if (turnComponent.stunDuration > 0)
-			{
-				turnComponent.stunDuration--;
-				turnComponent.hasUsedSkill = true; // skip their turn
-				nextActiveEntity();
-			}
-			else if (hasCompletedTurn(turnComponent))
+			
+			if (hasCompletedTurn(turnComponent))
 			{
 				// Add a hardcoded delay before moving the camera so player can see animations
 				assert(!ECS::registry<CameraComponent>.entities.empty());

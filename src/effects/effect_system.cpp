@@ -29,8 +29,8 @@ void EffectSystem::step() {
 	}
 
 	// Move the skill effects with the player
-	for (auto entity : ECS::registry<Motion>.entities) {
-		if (!entity.has<PlayerComponent>() && !entity.has< AISystem::MobComponent>()) {
+	for (auto entity : ECS::registry<TurnSystem::TurnComponent>.entities) {
+		if (!entity.has<PlayerComponent>() || !entity.has< AISystem::MobComponent>()) {
 			continue;
 		}
 
