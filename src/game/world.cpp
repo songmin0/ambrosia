@@ -394,7 +394,7 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 
 	// Potato tests
 	//Potato::createPotato({ 800.f, 700.f }, -1.f);
-	//MashedPotato::createMashedPotato({ 900.f, 750.f });
+	MashedPotato::createMashedPotato({ 900.f, 750.f });
 	//PotatoChunk::createPotatoChunk({ 900.f, 800.f });
 
 	// Milk test

@@ -180,6 +180,7 @@ void MilkTurnSequence::run()
 PotatoChunkTurnSequence::PotatoChunkTurnSequence()
 {
 	//addChild(std::make_shared<EggMoveSelector>(EggMoveSelector()));
+	//addChild(std::make_shared<PotatoChunkMoveConditional>(PotatoChunkMoveConditional()));
 	addChild(std::make_shared<PotatoChunkMoveConditional>(PotatoChunkMoveConditional()));
 	addChild(std::make_shared<BasicAttackTask>(BasicAttackTask()));
 }
@@ -303,13 +304,14 @@ void MilkMoveConditional::run()
 
 PotatoChunkMoveConditional::PotatoChunkMoveConditional()
 {
-	// WHEN I RETURN
-	// CAN I JUST SEND THE EVENT IF THE COMPONENT IS ACTIVE?
+	//// WHEN I RETURN
+	//// CAN I JUST SEND THE EVENT IF THE COMPONENT IS ACTIVE?
 	ECS::Entity chunk = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 	auto chunk_pos = ECS::registry<Motion>.get(chunk).position;
-	auto potato_pos = ECS::registry<ActivePotatoChunks>.get(chunk).potato_pos;
-	auto chunk_grid_pos = vec2(floor(chunk_pos.x / 32), floor(chunk_pos.y / 32));
-	auto potato_grid_pos = vec2(floor(potato_pos.x / 32), floor(potato_pos.y / 32));
+	auto potato = ECS::registry<ActivePotatoChunks>.get(chunk).potato;
+	auto potato_pos = ECS::registry<Motion>.get(potato).position;
+	auto chunk_grid_pos = vec2(round(chunk_pos.x / 32), round(chunk_pos.y / 32));
+	auto potato_grid_pos = vec2(round(potato_pos.x / 32), round(potato_pos.y / 32));
 	// only move if far enough
 	setConditional(std::make_shared<MoveToDeadPotato>(MoveToDeadPotato()), chunk_grid_pos != potato_grid_pos);
 }

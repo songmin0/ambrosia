@@ -93,6 +93,7 @@ int main()
 			world.step(deltaTime, window_size_in_game_units);
 			camera.step(deltaTime);
 			physics.step(deltaTime, window_size_in_game_units);
+			swarmBehaviour.step(deltaTime, window_size_in_game_units);
 			world.handleCollisions();
 			projectileSystem.step(deltaTime);
 			skillSystem.step(deltaTime);
@@ -102,7 +103,7 @@ int main()
 			stateSystem.step(deltaTime);
 			particleSystem.step(deltaTime);
 			renderer.draw(window_size_in_game_units);
-			swarmBehaviour.step(deltaTime, window_size_in_game_units);
+
 
 
 			elapsed_ms -= deltaTime;

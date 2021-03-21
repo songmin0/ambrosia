@@ -428,7 +428,10 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, vec2 potato_pos, float orie
 	}
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
-	entity.emplace<ActivePotatoChunks>(potato_pos);
+	auto potato = ECS::Entity();
+	potato.emplace<Motion>();
+	ECS::registry<Motion>.get(potato).position = potato_pos;
+	entity.emplace<ActivePotatoChunks>(potato);
 
 	// TODO: Swarm behaviour
 	// ~6 chunks should be spawned in a well-spaced pattern within a certain range of the defeated potato boss

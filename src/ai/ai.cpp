@@ -206,10 +206,7 @@ bool AISystem::setTargetToDeadPotato(ECS::Entity& mob)
 	//targetAlly = ECS::registry<ActivePotatoChunks>.get(mob).
 	//auto pos = ECS::registry<Motion>.get(targetAlly).position;
 	//std::cout << pos.x << "   " << pos.y << std::endl;
-	auto entity = ECS::Entity();
-	Motion& motion = entity.emplace<Motion>();
-	motion.position = ECS::registry<ActivePotatoChunks>.get(mob).potato_pos;
-	mobComponent.setTarget(entity);
+	mobComponent.setTarget(ECS::registry<ActivePotatoChunks>.get(mob).potato);
 	ECS::Entity target = mobComponent.getTarget();
 
 	return true;
@@ -222,6 +219,7 @@ void AISystem::startMobMove(ECS::Entity entity, MovementType movement)
 	auto& motion = entity.get<Motion>();
 
 	ECS::Entity target = entity.get<MobComponent>().getTarget();
+	auto test = target.get<Motion>().position;
 	//Find the direction to travel based on movement type
 	vec2 direction = { 0.f, 0.f };
 	float magnitude = 0.f;
@@ -233,7 +231,7 @@ void AISystem::startMobMove(ECS::Entity entity, MovementType movement)
 	else
 	{
 		direction = normalize(target.get<Motion>().position - motion.position);
-		magnitude = length(target.get<Motion>().position - motion.position) - 50.f;
+		magnitude = length(target.get<Motion>().position - motion.position);
 		// Limit desired distance by allowed movement range
 		if (magnitude > motion.moveRange)
 			magnitude = motion.moveRange;

@@ -2,6 +2,8 @@
 #include <entities/tiny_ecs.hpp>
 #include "entities/enemies.hpp"
 #include "maps/map.hpp"
+#include "stats_system.hpp"
+
 #include <math.h>
 #include <iostream>
 #define _USE_MATH_DEFINES
@@ -74,7 +76,7 @@ void SwarmBehaviour::spawnExplodedChunks(ECS::Entity potato)
 	// make 5 chunks
 	int num_chunks = 5;
 	auto map = ECS::registry<MapComponent>.components.front();
-	auto points = getPointsAroundCentre(300, potato_pos, num_chunks);
+	auto points = getPointsAroundCentre(200, potato_pos, num_chunks);
 
 	for (int i = 0; i < num_chunks; i++) {
 		PotatoChunk::createPotatoChunk(points[i], potato_pos, -1);
@@ -88,10 +90,54 @@ void SwarmBehaviour::startWait(ECS::Entity potato) {
 
 void SwarmBehaviour::step(float elapsed_ms, vec2 window_size_in_game_units) {
 
-	// monitor distance here
+	auto chunks = ECS::registry<ActivePotatoChunks>.entities;
+
+	// chunks exist, and arent currently dying
+	if (chunks.size() > 0 && !ECS::registry<DeathTimer>.has(chunks[0])) {
+		auto potato = ECS::registry<ActivePotatoChunks>.get(chunks[0]).potato;
+		auto potato_pos = ECS::registry<Motion>.get(potato).position;
+
+		// check if all chunks are within some distance d from potato;
+		for (auto chunk : chunks) {
+			auto chunk_pos = ECS::registry<Motion>.get(chunk).position;
+			// if not, return
+			if (!(chunk_pos.x < potato_pos.x + 50 &&
+				chunk_pos.y < potato_pos.y + 50 &&
+				chunk_pos.x > potato_pos.x - 50 &&
+				chunk_pos.y > potato_pos.y - 50)) {
+				return;
+			}
+		}
+
+		for (auto chunk : chunks) {
+			
+			ECS::registry<DeathTimer>.emplace(chunk);
+			//ECS::ContainerInterface::removeAllComponentsOf(chunk);
+		}
+
+		//MashedPotato::createMashedPotato(potato_pos);
+
+
+		//if (chunks.size() == 0 && !(spawnedBoss == true)) {
+		//	
+		//	spawnedBoss = true;
+		//}
+		// if they are, kill the chunks
+		
+		std::cout << "swpan potato" << std::endl;
+		//for (auto chunk : chunks) {
+		//	
+		//	ECS::registry<DeathTimer>.emplace(chunk);
+		//	/*ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<ActivePotatoChunks>.entities.back());*/
+		//}
+		//
+		//ECS::ContainerInterface::removeAllComponentsOf(chunks[0]);
+		//ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<ActivePotatoChunks>.entities.back());
+
+	}
 	
 }
 
-ActivePotatoChunks::ActivePotatoChunks(vec2 potato_pos) {
-	this->potato_pos = potato_pos;
+ActivePotatoChunks::ActivePotatoChunks(ECS::Entity potato) {
+	this->potato = potato;
 }
