@@ -127,14 +127,14 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			{
 				EventSystem<PlaySoundEffectEvent>::instance().sendEvent({ SoundEffect::GAME_OVER });
 				//TODO this should launch the defeat screen once that is implemented
-				GameStateSystem::instance().restartMap();
+				GameStateSystem::instance().launchDefeatScreen();
 				return;
 			}
 		}
 	}
 	if (ECS::registry<AISystem::MobComponent>.entities.size() == 0) {
 		//TODO make this go to the victory screen. For now launch into the next map
-		GameStateSystem::instance().nextMap();
+		GameStateSystem::instance().launchVictoryScreen();
 	}
 }
 
@@ -400,6 +400,10 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 // On key callback
 void WorldSystem::onKey(int key, int, int action, int mod)
 {
+	//Don't let debug buttons work unless in game
+	if (!GameStateSystem::instance().inGameState()) {
+		return;
+	}
 	// Handles inputs for camera movement
 	assert(!ECS::registry<CameraComponent>.entities.empty());
 	auto camera = ECS::registry<CameraComponent>.entities[0];
@@ -463,10 +467,10 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
 	{
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);
+			int w, h;
+			glfwGetWindowSize(window, &w, &h);
 
-		restart();
+			restart();
 	}
 
 	if (key == GLFW_KEY_H && action == GLFW_RELEASE)
