@@ -389,8 +389,8 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	// the parameter initHPPercent is a % value from 0 -> 1
 	// ie. if we collectively reduced chunks to 50% HP (or defeated half the chunks), then
 	// Mashed Potatoes spawns with 50% of its Max HP
-	statsComponent.stats[StatType::MAX_HP] = 180.f;
-	statsComponent.stats[StatType::HP] = 180.f * initHPPercent;
+	statsComponent.stats[StatType::MAX_HP] = 300.f;
+	statsComponent.stats[StatType::HP] = 300.f * initHPPercent;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
 	entity.emplace<CCImmunityComponent>();
@@ -465,8 +465,8 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, vec2 potato_pos, float orie
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAX_HP] = 30.f;
-	statsComponent.stats[StatType::HP] = 30.f;
+	statsComponent.stats[StatType::MAX_HP] = 100.f;
+	statsComponent.stats[StatType::HP] = 100.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
 	entity.emplace<CCImmunityComponent>();
