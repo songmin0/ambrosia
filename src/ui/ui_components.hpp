@@ -48,3 +48,4 @@ struct UIComponent {};
 struct MoveToolTipComponent {};
 struct MoveButtonComponent {};
 struct TutorialComponent {};
+struct StoryComponent {};

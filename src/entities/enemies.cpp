@@ -317,7 +317,7 @@ ECS::Entity Potato::createPotato(json stats, json position)
 	meleeParams->soundEffect = SoundEffect::MELEE;
 	meleeParams->animationType = AnimationType::ATTACK1;
 	meleeParams->delay = 1.f;
-	meleeParams->entityProvider = std::make_shared<CircularProvider>(200.f);
+	meleeParams->entityProvider = std::make_shared<CircularProvider>(800.f);
 	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
 	meleeParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
 	meleeParams->entityHandler = std::make_shared<DamageHandler>(40.f);

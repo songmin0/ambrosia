@@ -30,9 +30,17 @@ private:
 
 	EventListenerInfo hideHelpListener;
 	void onHideHelp(const HideHelpEvent& event);
+
+	EventListenerInfo advanceStoryListener;
+	void onAdvanceStory(const AdvanceStoryEvent& event);
 };
 
 struct TutorialText
 {
 	static ECS::Entity createTutorialText(vec2 position, int tutorialStage = 0);
+};
+
+struct StoryScene
+{
+	static ECS::Entity createStoryScene(vec2 screenSize, int storyStage, bool hasAmbrosia = false);
 };

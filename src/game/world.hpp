@@ -64,6 +64,7 @@ private:
 	void playNextAudioTrack_DEBUG();
 	void onPlaySoundEffectEvent(const PlaySoundEffectEvent& event);
 	void onPlayerChangeEvent(const PlayerChangeEvent& event);
+	void processTimers(float elapsed_ms);
 
 	// Level loading
 	void onLoadLevelEvent(const LoadLevelEvent& event);
@@ -93,4 +94,8 @@ private:
 	//config obj
 	//json config;
 	EventListenerInfo loadLevelListener;
+
+	void onTransition(TransitionEvent);
+	EventListenerInfo transitionEventListener;
+	void (*transition)();
 };

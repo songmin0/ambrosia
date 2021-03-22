@@ -28,14 +28,17 @@ public:
 	bool inGameState();
 	bool isInTutorial;
 	bool hasDoneTutorial;
+	bool isInStory;
 	bool isInMainScreen;
 	bool isInHelpScreen;
+	bool isTransitioning;
 	bool isInVictoryScreen;
 	bool isInDefeatScreen;
 	json currentLevel;
 	json recipe;
 	int currentLevelIndex; //THIS SHOULD NOT BE PUBLIC but for now this easily lets me debug change maps
 	int currentTutorialIndex;
+	int currentStoryIndex;
 
 	// Load a fresh playthrough with tutorial on, does not save
 	void newGame();
@@ -53,6 +56,10 @@ public:
 	void launchDefeatScreen();
 	//This will call the main menu
 	void launchMainMenu();
+
+	void beginStory();
+	void beginTutorial();
+
 //This removes all the enitities with a motion component
 	void removeAllMotionEntities();
 
