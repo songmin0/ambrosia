@@ -13,6 +13,98 @@
 - Chia = "green" character
 
 ---
+## Milestone 3
+### Summary - Milestone 3:
+
+Our work is consistent with our development plan, and we are using one grace day for this milestone.
+
+#### Gameplay:
+- added the GameStateSystem which handles the flow of the game outside of each level
+- Refactoring and extension of the skills implementation to allow projectiles to do more than just apply damage to targets. They are now configured in the same way as AreaOfEffect skills and can do things like heal, stun, buff, debuff, and damage targets
+- Added skills for Chia and Taji (the green and blue characters)
+- Taji's second skill implements stun CC that skips the turn of the afflicted enemy for 1 turn. It includes a VFX that is active for the duration of the stun. Bosses such as the Potato boss and its related chunks/respawned version are immune to CC and are not affected by the stun.
+- Chia's third skill grants all allies an HP shield. This is indicated both with a VFX and a procedurally-generated blue bar in the affected player's HP bar that informs players how much of the shield is remaining.
+- Added movement range to the Motion struct for simple distance limitations
+- Added the range indicator for skills and adjusted AABB collision + targetting system to take bounding boxes into account when calculating range
+- Added a black fade-out transition for all transitions in the game
+- Added start screen, defeat screen, and victory screens
+
+#### Physics:
+- Implemented a knockback attack for Ember (the red character)'s third skill, which applies an impulse to nearby targets. The force of the attack is dependent on the instigator's strength. The affect it has on the target's velocity is dependent on the target's mass. Variations of this skill can be added to any player or enemy
+- Added a friction force to the physics system to gradually stop targets who get knocked back
+- Modified the timestep calculations in main.cpp to allow for framerate-independent game logic and physics. And for smoother motion, entities are rendered using interpolated positions and orientations, based on their positions/orientations in the most recent physics step and the step before that
+
+#### AI
+- Refactoring code to make behaviour tree definition easier
+- Added Milk mob, Pepper mob, Potato boss behaviour trees
+
+#### Advanced Group Behaviour
+- The Milk mob is a healer-type mob. It will heal its allies when there exists any ally that is not full HP, otherwise it will attack players with a ranged projectile and do damage.
+
+#### Swarm Behaviour
+- Implemented swarm behaviour for potato boss (spawns in the third arena)
+- On defeat, spawns 5 potato chunks evenly spaced around boss
+- Chunks try to reconstitute into a mashed potato boss when close enough
+- Health of the reformed mashed potato boss is reliant on the remaining HP of the chunks
+
+#### Level Loader
+- Refactored to add ability to specify stats for mobs as well
+- Changed a per level format to per playthrough format
+
+#### Save and Load
+- Added auto save after a stage is finished
+- Current stage and playthrough outputted into JSON
+- Click "Load" from the start screen to load the last played level from the save file
+
+#### User Experience
+- Added story introduction (press "Start" from main screen to view)
+- Added intro gameplay tutorial (press "Start" and complete story panels to view)
+- Added a "Help" overlay. This can be accessed in game after completion of tutorial, either by pressing `H` or by clicking the `Help` icon in the top right corner of the screen.
+- Based on player feedback, adjusted the TurnSystem and UISystem to account for a "Null State" during player turns, in which no action is considered "active" and player mouse clicks do nothing (previously, the player must be in either "Move" or "Skill" phase. Now, players begin in "Null" state and must manually select an action to perform). This also allows players to use a skill without moving.
+- Based on player feedback, adjusted mob HP bars to be red
+
+#### VFX:
+- Implemented effect system to handle creating and removing visual skill effects
+- Effect system also handles positioning buffs on top of the buffed entity
+- Updated the particleSystem so particles can be added at anytime instead of just in the main method
+- Made the cotton candy particles only spawn in the Dessert arena
+
+#### UI:
+- Active player is now indicated by a bobbing arrow above their head
+
+#### Audio Feedback:
+- All major interactions in the game have audio feedback (ie. mouse clicks, turn switch, skill usage, defeat... etc)
+
+#### Memory Management:
+- Using Visual Studio's Diagnostic Tools, examined memory usage in the game
+- Fixed memory leaks due to improper handling of `stbi` pointers
+- Fixed memory leaks due to allocating heap resources using `new` instead of `std::shared_pointer`
+
+#### Assets
+- new start screen music (composed by Emma)
+- new animations, button textures, VFX
+- new splash art assets for all game menus
+- new tutorial and story assets
+
+---
+
+### Key Bindings for Debugging
+#### *Please note that debug keys only work during combat, and are disabled in start menus/story scenes/etc
+- R = restart
+- D = debug mode
+- S = print stats for all entities
+- M = load dessert arena
+- N = load pizza arena
+- A = cycle available soundtracks
+- 3, 4 = animation tests
+- H = show help menu (this isn't really a debugging key but a real key binding)
+- L = load last save file
+
+
+### Additional Info
+All features should be accessible by playing through the entire game from the "Start" button. The "Load" button or the `L` key can be used to test save and reload. The expected behaviour is that a fresh version of the last map accessed should be loaded.
+
+---
 
 ## Milestone 2
 ### Summary - Milestone 2:
@@ -65,32 +157,6 @@ Our work is consistent with our development plan, and we are using one grace day
 
 #### Audio:
 - Added new music and various sound effects/audio feedback
-
----
-
-### Key Bindings for Debugging
-- R = restart
-- D = debug mode
-- S = print stats for all entities
-- M = load dessert arena
-- N = load pizza arena
-- A = cycle available soundtracks
-- 3, 4 = animation tests
-
-
-### Additional Info
-All maps are rendered in "debug" mode with a navmesh overlay. Walkable regions are lighter and unwalkable regions are darker.
-
-The game is turn-based. Players and mobs cycle through one turn each. A turn consists of [1] an initial **move phase**, and [2] a **skill phase**. A turn ends when an entity has moved and used a skill. The active player can be changed at any point within their turn, but once a player has ended their turn, they cannot be active again until the next cycle of turns.
-
-After all players have ended their turns, the mobs will use their turns. The turn cycle repeats after all entities have ended their turns.
-
-In this milestone, the game begins in the Pizza arena. Defeating all mobs in the Pizza arena will automatically load the Dessert arena. All subsequent victories reload the Dessert arena. This behaviour is temporary for gameplay and level-loading purposes, and will be improved in future milestones.
-
-
-#### Notes
-Some animations have not been implemented yet. The following animations are currently not available:
-- Chia (green) and Ember (red)'s damaged and defeat animations
 
 ---
 
