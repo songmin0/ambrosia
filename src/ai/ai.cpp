@@ -6,6 +6,7 @@
 #include "game/game_state_system.hpp"
 
 #include <iostream>
+#include <game/swarm_behaviour.hpp>
 
 AISystem::AISystem(PathFindingSystem& pfs)
 	: pathFindingSystem(pfs)
@@ -194,6 +195,20 @@ bool AISystem::setTargetToWeakestMob(ECS::Entity& mob)
 	return lowestHP != float_max;
 }
 
+bool AISystem::setTargetToDeadPotato(ECS::Entity& mob)
+{
+	ECS::Entity targetAlly;
+	// Given mob variable should be a mob
+	assert(mob.has<MobComponent>());
+	auto& mobComponent = mob.get<MobComponent>();
+
+	//// set target as dead potato
+	mobComponent.setTarget(ECS::registry<ActivePotatoChunks>.get(mob).potato);
+	ECS::Entity target = mobComponent.getTarget();
+
+	return true;
+}
+
 void AISystem::startMobMove(ECS::Entity entity, MovementType movement)
 {
 	assert(entity.has<MobComponent>());
@@ -212,7 +227,7 @@ void AISystem::startMobMove(ECS::Entity entity, MovementType movement)
 	else
 	{
 		direction = normalize(target.get<Motion>().position - motion.position);
-		magnitude = length(target.get<Motion>().position - motion.position) - 50.f;
+		magnitude = length(target.get<Motion>().position - motion.position);
 		// Limit desired distance by allowed movement range
 		if (magnitude > motion.moveRange)
 			magnitude = motion.moveRange;
@@ -259,6 +274,8 @@ void AISystem::onStartMobMoveEvent(const StartMobMoveEvent& event)
 	case MoveType::TO_WEAKEST_MOB:
 		targetExists = setTargetToWeakestMob(entity);
 		break;
+	case MoveType::TO_DEAD_POTATO:
+		targetExists = setTargetToDeadPotato(entity);
 	default:
 		break;
 	}

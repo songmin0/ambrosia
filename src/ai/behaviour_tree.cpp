@@ -2,6 +2,7 @@
 #include "game/stats_component.hpp"
 #include "tree_components.hpp"
 #include "game/game_state_system.hpp"
+#include <game/swarm_behaviour.hpp>
 
 const float MOB_LOW_HEALTH = 25.f;
 
@@ -24,6 +25,10 @@ void StateSystem::onStartMobTurnEvent()
 		break;
 	case MobType::POTATO:
 		activeTree = std::make_shared<BehaviourTree>(PotatoBehaviourTree());
+		break;
+	case MobType::POTATO_CHUNK:
+		activeTree = std::make_shared<BehaviourTree>(PotatoChunkBehaviourTree());
+		break;
 	default:
 		break;
 	}
@@ -174,6 +179,18 @@ void MilkTurnSequence::run()
 	Sequence::run();
 }
 
+PotatoChunkTurnSequence::PotatoChunkTurnSequence()
+{
+	addChild(std::make_shared<PotatoChunkMoveConditional>(PotatoChunkMoveConditional()));
+	addChild(std::make_shared<BasicAttackTask>(BasicAttackTask()));
+}
+
+void PotatoChunkTurnSequence::run()
+{
+	Node::run();
+	Sequence::run();
+}
+
 PotatoSkillSelector::PotatoSkillSelector()
 {
 	addChild(std::make_shared<BasicAttackTask>(BasicAttackTask()));
@@ -285,6 +302,27 @@ void MilkMoveConditional::run()
 	Conditional::run();
 }
 
+PotatoChunkMoveConditional::PotatoChunkMoveConditional()
+{
+	ECS::Entity chunk = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+	auto chunk_pos = ECS::registry<Motion>.get(chunk).position;
+	auto potato = ECS::registry<ActivePotatoChunks>.get(chunk).potato;
+	auto potato_pos = ECS::registry<Motion>.get(potato).position;
+
+	// get grid positions
+	auto chunk_grid_pos = vec2(round(chunk_pos.x / 32), round(chunk_pos.y / 32));
+	auto potato_grid_pos = vec2(round(potato_pos.x / 32), round(potato_pos.y / 32));
+
+	// only move if destination and chunk are on different grid positions
+	setConditional(std::make_shared<MoveToDeadPotato>(MoveToDeadPotato()), chunk_grid_pos != potato_grid_pos);
+}
+
+void PotatoChunkMoveConditional::run()
+{
+	Node::run();
+	Conditional::run();
+}
+
 MilkSkillSelector::MilkSkillSelector()
 {
 	addChild(std::make_shared<HealTask>(HealTask()));
@@ -340,6 +378,10 @@ PotatoBehaviourTree::PotatoBehaviourTree()
 	root = std::make_shared<PotatoSkillSelector>(PotatoSkillSelector());
 }
 
+PotatoChunkBehaviourTree::PotatoChunkBehaviourTree()
+{
+	root = std::make_shared<PotatoChunkTurnSequence>(PotatoChunkTurnSequence());
+}
 // TASKS
 // Public tasks not meant for any single mob
 // =====================================================================
@@ -412,6 +454,22 @@ void MoveToWeakestPlayerTask::run()
 
 }
 
+void MoveToDeadPotato::run()
+{
+	if (this->status == Status::INVALID)
+	{
+		std::cout << "Moving to dead potato\n";
+		Node::run();
+		taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
+			std::bind(&MoveToDeadPotato::onFinishedTaskEvent, this));
+		StartMobMoveEvent event;
+		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+		event.movement.moveType = MoveType::TO_DEAD_POTATO;
+		EventSystem<StartMobMoveEvent>::instance().sendEvent(event);
+	}
+
+}
+
 void MoveToWeakestMobTask::run()
 {
 	if (this->status == Status::INVALID)
@@ -466,6 +524,9 @@ void BasicAttackTask::run()
 			break;
 		case MobType::MILK:
 			activeEvent.type = SkillType::SKILL2;
+			break;
+		case MobType::POTATO_CHUNK:
+			activeEvent.type = SkillType::SKILL1;
 			break;
 		default:
 			activeEvent.type = SkillType::SKILL1;

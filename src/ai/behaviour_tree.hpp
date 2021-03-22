@@ -23,7 +23,8 @@ enum class MobType
 	EGG,
 	PEPPER,
 	MILK,
-	POTATO
+	POTATO,
+	POTATO_CHUNK
 };
 
 struct BehaviourTreeType
@@ -142,6 +143,15 @@ public:
 	void run();
 };
 
+// Composite sequence of moving to potato or waiting
+// Root node of Potato Chunk BehaviourTree
+class PotatoChunkTurnSequence : public Sequence
+{
+public:
+	PotatoChunkTurnSequence();
+	void run();
+};
+
 // Make egg move closer to player or run away (if low HP)
 class EggMoveSelector : public Selector
 {
@@ -174,6 +184,13 @@ public:
 	void run();
 };
 
+class PotatoChunkMoveConditional : public Conditional
+{
+public:
+	PotatoChunkMoveConditional();
+	void run();
+};
+
 // Egg BehaviourTree
 struct EggBehaviourTree : public BehaviourTree
 {
@@ -200,6 +217,12 @@ struct PotatoBehaviourTree : public BehaviourTree
 {
 public:
 	PotatoBehaviourTree();
+};
+
+struct PotatoChunkBehaviourTree : public BehaviourTree
+{
+public:
+	PotatoChunkBehaviourTree();
 };
 
 // Parent class of all leaf nodes
@@ -249,6 +272,13 @@ public:
 // Task to move closer to weakest mob
 // May use later - maybe for protecting
 class MoveToWeakestMobTask : public MoveTask
+{
+public:
+	void run();
+};
+
+// Task to move closer potato death point
+class MoveToDeadPotato : public MoveTask
 {
 public:
 	void run();

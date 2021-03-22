@@ -12,6 +12,7 @@
 #include "ai/ai.hpp"
 
 #include <iostream>
+#include <game/swarm_behaviour.hpp>
 
 // Returns a BoundingBox representing the entity's current bounds in world coords
 BoundingBox getBoundingBox(ECS::Entity entity, const Motion& motion)

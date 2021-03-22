@@ -28,6 +28,7 @@
 #include <cassert>
 #include <sstream>
 #include <iostream>
+#include <game/swarm_behaviour.hpp>
 
 // Create the world
 // Note, this has a lot of OpenGL specific things, could be moved to the renderer; but it also defines the callbacks to the mouse and keyboard. That is why it is called here.
@@ -125,6 +126,14 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		// Remove player/mob once death timer expires
 		if (counter.counter_ms < 0)
 		{
+
+			// this has to go here, so the new chunks are added to mobs before the potato is removed
+			if (ECS::registry<HasSwarmBehaviour>.has(entity))
+			{
+				SwarmBehaviour sb;
+				sb.spawnExplodedChunks(entity);
+			}
+
 			//If the entity has a stats component get rid of the health bar too
 			if (entity.has<StatsComponent>()) {
 				ECS::ContainerInterface::removeAllComponentsOf(entity.get<StatsComponent>().healthBar);
