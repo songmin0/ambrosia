@@ -12,12 +12,14 @@
 
 
 GameStateSystem::GameStateSystem() {
+	isInStory = false;
 	isInTutorial = false;
 	hasDoneTutorial = false;
 	isInMainScreen = false;
 	isInHelpScreen = false;
 	currentLevelIndex = -1;
 	currentTutorialIndex = 0;
+	currentStoryIndex = 0;
 
 	LevelLoader lc;
 	recipe = lc.readLevel("recipe-1");
@@ -43,7 +45,7 @@ const vec2 GameStateSystem::getScreenBufferSize()
 
 bool GameStateSystem::inGameState() {
 	//TODO if we add more states that the game can be in add them here if they are relevant.
-	return !isInMainScreen&&!isInVictoryScreen&&!isInDefeatScreen;
+	return !isInMainScreen && !isInVictoryScreen && !isInDefeatScreen && !isInStory;
 }
 
 void GameStateSystem::newGame()
@@ -52,12 +54,26 @@ void GameStateSystem::newGame()
 	hasDoneTutorial = false;
 	isInDefeatScreen = false;
 	isInVictoryScreen = false;
+	isInMainScreen = false;
+	isInStory = false;
 	currentTutorialIndex = 0;
 	currentLevelIndex = 0;
 	currentLevel = recipe["maps"][currentLevelIndex];
 	EventSystem<LoadLevelEvent>::instance().sendEvent(LoadLevelEvent{});
 	EventSystem<StartTutorialEvent>::instance().sendEvent(StartTutorialEvent{});
-}
+};
+
+void GameStateSystem::beginStory()
+{
+	removeAllMotionEntities();
+	isInTutorial = false;
+	isInDefeatScreen = false;
+	isInVictoryScreen = false;
+	isInMainScreen = false;
+	isInStory = true;
+	currentStoryIndex = 0;
+	EventSystem<AdvanceStoryEvent>::instance().sendEvent(AdvanceStoryEvent{});
+};
 
 void GameStateSystem::nextMap()
 {

@@ -25,6 +25,7 @@
 #include "skills/skill_system.hpp"
 #include "game/stats_system.hpp"
 #include "game/game_state_system.hpp"
+#include "game/swarm_behaviour.hpp"
 #include "effects/effect_system.hpp"
 #include "game/range_indicator_system.hpp"
 
@@ -63,6 +64,7 @@ int main()
 	StatsSystem statsSystem;
 	TutorialSystem tutorialSystem;
 	RangeIndicatorSystem rangeIndicatorSystem;
+	SwarmBehaviour swarmBehaviour;
 
 	// Set all states to default
 	//TODO once the main menu is hooked up this should launch the main menu not the next map.
@@ -96,6 +98,7 @@ int main()
 			world.step(dt, window_size_in_game_units);
 			camera.step(dt);
 			physics.step(dt, window_size_in_game_units);
+      swarmBehaviour.step(dt, window_size_in_game_units);
 			world.handleCollisions();
 			projectileSystem.step(dt);
 			skillSystem.step(dt);
@@ -108,6 +111,7 @@ int main()
 
 			t += dt;
 			accumulator -= dt;
+
 		}
 
 		// Blend physics data between previous and current state

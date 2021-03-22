@@ -1,3 +1,4 @@
+#include "swarm_behaviour.hpp"
 #include "stats_system.hpp"
 #include "game/game_state_system.hpp"
 

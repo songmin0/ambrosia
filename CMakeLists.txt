@@ -46,6 +46,7 @@ SET(SOURCE_FILES
         "src/game/world.cpp"
         "src/game/stats_component.cpp"
         "src/game/stats_system.cpp"
+        "src/game/swarm_behaviour.cpp"
         "src/level_loader/level_loader.cpp"
         "src/maps/map.cpp"
         "src/maps/map_objects.cpp"

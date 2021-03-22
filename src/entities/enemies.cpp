@@ -6,6 +6,7 @@
 #include "ai/behaviour_tree.hpp"
 #include "game/turn_system.hpp"
 #include "ui/ui_entities.hpp"
+#include <game/swarm_behaviour.hpp>
 
 ECS::Entity Egg::createEgg(json stats, json position)
 {
@@ -259,6 +260,7 @@ ECS::Entity Potato::createPotato(json stats, json position)
 	
 	// Give it a mob component
 	entity.emplace<AISystem::MobComponent>();
+	entity.emplace<HasSwarmBehaviour>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
 	btType.mobType = MobType::POTATO;
 
@@ -317,7 +319,7 @@ ECS::Entity Potato::createPotato(json stats, json position)
 	meleeParams->soundEffect = SoundEffect::MELEE;
 	meleeParams->animationType = AnimationType::ATTACK1;
 	meleeParams->delay = 1.f;
-	meleeParams->entityProvider = std::make_shared<CircularProvider>(200.f);
+	meleeParams->entityProvider = std::make_shared<CircularProvider>(800.f);
 	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
 	meleeParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
 	meleeParams->entityHandler = std::make_shared<DamageHandler>(40.f);
@@ -387,8 +389,8 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	// the parameter initHPPercent is a % value from 0 -> 1
 	// ie. if we collectively reduced chunks to 50% HP (or defeated half the chunks), then
 	// Mashed Potatoes spawns with 50% of its Max HP
-	statsComponent.stats[StatType::MAX_HP] = 180.f;
-	statsComponent.stats[StatType::HP] = 180.f * initHPPercent;
+	statsComponent.stats[StatType::MAX_HP] = 300.f;
+	statsComponent.stats[StatType::HP] = 300.f * initHPPercent;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
 	entity.emplace<CCImmunityComponent>();
@@ -417,7 +419,7 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	return entity;
 };
 
-ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
+ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, vec2 potato_pos, float orientation)
 {
 	auto entity = ECS::Entity();
 
@@ -429,12 +431,16 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
 
-	// TODO: Swarm behaviour
-	// ~6 chunks should be spawned in a well-spaced pattern within a certain range of the defeated potato boss
-	// during their turn, the chunks should try to move together to reform into mashed potato
+	// we create a dummy potato entity that only holds position, as the potato is removed when it dies
+	// this dummy entity will also serve as the target for the behaviour trees
+	auto potato = ECS::Entity();
+	potato.emplace<Motion>();
+	ECS::registry<Motion>.get(potato).position = potato_pos;
+	entity.emplace<ActivePotatoChunks>(potato);
+
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
-	btType.mobType = MobType::EGG;
+	btType.mobType = MobType::POTATO_CHUNK;
 
 	entity.emplace<TurnSystem::TurnComponent>();
 
@@ -459,8 +465,8 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAX_HP] = 30.f;
-	statsComponent.stats[StatType::HP] = 30.f;
+	statsComponent.stats[StatType::MAX_HP] = 100.f;
+	statsComponent.stats[StatType::HP] = 100.f;
 	statsComponent.stats[StatType::AMBROSIA] = 0.f;
 	statsComponent.stats[StatType::STRENGTH] = 1.f;
 	entity.emplace<CCImmunityComponent>();
@@ -477,7 +483,7 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, float orientation)
 	// A fake Skill 1 to keep the turn system happy, but chunks don't actually use skills
 	auto meleeParams = std::make_shared<AoESkillParams>();
 	meleeParams->instigator = entity;
-	meleeParams->soundEffect = SoundEffect::MELEE;
+	meleeParams->soundEffect = SoundEffect::NONE;
 	meleeParams->animationType = AnimationType::IDLE;
 	meleeParams->delay = 0.f;
 	meleeParams->entityProvider = std::make_shared<CircularProvider>(0.f);

@@ -28,6 +28,7 @@
 #include <cassert>
 #include <sstream>
 #include <iostream>
+#include <game/swarm_behaviour.hpp>
 
 // Create the world
 // Note, this has a lot of OpenGL specific things, could be moved to the renderer; but it also defines the callbacks to the mouse and keyboard. That is why it is called here.
@@ -79,6 +80,9 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	//Register the loadLevelEvent listener
 	loadLevelListener = EventSystem<LoadLevelEvent>::instance().registerListener(
 			std::bind(&WorldSystem::onLoadLevelEvent, this, std::placeholders::_1));
+
+	transitionEventListener = EventSystem<TransitionEvent>::instance().registerListener(
+		std::bind(&WorldSystem::onTransition, this, std::placeholders::_1));
 }
 
 WorldSystem::~WorldSystem(){
@@ -99,6 +103,8 @@ WorldSystem::~WorldSystem(){
 // Update our game world
 void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
+	processTimers(elapsed_ms);
+
 	if (!GameStateSystem::instance().inGameState()) {
 		return;
 	}
@@ -120,6 +126,14 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		// Remove player/mob once death timer expires
 		if (counter.counter_ms < 0)
 		{
+
+			// this has to go here, so the new chunks are added to mobs before the potato is removed
+			if (ECS::registry<HasSwarmBehaviour>.has(entity))
+			{
+				SwarmBehaviour sb;
+				sb.spawnExplodedChunks(entity);
+			}
+
 			//If the entity has a stats component get rid of the health bar too
 			if (entity.has<StatsComponent>()) {
 				ECS::ContainerInterface::removeAllComponentsOf(entity.get<StatsComponent>().healthBar);
@@ -128,16 +142,95 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			// Check if there are no more players left, restart game
 			if (ECS::registry<PlayerComponent>.entities.empty())
 			{
-				EventSystem<PlaySoundEffectEvent>::instance().sendEvent({ SoundEffect::GAME_OVER });
-				//TODO this should launch the defeat screen once that is implemented
-				GameStateSystem::instance().launchDefeatScreen();
-				return;
+				if (!GameStateSystem::instance().isTransitioning)
+				{
+					GameStateSystem::instance().isTransitioning = true;
+					EventSystem<PlaySoundEffectEvent>::instance().sendEvent({ SoundEffect::GAME_OVER });
+					TransitionEvent event;
+					event.callback = []() {
+						GameStateSystem::instance().launchDefeatScreen();
+					};
+					EventSystem<TransitionEvent>::instance().sendEvent(event);
+					return;
+				}
 			}
 		}
 	}
 	if (ECS::registry<AISystem::MobComponent>.entities.size() == 0) {
-		//TODO make this go to the victory screen. For now launch into the next map
-		GameStateSystem::instance().launchVictoryScreen();
+		if (!GameStateSystem::instance().isTransitioning)
+		{
+			GameStateSystem::instance().isTransitioning = true;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().launchVictoryScreen();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
+		}
+	}
+}
+
+void WorldSystem::processTimers(float elapsed_ms)
+{
+	for (auto& timer : ECS::registry<TimerComponent>.components)
+	{
+		if (timer.isCountingUp)
+		{
+			if (timer.counter_ms > timer.maxTime_ms)
+			{
+				timer.counter_ms = timer.maxTime_ms;
+			}
+			else if (timer.counter_ms < timer.maxTime_ms)
+			{
+				timer.counter_ms += elapsed_ms;
+			}
+		}
+		else if (!timer.isCountingUp)
+		{
+			if (timer.counter_ms < 0.f)
+			{
+				timer.counter_ms = 0.f;
+			}
+			else if (timer.counter_ms > 0.f)
+			{
+				timer.counter_ms -= elapsed_ms;
+			}
+		}
+	}
+
+	// update screen state with its timer
+	if (!ECS::registry<ScreenState>.entities.empty())
+	{
+		auto& screenEntity = ECS::registry<ScreenState>.entities.front();
+		if (screenEntity.has<TimerComponent>())
+		{
+			auto& screenTimer = screenEntity.get<TimerComponent>();
+			if (screenTimer.complete)
+			{
+				return;
+			}
+
+			assert(screenTimer.maxTime_ms > 0); // cannot divide by 0
+			screenEntity.get<ScreenState>().darken_screen_factor = screenTimer.counter_ms / screenTimer.maxTime_ms;
+
+			// start transition if timer is done
+			if (screenTimer.isCountingUp && screenTimer.counter_ms >= screenTimer.maxTime_ms)
+			{
+				screenTimer.complete = true;
+				transition();
+
+				TransitionEvent event;
+				event.callback = []() { return; };
+				event.isFadingOut = false;
+				EventSystem<TransitionEvent>::instance().sendEvent(event);
+			}
+			// finish transition
+			else if (!screenTimer.isCountingUp && screenTimer.counter_ms <= 0.f)
+			{
+				screenTimer.complete = true;
+				GameStateSystem::instance().isTransitioning = false;
+				std::cout << "Transition complete" << std::endl;
+			}
+		}
 	}
 }
 
@@ -252,7 +345,6 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 
 void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 {
-
 	// Create UI buttons
 	auto player_button_1 = Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth / 2.f - 300, 60 },
 		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::RAOUL }); });
@@ -539,6 +631,36 @@ void WorldSystem::onMouseClick(int button, int action, int mods) const
 
 		std::cout << "Mouse click (release): {" << mousePosX << ", " << mousePosY << "}" << std::endl;
 
+		if (GameStateSystem::instance().isTransitioning)
+		{
+			return;
+		}
+
+		if (GameStateSystem::instance().isInStory)
+		{
+			int storyIndex = ++GameStateSystem::instance().currentStoryIndex;
+			std::cout << "Advancing story to index: " << storyIndex << std::endl;
+
+			if (storyIndex > 9)
+			{
+				GameStateSystem::instance().isTransitioning = true;
+				TransitionEvent event;
+				event.callback = []() {
+					GameStateSystem::instance().newGame();
+				};
+				EventSystem<TransitionEvent>::instance().sendEvent(event);
+			}
+			else
+			{
+				GameStateSystem::instance().isTransitioning = true;
+				TransitionEvent event;
+				event.callback = []() {
+					EventSystem<AdvanceStoryEvent>::instance().sendEvent(AdvanceStoryEvent{});
+				};
+				EventSystem<TransitionEvent>::instance().sendEvent(event);
+			}
+		}
+
 		RawMouseClickEvent event;
 		event.mousePos = {mousePosX, mousePosY};
 		EventSystem<RawMouseClickEvent>::instance().sendEvent(event);
@@ -721,4 +843,33 @@ void WorldSystem::onPlayerChangeEvent(const PlayerChangeEvent& event)
 void WorldSystem::onLoadLevelEvent(const LoadLevelEvent& event)
 {
 	restart();
+}
+
+void WorldSystem::onTransition(TransitionEvent event)
+{
+	assert(!ECS::registry<ScreenState>.entities.empty());
+	auto& screenEntity = ECS::registry<ScreenState>.entities.front();
+	transition = event.callback;
+
+	if (!screenEntity.has<TimerComponent>())
+	{
+		screenEntity.emplace<TimerComponent>();
+	}
+	
+	auto& screenTimer = screenEntity.get<TimerComponent>();
+	if (event.isFadingOut)
+	{
+		std::cout << "Beginning transition out" << std::endl;
+		screenTimer.isCountingUp = true;
+		screenTimer.maxTime_ms = event.duration;
+		screenTimer.counter_ms = 0.f;
+		screenTimer.complete = false;
+	}
+	else // fading in
+	{
+		screenTimer.isCountingUp = false;
+		screenTimer.maxTime_ms = event.duration;
+		screenTimer.counter_ms = event.duration;
+		screenTimer.complete = false;
+	}
 }

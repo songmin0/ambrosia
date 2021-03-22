@@ -47,20 +47,29 @@ void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 	logo.emplace<RenderableComponent>(RenderLayer::UI);
 	logo.emplace<Motion>().position = vec2(frameBufferWidth / 2 - 30, frameBufferHeight / 3 - 50);
 
-	Button::createButton(ButtonShape::RECTANGLE, 
+	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth - 250, frameBufferHeight / 2 + 50 }, "menus/start/start-button",
 		[]() {
 			std::cout << "Start button clicked!" << std::endl;
-			GameStateSystem::instance().isInMainScreen = false;
-			GameStateSystem::instance().newGame();
+			GameStateSystem::instance().isTransitioning = true;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInMainScreen = false;
+				GameStateSystem::instance().beginStory();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
 
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth - 250, frameBufferHeight / 2 + 150 }, "menus/start/load-button",
 		[]() {
-			GameStateSystem::instance().isInMainScreen = false;
-			GameStateSystem::instance().loadSave();
 			std::cout << "Load button clicked!" << std::endl;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInMainScreen = false;
+				GameStateSystem::instance().loadSave();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
 
 	Button::createButton(ButtonShape::RECTANGLE,
@@ -101,9 +110,13 @@ void Screens::createVictoryScreen(int frameBufferWidth, int frameBufferHeight, i
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth / 2, frameBufferHeight / 2 + 180 }, "menus/next-button",
 		[]() {
-			GameStateSystem::instance().isInVictoryScreen = false;
-			GameStateSystem::instance().nextMap();
 			std::cout << "Next button clicked!" << std::endl;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInVictoryScreen = false;
+				GameStateSystem::instance().nextMap();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
 };
 
@@ -149,17 +162,25 @@ void Screens::createDefeatScreen(int frameBufferWidth, int frameBufferHeight, in
 		{ frameBufferWidth / 2 - 120, frameBufferHeight / 2 + 180 }, "menus/yes-button",
 		[]() {
 			//Load save
-			GameStateSystem::instance().isInDefeatScreen = false;
-			GameStateSystem::instance().restartMap();
 			std::cout << "Yes button clicked!" << std::endl;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInDefeatScreen = false;
+				GameStateSystem::instance().restartMap();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
 
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth / 2 + 120, frameBufferHeight / 2 + 180 }, "menus/no-button",
 		[]() {
 			//Go to main menu
-			GameStateSystem::instance().isInDefeatScreen = false;
-			GameStateSystem::instance().launchMainMenu();
 			std::cout << "No button clicked..." << std::endl;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInDefeatScreen = false;
+				GameStateSystem::instance().launchMainMenu();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
 };

@@ -35,7 +35,7 @@ ECS::Entity MapComponent::createMap(const std::string& name, vec2 screenSize)
 	auto& mapComponent = entity.emplace<MapComponent>();
 	mapComponent.name = name;
 	mapComponent.mapSize = static_cast<vec2>(resource.texture.size);
-	mapComponent.tileSize = 32;
+	mapComponent.tileSize = 32.f;
 
 	int width, height, numChannelsRead;
 	unsigned char* data = stbi_load(navmeshPath.c_str(), &width, &height, &numChannelsRead, 0);

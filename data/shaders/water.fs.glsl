@@ -32,7 +32,7 @@ vec4 fade_color(vec4 in_color)
 {
 	vec4 color = in_color;
 	if (darken_screen_factor > 0)
-		color -= darken_screen_factor * vec4(0.8, 0.8, 0.8, 0);
+		color -= darken_screen_factor * vec4(1.0, 1.0, 1.0, 0);
 
 	return color;
 }

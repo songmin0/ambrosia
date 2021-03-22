@@ -129,9 +129,17 @@ struct StopFXEvent
 	FXType fxType = FXType::NONE;
 };
 
+struct TransitionEvent
+{
+	void (*callback)();
+	bool isFadingOut = true;
+	float duration = 1000.f;
+};
+
 struct LoadLevelEvent {};
 struct StartTutorialEvent {};
 struct AdvanceTutorialEvent {};
 struct EndTutorialEvent {};
 struct ShowHelpEvent {};
 struct HideHelpEvent {};
+struct AdvanceStoryEvent {};

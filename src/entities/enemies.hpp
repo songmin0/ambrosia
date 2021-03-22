@@ -30,7 +30,7 @@ struct MashedPotato
 
 struct PotatoChunk
 {
-	static ECS::Entity createPotatoChunk(vec2 pos, float orientation = 1.f);
+	static ECS::Entity createPotatoChunk(vec2 pos, vec2 potato_pos, float orientation = 1.f);
 };
 
 void createEnemies(json mobsConfig);
