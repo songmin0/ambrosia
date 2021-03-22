@@ -131,4 +131,11 @@ public:
 		void createParticle(int index);
 };
 
+class BlueCottonCandyEmitter : public ParticleEmitter {
+public:
+	BlueCottonCandyEmitter(int particlesPerSecond);
+	void initEmitter();
+	void simulateParticles(float elapsedMs, int numNewParticles);
+	void createParticle(int index);
+};
 
