@@ -2,13 +2,20 @@
 #include "common.hpp"
 #include "entities/tiny_ecs.hpp"
 #include "rendering/render_components.hpp"
+#include "game/event_system.hpp"
 
 #include <vector>
 #include <string>
 #include <memory>
 
 
+
+
 class ParticleEmitter;
+
+struct AddEmitterEvent {
+	std::shared_ptr<ParticleEmitter> emitter;
+};
 
 // CPU representation of a particle
 struct Particle {
@@ -56,6 +63,8 @@ private:
 		Effect shaderProgram;
 		Texture particleTexture;
 
+		EventListenerInfo addEmitterListener;
+
 
 
 
@@ -73,6 +82,8 @@ private:
 		int FindUnusedParticle();
 
 		void updateGPU();
+
+		void onAddedEmitterEvent(const AddEmitterEvent& event);
 
 };
 

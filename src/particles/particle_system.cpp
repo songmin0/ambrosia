@@ -38,6 +38,9 @@ ParticleSystem::ParticleSystem()
 		}
 		//TODO make particleContainer a heap variable so that we aren't limited to stack size (use a shared or unique pointer for this)
 
+		addEmitterListener = EventSystem<AddEmitterEvent>::instance().registerListener(
+			std::bind(&ParticleSystem::onAddedEmitterEvent, this, std::placeholders::_1));
+
 }
 
 
@@ -48,6 +51,7 @@ void ParticleSystem::drawParticles(const mat3& projection, const vec2& cameraPos
 				emitters[i]->drawParticles(particleVertexBuffer, cameraRightWorldspaceID, cameraUpWorldspaceID, projectionMatrixID, projection, cameraPos);
 		}
 
+		/*
 		// Use the particle shader
 		glUseProgram(shaderProgram.program);
 
@@ -86,7 +90,7 @@ void ParticleSystem::drawParticles(const mat3& projection, const vec2& cameraPos
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);
 
-		glBindVertexArray(0);
+		glBindVertexArray(0);*/
 }
 
 void ParticleSystem::prepRender() {
@@ -159,6 +163,12 @@ void ParticleSystem::updateGPU() {
 		assert(glGetError() == 0);
 }
 
+void ParticleSystem::onAddedEmitterEvent(const AddEmitterEvent& event)
+{
+	emitters.push_back(event.emitter);
+	emitters.back()->initEmitter();
+}
+
 void ParticleSystem::step(float elapsed_ms)
 {
 	//Call the step function for each emitter in the world NOTE this does nothing right now because emitters haven't been fully built
@@ -216,7 +226,7 @@ void ParticleSystem::initParticles()
 {
 		
 		for (int i = 0; i < emitters.size(); i++) {
-				emitters[i]->initEmitter();
+				//emitters[i]->initEmitter();
 		}
 
 		// Create and compile our GLSL program from the shaders

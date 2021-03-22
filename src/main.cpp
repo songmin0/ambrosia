@@ -46,7 +46,7 @@ int main()
 	// Initialize the main systems 
 	WorldSystem world(window_size_in_px);
 	ParticleSystem particleSystem;
-	particleSystem.emitters.push_back(std::make_shared<BasicEmitter>(BasicEmitter(5)));
+	//particleSystem.emitters.push_back(std::make_shared<BasicEmitter>(BasicEmitter(5)));
 	CameraSystem camera(window_size_in_px);
 	RenderSystem renderer(*world.window, &particleSystem);
 	PathFindingSystem pathFindingSystem;
