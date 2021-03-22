@@ -109,9 +109,16 @@ void GameStateSystem::loadSave()
 {
 	LevelLoader lc;
 	json save_obj = lc.load();
-	GameStateSystem::instance().recipe = lc.readLevel(save_obj["recipe"]);
-	GameStateSystem::instance().currentLevelIndex = save_obj["level"];
-	GameStateSystem::instance().restartMap();
+	if (save_obj.contains("recipe"))
+	{
+		GameStateSystem::instance().recipe = lc.readLevel(save_obj["recipe"]);
+		GameStateSystem::instance().currentLevelIndex = save_obj["level"];
+		GameStateSystem::instance().restartMap();
+	}
+	else // load a new game because there's no save
+	{
+		beginStory();
+	}
 }
 
 void GameStateSystem::save()

@@ -610,13 +610,15 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		GameStateSystem::instance().restartMap();
 	}
 
-	// load save
-	//TODO make this work with GameState
+	// load save debug
 	if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
 		json save_obj = lc.load();
-		GameStateSystem::instance().recipe = lc.readLevel(save_obj["recipe"]);
-		GameStateSystem::instance().currentLevelIndex = save_obj["level"];
-		GameStateSystem::instance().restartMap();
+		if (save_obj.contains("recipe")) // only try to load if a save actually exists
+		{
+			GameStateSystem::instance().recipe = lc.readLevel(save_obj["recipe"]);
+			GameStateSystem::instance().currentLevelIndex = save_obj["level"];
+			GameStateSystem::instance().restartMap();
+		}
 	}
 
 	// Play the next audio track (this is just so that we can give all of them a try)
