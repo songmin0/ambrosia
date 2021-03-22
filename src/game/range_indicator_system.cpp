@@ -82,7 +82,7 @@ void RangeIndicatorSystem::skillActiveEvent(const SetActiveSkillEvent& event)
 		float radius = skill->getRange();
 		
 		//This should make it so the scale calculation in the renderer makes this cirlce the right diameter
-		motion.scale = vec2(radius / resource.texture.size.x, radius / resource.texture.size.y);
+		motion.scale = vec2(radius*2 / resource.texture.size.x, radius*2 / resource.texture.size.y);
 	}
 }
 
@@ -100,3 +100,4 @@ void RangeIndicatorSystem::mouseHoverEvent(const MouseHoverEvent event)
 		rangeIndicator.get<Motion>().position = curMousePos;
 	}
 }
+

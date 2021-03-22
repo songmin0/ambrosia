@@ -5,11 +5,11 @@
 class RangeIndicatorSystem {
 public:
 	RangeIndicatorSystem();
-
 private:
 	void skillActiveEvent(const SetActiveSkillEvent& event);
 	void performAcvtiveSkillEvent(const PerformActiveSkillEvent& event);
 	void mouseHoverEvent(const MouseHoverEvent event);
+	
 
 	EventListenerInfo skillAvtiveListener;
 	EventListenerInfo performActiveSkillListener;
