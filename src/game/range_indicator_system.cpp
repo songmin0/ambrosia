@@ -42,6 +42,10 @@ RangeIndicatorSystem::~RangeIndicatorSystem()
 	if (performActiveSkillListener.isValid()) {
 		EventSystem<PerformActiveSkillEvent>::instance().unregisterListener(performActiveSkillListener);
 	}
+
+	if (performActiveSkillListener.isValid()) {
+		EventSystem<MouseHoverEvent>::instance().unregisterListener(performActiveSkillListener);
+	}
 }
 
 void RangeIndicatorSystem::onPlayerChange(const PlayerChangeEvent event)
