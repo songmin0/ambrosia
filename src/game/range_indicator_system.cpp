@@ -32,7 +32,7 @@ RangeIndicatorSystem::RangeIndicatorSystem()
 RangeIndicatorSystem::~RangeIndicatorSystem()
 {
 	if (skillChangeListener.isValid()) {
-		EventSystem<SetActiveSkillEvent>::instance().unregisterListener(skillChangeListener);
+		EventSystem<ChangeRangeIndicatorEvent>::instance().unregisterListener(skillChangeListener);
 	}
 
 	if (playerChangeListener.isValid()) {
