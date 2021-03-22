@@ -410,8 +410,9 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	meleeParams->soundEffect = SoundEffect::MELEE;
 	meleeParams->animationType = AnimationType::ATTACK1;
 	meleeParams->delay = 0.3f;
-	meleeParams->entityProvider = std::make_shared<CircularProvider>(400.f);
+	meleeParams->entityProvider = std::make_shared<CircularProvider>(800.f);
 	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
+	meleeParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(2));
 	meleeParams->entityHandler = std::make_shared<DamageHandler>(30.f);
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(meleeParams));
 

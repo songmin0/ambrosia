@@ -90,10 +90,10 @@ void GameStateSystem::nextMap()
 		EventSystem<LoadLevelEvent>::instance().sendEvent(LoadLevelEvent{});
 	}
 	else {
-		//TODO handle finishing the recipe here but for now just restart the recipe.
+		//TODO handle finishing the recipe here but for now return to main menu
 		currentLevelIndex = 0;
 		currentLevel = recipe["maps"][currentLevelIndex];
-		EventSystem<LoadLevelEvent>::instance().sendEvent(LoadLevelEvent{});
+		launchMainMenu();
 	}
 }
 
