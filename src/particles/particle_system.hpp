@@ -33,12 +33,10 @@ class ParticleSystem
 		
 public:
 		ParticleSystem();
-		void prepRender();
 		void drawParticles(const mat3& projection, const vec2& cameraPos);
 		void step(float elapsed_ms);
 		void initParticles();
 
-		void createParticles(int numParticles);
 
 		static const int MaxParticles = 100;
 		//All of the emitters
@@ -78,10 +76,6 @@ private:
 		GLfloat particleColorData[MaxParticles * 4];
 
 		float secSinceLastParticleSpawn;
-
-		int FindUnusedParticle();
-
-		void updateGPU();
 
 		void onAddedEmitterEvent(const AddEmitterEvent& event);
 
