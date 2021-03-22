@@ -45,6 +45,12 @@ AnimationType Skill::getAnimationType() const
 	return params->animationType;
 }
 
+std::shared_ptr<SkillParams> Skill::getParams()
+{
+	return params;
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // AreaOfEffectSkill
 ///////////////////////////////////////////////////////////////////////////////
@@ -52,6 +58,23 @@ AnimationType Skill::getAnimationType() const
 AreaOfEffectSkill::AreaOfEffectSkill(std::shared_ptr<AoESkillParams> params)
 	: Skill(std::move(params))
 {}
+
+float AreaOfEffectSkill::getRange()
+{
+	if (auto aoeParams = std::dynamic_pointer_cast<AoESkillParams>(params))
+	{
+		assert(aoeParams->entityProvider);
+		assert(aoeParams->entityHandler);
+		//TODO handle different providers
+		if (auto circularProvider = std::dynamic_pointer_cast<CircularProvider>(aoeParams->entityProvider)) {
+			return circularProvider->getRadius();
+		}
+		else if (auto mouseClickProvider = std::dynamic_pointer_cast<MouseClickProvider>(aoeParams->entityProvider)) {
+			return mouseClickProvider->getRadius();
+		}
+	}
+	return 0.0f;
+}
 
 void AreaOfEffectSkill::performSkillInternal()
 {
@@ -102,6 +125,11 @@ void AreaOfEffectSkill::performSkillInternal()
 ProjectileSkill::ProjectileSkill(std::shared_ptr<ProjectileSkillParams> params)
 	: Skill(std::move(params))
 {}
+
+float ProjectileSkill::getRange()
+{
+	return 0.0f;
+}
 
 void ProjectileSkill::performSkillInternal()
 {

@@ -27,6 +27,7 @@
 #include "game/game_state_system.hpp"
 #include "game/swarm_behaviour.hpp"
 #include "effects/effect_system.hpp"
+#include "game/range_indicator_system.hpp"
 
 
 using Clock = std::chrono::high_resolution_clock;
@@ -62,6 +63,7 @@ int main()
 	SkillSystem skillSystem;
 	StatsSystem statsSystem;
 	TutorialSystem tutorialSystem;
+	RangeIndicatorSystem rangeIndicatorSystem;
 	SwarmBehaviour swarmBehaviour;
 
 	// Set all states to default
