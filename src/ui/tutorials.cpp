@@ -1,5 +1,6 @@
 #include "tutorials.hpp"
 #include "game/game_state_system.hpp"
+#include "maps/map.hpp"
 #include <iostream>
 
 TutorialSystem::TutorialSystem()
@@ -18,6 +19,9 @@ TutorialSystem::TutorialSystem()
 
 	showHelpListener = EventSystem<ShowHelpEvent>::instance().registerListener(
 		std::bind(&TutorialSystem::onShowHelp, this, std::placeholders::_1));
+
+	advanceStoryListener = EventSystem<AdvanceStoryEvent>::instance().registerListener(
+		std::bind(&TutorialSystem::onAdvanceStory, this, std::placeholders::_1));
 };
 
 TutorialSystem::~TutorialSystem()
@@ -40,6 +44,10 @@ TutorialSystem::~TutorialSystem()
 
 	if (showHelpListener.isValid()) {
 		EventSystem<ShowHelpEvent>::instance().unregisterListener(showHelpListener);
+	}
+
+	if (advanceStoryListener.isValid()) {
+		EventSystem<AdvanceStoryEvent>::instance().unregisterListener(advanceStoryListener);
 	}
 };
 
@@ -177,4 +185,65 @@ ECS::Entity TutorialText::createTutorialText(vec2 position, int tutorialStage)
 
 	entity.emplace<TutorialText>();
 	return entity;
+};
+
+ECS::Entity StoryScene::createStoryScene(vec2 screenSize, int storyStage, bool hasAmbrosia)
+{
+	assert(0 <= storyStage);
+
+	auto background = ECS::Entity();
+	std::string key = "story-" + std::to_string(storyStage);
+	ShadedMesh& storyResource = cacheResource(key);
+	if (storyResource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(storyResource, uiPath("story/" + key + ".png"), "textured");
+	}
+	background.emplace<ShadedMeshRef>(storyResource);
+	background.emplace<RenderableComponent>(RenderLayer::MAP);
+	background.emplace<Motion>();
+	auto& mapComponent = background.emplace<MapComponent>();
+	mapComponent.name = key;
+	mapComponent.mapSize = static_cast<vec2>(storyResource.texture.size);
+	background.emplace<StoryComponent>();
+
+	if (hasAmbrosia)
+	{
+		// Glow
+		auto glow = ECS::Entity();
+		ShadedMesh& glowResource = cacheResource("story-glow");
+		if (glowResource.effect.program.resource == 0)
+		{
+			RenderSystem::createSprite(glowResource, uiPath("story/glow.png"), "fading");
+		}
+		glow.emplace<ShadedMeshRef>(glowResource);
+		glow.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
+		glow.emplace<Motion>().position = vec2(screenSize.x / 2, 300.f);
+		glow.emplace<StoryComponent>();
+	}
+
+	return background;
+};
+
+void TutorialSystem::onAdvanceStory(const AdvanceStoryEvent& event)
+{
+	while (!ECS::registry<StoryComponent>.entities.empty())
+	{
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<StoryComponent>.entities.back());
+	}
+
+	int storyStage = GameStateSystem::instance().currentStoryIndex;
+	// done story, begin tutorial
+	if (storyStage > 9)
+	{
+		GameStateSystem::instance().isInStory = false;
+		GameStateSystem::instance().isTransitioning = true;
+		TransitionEvent event;
+		event.callback = []() {
+			GameStateSystem::instance().newGame();
+		};
+		EventSystem<TransitionEvent>::instance().sendEvent(event);
+		return;
+	}
+
+	StoryScene::createStoryScene(GameStateSystem::instance().getScreenBufferSize(), storyStage);
 };
