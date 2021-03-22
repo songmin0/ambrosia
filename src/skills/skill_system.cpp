@@ -71,6 +71,8 @@ void SkillSystem::onSetActiveSkillEvent(const SetActiveSkillEvent &event)
 	if (entity.has<SkillComponent>())
 	{
 		entity.get<SkillComponent>().setActiveSkill(event.type);
+		ChangeRangeIndicatorEvent rangeIndicatorEvent{ event.entity, event.type };
+		EventSystem<ChangeRangeIndicatorEvent>::instance().sendEvent(rangeIndicatorEvent);
 	}
 }
 

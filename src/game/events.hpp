@@ -143,3 +143,8 @@ struct EndTutorialEvent {};
 struct ShowHelpEvent {};
 struct HideHelpEvent {};
 struct AdvanceStoryEvent {};
+
+struct ChangeRangeIndicatorEvent {
+	ECS::Entity entity;
+	SkillType type;
+};

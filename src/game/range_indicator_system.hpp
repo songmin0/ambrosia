@@ -7,7 +7,7 @@ public:
 	RangeIndicatorSystem();
 	~RangeIndicatorSystem();
 private:
-	void onSkillChange(const SetActiveSkillEvent& event);
+	void onRangeIndicatorChange(const ChangeRangeIndicatorEvent& event);
 	void performActiveSkillEvent(const PerformActiveSkillEvent& event);
 	void mouseHoverEvent(const MouseHoverEvent event);
 	void onPlayerChange(const PlayerChangeEvent event);

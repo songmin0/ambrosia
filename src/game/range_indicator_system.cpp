@@ -16,8 +16,8 @@ vec2 getCenterOfEntity(ECS::Entity entity)
 
 RangeIndicatorSystem::RangeIndicatorSystem()
 {
-	skillChangeListener = EventSystem<SetActiveSkillEvent>::instance().registerListener(
-		std::bind(&RangeIndicatorSystem::onSkillChange, this, std::placeholders::_1));
+	skillChangeListener = EventSystem<ChangeRangeIndicatorEvent>::instance().registerListener(
+		std::bind(&RangeIndicatorSystem::onRangeIndicatorChange, this, std::placeholders::_1));
 
 	playerChangeListener = EventSystem<PlayerChangeEvent>::instance().registerListener(
 		std::bind(&RangeIndicatorSystem::onPlayerChange, this, std::placeholders::_1));
@@ -50,13 +50,13 @@ RangeIndicatorSystem::~RangeIndicatorSystem()
 
 void RangeIndicatorSystem::onPlayerChange(const PlayerChangeEvent event)
 {
-	SetActiveSkillEvent skillChangeEvent;
-	skillChangeEvent.entity = event.newActiveEntity;
-	skillChangeEvent.type = SkillType::NONE;
-	onSkillChange(skillChangeEvent);
+	ChangeRangeIndicatorEvent ChangeRangeIndicatorEvent;
+	ChangeRangeIndicatorEvent.entity = event.newActiveEntity;
+	ChangeRangeIndicatorEvent.type = SkillType::NONE;
+	onRangeIndicatorChange(ChangeRangeIndicatorEvent);
 }
 
-void RangeIndicatorSystem::onSkillChange(const SetActiveSkillEvent& event)
+void RangeIndicatorSystem::onRangeIndicatorChange(const ChangeRangeIndicatorEvent& event)
 {
 	//Remove the old range indicator
 	ECS::ContainerInterface::removeAllComponentsOf(rangeIndicator);
