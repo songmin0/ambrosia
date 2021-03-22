@@ -31,13 +31,17 @@ RangeIndicatorSystem::RangeIndicatorSystem()
 void RangeIndicatorSystem::skillActiveEvent(const SetActiveSkillEvent& event)
 {
 	//Remove the old range indicator
-	
+	ECS::ContainerInterface::removeAllComponentsOf(rangeIndicator);
 
+	if (event.type == SkillType::MOVE) {
+		return;
+	}
+	
 	auto entity = event.entity;
 	auto playerMotion = entity.get<Motion>();
 	if (entity.has<SkillComponent>()&& entity.has<PlayerComponent>())
 	{
-		ECS::ContainerInterface::removeAllComponentsOf(rangeIndicator);
+		
 		activeSkillUsesMouseLoc = false;
 		
 
