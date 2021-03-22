@@ -147,7 +147,10 @@ void UISystem::enableMoveButton(bool doEnable)
 {
 	auto& moveButtonState = ECS::registry<MoveButtonComponent>.entities.front().get<ButtonStateComponent>();
 	moveButtonState.isDisabled = !doEnable;
-	moveButtonState.isActive = doEnable;
+	moveButtonState.isActive = false;
+	assert(ECS::registry<ActiveSkillFX>.entities.size() > 0);
+	auto& activeFX = ECS::registry<ActiveSkillFX>.entities.front();
+	activeFX.get<VisibilityComponent>().isVisible = false;
 }
 
 void UISystem::enableSkillButtons(bool doEnable)
@@ -158,10 +161,14 @@ void UISystem::enableSkillButtons(bool doEnable)
 		auto& buttonState = entity.get<ButtonStateComponent>();
 		if (entity.get<SkillInfoComponent>().skillType != SkillType::MOVE)
 		{
-			buttonState.isActive = doEnable;
+			buttonState.isActive = false;
 			buttonState.isDisabled = !doEnable;
 		}
 	}
+
+	assert(ECS::registry<ActiveSkillFX>.entities.size() > 0);
+	auto& activeFX = ECS::registry<ActiveSkillFX>.entities.front();
+	activeFX.get<VisibilityComponent>().isVisible = false;
 }
 
 void UISystem::updatePlayerSkillButton(ECS::Entity& entity)

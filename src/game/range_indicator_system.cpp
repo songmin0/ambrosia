@@ -16,24 +16,48 @@ vec2 getCenterOfEntity(ECS::Entity entity)
 
 RangeIndicatorSystem::RangeIndicatorSystem()
 {
-	skillAvtiveListener = EventSystem<SetActiveSkillEvent>::instance().registerListener(
-		std::bind(&RangeIndicatorSystem::skillActiveEvent, this, std::placeholders::_1));
+	skillChangeListener = EventSystem<SetActiveSkillEvent>::instance().registerListener(
+		std::bind(&RangeIndicatorSystem::onSkillChange, this, std::placeholders::_1));
+
+	playerChangeListener = EventSystem<PlayerChangeEvent>::instance().registerListener(
+		std::bind(&RangeIndicatorSystem::onPlayerChange, this, std::placeholders::_1));
 
 	performActiveSkillListener = EventSystem<PerformActiveSkillEvent>::instance().registerListener(
-		std::bind(&RangeIndicatorSystem::performAcvtiveSkillEvent, this, std::placeholders::_1));
+		std::bind(&RangeIndicatorSystem::performActiveSkillEvent, this, std::placeholders::_1));
 
 	performActiveSkillListener = EventSystem<MouseHoverEvent>::instance().registerListener(
 		std::bind(&RangeIndicatorSystem::mouseHoverEvent, this, std::placeholders::_1));
-
-	activeSkillUsesMouseLoc = false;
 }
 
-void RangeIndicatorSystem::skillActiveEvent(const SetActiveSkillEvent& event)
+RangeIndicatorSystem::~RangeIndicatorSystem()
+{
+	if (skillChangeListener.isValid()) {
+		EventSystem<SetActiveSkillEvent>::instance().unregisterListener(skillChangeListener);
+	}
+
+	if (playerChangeListener.isValid()) {
+		EventSystem<PlayerChangeEvent>::instance().unregisterListener(playerChangeListener);
+	}
+
+	if (performActiveSkillListener.isValid()) {
+		EventSystem<PerformActiveSkillEvent>::instance().unregisterListener(performActiveSkillListener);
+	}
+}
+
+void RangeIndicatorSystem::onPlayerChange(const PlayerChangeEvent event)
+{
+	SetActiveSkillEvent skillChangeEvent;
+	skillChangeEvent.entity = event.newActiveEntity;
+	skillChangeEvent.type = SkillType::NONE;
+	onSkillChange(skillChangeEvent);
+}
+
+void RangeIndicatorSystem::onSkillChange(const SetActiveSkillEvent& event)
 {
 	//Remove the old range indicator
 	ECS::ContainerInterface::removeAllComponentsOf(rangeIndicator);
 
-	if (event.type == SkillType::MOVE) {
+	if (event.type == SkillType::MOVE || event.type == SkillType::NONE) {
 		return;
 	}
 	
@@ -41,10 +65,8 @@ void RangeIndicatorSystem::skillActiveEvent(const SetActiveSkillEvent& event)
 	auto playerMotion = entity.get<Motion>();
 	if (entity.has<SkillComponent>()&& entity.has<PlayerComponent>())
 	{
-		
 		activeSkillUsesMouseLoc = false;
 		
-
 		//Create a range indicator
 		rangeIndicator = ECS::Entity();
 		ShadedMesh& resource = cacheResource("range_indicator");
@@ -54,8 +76,7 @@ void RangeIndicatorSystem::skillActiveEvent(const SetActiveSkillEvent& event)
 		}
 
 		rangeIndicator.emplace<ShadedMeshRef>(resource);
-		//TODO what RenderLayer should this be on
-		rangeIndicator.emplace<RenderableComponent>(RenderLayer::CLICK_FX);
+		rangeIndicator.emplace<RenderableComponent>(RenderLayer::RANGE_INDICATOR);
 
 		auto& skillComponent = entity.get<SkillComponent>();
 		std::shared_ptr<Skill> skill = skillComponent.getActiveSkill();
@@ -85,12 +106,12 @@ void RangeIndicatorSystem::skillActiveEvent(const SetActiveSkillEvent& event)
 		
 		float radius = skill->getRange();
 		
-		//This should make it so the scale calculation in the renderer makes this cirlce the right diameter
+		//This should make it so the scale calculation in the renderer makes this circle the right diameter
 		motion.scale = vec2(radius*2 / resource.texture.size.x, radius*2 / resource.texture.size.y);
 	}
 }
 
-void RangeIndicatorSystem::performAcvtiveSkillEvent(const PerformActiveSkillEvent& event)
+void RangeIndicatorSystem::performActiveSkillEvent(const PerformActiveSkillEvent& event)
 {
 	activeSkillUsesMouseLoc = false;
 	ECS::ContainerInterface::removeAllComponentsOf(rangeIndicator);
@@ -99,8 +120,7 @@ void RangeIndicatorSystem::performAcvtiveSkillEvent(const PerformActiveSkillEven
 void RangeIndicatorSystem::mouseHoverEvent(const MouseHoverEvent event)
 {
 	curMousePos = event.mousePos;
-	if (activeSkillUsesMouseLoc) {
-		assert(rangeIndicator.has<Motion>());
+	if (activeSkillUsesMouseLoc && rangeIndicator.has<Motion>()) {
 		rangeIndicator.get<Motion>().position = curMousePos;
 	}
 }
