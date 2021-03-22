@@ -340,6 +340,9 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 
 	if (GameStateSystem::instance().currentLevel.at("map") == "dessert-arena") {
 		DessertForeground::createDessertForeground({ 1920, 672 });
+		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ std::make_shared<BasicEmitter>(BasicEmitter(5)) });
+		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ std::make_shared<BlueCottonCandyEmitter>(BlueCottonCandyEmitter(5)) });
+		
 	}
 }
 

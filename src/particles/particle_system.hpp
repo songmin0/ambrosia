@@ -2,13 +2,20 @@
 #include "common.hpp"
 #include "entities/tiny_ecs.hpp"
 #include "rendering/render_components.hpp"
+#include "game/event_system.hpp"
 
 #include <vector>
 #include <string>
 #include <memory>
 
 
+
+
 class ParticleEmitter;
+
+struct AddEmitterEvent {
+	std::shared_ptr<ParticleEmitter> emitter;
+};
 
 // CPU representation of a particle
 struct Particle {
@@ -26,12 +33,10 @@ class ParticleSystem
 		
 public:
 		ParticleSystem();
-		void prepRender();
 		void drawParticles(const mat3& projection, const vec2& cameraPos);
 		void step(float elapsed_ms);
 		void initParticles();
 
-		void createParticles(int numParticles);
 
 		static const int MaxParticles = 100;
 		//All of the emitters
@@ -56,6 +61,8 @@ private:
 		Effect shaderProgram;
 		Texture particleTexture;
 
+		EventListenerInfo addEmitterListener;
+
 
 
 
@@ -70,9 +77,7 @@ private:
 
 		float secSinceLastParticleSpawn;
 
-		int FindUnusedParticle();
-
-		void updateGPU();
+		void onAddedEmitterEvent(const AddEmitterEvent& event);
 
 };
 
@@ -120,4 +125,11 @@ public:
 		void createParticle(int index);
 };
 
+class BlueCottonCandyEmitter : public ParticleEmitter {
+public:
+	BlueCottonCandyEmitter(int particlesPerSecond);
+	void initEmitter();
+	void simulateParticles(float elapsedMs, int numNewParticles);
+	void createParticle(int index);
+};
 

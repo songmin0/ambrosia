@@ -6,7 +6,6 @@
 #include "skills/skill_component.hpp"
 
 #include <functional>
-
 using namespace glm;
 
 struct RawMouseClickEvent
