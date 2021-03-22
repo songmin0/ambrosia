@@ -9,7 +9,8 @@ enum class SkillType
 	SKILL2,
 	SKILL3,
 	SKILL4,
-	MOVE
+	MOVE,
+	NONE
 };
 
 class SkillComponent

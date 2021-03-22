@@ -30,6 +30,8 @@ public:
 	bool hasDoneTutorial;
 	bool isInMainScreen;
 	bool isInHelpScreen;
+	bool isInVictoryScreen;
+	bool isInDefeatScreen;
 	json currentLevel;
 	json recipe;
 	int currentLevelIndex; //THIS SHOULD NOT BE PUBLIC but for now this easily lets me debug change maps
@@ -51,6 +53,8 @@ public:
 	void launchDefeatScreen();
 	//This will call the main menu
 	void launchMainMenu();
+//This removes all the enitities with a motion component
+	void removeAllMotionEntities();
 
 	const vec2 getScreenBufferSize();
 

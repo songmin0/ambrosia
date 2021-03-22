@@ -28,7 +28,7 @@ ProjectileParams ProjectileParams::create(ProjectileType type)
 		params.spritePath = "players/raoul/raoul-bone";
 		params.spriteScale = {0.5f, 0.5f};
 		params.launchOffset = {0.f, -75.f};
-		params.launchSpeed = 300.f;
+		params.launchSpeed = 500.f;
 		params.rotationSpeed = 200.f;
 		params.trajectory = Trajectory::BOOMERANG;
 	}
@@ -47,7 +47,7 @@ ProjectileParams ProjectileParams::create(ProjectileType type)
 		params.spriteScale = vec2(1.f);
 		params.launchOffset = { 0.f, -75.f };
 		params.launchSpeed = 300.f;
-		params.rotationSpeed = 200.f;
+		params.rotationSpeed = 50.f;
 		params.trajectory = Trajectory::LINEAR;
 	}
 	else if (type == ProjectileType::HEAL_ORB)
@@ -56,7 +56,7 @@ ProjectileParams ProjectileParams::create(ProjectileType type)
 		params.spriteScale = vec2(1.f);
 		params.launchOffset = { 0.f, -75.f };
 		params.launchSpeed = 300.f;
-		params.rotationSpeed = 200.f;
+		params.rotationSpeed = 50.f;
 		params.trajectory = Trajectory::LINEAR;
 	}
 

@@ -44,6 +44,12 @@ struct HitEvent
 	float damage;
 };
 
+struct ImpulseEvent
+{
+	ECS::Entity entity;
+	vec2 impulse;
+};
+
 struct PlayerButtonEvent
 {
 	PlayerType player;

@@ -6,9 +6,9 @@ ECS::Entity Camera::createCamera(json configValues) {
 
 ECS::Entity Camera::createCamera(vec2 position) {
 	// There should only ever be one of this type of entity
-	while (!ECS::ComponentContainer<Camera>().entities.empty())
+	while(ECS::registry<CameraComponent>.size() > 0)
 	{
-		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Camera>.entities.back());
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<CameraComponent>.entities.back());
 	}
 
 	auto entity = ECS::Entity();

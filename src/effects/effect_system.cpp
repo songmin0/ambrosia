@@ -29,7 +29,7 @@ void EffectSystem::step() {
 	}
 
 	// Move the skill effects with the player
-	for (auto entity : ECS::registry<Motion>.entities) {
+	for (auto entity : ECS::registry<TurnSystem::TurnComponent>.entities) {
 		if (!entity.has<PlayerComponent>() && !entity.has< AISystem::MobComponent>()) {
 			continue;
 		}
@@ -138,7 +138,7 @@ void EffectSystem::onStartFX(const StartFXEvent& event) {
 		}
 		break;
 	case FXType::STUNNED:
-		if (!entity.has<StunnedFX>()) {
+		if (!entity.has<StunnedFX>() && !entity.has<CCImmunityComponent>()) {
 			auto& fxEntity = entity.emplace<StunnedFX>().fxEntity;
 			fxEntity = StunnedFX::createStunnedFX(motion.position);
 			fxEntity.get<SkillFX>().order = nextOrderId();

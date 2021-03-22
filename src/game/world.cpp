@@ -32,7 +32,6 @@
 // Create the world
 // Note, this has a lot of OpenGL specific things, could be moved to the renderer; but it also defines the callbacks to the mouse and keyboard. That is why it is called here.
 WorldSystem::WorldSystem(ivec2 window_size_px) :
-	points(0),
 	shouldPlayAudioAtStartOfTurn(false)
 {
 	// Seeding rng with random device
@@ -79,11 +78,16 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 
 	//Register the loadLevelEvent listener
 	loadLevelListener = EventSystem<LoadLevelEvent>::instance().registerListener(
-			std::bind(&WorldSystem::onLoadLevel, this, std::placeholders::_1));
+			std::bind(&WorldSystem::onLoadLevelEvent, this, std::placeholders::_1));
 }
 
 WorldSystem::~WorldSystem(){
 	releaseAudio();
+
+	if (loadLevelListener.isValid())
+	{
+		EventSystem<LoadLevelEvent>::instance().unregisterListener(loadLevelListener);
+	}
 
 	// Destroy all created components
 	ECS::ContainerInterface::clearAllComponents();
@@ -98,9 +102,9 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	if (!GameStateSystem::instance().inGameState()) {
 		return;
 	}
-	// Updating window title with points
+	// Updating window title
 	std::stringstream title_ss;
-	title_ss << "Points: " << points;
+	title_ss << "Ambrosia";
 	glfwSetWindowTitle(window, title_ss.str().c_str());
 
 	// Check for player defeat
@@ -126,14 +130,14 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			{
 				EventSystem<PlaySoundEffectEvent>::instance().sendEvent({ SoundEffect::GAME_OVER });
 				//TODO this should launch the defeat screen once that is implemented
-				GameStateSystem::instance().restartMap();
+				GameStateSystem::instance().launchDefeatScreen();
 				return;
 			}
 		}
 	}
 	if (ECS::registry<AISystem::MobComponent>.entities.size() == 0) {
 		//TODO make this go to the victory screen. For now launch into the next map
-		GameStateSystem::instance().nextMap();
+		GameStateSystem::instance().launchVictoryScreen();
 	}
 }
 
@@ -143,9 +147,6 @@ void WorldSystem::restart()
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::listAllComponents();
 	std::cout << "Restarting\n";
-
-	// Reset the game speed
-	current_speed = 1.f;
 
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
@@ -268,6 +269,30 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 	SkillButton::createMoveButton({ 100, frameBufferHeight - 80 }, "skill_buttons/skill_generic_move",
 		[]() {
 		std::cout << "Move button clicked!" << std::endl;
+		if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
+		{
+			auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
+			if (!activeEntity.has<PlayerComponent>())
+			{
+				return;
+			}
+			
+			auto& turnComponent = activeEntity.get<TurnSystem::TurnComponent>();
+			if (turnComponent.canStartMoving())
+			{
+				turnComponent.activeAction = SkillType::MOVE;
+				SetActiveSkillEvent event;
+				event.entity = activeEntity;
+				event.type = SkillType::MOVE;
+				EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
+
+
+				if (GameStateSystem::instance().isInTutorial && GameStateSystem::instance().currentTutorialIndex == 3)
+				{
+					EventSystem<AdvanceTutorialEvent>::instance().sendEvent(AdvanceTutorialEvent{});
+				}
+			}
+		};
 	});
 
 	SkillButton::createSkillButton({ 250, frameBufferHeight - 80 }, PlayerType::RAOUL, SkillType::SKILL1, "skill1",
@@ -277,10 +302,15 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
 			{
 				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-
-				// Skill buttons should only affect players
-				if (activeEntity.has<PlayerComponent>())
+				if (!activeEntity.has<PlayerComponent>())
 				{
+					return;
+				}
+
+				auto& turnComponent = activeEntity.get<TurnSystem::TurnComponent>();
+				if (turnComponent.canStartSkill())
+				{
+					turnComponent.activeAction = SkillType::SKILL1;
 					SetActiveSkillEvent event;
 					event.entity = activeEntity;
 					event.type = SkillType::SKILL1;
@@ -302,10 +332,15 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
 			{
 				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-
-				// Skill buttons should only affect players
-				if (activeEntity.has<PlayerComponent>())
+				if (!activeEntity.has<PlayerComponent>())
 				{
+					return;
+				}
+
+				auto& turnComponent = activeEntity.get<TurnSystem::TurnComponent>();
+				if (turnComponent.canStartSkill())
+				{
+					turnComponent.activeAction = SkillType::SKILL2;
 					SetActiveSkillEvent event;
 					event.entity = activeEntity;
 					event.type = SkillType::SKILL2;
@@ -322,10 +357,15 @@ void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
 			{
 				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-
-				// Skill buttons should only affect players
-				if (activeEntity.has<PlayerComponent>())
+				if (!activeEntity.has<PlayerComponent>())
 				{
+					return;
+				}
+
+				auto& turnComponent = activeEntity.get<TurnSystem::TurnComponent>();
+				if (turnComponent.canStartSkill())
+				{
+					turnComponent.activeAction = SkillType::SKILL3;
 					SetActiveSkillEvent event;
 					event.entity = activeEntity;
 					event.type = SkillType::SKILL3;
@@ -368,25 +408,17 @@ void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
 
 void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 {
-	// ! It is recommended to comment out all other mobs and test just one enemy at a time
-
-	// Potato tests
-	//Potato::createPotato({ 800.f, 700.f }, -1.f);
-	//MashedPotato::createMashedPotato({ 900.f, 750.f });
-	//PotatoChunk::createPotatoChunk({ 900.f, 800.f });
-
-	// Milk test
-	//Milk::createMilk(vec2(900.f, 800.f), -1.f);
-
-	// TODO: come back and expand this when we have multiple mobs
 	auto mobs = GameStateSystem::instance().currentLevel.at("mobs");
-
 	createEnemies(mobs);
 }
 
 // On key callback
 void WorldSystem::onKey(int key, int, int action, int mod)
 {
+	//Don't let debug buttons work unless in game
+	if (!GameStateSystem::instance().inGameState()) {
+		return;
+	}
 	// Handles inputs for camera movement
 	assert(!ECS::registry<CameraComponent>.entities.empty());
 	auto camera = ECS::registry<CameraComponent>.entities[0];
@@ -450,10 +482,10 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
 	{
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);
+			int w, h;
+			glfwGetWindowSize(window, &w, &h);
 
-		restart();
+			restart();
 	}
 
 	if (key == GLFW_KEY_H && action == GLFW_RELEASE)
@@ -471,19 +503,6 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	// Debugging
 	if (key == GLFW_KEY_D)
 		DebugSystem::in_debug_mode = (action != GLFW_RELEASE);
-
-	// Control the current speed with `<` `>`
-	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_COMMA)
-	{
-		current_speed -= 0.1f;
-		std::cout << "Current speed = " << current_speed << std::endl;
-	}
-	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_PERIOD)
-	{
-		current_speed += 0.1f;
-		std::cout << "Current speed = " << current_speed << std::endl;
-	}
-	current_speed = std::max(0.f, current_speed);
 
 	// swap maps for swapping between pizza and dessert maps for recipe 1
 	if (action == GLFW_RELEASE && key == GLFW_KEY_M) {
@@ -699,7 +718,7 @@ void WorldSystem::onPlayerChangeEvent(const PlayerChangeEvent& event)
 	shouldPlayAudioAtStartOfTurn = true;
 }
 
-void WorldSystem::onLoadLevel(LoadLevelEvent)
+void WorldSystem::onLoadLevelEvent(const LoadLevelEvent& event)
 {
 	restart();
 }

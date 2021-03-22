@@ -25,23 +25,26 @@ public:
 		bool playersLeft();
 		
 
-		// Stucture to store turn information
+		// Structure to store turn information
 		struct TurnComponent
 		{
-			inline bool canStartMoving() {return !hasMoved && !isMoving;}
-			inline bool canStartSkill() {return hasMoved && !hasUsedSkill && !isUsingSkill;}
+			inline bool canStartMoving() {return !hasMoved && !isMoving && !isUsingSkill;}
+			inline bool canStartSkill() {return !isMoving && !hasUsedSkill && !isUsingSkill;}
 
 			bool isMoving = false;
 			bool isUsingSkill = false;
 
 			bool hasMoved = false;
 			bool hasUsedSkill = false;
+
+			unsigned int stunDuration = 0;
+
+			// stores the state of the player's current active action
+			// ie. what would occur during an on mouse event
+			SkillType activeAction = SkillType::NONE;
 		};
 
-		struct TurnComponentIsActive
-		{
-
-		};
+		struct TurnComponentIsActive {};
 
 		static bool hasCompletedTurn(TurnComponent tc);
 
