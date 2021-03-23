@@ -117,10 +117,12 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 				// Set velocity based on the desired direction of travel
 				motion.velocity = normalize(desiredPos - motion.position) * DEFAULT_SPEED;
 			}
-
-			// Apply friction in x and y directions
-			applyFriction(motion.velocity.x, step_seconds);
-			applyFriction(motion.velocity.y, step_seconds);
+			else
+			{
+				// Apply friction in x and y directions
+				applyFriction(motion.velocity.x, step_seconds);
+				applyFriction(motion.velocity.y, step_seconds);
+			}
 
 			// Calculate next position
 			vec2 newPosition = motion.position + (motion.velocity * step_seconds);
