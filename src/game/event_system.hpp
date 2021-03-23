@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <functional>
+#include <vector>
 
 // Manages the unique identifier for an event listener
 class EventListenerInfo
