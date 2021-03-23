@@ -96,7 +96,7 @@ WorldSystem::~WorldSystem(){
 	if (transitionEventListener.isValid())
 	{
 		EventSystem<TransitionEvent>::instance().unregisterListener(transitionEventListener);
-	}
+	} 
 
 	// Destroy all created components
 	ECS::ContainerInterface::clearAllComponents();
