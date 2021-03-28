@@ -323,6 +323,7 @@ void UISystem::clearToolTips()
 
 void UISystem::onMouseHover(const RawMouseHoverEvent& event)
 {
+	clearToolTips();
 	bool didTriggerTooltip = false;
 	for (auto entity : ECS::registry<SkillButton>.entities) {
 		assert(entity.has<ClickableCircleComponent>());
@@ -341,10 +342,6 @@ void UISystem::onMouseHover(const RawMouseHoverEvent& event)
 		}
 	}
 
-	if (!didTriggerTooltip)
-	{
-		clearToolTips();
-	}
 	// Sends a MouseHoverEvent to event system that takes into account the camera position
 	assert(!ECS::registry<CameraComponent>.entities.empty());
 	auto camera = ECS::registry<CameraComponent>.entities[0];
