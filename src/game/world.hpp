@@ -69,6 +69,13 @@ private:
 	// Level loading
 	void onLoadLevelEvent(const LoadLevelEvent& event);
 
+	// Mouse cursor
+	void initCursors();
+	void releaseCursors();
+	void onSetActiveSkillEvent(const SetActiveSkillEvent& event);
+	void onFinishedMovementEvent(const FinishedMovementEvent& event);
+	void onFinishedSkillEvent(const FinishedSkillEvent& event);
+
 	// Player test
 	ECS::Entity playerRaoul;
 	ECS::Entity playerTaji;
@@ -98,4 +105,11 @@ private:
 	void onTransition(TransitionEvent);
 	EventListenerInfo transitionEventListener;
 	void (*transition)();
+
+	// Mouse cursor
+	GLFWcursor* moveCursor = nullptr;
+	GLFWcursor* skillCursor = nullptr;
+	EventListenerInfo setActiveSkillListener;
+	EventListenerInfo finishedMovementListener;
+	EventListenerInfo finishedSkillListener;
 };
