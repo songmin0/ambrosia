@@ -102,7 +102,6 @@ int main()
 			world.handleCollisions();
 			projectileSystem.step(dt);
 			skillSystem.step(dt);
-			statsSystem.step(dt);
 			animations.step();
 			effectSystem.step();
 			turnSystem.step(dt);

@@ -12,6 +12,12 @@ StatsSystem::StatsSystem()
 
 	healEventListener = EventSystem<HealEvent>::instance().registerListener(
 			std::bind(&StatsSystem::onHealEvent, this, std::placeholders::_1));
+
+	startNextRoundListener = EventSystem<StartNextRoundEvent>::instance().registerListener(
+			std::bind(&StatsSystem::onStartNextRoundEvent, this, std::placeholders::_1));
+
+	finishedSkillListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
+			std::bind(&StatsSystem::onFinishedSkillEvent, this, std::placeholders::_1));
 }
 
 StatsSystem::~StatsSystem()
@@ -30,41 +36,15 @@ StatsSystem::~StatsSystem()
 	{
 		EventSystem<HealEvent>::instance().unregisterListener(healEventListener);
 	}
-}
 
-void StatsSystem::step(float elapsed_ms)
-{
-	if (!GameStateSystem::instance().inGameState()) {
-		return;
-	}
-	const float elapsed_s = elapsed_ms / 1000.f;
-
-	// Remove expired stat modifiers
-	for (int i = 0; i < ECS::registry<StatsComponent>.entities.size(); i++)
+	if (startNextRoundListener.isValid())
 	{
-		auto entity = ECS::registry<StatsComponent>.entities[i];
-		auto& statsComponent = ECS::registry<StatsComponent>.components[i];
+		EventSystem<StartNextRoundEvent>::instance().unregisterListener(startNextRoundListener);
+	}
 
-		std::vector<StatType> toRemove;
-		bool isEntityDead = entity.has<DeathTimer>();
-
-		// Decrement the StatModifier timers. Add the finished ones to the toRemove list
-		for (auto& statModifier : statsComponent.statModifiers)
-		{
-			statModifier.second.timer -= elapsed_s;
-
-			// Remove expired modifiers; if entity is dead, remove all modifiers
-			if (statModifier.second.timer <= 0.f || isEntityDead)
-			{
-				toRemove.push_back(statModifier.first);
-			}
-		}
-
-		// Remove the modifiers
-		for (auto type : toRemove)
-		{
-			removeStatModifier(entity, statsComponent, type);
-		}
+	if (finishedSkillListener.isValid())
+	{
+		EventSystem<FinishedSkillEvent>::instance().unregisterListener(finishedSkillListener);
 	}
 }
 
@@ -74,7 +54,15 @@ void StatsSystem::addStatModifier(ECS::Entity entity,
 {
 	// These are the only stats that make sense to buff/debuff at the moment
 	assert(statModifier.statType == StatType::STRENGTH ||
-				 statModifier.statType == StatType::HP_SHIELD);
+				 statModifier.statType == StatType::HP_SHIELD ||
+				 statModifier.statType == StatType::STUNNED);
+
+	// Check for cc immunity
+	if (statModifier.statType == StatType::STUNNED &&
+			entity.has<CCImmunityComponent>())
+	{
+		return;
+	}
 
 	// Remove existing modifier if one exists
 	removeStatModifier(entity, statsComponent, statModifier.statType);
@@ -106,14 +94,63 @@ void StatsSystem::removeStatModifier(ECS::Entity entity,
 
 FXType StatsSystem::getFXType(StatModifier statModifier)
 {
-	FXType type = FXType::SHIELDED;
+	FXType type = FXType::NONE;
 
 	if (statModifier.statType == StatType::STRENGTH)
 	{
 		type = statModifier.value >= 0.f ? FXType::BUFFED : FXType::DEBUFFED;
 	}
+	else if (statModifier.statType == StatType::HP_SHIELD)
+	{
+		type = FXType::SHIELDED;
+	}
+	else if (statModifier.statType == StatType::STUNNED)
+	{
+		type = FXType::STUNNED;
+	}
 
 	return type;
+}
+
+void StatsSystem::handleHitReaction(ECS::Entity entity)
+{
+	// Activate target's animation
+	if (entity.has<AnimationsComponent>())
+	{
+		auto& animationsComponent = entity.get<AnimationsComponent>();
+		animationsComponent.changeAnimation(AnimationType::HIT);
+	}
+
+	// Play sound effect
+	SoundEffect soundEffect = entity.has<PlayerComponent>() ? SoundEffect::HIT_PLAYER
+																													: SoundEffect::HIT_MOB;
+
+	EventSystem<PlaySoundEffectEvent>::instance().sendEvent({soundEffect});
+}
+
+void StatsSystem::handleDeathReaction(ECS::Entity entity, StatsComponent& statsComponent)
+{
+	entity.emplace<DeathTimer>();
+
+	// Stop the FX for each modifier
+	for (auto& statModifier : statsComponent.statModifiers)
+	{
+		FXType fxType = getFXType(statModifier.second);
+		EventSystem<StopFXEvent>::instance().sendEvent({entity, fxType});
+	}
+
+	// Remove all modifiers
+	statsComponent.statModifiers.clear();
+
+	// Activate target's animation
+	if (entity.has<AnimationsComponent>())
+	{
+		auto& animationsComponent = entity.get<AnimationsComponent>();
+		animationsComponent.changeAnimation(AnimationType::DEFEAT);
+	}
+
+	// Play sound effect
+	EventSystem<PlaySoundEffectEvent>::instance().sendEvent({SoundEffect::DEFEAT});
 }
 
 void StatsSystem::onHitEvent(const HitEvent &event)
@@ -167,34 +204,15 @@ void StatsSystem::onHitEvent(const HitEvent &event)
 		float currentHP = statsComponent.stats[StatType::HP];
 		statsComponent.stats[StatType::HP] = std::max(0.f, currentHP - actualDamage);
 
-		AnimationType animationToPerform = AnimationType::HIT;
-		SoundEffect soundEffect = target.has<PlayerComponent>() ? SoundEffect::HIT_PLAYER
-																														: SoundEffect::HIT_MOB;
-
 		// Check whether the target has died
 		if (statsComponent.getEffectiveHP() <= 0.f)
 		{
-			animationToPerform = AnimationType::DEFEAT;
-
-			if (!target.has<DeathTimer>())
-			{
-				target.emplace<DeathTimer>();
-				StopFXEvent event;
-				event.entity = target;
-				event.fxType = FXType::STUNNED;
-				EventSystem<StopFXEvent>::instance().sendEvent(event);
-				soundEffect = SoundEffect::DEFEAT;
-			}
+			handleDeathReaction(target, statsComponent);
 		}
-
-		// Activate target's animation
-		if (target.has<AnimationsComponent>())
+		else
 		{
-			auto& animationsComponent = target.get<AnimationsComponent>();
-			animationsComponent.changeAnimation(animationToPerform);
+			handleHitReaction(target);
 		}
-
-		EventSystem<PlaySoundEffectEvent>::instance().sendEvent({soundEffect});
 	}
 }
 
@@ -237,5 +255,60 @@ void StatsSystem::onHealEvent(const HealEvent &event)
 
 		// Start the FX
 		EventSystem<StartFXEvent>::instance().sendEvent({entity, FXType::HEALED});
+	}
+}
+
+void StatsSystem::onStartNextRoundEvent(const StartNextRoundEvent& event)
+{
+	for (auto entity : ECS::registry<StatsComponent>.entities)
+	{
+		auto& statsComponent = entity.get<StatsComponent>();
+		std::vector<StatType> toRemove;
+
+		for (auto& statModifier : statsComponent.statModifiers)
+		{
+			// Special handling for stun and HP shield
+			if (statModifier.first == StatType::STUNNED ||
+					statModifier.first == StatType::HP_SHIELD)
+			{
+				// Decrement the number of turns remaining before it gets removed
+				statModifier.second.numTurns--;
+			}
+
+			// Collect the expired modifiers
+			if (statModifier.second.numTurns <= 0)
+			{
+				toRemove.push_back(statModifier.first);
+			}
+		}
+
+		// Remove the expired modifiers
+		for (auto type : toRemove)
+		{
+			removeStatModifier(entity, statsComponent, type);
+		}
+	}
+}
+
+void StatsSystem::onFinishedSkillEvent(const FinishedSkillEvent& event)
+{
+	auto entity = event.entity;
+	if (entity.has<StatsComponent>())
+	{
+		auto& statsComponent = entity.get<StatsComponent>();
+
+		for (auto& statModifier : statsComponent.statModifiers)
+		{
+			if (statModifier.first == StatType::STUNNED ||
+					statModifier.first == StatType::HP_SHIELD)
+			{
+				continue;
+			}
+
+			// Decrement the number of turns remaining in which this buff/debuff will
+			// affect the entity's skills. If it expires (reaches zero), it will get
+			// removed at the start of the next round (see `onStartNextRoundEvent`).
+			statModifier.second.numTurns--;
+		}
 	}
 }

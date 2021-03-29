@@ -10,24 +10,26 @@ public:
 	StatsSystem();
 	~StatsSystem();
 
-	void step(float elapsed_ms);
-
 private:
 	void addStatModifier(ECS::Entity entity,
 											 StatsComponent& statsComponent,
 											 StatModifier statModifier);
-
 	void removeStatModifier(ECS::Entity entity,
 													StatsComponent& statsComponent,
 													StatType statType);
-
 	FXType getFXType(StatModifier statModifier);
+	void handleHitReaction(ECS::Entity entity);
+	void handleDeathReaction(ECS::Entity entity, StatsComponent& statsComponent);
 
 	void onHitEvent(const HitEvent& event);
 	void onBuffEvent(const BuffEvent& event);
 	void onHealEvent(const HealEvent& event);
+	void onStartNextRoundEvent(const StartNextRoundEvent& event);
+	void onFinishedSkillEvent(const FinishedSkillEvent& event);
 
 	EventListenerInfo hitEventListener;
 	EventListenerInfo buffEventListener;
 	EventListenerInfo healEventListener;
+	EventListenerInfo startNextRoundListener;
+	EventListenerInfo finishedSkillListener;
 };

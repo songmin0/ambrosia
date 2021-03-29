@@ -14,20 +14,22 @@ enum class StatType
 	HP_SHIELD, // Should only be set using a BuffEvent (and should never be negative)
 	AMBROSIA,
 	STRENGTH,
-	NUM_ULT_LEFT // Given to mobs with ultimate attacks
+	NUM_ULT_LEFT, // Given to mobs with ultimate attacks
+	STUNNED // 0.f if not stunned; 1.f if stunned
 };
 
 struct StatModifier
 {
 	StatType statType;
 	float value;
-	float timer; // When possible, change this so that StatModifiers expire after a certain number of turns, not seconds
+	int numTurns; // Number of turns remaining before the modifier gets removed
 };
 
 struct StatsComponent
 {
 	float getStatValue(StatType type);
 	float getEffectiveHP();
+	bool isStunned();
 
 	// The actual stats
 	std::unordered_map<StatType, float> stats;

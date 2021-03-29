@@ -60,7 +60,7 @@ ECS::Entity Raoul::commonInit()
 	strengthBuffParams->delay = 1.f;
 	strengthBuffParams->entityProvider = std::make_shared<CircularProvider>(300.f);
 	strengthBuffParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
-	strengthBuffParams->entityHandler = std::make_shared<BuffHandler>(StatType::STRENGTH, 0.4f, 60.f);
+	strengthBuffParams->entityHandler = std::make_shared<BuffHandler>(StatType::STRENGTH, 0.4f, 1);
 	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(strengthBuffParams));
 
 	// Bone throw projectile attack

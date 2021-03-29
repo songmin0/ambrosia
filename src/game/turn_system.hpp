@@ -37,8 +37,6 @@ public:
 			bool hasMoved = false;
 			bool hasUsedSkill = false;
 
-			unsigned int stunDuration = 0;
-
 			// stores the state of the player's current active action
 			// ie. what would occur during an on mouse event
 			SkillType activeAction = SkillType::NONE;

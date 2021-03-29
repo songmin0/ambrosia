@@ -46,53 +46,40 @@ void TurnSystem::nextActiveEntity()
 	//Remove the active entity
 	ECS::registry<TurnComponentIsActive>.clear();
 
-	//Loop through the player's TurnComponents and set the first player found that hasn't gone yet
-	auto& registry = ECS::registry<PlayerComponent>;
-	for (unsigned int i = 0; i < registry.components.size(); i++) {
-		ECS::Entity entity = registry.entities[i];
-		auto& turnComponent = ECS::registry<TurnComponent>.get(entity);
-
-		// Skip the turn of stunned entities
-		if (turnComponent.stunDuration > 0)
+	auto tryToSetActiveEntity = [](const vector<ECS::Entity> entities)
+	{
+		for (auto entity : entities)
 		{
-			turnComponent.stunDuration--;
-			turnComponent.hasUsedSkill = true;
-			continue;
-		}
-
-		// Make sure the entity is alive
-		if (!entity.has<DeathTimer>())
-		{
-			if (!hasCompletedTurn(turnComponent)) {
-				ECS::registry<TurnComponentIsActive>.emplace(entity);
-				EventSystem<PlayerChangeEvent>::instance().sendEvent(PlayerChangeEvent{ entity });
-				break;
-			}
-		}
-	}
-
-	//if all the players have gone start going through all the mobs
-	if (ECS::registry<TurnComponentIsActive>.size() == 0) {
-		auto& registry = ECS::registry<AISystem::MobComponent>;
-		for (unsigned int i = 0; i < registry.components.size(); i++) {
-			ECS::Entity entity = registry.entities[i];
 			auto& turnComponent = ECS::registry<TurnComponent>.get(entity);
+
 			// Skip the turn of stunned entities
-			if (turnComponent.stunDuration > 0)
+			if (entity.has<StatsComponent>() &&
+					entity.get<StatsComponent>().isStunned())
 			{
-				turnComponent.stunDuration--;
 				turnComponent.hasUsedSkill = true;
 				continue;
 			}
-			if (!hasCompletedTurn(turnComponent)) {
+
+			if (!hasCompletedTurn(turnComponent))
+			{
 				ECS::registry<TurnComponentIsActive>.emplace(entity);
 				EventSystem<PlayerChangeEvent>::instance().sendEvent(PlayerChangeEvent{ entity });
 				break;
 			}
 		}
+	};
+
+	// Loop through the player's TurnComponents and set the first player found that hasn't gone yet
+	tryToSetActiveEntity(ECS::registry<PlayerComponent>.entities);
+
+	// If all the players have gone start going through all the mobs
+	if (ECS::registry<TurnComponentIsActive>.size() == 0)
+	{
+		tryToSetActiveEntity(ECS::registry<AISystem::MobComponent>.entities);
 	}
 
-	if (ECS::registry<TurnComponentIsActive>.size() == 0) {
+	if (ECS::registry<TurnComponentIsActive>.size() == 0)
+	{
 		//All entities have gone so end the turn
 		nextTurn();
 	}
@@ -139,16 +126,9 @@ void TurnSystem::nextTurn()
 		turnComponent.hasMoved = false;
 		turnComponent.hasMoved = false;
 		turnComponent.hasUsedSkill = false;
-
-		if (turnComponent.stunDuration <= 0)
-		{
-			turnComponent.stunDuration = 0;
-			StopFXEvent event;
-			event.entity = registry.entities[i];
-			event.fxType = FXType::STUNNED;
-			EventSystem<StopFXEvent>::instance().sendEvent(event);
-		}
 	}
+
+	EventSystem<StartNextRoundEvent>::instance().sendEvent({});
 
 	//start the next turn
 	nextActiveEntity();
@@ -192,7 +172,9 @@ void TurnSystem::step(float elapsed_ms)
 			else if (activeEntity.has<AISystem::MobComponent>())
 			{
 				// Start behaviour tree for active mob entity if there are players left
-				if (turnComponent.canStartMoving() && this->playersLeft() && turnComponent.stunDuration <= 0)
+				if (turnComponent.canStartMoving() && this->playersLeft() &&
+						activeEntity.has<StatsComponent>() &&
+						!activeEntity.get<StatsComponent>().isStunned())
 				{
 					std::cout << "Starting mob turn\n";
 					StartMobTurnEvent event;
@@ -242,7 +224,8 @@ void TurnSystem::onMouseClick(const MouseClickEvent& event)
 	{
 		auto& turnComponent = activeEntity.get<TurnComponent>();
 
-		if (turnComponent.stunDuration > 0)
+		if (activeEntity.has<StatsComponent>() &&
+		    activeEntity.get<StatsComponent>().isStunned())
 		{
 			return;
 		}
