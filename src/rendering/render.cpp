@@ -1,5 +1,6 @@
 #include "render.hpp"
 #include "render_components.hpp"
+#include "text.hpp"
 
 #include "effects/effects.hpp"
 #include "entities/tiny_ecs.hpp"
@@ -506,13 +507,25 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 
 		gl_has_errors();
 	}
-		assert(!ECS::registry<CameraComponent>.entities.empty());
-		auto camera = ECS::registry<CameraComponent>.entities[0];
-		auto& cameraComponent = camera.get<CameraComponent>();
-			
-		particleSystem->drawParticles(projection_2D, cameraComponent.position);
-		// Truely render to the screen
-		drawToScreen();
+
+	assert(!ECS::registry<CameraComponent>.entities.empty());
+	auto camera = ECS::registry<CameraComponent>.entities[0];
+	auto& cameraComponent = camera.get<CameraComponent>();
+
+	// Draw text components to the screen
+	// NOTE: for simplicity, text components are drawn in a second pass,
+	// on top of all texture mesh components. This should be reasonable
+	// for nearly all use cases. If you need text to appear behind meshes,
+	// consider using a depth buffer during rendering and adding a
+	// Z-component or depth index to all renderable components.
+	for (const Text& text : ECS::registry<Text>.components)
+	{
+		drawText(text, window_size_in_game_units);
+	}
+
+	particleSystem->drawParticles(projection_2D, cameraComponent.position);
+	// Truely render to the screen
+	drawToScreen();
 
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(&window);
