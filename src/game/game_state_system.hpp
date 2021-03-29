@@ -26,6 +26,7 @@ public:
 	}
 
 	bool inGameState();
+	bool hasLights();
 	bool isInTutorial;
 	bool hasDoneTutorial;
 	bool isInStory;

@@ -22,7 +22,7 @@ GameStateSystem::GameStateSystem() {
 	currentStoryIndex = 0;
 
 	LevelLoader lc;
-	recipe = lc.readLevel("recipe-1");
+	recipe = lc.readLevel("recipe-2");
 	currentLevel = recipe["maps"][0];
 	//Create all the recipes here
 	//auto firstRecipe = ECS::Entity();
@@ -46,6 +46,11 @@ const vec2 GameStateSystem::getScreenBufferSize()
 bool GameStateSystem::inGameState() {
 	//TODO if we add more states that the game can be in add them here if they are relevant.
 	return !isInMainScreen && !isInVictoryScreen && !isInDefeatScreen && !isInStory;
+}
+
+bool GameStateSystem::hasLights() {
+	bool isVeggieForest = (currentLevel["map"] == "veggie-forest");
+	return inGameState() && isVeggieForest;
 }
 
 void GameStateSystem::newGame()

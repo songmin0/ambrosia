@@ -1,0 +1,74 @@
+{
+  "name": "recipe-2",
+    "maps": [
+        {
+            "map": "veggie-forest",
+            "camera": {
+                "position": [
+                    0,
+                    100
+                ]
+            },
+            "taji": {
+                "stats": {
+                    "hp": 70,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    300,
+                    500
+                ]
+            },
+            "chia": {
+                "stats": {
+                    "hp": 80,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    200,
+                    800
+                ]
+            },
+            "raoul": {
+                "stats": {
+                    "hp": 100,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    600,
+                    712
+                ]
+            },
+            "ember": {
+                "stats": {
+                    "hp": 80,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    400,
+                    800
+                ]
+            },
+            "mobs": [
+                {
+                    "type": "egg",
+                    "stats": {
+                        "hp": 80,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            1050,
+                            600,
+                            1
+                        ]
+                    ]
+                }
+            ]
+        }
+    ]
+}

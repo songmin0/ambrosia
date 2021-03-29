@@ -9,6 +9,7 @@
 #include "ui/ui_components.hpp"
 #include "ui/ui_entities.hpp"
 #include "game/camera.hpp"
+#include "game/game_state_system.hpp"
 
 #include <iostream>
 
@@ -377,6 +378,11 @@ void RenderSystem::drawToScreen()
 	// Draw the screen texture on the quad geometry
 	gl_has_errors();
 
+	// Draw lights
+	int hasLights = GameStateSystem::instance().hasLights() ? 1 : -1;
+	GLuint hasLights_uloc = glGetUniformLocation(screen_sprite.effect.program, "hasLights");
+	glUniform1i(hasLights_uloc, hasLights);
+	
 	// Set clock
 	GLuint time_uloc       = glGetUniformLocation(screen_sprite.effect.program, "time");
 	GLuint dead_timer_uloc = glGetUniformLocation(screen_sprite.effect.program, "darken_screen_factor");
