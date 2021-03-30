@@ -144,6 +144,9 @@ private:
     friend void drawText(const Text&, glm::vec2);
 };
 
+// Common function to create Text entity with Anime Ace font
+void createText(std::string text, glm::vec2 position);
+
 /**
  * Draw a Text object to the screen, given the screen buffer size.
  * NOTE: this function is called automatically by `RenderSystem::draw`

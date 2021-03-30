@@ -28,6 +28,8 @@ public:
 	bool inGameState();
 	bool isInTutorial;
 	bool hasDoneTutorial;
+	bool isInAchievementsScreen;
+	bool isInCreditsScreen;
 	bool isInStory;
 	bool isInMainScreen;
 	bool isInHelpScreen;
@@ -56,6 +58,10 @@ public:
 	void launchDefeatScreen();
 	//This will call the main menu
 	void launchMainMenu();
+	// This will call the achievements screen
+	void launchAchievementsScreen();
+	// This will call the credits screen
+	void launchCreditsScreen();
 
 	void beginStory();
 	void beginTutorial();

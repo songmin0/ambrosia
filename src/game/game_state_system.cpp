@@ -14,7 +14,9 @@
 GameStateSystem::GameStateSystem() {
 	isInStory = false;
 	isInTutorial = false;
-	hasDoneTutorial = false;
+	hasDoneTutorial = false; 
+	isInAchievementsScreen = false;
+	isInCreditsScreen = false;
 	isInMainScreen = false;
 	isInHelpScreen = false;
 	currentLevelIndex = -1;
@@ -45,7 +47,7 @@ const vec2 GameStateSystem::getScreenBufferSize()
 
 bool GameStateSystem::inGameState() {
 	//TODO if we add more states that the game can be in add them here if they are relevant.
-	return !isInMainScreen && !isInVictoryScreen && !isInDefeatScreen && !isInStory;
+	return !isInMainScreen && !isInVictoryScreen && !isInDefeatScreen && !isInStory && !isInAchievementsScreen && !isInCreditsScreen;
 }
 
 void GameStateSystem::newGame()
@@ -152,6 +154,24 @@ void GameStateSystem::launchMainMenu()
 	removeAllMotionEntities();
 	vec2 screenBufferSize = getScreenBufferSize();
 	StartMenu::createStartMenu(screenBufferSize.x, screenBufferSize.y);
+}
+
+void GameStateSystem::launchAchievementsScreen()
+{
+	removeAllMotionEntities();
+	Camera::createCamera(vec2(0.f));
+	Camera::createCamera(vec2(0.f));
+	vec2 screenBufferSize = getScreenBufferSize();
+	Screens::createAchievementsScreen(screenBufferSize.x, screenBufferSize.y);
+}
+
+void GameStateSystem::launchCreditsScreen()
+{
+	removeAllMotionEntities();
+	Camera::createCamera(vec2(0.f));
+	Camera::createCamera(vec2(0.f));
+	vec2 screenBufferSize = getScreenBufferSize();
+	Screens::createCreditsScreen(screenBufferSize.x, screenBufferSize.y);
 }
 
 void GameStateSystem::removeAllMotionEntities()

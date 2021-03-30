@@ -73,9 +73,29 @@ void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 		});
 
 	Button::createButton(ButtonShape::RECTANGLE,
+		{ frameBufferWidth - 250, frameBufferHeight / 2 + 250 }, "menus/start/achievements-button",
+		[]() {
+			std::cout << "Achievement button clicked!" << std::endl;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInMainScreen = false;
+				GameStateSystem::instance().isInAchievementsScreen = true;
+				GameStateSystem::instance().launchAchievementsScreen();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
+		});
+
+	Button::createButton(ButtonShape::RECTANGLE,
 		{ 100, frameBufferHeight - 100 }, "menus/start/credits-button",
 		[]() {
 			std::cout << "Credits button clicked!" << std::endl;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInMainScreen = false;
+				GameStateSystem::instance().isInCreditsScreen = true;
+				GameStateSystem::instance().launchCreditsScreen();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
 }
 
@@ -183,4 +203,33 @@ void Screens::createDefeatScreen(int frameBufferWidth, int frameBufferHeight, in
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
-};
+}
+void Screens::createAchievementsScreen(int frameBufferWidth, int frameBufferHeight, int type)
+{
+	Button::createButton(ButtonShape::RECTANGLE,
+		{ frameBufferWidth / 2.f - 500, 60 }, "menus/back-button",
+		[]() {
+			std::cout << "Back button clicked!" << std::endl;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInAchievementsScreen = false;
+				GameStateSystem::instance().launchMainMenu();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
+		});
+}
+void Screens::createCreditsScreen(int frameBufferWidth, int frameBufferHeight, int type)
+{
+	Button::createButton(ButtonShape::RECTANGLE,
+		{ frameBufferWidth / 2.f - 500, 60 }, "menus/back-button",
+		[]() {
+			std::cout << "Back button clicked!" << std::endl;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInCreditsScreen = false;
+				GameStateSystem::instance().launchMainMenu();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
+		});
+}
+;
