@@ -25,7 +25,8 @@ enum class MobType
 	MILK,
 	POTATO,
 	POTATO_CHUNK,
-	TOMATO
+	TOMATO,
+	LETTUCE
 };
 
 struct BehaviourTreeType
@@ -113,6 +114,13 @@ class BasicMeleeSequence : public Sequence
 {
 public:
 	BasicMeleeSequence();
+	void run();
+};
+
+class LettuceTurnSequence : public Sequence
+{
+public:
+	LettuceTurnSequence();
 	void run();
 };
 
@@ -221,6 +229,13 @@ struct BasicMeleeBehaviourTree : public BehaviourTree
 {
 public:
 	BasicMeleeBehaviourTree();
+};
+
+// Does not move, uses skill1 if players in range, else uses skill2
+struct LettuceBehaviourTree : public BehaviourTree
+{
+public:
+	LettuceBehaviourTree();
 };
 
 // Melee behaviour tree for moving to random player and attacking

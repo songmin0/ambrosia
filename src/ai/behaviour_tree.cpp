@@ -33,6 +33,9 @@ void StateSystem::onStartMobTurnEvent()
 	case MobType::TOMATO:
 		activeTree = std::make_shared<BehaviourTree>(BasicMeleeBehaviourTree());
 		break;
+	case MobType::LETTUCE:
+		activeTree = std::make_shared<BehaviourTree>(LettuceBehaviourTree());
+		break;
 	default:
 		break;
 	}
@@ -154,6 +157,17 @@ BasicMeleeSequence::BasicMeleeSequence()
 }
 
 void BasicMeleeSequence::run()
+{
+	Node::run();
+	Sequence::run();
+}
+
+LettuceTurnSequence::LettuceTurnSequence()
+{
+	addChild(std::make_shared<MeleeSkillSelector>(MeleeSkillSelector()));
+}
+
+void LettuceTurnSequence::run()
 {
 	Node::run();
 	Sequence::run();
@@ -450,6 +464,12 @@ BasicMeleeBehaviourTree::BasicMeleeBehaviourTree()
 	root = std::make_shared<BasicMeleeSequence>(BasicMeleeSequence());
 }
 
+LettuceBehaviourTree::LettuceBehaviourTree()
+{
+	root = std::make_shared<LettuceTurnSequence>(LettuceTurnSequence());
+}
+
+
 RandomMeleeBehaviourTree::RandomMeleeBehaviourTree()
 {
 	root = std::make_shared<RandomMeleeSequence>(RandomMeleeSequence());
@@ -703,11 +723,12 @@ void RangedAttackTask::run()
 		switch (mobType)
 		{
 		case MobType::TOMATO:
+		case MobType::LETTUCE:
 			activeEvent.type = SkillType::SKILL2;
 			break;
 		default:
 			std::cout << "Mob without alternate ranged attack was called in RangedAttackTask\n";
-			activeEvent.type = SkillType::SKILL1;
+			activeEvent.type = SkillType::SKILL2;
 			break;
 		}
 		EventSystem<SetActiveSkillEvent>::instance().sendEvent(activeEvent);

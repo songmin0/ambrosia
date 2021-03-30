@@ -37,4 +37,9 @@ struct Tomato
 	static ECS::Entity createTomato(json stats, json position);
 };
 
+struct Lettuce
+{
+	static ECS::Entity createLettuce(json stats, json position);
+};
+
 void createEnemies(json mobsConfig);

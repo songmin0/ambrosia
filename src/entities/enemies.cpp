@@ -581,6 +581,90 @@ ECS::Entity Tomato::createTomato(json stats, json position)
 	return entity;
 };
 
+ECS::Entity Lettuce::createLettuce(json stats, json position)
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource("lettuce_static");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, spritePath("enemies/lettuce/idle/idle_000.png"), "textured");
+	}
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
+
+	entity.emplace<AISystem::MobComponent>();
+	auto& btType = entity.emplace<BehaviourTreeType>();
+	btType.mobType = MobType::LETTUCE;
+	entity.emplace<TurnSystem::TurnComponent>();
+
+	Motion& motion = entity.emplace<Motion>();
+	motion.position = vec2(position[0], position[1]);
+	motion.orientation = -1;
+	motion.scale = vec2({ 1.2f * (float)position[2] , 1.2f });
+	motion.colliderType = CollisionGroup::MOB;
+	auto hitboxScale = vec2({ 0.8f, 0.95f });
+	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
+
+	// Animations
+	auto idle_anim = AnimationData("lettuce_idle", spritePath("enemies/lettuce/idle/idle"), 25);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, std::make_shared<AnimationData>(idle_anim));
+
+	auto hit_anim = AnimationData("lettuce_hit", spritePath("enemies/lettuce/hit/hit"), 12, 1, true, false);
+	anims.addAnimation(AnimationType::HIT, std::make_shared<AnimationData>(hit_anim));
+
+	auto defeat_anim = AnimationData("lettuce_defeat", spritePath("enemies/lettuce/defeat/defeat"), 13, 1, true, false);
+	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
+
+	auto attack1_anim = AnimationData("lettuce_attack1", spritePath("enemies/lettuce/attack1/attack1"), 22, 1, true, false, vec2(-0.03f, 0.15f));
+	anims.addAnimation(AnimationType::ATTACK1, std::make_shared<AnimationData>(attack1_anim));
+
+	auto attack2_anim = AnimationData("lettuce_attack2", spritePath("enemies/lettuce/attack2/attack2"), 24, 1, true, false, vec2(0.01f, 0.f));
+	anims.addAnimation(AnimationType::ATTACK2, std::make_shared<AnimationData>(attack2_anim));
+
+	// Initialize stats
+	auto& statsComponent = entity.emplace<StatsComponent>();
+	statsComponent.stats[StatType::MAX_HP] = stats["hp"];
+	statsComponent.stats[StatType::HP] = stats["hp"];
+	statsComponent.stats[StatType::AMBROSIA] = 0.f;
+	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
+
+	//Add HP bar
+	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f }, { 1.1f, 0.55f });
+	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f, -360.0f };
+	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
+	ECS::registry<HPBar>.get(statsComponent.healthBar).isMob = true;
+
+	// Initialize skills
+	auto& skillComponent = entity.emplace<SkillComponent>();
+
+	// Melee AoE leaf slam
+	auto leafSlamParams = std::make_shared<AoESkillParams>();
+	leafSlamParams->instigator = entity;
+	leafSlamParams->soundEffect = SoundEffect::MELEE;
+	leafSlamParams->animationType = AnimationType::ATTACK1;
+	leafSlamParams->delay = 0.8f;
+	leafSlamParams->entityProvider = std::make_shared<CircularProvider>(200.f);
+	leafSlamParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
+	leafSlamParams->entityHandler = std::make_shared<DamageHandler>(30.f);
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(leafSlamParams));
+
+	// Massive heal ("ultimate"), used when players are out of range
+	auto healParams = std::make_shared<AoESkillParams>();
+	healParams->instigator = entity;
+	healParams->soundEffect = SoundEffect::BUFF;
+	healParams->animationType = AnimationType::ATTACK2;
+	healParams->delay = 1.f;
+	healParams->entityProvider = std::make_shared<AllEntitiesProvider>();
+	healParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+	healParams->entityHandler = std::make_shared<HealHandler>(100.f);
+	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(healParams));
+
+	entity.emplace<CCImmunityComponent>();
+	entity.emplace<Lettuce>();
+	return entity;
+};
+
 void createEnemies(json enemies) {
 	for (json enemy : enemies) {
 		auto type = enemy["type"];
@@ -611,6 +695,12 @@ void createEnemies(json enemies) {
 		if (type == "tomato") {
 			for (json position : enemy["positions"]) {
 				Tomato::createTomato(enemy["stats"], position);
+			}
+		}
+
+		if (type == "lettuce") {
+			for (json position : enemy["positions"]) {
+				Lettuce::createLettuce(enemy["stats"], position);
 			}
 		}
 	}

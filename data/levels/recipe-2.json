@@ -175,6 +175,20 @@
                             1
                         ]
                     ]
+                },
+                {
+                    "type": "lettuce",
+                    "stats": {
+                        "hp": 400,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            780,
+                            550,
+                            1
+                        ]
+                    ]
                 }
             ]
         }
