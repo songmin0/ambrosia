@@ -562,7 +562,7 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		anim.changeAnimation(AnimationType::ATTACK3);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_4) {
-		for (auto entity : ECS::registry<PotatoChunk>.entities)
+		for (auto entity : ECS::registry<Tomato>.entities)
 		{
 			auto& anim = entity.get<AnimationsComponent>();
 			anim.changeAnimation(AnimationType::DEFEAT);
@@ -821,6 +821,10 @@ void WorldSystem::playAudio()
 	else if (GameStateSystem::instance().currentLevel.at("map") == "dessert-arena")
 	{
 		nextMusicType = MusicType::DESSERT_ARENA;
+	}
+	else if (GameStateSystem::instance().currentLevel.at("map") == "veggie-forest")
+	{
+		nextMusicType = MusicType::PLACEHOLDER3;
 	}
 	else
 	{

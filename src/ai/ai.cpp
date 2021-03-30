@@ -161,6 +161,48 @@ bool AISystem::setTargetToWeakestPlayer(ECS::Entity& mob)
 	return lowestHP != float_max;
 }
 
+bool AISystem::setTargetToRandomPlayer(ECS::Entity& mob)
+{
+	// Movement for mobs - move to a random player
+	assert(mob.has<MobComponent>());
+	auto& mobComponent = mob.get<MobComponent>();
+	auto& mobMotion = mob.get<Motion>();
+
+	auto& playerContainer = ECS::registry<PlayerComponent>;
+	assert(!playerContainer.entities.empty());
+
+	int playerIndex = rand() % playerContainer.entities.size(); // [0, size)
+	auto& player = playerContainer.entities[playerIndex];
+
+	// reroll if the selected player is not valid
+	int counter = 0;
+	while (player.has<DeathTimer>() || !player.has<Motion>())
+	{
+		playerIndex = rand() % playerContainer.entities.size();
+		player = playerContainer.entities[playerIndex];
+		counter++;
+		
+		// safety break in case of strange edge cases
+		if (counter >= playerContainer.entities.size())
+		{
+			break;
+		}
+	}
+
+	// fail if we couldn't find a valid player
+	if (player.has<DeathTimer>() || !player.has<Motion>())
+	{
+		return false;
+	}
+
+	// Calculate the distance to this player
+	auto& playerMotion = player.get<Motion>();
+	float playerDistance = distance(mobMotion.position, playerMotion.position);
+
+	mobComponent.setTarget(playerContainer.entities[playerIndex]);
+	return true;
+}
+
 bool AISystem::setTargetToWeakestMob(ECS::Entity& mob)
 {
 	ECS::Entity targetAlly;
@@ -276,6 +318,10 @@ void AISystem::onStartMobMoveEvent(const StartMobMoveEvent& event)
 		break;
 	case MoveType::TO_DEAD_POTATO:
 		targetExists = setTargetToDeadPotato(entity);
+		break;
+	case MoveType::TO_RANDOM_PLAYER:
+		targetExists = setTargetToRandomPlayer(entity);
+		break;
 	default:
 		break;
 	}

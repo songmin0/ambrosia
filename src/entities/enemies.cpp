@@ -34,7 +34,6 @@ ECS::Entity Egg::createEgg(json stats, json position)
 	motion.scale = vec2({ 0.8f * (float) position[2] , 0.8f});
 	motion.colliderType = CollisionGroup::MOB;
 
-
 	// hitbox scaling
 	auto hitboxScale = vec2({ 0.65f, 0.7f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
@@ -497,6 +496,91 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, vec2 potato_pos, float orie
 	return entity;
 };
 
+ECS::Entity Tomato::createTomato(json stats, json position)
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource("tomato_static");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, spritePath("enemies/tomato/idle/idle_000.png"), "textured");
+	}
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
+
+	// Give it a Mob component
+	entity.emplace<AISystem::MobComponent>();
+	auto& btType = entity.emplace<BehaviourTreeType>();
+	btType.mobType = MobType::TOMATO;
+
+	entity.emplace<TurnSystem::TurnComponent>();
+
+	// Setting initial motion values
+	Motion& motion = entity.emplace<Motion>();
+	motion.position = vec2(position[0], position[1]);
+	motion.orientation = -1;
+	motion.scale = vec2({ 0.8f * (float)position[2] , 0.8f });
+	motion.colliderType = CollisionGroup::MOB;
+	motion.moveRange = 200.f;
+	
+	// hitbox scaling
+	auto hitboxScale = vec2({ 0.65f, 0.7f });
+	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
+
+	// Animations
+	auto idle_anim = AnimationData("tomato_idle", spritePath("enemies/tomato/idle/idle"), 24);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, std::make_shared<AnimationData>(idle_anim));
+	anims.addAnimation(AnimationType::MOVE, std::make_shared<AnimationData>(idle_anim));
+
+	auto hit_anim = AnimationData("tomato_hit", spritePath("enemies/tomato/hit/hit"), 12, 1, true, false);
+	anims.addAnimation(AnimationType::HIT, std::make_shared<AnimationData>(hit_anim));
+
+	auto defeat_anim = AnimationData("tomato_defeat", spritePath("enemies/tomato/defeat/defeat"), 21, 1, true, false, vec2(-0.01f, 0.05f));
+	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
+
+	// Initialize stats
+	auto& statsComponent = entity.emplace<StatsComponent>();
+	statsComponent.stats[StatType::MAX_HP] = stats["hp"];
+	statsComponent.stats[StatType::HP] = stats["hp"];
+	statsComponent.stats[StatType::AMBROSIA] = 0.f;
+	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
+
+	//Add HP bar
+	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
+	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f, -150.0f };
+	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
+	ECS::registry<HPBar>.get(statsComponent.healthBar).isMob = true;
+
+	// Initialize skills
+	auto& skillComponent = entity.emplace<SkillComponent>();
+
+	// Kamikaze bomb skill
+	auto bombParams = std::make_shared<AoESkillParams>();
+	bombParams->instigator = entity;
+	bombParams->soundEffect = SoundEffect::MELEE;
+	bombParams->animationType = AnimationType::ATTACK1;
+	bombParams->delay = 0.2f;
+	bombParams->entityProvider = std::make_shared<CircularProvider>(100.f);
+	bombParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::ALL));
+	bombParams->entityHandler = std::make_shared<DamageHandler>(100.f);
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(bombParams));
+
+	// A fake Skill 2 so tomato's don't explode when they're not in range
+	auto meleeParams = std::make_shared<AoESkillParams>();
+	meleeParams->instigator = entity;
+	meleeParams->soundEffect = SoundEffect::NONE;
+	meleeParams->animationType = AnimationType::IDLE;
+	meleeParams->delay = 0.f;
+	meleeParams->entityProvider = std::make_shared<CircularProvider>(0.f);
+	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::NONE));
+	meleeParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(0));
+	meleeParams->entityHandler = std::make_shared<DamageHandler>(0.f);
+	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(meleeParams));
+
+	entity.emplace<Tomato>();
+	return entity;
+};
+
 void createEnemies(json enemies) {
 	for (json enemy : enemies) {
 		auto type = enemy["type"];
@@ -521,6 +605,12 @@ void createEnemies(json enemies) {
 		if (type == "potato") {
 			for (json position : enemy["positions"]) {
 				Potato::createPotato(enemy["stats"], position);
+			}
+		}
+
+		if (type == "tomato") {
+			for (json position : enemy["positions"]) {
+				Tomato::createTomato(enemy["stats"], position);
 			}
 		}
 	}

@@ -24,7 +24,8 @@ enum class MobType
 	PEPPER,
 	MILK,
 	POTATO,
-	POTATO_CHUNK
+	POTATO_CHUNK,
+	TOMATO
 };
 
 struct BehaviourTreeType
@@ -107,6 +108,14 @@ public:
 	virtual void run();
 };
 
+// Composite sequence of moving and attacking
+class BasicMeleeSequence : public Sequence
+{
+public:
+	BasicMeleeSequence();
+	void run();
+};
+
 // Composite sequence of moving (closer or away) and attacking
 // Root node of Egg BehaviourTree
 class EggTurnSequence : public Sequence
@@ -122,6 +131,14 @@ class PepperTurnSequence : public Sequence
 {
 public:
 	PepperTurnSequence();
+	void run();
+};
+
+// Composite sequence of moving to random player and attacking
+class RandomMeleeSequence : public Sequence
+{
+public:
+	RandomMeleeSequence();
 	void run();
 };
 
@@ -184,11 +201,33 @@ public:
 	void run();
 };
 
+// Use Melee skill if in range of closest player, else use ranged skill
+class MeleeSkillSelector : public Selector
+{
+public:
+	MeleeSkillSelector();
+	void run();
+};
+
 class PotatoChunkMoveConditional : public Conditional
 {
 public:
 	PotatoChunkMoveConditional();
 	void run();
+};
+
+// Basic Melee behaviour tree for moving to closest player and attacking
+struct BasicMeleeBehaviourTree : public BehaviourTree
+{
+public:
+	BasicMeleeBehaviourTree();
+};
+
+// Melee behaviour tree for moving to random player and attacking
+struct RandomMeleeBehaviourTree : public BehaviourTree
+{
+public:
+	RandomMeleeBehaviourTree();
 };
 
 // Egg BehaviourTree
@@ -269,6 +308,13 @@ public:
 	void run();
 };
 
+// Task to move closer to a random player
+class MoveToRandomPlayerTask : public MoveTask
+{
+public:
+	void run();
+};
+
 // Task to move closer to weakest mob
 // May use later - maybe for protecting
 class MoveToWeakestMobTask : public MoveTask
@@ -300,6 +346,13 @@ public:
 
 // Task to use ultimate attack
 class UltimateAttackTask : public SkillTask
+{
+public:
+	void run();
+};
+
+// Task to use ranged attack on closest player
+class RangedAttackTask : public SkillTask
 {
 public:
 	void run();
