@@ -79,6 +79,104 @@
                     ]
                 }
             ]
+        },
+        {
+            "map": "salad-canyon",
+            "camera": {
+                "position": [
+                    0,
+                    0
+                ]
+            },
+            "taji": {
+                "stats": {
+                    "hp": 70,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    900,
+                    1650
+                ]
+            },
+            "chia": {
+                "stats": {
+                    "hp": 80,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    700,
+                    1600
+                ]
+            },
+            "raoul": {
+                "stats": {
+                    "hp": 100,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    1000,
+                    1550
+                ]
+            },
+            "ember": {
+                "stats": {
+                    "hp": 80,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    500,
+                    1600
+                ]
+            },
+            "mobs": [
+                {
+                    "type": "tomato",
+                    "stats": {
+                        "hp": 70,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            115,
+                            685,
+                            1
+                        ],
+                        [
+                            1165,
+                            710,
+                            1
+                        ],
+                        [
+                            1333,
+                            858,
+                            -1
+                        ],
+                        [
+                            50,
+                            879,
+                            -1
+                        ]
+                    ]
+                },
+                {
+                    "type": "egg",
+                    "stats": {
+                        "hp": 80,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            687,
+                            1030,
+                            1
+                        ]
+                    ]
+                }
+            ]
         }
     ]
 }

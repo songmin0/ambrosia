@@ -50,7 +50,8 @@ bool GameStateSystem::inGameState() {
 
 bool GameStateSystem::hasLights() {
 	bool isVeggieForest = (currentLevel["map"] == "veggie-forest");
-	return inGameState() && isVeggieForest;
+	bool isSaladCanyon = (currentLevel["map"] == "salad-canyon");
+	return inGameState() && (isVeggieForest || isSaladCanyon);
 }
 
 void GameStateSystem::newGame()
