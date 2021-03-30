@@ -119,9 +119,12 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			}
 			else
 			{
-				// Apply friction in x and y directions
-				applyFriction(motion.velocity.x, step_seconds);
-				applyFriction(motion.velocity.y, step_seconds);
+				if (length(motion.velocity) > 0.f)
+				{
+					// Apply friction in x and y directions
+					applyFriction(motion.velocity.x, step_seconds);
+					applyFriction(motion.velocity.y, step_seconds);
+				}
 			}
 
 			// Calculate next position
