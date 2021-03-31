@@ -59,6 +59,9 @@ struct PlayerChangeEvent
 	ECS::Entity newActiveEntity;
 };
 
+struct StartNextRoundEvent
+{};
+
 struct SetActiveSkillEvent
 {
 	ECS::Entity entity;
