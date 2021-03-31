@@ -146,6 +146,8 @@ private:
 
 // Common function to create Text entity with Anime Ace font
 void createText(std::string text, glm::vec2 position);
+// Common function to create Text entity with Anime Ace font and custom size
+void createText(std::string text, glm::vec2 position, float scale);
 
 /**
  * Draw a Text object to the screen, given the screen buffer size.

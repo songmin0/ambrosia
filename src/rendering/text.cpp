@@ -542,4 +542,16 @@ void createText(std::string text, glm::vec2 position)
 
     ECS::Entity entity;
     ECS::registry<Text>.emplace(entity, text, path, position, scale, color);
+    // Needed when removing all components from the screen with `removeAllMotionEntities()`
+    entity.emplace<Motion>();
+}
+
+void createText(std::string text, glm::vec2 position, float scale)
+{
+    std::string path = fontPath("anime_ace/animeace2_reg.ttf");
+    vec3 color(1.f, 1.f, 1.f);
+
+    ECS::Entity entity;
+    ECS::registry<Text>.emplace(entity, text, path, position, scale, color);
+    entity.emplace<Motion>();
 }

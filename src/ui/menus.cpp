@@ -1,6 +1,7 @@
 #include "menus.hpp"
 #include "map.hpp"
 #include "game/game_state_system.hpp"
+#include "rendering/text.hpp"
 #include <iostream>
 #include <SDL.h>
 #include <SDL_mixer.h>
@@ -206,8 +207,12 @@ void Screens::createDefeatScreen(int frameBufferWidth, int frameBufferHeight, in
 }
 void Screens::createAchievementsScreen(int frameBufferWidth, int frameBufferHeight, int type)
 {
+	float leftAlignX = 100;
+	float lineSpaceY = 80.f;
+	createText("Achievements", { leftAlignX, 80 });
+	createText("Beat tutorial", { leftAlignX, 80 + lineSpaceY }, 0.5);
 	Button::createButton(ButtonShape::RECTANGLE,
-		{ frameBufferWidth / 2.f - 500, 60 }, "menus/back-button",
+		{ frameBufferWidth - 200, 60 }, "menus/back-button",
 		[]() {
 			std::cout << "Back button clicked!" << std::endl;
 			TransitionEvent event;
@@ -220,8 +225,41 @@ void Screens::createAchievementsScreen(int frameBufferWidth, int frameBufferHeig
 }
 void Screens::createCreditsScreen(int frameBufferWidth, int frameBufferHeight, int type)
 {
+	const float leftAlignX = 100;
+	const float middleAlignX = frameBufferWidth / 2.f;
+	const float paragraphSpaceY = 80;
+	const float newlineSpaceY = 50;
+	float titleLineY = 80.f;
+	createText("Credits", { leftAlignX, titleLineY });
+
+	float firstSectionY = titleLineY + paragraphSpaceY;
+	createText("Developers", { leftAlignX, firstSectionY }, 0.75);
+	createText("Louise Hsu", { leftAlignX, firstSectionY + newlineSpaceY }, 0.5);
+	createText("Emma Liu", { leftAlignX, firstSectionY + newlineSpaceY * 2 }, 0.5);
+	createText("Jacques Marais", { leftAlignX, firstSectionY + newlineSpaceY * 3 }, 0.5);
+	createText("Alexander Neumann", { middleAlignX, firstSectionY + newlineSpaceY }, 0.5);
+	createText("Matthew Ng", { middleAlignX, firstSectionY + newlineSpaceY * 2 }, 0.5);
+	createText("Christine Song", { middleAlignX, firstSectionY + newlineSpaceY * 3 }, 0.5);
+
+	float secondSectionY = firstSectionY + newlineSpaceY * 3 + paragraphSpaceY;
+	createText("Music", { leftAlignX, secondSectionY }, 0.75);
+	createText("Ambrosia Theme - Emma Liu", { leftAlignX, secondSectionY + newlineSpaceY }, 0.5);
+	createText("Overworld Theme - David Vitas", { leftAlignX, secondSectionY + newlineSpaceY * 2 }, 0.5);
+	createText("Victory Fanfare Loop - David Vitas", { leftAlignX, secondSectionY + newlineSpaceY * 3 }, 0.5);
+	createText("Boss Battle Loop - David Vitas", { middleAlignX, secondSectionY + newlineSpaceY }, 0.5);
+	createText("Lullaby Loop - David Vitas", { middleAlignX, secondSectionY + newlineSpaceY * 2 }, 0.5);
+
+	float thirdSectionY = secondSectionY + newlineSpaceY * 3 + paragraphSpaceY;
+	createText("Sound Effects", { leftAlignX, thirdSectionY }, 0.75);
+	createText("Player hit, mob hit, defeat", { leftAlignX, thirdSectionY + newlineSpaceY }, 0.5);
+	createText("Sound effects obtained from https ://www.zapsplat.com", { leftAlignX, thirdSectionY + newlineSpaceY * 2 }, 0.3);
+	
+	createText("Mouse click, melee, projectile throw, buff, debuff", { leftAlignX, thirdSectionY + newlineSpaceY * 3 }, 0.5);
+	createText("Credit: https://www.FesliyanStudios.com Background Music", { leftAlignX, thirdSectionY + newlineSpaceY * 4 }, 0.3);
+
+
 	Button::createButton(ButtonShape::RECTANGLE,
-		{ frameBufferWidth / 2.f - 500, 60 }, "menus/back-button",
+		{ frameBufferWidth - 200, 60 }, "menus/back-button",
 		[]() {
 			std::cout << "Back button clicked!" << std::endl;
 			TransitionEvent event;

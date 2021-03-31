@@ -148,10 +148,10 @@ void GameStateSystem::launchDefeatScreen()
 
 void GameStateSystem::launchMainMenu()
 {
-	isInMainScreen = true;
 	Camera::createCamera(vec2(0.f));
-	MouseClickFX::createMouseClickFX();
+	isInMainScreen = true;
 	removeAllMotionEntities();
+	MouseClickFX::createMouseClickFX();
 	vec2 screenBufferSize = getScreenBufferSize();
 	StartMenu::createStartMenu(screenBufferSize.x, screenBufferSize.y);
 }
