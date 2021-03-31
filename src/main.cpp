@@ -97,7 +97,7 @@ int main()
 			world.step(dt, window_size_in_game_units);
 			camera.step(dt);
 			physics.step(dt, window_size_in_game_units);
-      swarmBehaviour.step(dt, window_size_in_game_units);
+			swarmBehaviour.step(dt, window_size_in_game_units);
 			world.handleCollisions();
 			projectileSystem.step(dt);
 			skillSystem.step(dt);

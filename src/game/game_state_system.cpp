@@ -1,8 +1,8 @@
 #include "game_state_system.hpp"
-#include <level_loader/level_loader.hpp>
 #include "ui/menus.hpp"
 #include "camera.hpp"
 #include "level_loader/level_loader.hpp"
+#include "rendering/text.hpp"
 
 #include <string.h>
 #include <cassert>
@@ -22,7 +22,7 @@ GameStateSystem::GameStateSystem() {
 	currentStoryIndex = 0;
 
 	LevelLoader lc;
-	recipe = lc.readLevel("recipe-2");
+	recipe = lc.readLevel("tutorial");
 	currentLevel = recipe["maps"][0];
 	//Create all the recipes here
 	//auto firstRecipe = ECS::Entity();
@@ -127,6 +127,14 @@ void GameStateSystem::loadSave()
 	}
 }
 
+void GameStateSystem::loadRecipe(const std::string& recipe)
+{
+	LevelLoader lc;
+	GameStateSystem::instance().recipe = lc.readLevel(recipe);
+	GameStateSystem::instance().currentLevelIndex = 0;
+	GameStateSystem::instance().restartMap();
+}
+
 void GameStateSystem::save()
 {
 	//TODO fill in if necessary
@@ -160,10 +168,22 @@ void GameStateSystem::launchMainMenu()
 	StartMenu::createStartMenu(screenBufferSize.x, screenBufferSize.y);
 }
 
+void GameStateSystem::launchRecipeSelectMenu()
+{
+	isInMainScreen = true;
+	Camera::createCamera(vec2(0.f));
+	removeAllMotionEntities();
+	vec2 screenBufferSize = getScreenBufferSize();
+	Screens::createRecipeSelectScreen(screenBufferSize.x, screenBufferSize.y);
+}
+
 void GameStateSystem::removeAllMotionEntities()
 {
 	while (!ECS::registry<Motion>.entities.empty())
 		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Motion>.entities.back());
+
+	while (!ECS::registry<Text>.entities.empty())
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Text>.entities.back());
 
 	std::cout << "Entity removal complete. \n";
 	ECS::ContainerInterface::listAllComponents();

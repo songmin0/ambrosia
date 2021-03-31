@@ -22,14 +22,15 @@
 #include "ai/ai.hpp"
 #include "level_loader/level_loader.hpp"
 #include "game_state_system.hpp"
+#include "game/swarm_behaviour.hpp"
+#include "rendering/text.hpp"
+
 
 // stlib
 #include <string.h>
 #include <cassert>
 #include <sstream>
 #include <iostream>
-#include <game/swarm_behaviour.hpp>
-
 // Create the world
 // Note, this has a lot of OpenGL specific things, could be moved to the renderer; but it also defines the callbacks to the mouse and keyboard. That is why it is called here.
 WorldSystem::WorldSystem(ivec2 window_size_px) :
@@ -258,6 +259,9 @@ void WorldSystem::restart()
 	while (!ECS::registry<CameraComponent>.entities.empty()) {
 		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<CameraComponent>.entities.back());
 	}
+
+	while (!ECS::registry<Text>.entities.empty())
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Text>.entities.back());
 
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::listAllComponents();
