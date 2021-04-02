@@ -84,6 +84,15 @@ void GameStateSystem::nextMap()
 	lc.save(recipe["name"], currentLevelIndex);
 
 	currentLevelIndex++;
+	if (currentLevelIndex == recipe["maps"].size() - 1)
+	{
+		EventSystem<ReachedBossEvent>::instance().sendEvent(ReachedBossEvent{});
+	}
+	// Defeated the boss
+	if (currentLevelIndex == recipe["maps"].size())
+	{
+		EventSystem<DefeatedBossEvent>::instance().sendEvent(DefeatedBossEvent{});
+	}
 
 	//auto& currentRecipe = currentRecipeEntity.get<Recipe>();
 	if (currentLevelIndex < recipe["maps"].size()) {
@@ -159,7 +168,7 @@ void GameStateSystem::launchMainMenu()
 void GameStateSystem::launchAchievementsScreen()
 {
 	removeAllMotionEntities();
-	Camera::createCamera(vec2(0.f));
+	isInAchievementsScreen = true;
 	Camera::createCamera(vec2(0.f));
 	vec2 screenBufferSize = getScreenBufferSize();
 	Screens::createAchievementsScreen(screenBufferSize.x, screenBufferSize.y);
@@ -168,7 +177,6 @@ void GameStateSystem::launchAchievementsScreen()
 void GameStateSystem::launchCreditsScreen()
 {
 	removeAllMotionEntities();
-	Camera::createCamera(vec2(0.f));
 	Camera::createCamera(vec2(0.f));
 	vec2 screenBufferSize = getScreenBufferSize();
 	Screens::createCreditsScreen(screenBufferSize.x, screenBufferSize.y);

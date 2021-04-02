@@ -28,6 +28,7 @@
 #include "game/swarm_behaviour.hpp"
 #include "effects/effect_system.hpp"
 #include "game/range_indicator_system.hpp"
+#include "game/achievement_system.hpp"
 
 
 using Clock = std::chrono::high_resolution_clock;
@@ -65,6 +66,7 @@ int main()
 	TutorialSystem tutorialSystem;
 	RangeIndicatorSystem rangeIndicatorSystem;
 	SwarmBehaviour swarmBehaviour;
+	AchievementSystem::instance();
 
 	// Set all states to default
 	//TODO once the main menu is hooked up this should launch the main menu not the next map.
@@ -98,7 +100,7 @@ int main()
 			world.step(dt, window_size_in_game_units);
 			camera.step(dt);
 			physics.step(dt, window_size_in_game_units);
-      swarmBehaviour.step(dt, window_size_in_game_units);
+			swarmBehaviour.step(dt, window_size_in_game_units);
 			world.handleCollisions();
 			projectileSystem.step(dt);
 			skillSystem.step(dt);

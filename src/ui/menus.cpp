@@ -2,10 +2,13 @@
 #include "map.hpp"
 #include "game/game_state_system.hpp"
 #include "rendering/text.hpp"
+#include "game/achievement_system.hpp"
 #include <iostream>
 #include <SDL.h>
 #include <SDL_mixer.h>
 #define SDL_MAIN_HANDLED
+
+const float TITLE_LINE_Y = 80.f;
 
 void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 {
@@ -139,6 +142,17 @@ void Screens::createVictoryScreen(int frameBufferWidth, int frameBufferHeight, i
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
+	Button::createButton(ButtonShape::RECTANGLE,
+		{ frameBufferWidth / 2, frameBufferHeight / 2 + 280 }, "menus/start/achievements-button",
+		[]() {
+			std::cout << "Achievements button clicked from victory screen!" << std::endl;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInVictoryScreen = false;
+				GameStateSystem::instance().launchAchievementsScreen();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
+		});
 };
 
 void Screens::createDefeatScreen(int frameBufferWidth, int frameBufferHeight, int type)
@@ -205,12 +219,23 @@ void Screens::createDefeatScreen(int frameBufferWidth, int frameBufferHeight, in
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
 }
+
 void Screens::createAchievementsScreen(int frameBufferWidth, int frameBufferHeight, int type)
 {
-	float leftAlignX = 100;
-	float lineSpaceY = 80.f;
-	createText("Achievements", { leftAlignX, 80 });
-	createText("Beat tutorial", { leftAlignX, 80 + lineSpaceY }, 0.5);
+	const float leftAlignX = 100;
+	const float lineSpaceY = 80.f;
+	createText("Achievements", { leftAlignX, TITLE_LINE_Y });
+
+	// Getting all achievements
+	std::list<Achievement> achievements = AchievementSystem::instance().getAchievements();
+	int lineIndex = 1;
+	for (Achievement curr : achievements)
+	{
+		auto text = AchievementText[curr];
+		createText(std::string(text), { leftAlignX, TITLE_LINE_Y + lineSpaceY * lineIndex }, 0.75);
+		lineIndex++;
+	}
+	//createText("Beat tutorial", { leftAlignX, TITLE_LINE_Y + lineSpaceY }, 0.5);
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth - 200, 60 }, "menus/back-button",
 		[]() {
@@ -229,10 +254,9 @@ void Screens::createCreditsScreen(int frameBufferWidth, int frameBufferHeight, i
 	const float middleAlignX = frameBufferWidth / 2.f;
 	const float paragraphSpaceY = 80;
 	const float newlineSpaceY = 50;
-	float titleLineY = 80.f;
-	createText("Credits", { leftAlignX, titleLineY });
+	createText("Credits", { leftAlignX, TITLE_LINE_Y });
 
-	float firstSectionY = titleLineY + paragraphSpaceY;
+	float firstSectionY = TITLE_LINE_Y + paragraphSpaceY;
 	createText("Developers", { leftAlignX, firstSectionY }, 0.75);
 	createText("Louise Hsu", { leftAlignX, firstSectionY + newlineSpaceY }, 0.5);
 	createText("Emma Liu", { leftAlignX, firstSectionY + newlineSpaceY * 2 }, 0.5);
