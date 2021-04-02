@@ -83,7 +83,7 @@ struct HealEvent
 	float amount;
 };
 
-struct StartMobTurnEvent { };
+struct StartMobTurnEvent {};
 
 struct StartMobMoveEvent
 {
@@ -142,6 +142,11 @@ struct EndTutorialEvent {};
 struct ShowHelpEvent {};
 struct HideHelpEvent {};
 struct AdvanceStoryEvent {};
+
+// Events related to achievements
+struct FinishedTutorialEvent {};
+struct ReachedBossEvent {};
+struct DefeatedBossEvent {};
 
 struct ChangeRangeIndicatorEvent {
 	ECS::Entity entity;
