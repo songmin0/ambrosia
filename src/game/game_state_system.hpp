@@ -26,6 +26,7 @@ public:
 	}
 
 	bool inGameState();
+	bool hasLights();
 	bool isInTutorial;
 	bool hasDoneTutorial;
 	bool isInAchievementsScreen;
@@ -62,9 +63,10 @@ public:
 	void launchAchievementsScreen();
 	// This will call the credits screen
 	void launchCreditsScreen();
+	void launchRecipeSelectMenu();
 
 	void beginStory();
-	void beginTutorial();
+	void loadRecipe(const std::string& recipe);
 
 //This removes all the enitities with a motion component
 	void removeAllMotionEntities();

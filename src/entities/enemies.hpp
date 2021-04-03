@@ -4,7 +4,6 @@
 
 struct Egg
 {
-	// Creates all the associated render resources and default transform
 	static ECS::Entity createEgg(json stats, json position);
 };
 
@@ -31,6 +30,16 @@ struct MashedPotato
 struct PotatoChunk
 {
 	static ECS::Entity createPotatoChunk(vec2 pos, vec2 potato_pos, float orientation = 1.f);
+};
+
+struct Tomato
+{
+	static ECS::Entity createTomato(json stats, json position);
+};
+
+struct Lettuce
+{
+	static ECS::Entity createLettuce(json stats, json position);
 };
 
 void createEnemies(json mobsConfig);

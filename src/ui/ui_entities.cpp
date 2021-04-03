@@ -15,7 +15,7 @@ ECS::Entity HPBar::createHPBar(vec2 position, vec2 scale)
 	}
 
 	entity.emplace<ShadedMeshRef>(resource);
-	entity.emplace<RenderableComponent>(RenderLayer::UI);
+	entity.emplace<RenderableComponent>(RenderLayer::UI_ACTIVE_SKILL_FX);
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
 	motion.position = position;

@@ -13,12 +13,6 @@ void EntityHandler::process(ECS::Entity instigator, ECS::Entity target)
 		{
 			EventSystem<StartFXEvent>::instance().sendEvent({target, fxType});
 		}
-
-		if (fxType == FXType::STUNNED && target.has<TurnSystem::TurnComponent>() && !target.has<CCImmunityComponent>())
-		{
-			// For now, all stuns are 1 turn and do not stack
-			target.get<TurnSystem::TurnComponent>().stunDuration = 1;
-		}
 	}
 
 	processInternal(instigator, target);
@@ -46,7 +40,16 @@ void BuffHandler::processInternal(ECS::Entity instigator, ECS::Entity target)
 	StatModifier statModifier;
 	statModifier.statType = statType;
 	statModifier.value = value;
-	statModifier.timer = timer;
+	statModifier.numTurns = numTurns;
+
+	if (instigator.id == target.id && statType != StatType::HP_SHIELD)
+	{
+		// Have to sidestep some behaviour here...
+		// When an entity buffs/debuffs themselves, the FinishedSkillEvent is going
+		// to cause the stat modifier's `numTurns` to decrement by 1 as soon as this
+		// skill finishes. To account for that, we have to increment by 1 here.
+		statModifier.numTurns++;
+	}
 
 	BuffEvent buffEvent;
 	buffEvent.entity = target;
@@ -82,7 +85,7 @@ void DebuffAndDamageHandler::processInternal(ECS::Entity instigator, ECS::Entity
 	StatModifier statModifier;
 	statModifier.statType = statType;
 	statModifier.value = value;
-	statModifier.timer = timer;
+	statModifier.numTurns = numTurns;
 
 	BuffEvent buffEvent;
 	buffEvent.entity = target;

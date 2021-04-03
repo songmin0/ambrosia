@@ -58,8 +58,7 @@ void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 			GameStateSystem::instance().isTransitioning = true;
 			TransitionEvent event;
 			event.callback = []() {
-				GameStateSystem::instance().isInMainScreen = false;
-				GameStateSystem::instance().beginStory();
+				GameStateSystem::instance().launchRecipeSelectMenu();
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
@@ -295,3 +294,106 @@ void Screens::createCreditsScreen(int frameBufferWidth, int frameBufferHeight, i
 		});
 }
 ;
+};
+
+void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeight)
+{
+	// Background
+	auto background = ECS::Entity();
+	ShadedMesh& splashResource = cacheResource("start_splash");
+	if (splashResource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(splashResource, uiPath("menus/start/start-splash.png"), "textured");
+	}
+	background.emplace<ShadedMeshRef>(splashResource);
+	background.emplace<RenderableComponent>(RenderLayer::MAP);
+	background.emplace<Motion>();
+	auto& mapComponent = background.emplace<MapComponent>();
+	mapComponent.name = "startScreen";
+	mapComponent.mapSize = static_cast<vec2>(splashResource.texture.size);
+
+	std::string selectText("Select a recipe to play:");
+	std::string path = fontPath("anime_ace/animeace2_reg.ttf");
+	vec2 position(70.f, 80.f);
+	float scale = 0.75f;
+	vec3 color(1.f, 1.f, 1.f);
+	auto text = ECS::Entity();
+	ECS::registry<Text>.emplace(text, selectText, path, position, scale, color);
+
+	// Glow
+	auto glow = ECS::Entity();
+	ShadedMesh& glowResource = cacheResource("start_glow");
+	if (glowResource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(glowResource, uiPath("menus/start/start-glow.png"), "fading");
+	}
+	glow.emplace<ShadedMeshRef>(glowResource);
+	glow.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
+	glow.emplace<Motion>().position = vec2(frameBufferWidth / 2, frameBufferHeight / 2);
+
+	Button::createButton(ButtonShape::RECTANGLE,
+		{ frameBufferWidth / 2, frameBufferHeight / 2 - 200}, "recipe_select/tutorial-select",
+		[]() {
+			std::cout << "Tutorial selected!" << std::endl;
+			GameStateSystem::instance().isTransitioning = true;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInMainScreen = false;
+				GameStateSystem::instance().beginStory();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
+		});
+	ECS::registry<Text>.emplace(ECS::Entity(), "tutorial", path, vec2(frameBufferWidth/2 - 85, frameBufferHeight/2 - 70), 0.6f, color);
+
+	Button::createButton(ButtonShape::RECTANGLE,
+		{ frameBufferWidth / 4, frameBufferHeight / 2 + 100}, "recipe_select/recipe1-select",
+		[]() {
+			std::cout << "Recipe 1 selected!" << std::endl;
+			GameStateSystem::instance().isTransitioning = true;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInMainScreen = false;
+				GameStateSystem::instance().isInStory = false;
+				GameStateSystem::instance().isInTutorial = false;
+				GameStateSystem::instance().loadRecipe("recipe-1");
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
+		});
+	ECS::registry<Text>.emplace(ECS::Entity(), "Recipe 1", path, vec2(frameBufferWidth / 4 - 85, frameBufferHeight / 2 + 230), 0.6f, color);
+
+	Button::createButton(ButtonShape::RECTANGLE,
+		{ frameBufferWidth / 4 * 2, frameBufferHeight / 2 + 100 }, "recipe_select/recipe2-select",
+		[]() {
+			std::cout << "Recipe 2 selected!" << std::endl;
+			GameStateSystem::instance().isTransitioning = true;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInMainScreen = false;
+				GameStateSystem::instance().isInStory = false;
+				GameStateSystem::instance().isInTutorial = false;
+				GameStateSystem::instance().loadRecipe("recipe-2");
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
+		});
+	ECS::registry<Text>.emplace(ECS::Entity(), "Recipe 2", path, vec2(frameBufferWidth / 4 * 2 - 85, frameBufferHeight / 2 + 230), 0.6f, color);
+
+	Button::createButton(ButtonShape::RECTANGLE,
+		{ frameBufferWidth / 4 * 3, frameBufferHeight / 2 + 100 }, "recipe_select/recipe2-select",
+		[]() {
+			std::cout << "There will be a recipe 3. This is a placeholder for now." << std::endl;
+		});
+	ECS::registry<Text>.emplace(ECS::Entity(), "Recipe 3", path, vec2(frameBufferWidth / 4 * 3 - 85, frameBufferHeight / 2 + 230), 0.6f, color);
+
+	Button::createButton(ButtonShape::RECTANGLE,
+		{ 200, frameBufferHeight - 100 }, "back-button",
+		[]() {
+			std::cout << "Returning to start screen" << std::endl;
+			GameStateSystem::instance().isTransitioning = true;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInMainScreen = true;
+				GameStateSystem::instance().launchMainMenu();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
+		});
+}

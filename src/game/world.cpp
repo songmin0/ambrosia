@@ -22,14 +22,15 @@
 #include "ai/ai.hpp"
 #include "level_loader/level_loader.hpp"
 #include "game_state_system.hpp"
+#include "game/swarm_behaviour.hpp"
+#include "rendering/text.hpp"
+
 
 // stlib
 #include <string.h>
 #include <cassert>
 #include <sstream>
 #include <iostream>
-#include <game/swarm_behaviour.hpp>
-
 // Create the world
 // Note, this has a lot of OpenGL specific things, could be moved to the renderer; but it also defines the callbacks to the mouse and keyboard. That is why it is called here.
 WorldSystem::WorldSystem(ivec2 window_size_px) :
@@ -258,6 +259,9 @@ void WorldSystem::restart()
 	while (!ECS::registry<CameraComponent>.entities.empty()) {
 		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<CameraComponent>.entities.back());
 	}
+
+	while (!ECS::registry<Text>.entities.empty())
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Text>.entities.back());
 
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::listAllComponents();
@@ -562,10 +566,10 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		anim.changeAnimation(AnimationType::ATTACK3);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_4) {
-		for (auto entity : ECS::registry<PotatoChunk>.entities)
+		for (auto entity : ECS::registry<Lettuce>.entities)
 		{
 			auto& anim = entity.get<AnimationsComponent>();
-			anim.changeAnimation(AnimationType::DEFEAT);
+			anim.changeAnimation(AnimationType::ATTACK2);
 		}
 	}
 
@@ -821,6 +825,10 @@ void WorldSystem::playAudio()
 	else if (GameStateSystem::instance().currentLevel.at("map") == "dessert-arena")
 	{
 		nextMusicType = MusicType::DESSERT_ARENA;
+	}
+	else if (GameStateSystem::instance().currentLevel.at("map") == "veggie-forest")
+	{
+		nextMusicType = MusicType::PLACEHOLDER3;
 	}
 	else
 	{

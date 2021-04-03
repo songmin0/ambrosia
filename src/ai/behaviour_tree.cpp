@@ -2,7 +2,8 @@
 #include "game/stats_component.hpp"
 #include "tree_components.hpp"
 #include "game/game_state_system.hpp"
-#include <game/swarm_behaviour.hpp>
+#include "game/swarm_behaviour.hpp"
+#include "ai/ai.hpp"
 
 const float MOB_LOW_HEALTH = 25.f;
 
@@ -28,6 +29,12 @@ void StateSystem::onStartMobTurnEvent()
 		break;
 	case MobType::POTATO_CHUNK:
 		activeTree = std::make_shared<BehaviourTree>(PotatoChunkBehaviourTree());
+		break;
+	case MobType::TOMATO:
+		activeTree = std::make_shared<BehaviourTree>(BasicMeleeBehaviourTree());
+		break;
+	case MobType::LETTUCE:
+		activeTree = std::make_shared<BehaviourTree>(LettuceBehaviourTree());
 		break;
 	default:
 		break;
@@ -143,6 +150,29 @@ void Sequence::run()
 // =====================================================================
 // ROOT NODES
 
+BasicMeleeSequence::BasicMeleeSequence()
+{
+	addChild(std::make_shared<MoveToClosestPlayerTask>(MoveToClosestPlayerTask()));
+	addChild(std::make_shared<MeleeSkillSelector>(MeleeSkillSelector()));
+}
+
+void BasicMeleeSequence::run()
+{
+	Node::run();
+	Sequence::run();
+}
+
+LettuceTurnSequence::LettuceTurnSequence()
+{
+	addChild(std::make_shared<MeleeSkillSelector>(MeleeSkillSelector()));
+}
+
+void LettuceTurnSequence::run()
+{
+	Node::run();
+	Sequence::run();
+}
+
 EggTurnSequence::EggTurnSequence()
 {
 	addChild(std::make_shared<EggMoveSelector>(EggMoveSelector()));
@@ -162,6 +192,18 @@ PepperTurnSequence::PepperTurnSequence()
 }
 
 void PepperTurnSequence::run()
+{
+	Node::run();
+	Sequence::run();
+}
+
+RandomMeleeSequence::RandomMeleeSequence()
+{
+	addChild(std::make_shared<MoveToRandomPlayerTask>(MoveToRandomPlayerTask()));
+	addChild(std::make_shared<BasicAttackTask>(BasicAttackTask()));
+}
+
+void RandomMeleeSequence::run()
 {
 	Node::run();
 	Sequence::run();
@@ -355,8 +397,83 @@ void MilkSkillSelector::run()
 	Selector::run();
 }
 
+MeleeSkillSelector::MeleeSkillSelector()
+{
+	addChild(std::make_shared<BasicAttackTask>(BasicAttackTask()));
+	addChild(std::make_shared<RangedAttackTask>(RangedAttackTask()));
+}
+
+void MeleeSkillSelector::run()
+{
+	ECS::Entity mob = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+	assert(mob.has<AISystem::MobComponent>() && mob.has<Motion>());
+	auto& mobM = mob.get<Motion>();
+
+	auto& playerContainer = ECS::registry<PlayerComponent>;
+	assert(!playerContainer.entities.empty());
+
+	// Find the closest living player
+	float closestDistance = 10000.f;
+	for (auto player : playerContainer.entities)
+	{
+		// Check that player is alive and has Motion component
+		if (!player.has<DeathTimer>() && player.has<Motion>())
+		{
+			// Calculate the distance to this player
+			auto& playerMotion = player.get<Motion>();
+			float playerDistance = distance(mobM.position, playerMotion.position);
+
+			// If this player is closer, update the closest player
+			if (playerDistance < closestDistance)
+			{
+				closestDistance = playerDistance;
+			}
+		}
+	}
+
+	float skillRange = 0.f;
+	assert(mob.has<SkillComponent>());
+	auto& skillComponent = mob.get<SkillComponent>();
+	skillComponent.setActiveSkill(SkillType::SKILL1);
+	std::shared_ptr<Skill> activeSkill = skillComponent.getActiveSkill();
+	if (activeSkill)
+	{
+		skillRange = activeSkill->getRange();
+	}
+
+	std::shared_ptr<Node> basicAttack = children.front();
+	std::shared_ptr<Node> rangedAttack = children.back();
+
+	// If within range, use the basic attack
+	if (closestDistance <= skillRange)
+	{
+		rangedAttack->onTerminate(Status::FAILURE);
+	}
+	else
+	{
+		basicAttack->onTerminate(Status::FAILURE);
+	}
+	Selector::run();
+}
+
 // MOB BEHAVIOUR TREE
 // =====================================================================
+
+BasicMeleeBehaviourTree::BasicMeleeBehaviourTree()
+{
+	root = std::make_shared<BasicMeleeSequence>(BasicMeleeSequence());
+}
+
+LettuceBehaviourTree::LettuceBehaviourTree()
+{
+	root = std::make_shared<LettuceTurnSequence>(LettuceTurnSequence());
+}
+
+
+RandomMeleeBehaviourTree::RandomMeleeBehaviourTree()
+{
+	root = std::make_shared<RandomMeleeSequence>(RandomMeleeSequence());
+}
 
 EggBehaviourTree::EggBehaviourTree()
 {
@@ -382,6 +499,7 @@ PotatoChunkBehaviourTree::PotatoChunkBehaviourTree()
 {
 	root = std::make_shared<PotatoChunkTurnSequence>(PotatoChunkTurnSequence());
 }
+
 // TASKS
 // Public tasks not meant for any single mob
 // =====================================================================
@@ -452,6 +570,21 @@ void MoveToWeakestPlayerTask::run()
 		EventSystem<StartMobMoveEvent>::instance().sendEvent(event);
 	}
 
+}
+
+void MoveToRandomPlayerTask::run()
+{
+	if (this->status == Status::INVALID)
+	{
+		std::cout << "Moving to random player\n";
+		Node::run();
+		taskCompletedListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
+			std::bind(&MoveToRandomPlayerTask::onFinishedTaskEvent, this));
+		StartMobMoveEvent event;
+		event.entity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+		event.movement.moveType = MoveType::TO_RANDOM_PLAYER;
+		EventSystem<StartMobMoveEvent>::instance().sendEvent(event);
+	}
 }
 
 void MoveToDeadPotato::run()
@@ -569,6 +702,39 @@ void UltimateAttackTask::run()
 		StartMobSkillEvent skillEvent;
 		skillEvent.entity = activeEntity;
 		// Not necessary but we can keep it here for directional AOE later
+		skillEvent.targetIsPlayer = true;
+		EventSystem<StartMobSkillEvent>::instance().sendEvent(skillEvent);
+	}
+}
+
+void RangedAttackTask::run()
+{
+	if (this->status == Status::INVALID)
+	{
+		std::cout << "Attacking with alternate ranged attack \n";
+		Node::run();
+		taskCompletedListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
+			std::bind(&UltimateAttackTask::onFinishedTaskEvent, this));
+		ECS::Entity activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+		SetActiveSkillEvent activeEvent;
+		activeEvent.entity = activeEntity;
+		auto& mobType = activeEntity.get<BehaviourTreeType>().mobType;
+		// Choose correct skill based on active mob entity
+		switch (mobType)
+		{
+		case MobType::TOMATO:
+		case MobType::LETTUCE:
+			activeEvent.type = SkillType::SKILL2;
+			break;
+		default:
+			std::cout << "Mob without alternate ranged attack was called in RangedAttackTask\n";
+			activeEvent.type = SkillType::SKILL2;
+			break;
+		}
+		EventSystem<SetActiveSkillEvent>::instance().sendEvent(activeEvent);
+
+		StartMobSkillEvent skillEvent;
+		skillEvent.entity = activeEntity;
 		skillEvent.targetIsPlayer = true;
 		EventSystem<StartMobSkillEvent>::instance().sendEvent(skillEvent);
 	}

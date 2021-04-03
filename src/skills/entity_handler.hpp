@@ -55,10 +55,10 @@ private:
 class BuffHandler : public EntityHandler
 {
 public:
-	BuffHandler(StatType statType, float value, float timer)
+	BuffHandler(StatType statType, float value, int numTurns)
 		: statType(statType)
 		, value(value)
-		, timer(timer)
+		, numTurns(numTurns)
 	{}
 
 	~BuffHandler() override = default;
@@ -68,7 +68,7 @@ public:
 private:
 	StatType statType;
 	float value;
-	float timer;
+	int numTurns;
 };
 
 // Heals one type of entity and damages the other type
@@ -100,11 +100,11 @@ private:
 class DebuffAndDamageHandler : public EntityHandler
 {
 public:
-	DebuffAndDamageHandler(StatType statType, float value, float timer,
+	DebuffAndDamageHandler(StatType statType, float value, int numTurns,
 												 float damage)
 		: statType(statType)
 		, value(value)
-		, timer(timer)
+		, numTurns(numTurns)
 		, damage(damage)
 	{}
 
@@ -115,7 +115,7 @@ public:
 private:
 	StatType statType;
 	float value;
-	float timer;
+	int numTurns;
 
 	float damage;
 };
