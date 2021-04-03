@@ -41,7 +41,7 @@ Average Victory Rate: 19.1%
 *Win rate over 1000 games - Yellow indicates victories, purple indicates defeat.*
 
 What happened?
-- If Chia does not use her HP shield, Taji is 1HKO on Turn 1 and everyone else is reduced to unsustainably low HP
+- If Chia does not use her HP shield, Taji is 1HKO'd on Turn 1 and everyone else is reduced to unsustainably low HP
 - Without Taji's third skill, healing is also reduced
 - All other players are wiped out by Potato's 2nd ultimate
 
@@ -49,7 +49,7 @@ What happened?
 *HP and Skill use per entity in 1 game - Taji (green) immediately dies on turn 1. Other players are defeated upon the Potato's 2nd ultimate (Skill 2)*
 
 ### There exists a simple effective strategy.
-The simplest stratey is to use Chia's HP shield before the boss ults. This is on Turn 1 and the first time the boss drops below 50% HP. All other behaviour is random.
+The simplest strategy is to use Chia's HP shield before the boss ults. This is on Turn 1 and the first time the boss drops below 50% HP. All other behaviour is random.
 
 5-batch Victory Rates: 65.7%, 68.1%, 63.4%, 64.9%, 68.1%  
 Average Victory Rate: 66%
