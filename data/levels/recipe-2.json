@@ -1,115 +1,8 @@
 {
-  "name": "recipe-1",
+  "name": "recipe-2",
     "maps": [
         {
-            "map": "dessert-arena",
-            "camera": {
-                "position": [
-                    1400,
-                    350
-                ]
-            },
-            "taji": {
-                "stats": {
-                    "hp": 70,
-                    "strength": 1,
-                    "ambrosia": 0
-                },
-                "position": [
-                    1600,
-                    950
-                ]
-            },
-            "chia": {
-                "stats": {
-                    "hp": 80,
-                    "strength": 1,
-                    "ambrosia": 0
-                },
-                "position": [
-                    1750,
-                    700
-                ]
-            },
-            "raoul": {
-                "stats": {
-                    "hp": 100,
-                    "strength": 1,
-                    "ambrosia": 0
-                },
-                "position": [
-                    1950,
-                    800
-                ]
-            },
-            "ember": {
-                "stats": {
-                    "hp": 80,
-                    "strength": 1,
-                    "ambrosia": 0
-                },
-                "position": [
-                    1800,
-                    1000
-                ]
-            },
-            "mobs": [
-                {
-                    "type": "egg",
-                    "stats": {
-                        "hp": 80,
-                        "strength": 1
-                    },
-                    "positions": [
-                        [
-                            2400,
-                            1100,
-                            1
-                        ],
-                        [
-                            2550,
-                            900,
-                            1
-                        ]
-                    ]
-                },
-                {
-                    "type": "pepper",
-                    "stats": {
-                        "hp": 50,
-                        "strength": 1
-                    },
-                    "positions": [
-                        [
-                            750,
-                            900,
-                            -1
-                        ],
-                        [
-                            850,
-                            1100,
-                            -1
-                        ]
-                    ]
-                },
-                {
-                    "type": "milk",
-                    "stats": {
-                        "hp": 80,
-                        "strength": 1
-                    },
-                    "positions": [
-                        [
-                            900,
-                            800,
-                            -1
-                        ]
-                    ]
-                }
-            ]
-        },
-        {
-            "map": "pizza-arena",
+            "map": "veggie-forest",
             "camera": {
                 "position": [
                     0,
@@ -123,8 +16,8 @@
                     "ambrosia": 0
                 },
                 "position": [
-                    500,
-                    400
+                    250,
+                    500
                 ]
             },
             "chia": {
@@ -135,7 +28,7 @@
                 },
                 "position": [
                     200,
-                    700
+                    800
                 ]
             },
             "raoul": {
@@ -145,8 +38,8 @@
                     "ambrosia": 0
                 },
                 "position": [
-                    640,
-                    512
+                    500,
+                    712
                 ]
             },
             "ember": {
@@ -156,35 +49,143 @@
                     "ambrosia": 0
                 },
                 "position": [
-                    400,
-                    700
+                    350,
+                    800
                 ]
             },
             "mobs": [
                 {
-                    "type": "potato",
+                    "type": "tomato",
                     "stats": {
-                        "hp": 400,
+                        "hp": 70,
                         "strength": 1
                     },
                     "positions": [
                         [
-                            950,
+                            1350,
+                            500,
+                            1
+                        ],
+                        [
+                            1200,
                             700,
                             1
+                        ],
+                        [
+                            1400,
+                            870,
+                            1
+                        ]
+                    ]
+                }
+            ]
+        },
+        {
+            "map": "salad-canyon",
+            "camera": {
+                "position": [
+                    0,
+                    0
+                ]
+            },
+            "taji": {
+                "stats": {
+                    "hp": 70,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    900,
+                    1650
+                ]
+            },
+            "chia": {
+                "stats": {
+                    "hp": 80,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    700,
+                    1600
+                ]
+            },
+            "raoul": {
+                "stats": {
+                    "hp": 100,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    1000,
+                    1550
+                ]
+            },
+            "ember": {
+                "stats": {
+                    "hp": 80,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    500,
+                    1600
+                ]
+            },
+            "mobs": [
+                {
+                    "type": "tomato",
+                    "stats": {
+                        "hp": 70,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            115,
+                            685,
+                            1
+                        ],
+                        [
+                            1165,
+                            710,
+                            1
+                        ],
+                        [
+                            1333,
+                            858,
+                            -1
+                        ],
+                        [
+                            50,
+                            879,
+                            -1
                         ]
                     ]
                 },
                 {
-                    "type": "milk",
+                    "type": "egg",
                     "stats": {
                         "hp": 80,
                         "strength": 1
                     },
                     "positions": [
                         [
-                            900,
-                            800,
+                            687,
+                            1030,
+                            1
+                        ]
+                    ]
+                },
+                {
+                    "type": "lettuce",
+                    "stats": {
+                        "hp": 400,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            780,
+                            550,
                             1
                         ]
                     ]
