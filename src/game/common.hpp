@@ -41,7 +41,7 @@ inline std::string levelsPath(const std::string& name) { return dataPath() + "/l
 inline std::string fxPath(const std::string& name) { return dataPath() + "/effects/" + name; };
 inline std::string fontPath(const std::string& name) { return dataPath() + "/fonts/" + name; };
 
-enum class PlayerType { RAOUL, TAJI, CHIA, EMBER };
+enum class PlayerType { RAOUL, TAJI, EMBER, CHIA };
 float playerToFloat(const PlayerType& player);
 
 // The 'Transform' component handles transformations passed to the Vertex shader
