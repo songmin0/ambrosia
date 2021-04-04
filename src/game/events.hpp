@@ -59,6 +59,9 @@ struct PlayerChangeEvent
 	ECS::Entity newActiveEntity;
 };
 
+struct StartNextRoundEvent
+{};
+
 struct SetActiveSkillEvent
 {
 	ECS::Entity entity;
@@ -99,6 +102,7 @@ struct StartMobSkillEvent
 	ECS::Entity entity;
 	// Target player or mob
 	bool targetIsPlayer;
+	bool isRandomTarget = false;
 };
 
 struct FinishedMovementEvent

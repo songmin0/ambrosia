@@ -60,9 +60,8 @@ ECS::Entity Taji::commonInit()
 	castAttackParams->entityProvider = std::make_shared<MouseClickProvider>(100.f);
 	castAttackParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
 	castAttackParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
-	castAttackParams->entityHandler = std::make_shared<DamageHandler>(20.f);
+	castAttackParams->entityHandler = std::make_shared<DebuffAndDamageHandler>(StatType::STUNNED, 1.f, 1, 20.f);
 	castAttackParams->entityHandler->addFX(FXType::CANDY2);
-	castAttackParams->entityHandler->addFX(FXType::STUNNED);
 	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(castAttackParams));
 
 	// Small damage to all enemies, small heal to all allies

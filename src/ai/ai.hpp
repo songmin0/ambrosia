@@ -15,8 +15,6 @@ public:
 	AISystem(PathFindingSystem& pfs);
 	~AISystem();
 
-	void step(float elapsed_ms, vec2 window_size_in_game_units);
-
 	// Holds information
 	struct MobComponent
 	{
@@ -31,6 +29,7 @@ private:
 	bool setTargetToWeakestPlayer(ECS::Entity& mob);
 	bool setTargetToWeakestMob(ECS::Entity& mob);
 	bool setTargetToDeadPotato(ECS::Entity& mob);
+	bool setTargetToRandomPlayer(ECS::Entity& mob);
 
 	void startMobMove(ECS::Entity entity, MovementType movement);
 	void startMobSkill(ECS::Entity entity);

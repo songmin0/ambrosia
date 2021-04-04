@@ -26,6 +26,7 @@ public:
 	}
 
 	bool inGameState();
+	bool hasLights();
 	bool isInTutorial;
 	bool hasDoneTutorial;
 	bool isInStory;
@@ -56,9 +57,10 @@ public:
 	void launchDefeatScreen();
 	//This will call the main menu
 	void launchMainMenu();
+	void launchRecipeSelectMenu();
 
 	void beginStory();
-	void beginTutorial();
+	void loadRecipe(const std::string& recipe);
 
 //This removes all the enitities with a motion component
 	void removeAllMotionEntities();

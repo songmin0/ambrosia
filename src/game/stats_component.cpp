@@ -18,3 +18,10 @@ float StatsComponent::getEffectiveHP()
 {
 	return getStatValue(StatType::HP) + getStatValue(StatType::HP_SHIELD);
 }
+
+bool StatsComponent::isStunned()
+{
+	// Check that the effective value of STUNNED is greater than zero, accounting
+	// for floating point precision
+	return std::fabs(getStatValue(StatType::STUNNED)) > 0.0005f;
+}

@@ -22,14 +22,15 @@
 #include "ai/ai.hpp"
 #include "level_loader/level_loader.hpp"
 #include "game_state_system.hpp"
+#include "game/swarm_behaviour.hpp"
+#include "rendering/text.hpp"
+
 
 // stlib
 #include <string.h>
 #include <cassert>
 #include <sstream>
 #include <iostream>
-#include <game/swarm_behaviour.hpp>
-
 // Create the world
 // Note, this has a lot of OpenGL specific things, could be moved to the renderer; but it also defines the callbacks to the mouse and keyboard. That is why it is called here.
 WorldSystem::WorldSystem(ivec2 window_size_px) :
@@ -83,10 +84,13 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 
 	transitionEventListener = EventSystem<TransitionEvent>::instance().registerListener(
 		std::bind(&WorldSystem::onTransition, this, std::placeholders::_1));
+
+	initCursors();
 }
 
 WorldSystem::~WorldSystem(){
 	releaseAudio();
+	releaseCursors();
 
 	if (loadLevelListener.isValid())
 	{
@@ -256,6 +260,9 @@ void WorldSystem::restart()
 		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<CameraComponent>.entities.back());
 	}
 
+	while (!ECS::registry<Text>.entities.empty())
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Text>.entities.back());
+
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::listAllComponents();
 
@@ -272,7 +279,10 @@ void WorldSystem::restart()
 
 	playAudio();
 	shouldPlayAudioAtStartOfTurn = false;
-} 
+
+	// On restart, go back to the normal mouse cursor
+	glfwSetCursor(window, nullptr);
+}
 
 void WorldSystem::preloadResources()
 {
@@ -556,10 +566,10 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		anim.changeAnimation(AnimationType::ATTACK3);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_4) {
-		for (auto entity : ECS::registry<PotatoChunk>.entities)
+		for (auto entity : ECS::registry<Lettuce>.entities)
 		{
 			auto& anim = entity.get<AnimationsComponent>();
-			anim.changeAnimation(AnimationType::DEFEAT);
+			anim.changeAnimation(AnimationType::ATTACK2);
 		}
 	}
 
@@ -816,6 +826,10 @@ void WorldSystem::playAudio()
 	{
 		nextMusicType = MusicType::DESSERT_ARENA;
 	}
+	else if (GameStateSystem::instance().currentLevel.at("map") == "veggie-forest")
+	{
+		nextMusicType = MusicType::PLACEHOLDER3;
+	}
 	else
 	{
 		nextMusicType = MusicType::PLACEHOLDER1;
@@ -848,6 +862,9 @@ void WorldSystem::onPlayerChangeEvent(const PlayerChangeEvent& event)
 		Mix_PlayChannel(-1, soundEffects[SoundEffect::TURN_START], 0);
 	}
 	shouldPlayAudioAtStartOfTurn = true;
+
+	// When the active player changes, go back to the normal mouse cursor
+	glfwSetCursor(window, nullptr);
 }
 
 void WorldSystem::onLoadLevelEvent(const LoadLevelEvent& event)
@@ -882,4 +899,125 @@ void WorldSystem::onTransition(TransitionEvent event)
 		screenTimer.counter_ms = event.duration;
 		screenTimer.complete = false;
 	}
+}
+
+void WorldSystem::initCursors()
+{
+	// A lambda to cut down on code duplication. Its job is to load a mouse cursor
+	// image and use it to create the GLFWcursor object.
+	auto createCursor = [&](std::string path, vec2 hotspotCoords) -> GLFWcursor*
+	{
+		int width, height, numChannelsRead;
+		unsigned char* data = stbi_load(path.c_str(), &width, &height, &numChannelsRead, 0);
+
+		if (!data || numChannelsRead != 4)
+		{
+			throw std::runtime_error("Failed to load cursor: " + path);
+		}
+
+		GLFWimage cursorImage;
+		cursorImage.width = width;
+		cursorImage.height = height;
+		cursorImage.pixels = data;
+
+		GLFWcursor* mouseCursor = glfwCreateCursor(&cursorImage, hotspotCoords.x, hotspotCoords.y);
+
+		if (!mouseCursor)
+		{
+			throw std::runtime_error("Failed to set cursor: " + path);
+		}
+
+		stbi_image_free(data);
+		return mouseCursor;
+	};
+
+	// Create two cursors
+	moveCursor = createCursor(uiPath("cursor-shoe.png"), {40.f, 40.f});
+	skillCursor = createCursor(uiPath("cursor-hand.png"), {21.f, 0.f});
+
+	// Listen for a few events to change the mouse cursor
+	setActiveSkillListener = EventSystem<SetActiveSkillEvent>::instance().registerListener(
+			std::bind(&WorldSystem::onSetActiveSkillEvent, this, std::placeholders::_1));
+
+	finishedMovementListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
+			std::bind(&WorldSystem::onFinishedMovementEvent, this, std::placeholders::_1));
+
+	finishedSkillListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
+			std::bind(&WorldSystem::onFinishedSkillEvent, this, std::placeholders::_1));
+}
+
+void WorldSystem::releaseCursors()
+{
+	// Stop listening for events related to changing the mouse cursor
+	if (setActiveSkillListener.isValid())
+	{
+		EventSystem<SetActiveSkillEvent>::instance().unregisterListener(setActiveSkillListener);
+	}
+	if (finishedMovementListener.isValid())
+	{
+		EventSystem<FinishedMovementEvent>::instance().unregisterListener(finishedMovementListener);
+	}
+	if (finishedSkillListener.isValid())
+	{
+		EventSystem<FinishedSkillEvent>::instance().unregisterListener(finishedSkillListener);
+	}
+
+	// Release the cursors
+	if (moveCursor)
+	{
+		glfwDestroyCursor(moveCursor);
+	}
+	if (skillCursor)
+	{
+		glfwDestroyCursor(skillCursor);
+	}
+}
+
+void WorldSystem::onSetActiveSkillEvent(const SetActiveSkillEvent& event)
+{
+	auto entity = event.entity;
+	if (!entity.has<PlayerComponent>())
+	{
+		return;
+	}
+
+	// Update the active cursor based on skill type
+	if (event.type == SkillType::NONE)
+	{
+		glfwSetCursor(window, nullptr);
+	}
+	else if (event.type == SkillType::MOVE)
+	{
+		assert(moveCursor);
+		glfwSetCursor(window, moveCursor);
+	}
+	else
+	{
+		assert(skillCursor);
+		glfwSetCursor(window, skillCursor);
+	}
+}
+
+void WorldSystem::onFinishedMovementEvent(const FinishedMovementEvent& event)
+{
+	auto entity = event.entity;
+	if (!entity.has<PlayerComponent>())
+	{
+		return;
+	}
+
+	// When movement finishes, go back to the normal mouse cursor
+	glfwSetCursor(window, nullptr);
+}
+
+void WorldSystem::onFinishedSkillEvent(const FinishedSkillEvent& event)
+{
+	auto entity = event.entity;
+	if (!entity.has<PlayerComponent>())
+	{
+		return;
+	}
+
+	// When a skill finishes, go back to the normal mouse cursor
+	glfwSetCursor(window, nullptr);
 }

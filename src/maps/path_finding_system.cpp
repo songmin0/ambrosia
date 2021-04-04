@@ -154,6 +154,12 @@ bool PathFindingSystem::isValidPoint(const MapComponent& map, vec2 point) const
 bool PathFindingSystem::isWalkablePoint(const MapComponent& map, vec2 point) const
 {
 	// Check that the point is marked as walkable and there's no obstacle at that position
+	if (point.y >= map.grid.size() || point.x >= map.grid[point.y].size())
+	{
+		std::cout << "WARNING: attempting to access a point outside of the map grid" << std::endl;
+		return false;
+	}
+
 	return map.grid[point.y][point.x] == 3 &&
 		std::find(obstacles.begin(), obstacles.end(), point) == obstacles.end();
 }
