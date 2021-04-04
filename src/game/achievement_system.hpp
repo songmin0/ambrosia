@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include <string>
 #include "entities/tiny_ecs.hpp"
@@ -32,7 +34,12 @@ public:
 		return achievementSystem;
 	}
 
-	void addAchievement(Achievement item) { achievements.push_back(item); };
+	void addAchievement(Achievement item) 
+	{ 
+		achievements.push_back(item); 
+		removeFromTracking(item);
+	};
+	void clearAchievements() { achievements.clear(); }
 	std::list<Achievement> getAchievements() { return achievements; };
 	void addToTracking(Achievement item);
 	void removeFromTracking(Achievement item);

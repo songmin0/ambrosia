@@ -640,6 +640,11 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
 		playNextAudioTrack_DEBUG();
 	}
+
+	// Play the next audio track (this is just so that we can give all of them a try)
+	if (action == GLFW_RELEASE && key == GLFW_KEY_BACKSPACE) {
+		GameStateSystem::instance().launchMainMenu();
+	}
 }
 
 void WorldSystem::onMouseClick(int button, int action, int mods) const

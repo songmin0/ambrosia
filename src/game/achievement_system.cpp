@@ -62,7 +62,6 @@ void AchievementSystem::onBeatLevelEvent()
 	if (numPlayers == 4 && isTracking(Achievement::BEAT_LEVEL_ALL_ALIVE))
 	{
 		addAchievement(Achievement::BEAT_LEVEL_ALL_ALIVE);
-		removeFromTracking(Achievement::BEAT_LEVEL_ALL_ALIVE);
 	}
 }
 
@@ -70,7 +69,6 @@ void AchievementSystem::onDefeatedBossEvent()
 {
 	// TODO: Should change achievement names with multiple playthroughs/recipes
 	addAchievement(Achievement::BEAT_RECIPE);
-	removeFromTracking(Achievement::BEAT_RECIPE);
 
 	bool isLowHP = true;
 	auto& players = ECS::registry<PlayerComponent>.entities;
@@ -83,7 +81,6 @@ void AchievementSystem::onDefeatedBossEvent()
 			if (playerStats.getStatValue(StatType::HP) < 0.15 * playerStats.getStatValue(StatType::MAX_HP))
 			{
 				addAchievement(Achievement::BEAT_BOSS_LOW_HP);
-				removeFromTracking(Achievement::BEAT_BOSS_LOW_HP);
 			}
 		}
 	}
@@ -93,7 +90,6 @@ void AchievementSystem::onDefeatedBossEvent()
 		if (players.size() == 4)
 		{
 			addAchievement(Achievement::BEAT_RECIPE_ALL_ALIVE);
-			removeFromTracking(Achievement::BEAT_RECIPE_ALL_ALIVE);
 		}
 	}
 }
@@ -103,7 +99,6 @@ void AchievementSystem::onFinishedTutorialEvent()
 	if (isTracking(Achievement::FINISH_TUTORIAL))
 	{
 		addAchievement(Achievement::FINISH_TUTORIAL);
-		removeFromTracking(Achievement::FINISH_TUTORIAL);
 	}
 }
 

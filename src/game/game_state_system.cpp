@@ -3,6 +3,7 @@
 #include "camera.hpp"
 #include "level_loader/level_loader.hpp"
 #include "rendering/text.hpp"
+#include "achievement_system.hpp"
 
 #include <string.h>
 #include <cassert>
@@ -87,7 +88,13 @@ void GameStateSystem::nextMap()
 {
 	//Save the game
 	LevelLoader lc;
-	lc.save(recipe["name"], currentLevelIndex);
+	std::list<Achievement> achievements = AchievementSystem::instance().getAchievements();
+	//std::list<std::string> achievementsText;
+	//for (Achievement curr : achievements)
+	//{
+	//	achievementsText.push_back(AchievementText[curr]);
+	//}
+	lc.save(recipe["name"], currentLevelIndex, achievements);
 
 	currentLevelIndex++;
 	if (currentLevelIndex == recipe["maps"].size() - 1)
@@ -126,6 +133,13 @@ void GameStateSystem::loadSave()
 	{
 		GameStateSystem::instance().recipe = lc.readLevel(save_obj["recipe"]);
 		GameStateSystem::instance().currentLevelIndex = save_obj["level"];
+
+		AchievementSystem::instance().clearAchievements();
+		for (Achievement achievement : save_obj["achievements"])
+		{
+			AchievementSystem::instance().addAchievement(achievement);
+		}
+
 		GameStateSystem::instance().restartMap();
 	}
 	else // load a new game because there's no save
