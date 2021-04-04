@@ -641,7 +641,7 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		playNextAudioTrack_DEBUG();
 	}
 
-	// Play the next audio track (this is just so that we can give all of them a try)
+	// Go to main menu (for checking achievements after saving)
 	if (action == GLFW_RELEASE && key == GLFW_KEY_BACKSPACE) {
 		GameStateSystem::instance().launchMainMenu();
 	}
