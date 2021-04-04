@@ -13,8 +13,8 @@ enum Achievement {
 	BEAT_BOSS_LOW_HP,
 	SIZE_OF_ENUM
 };
-static const char* AchievementText[] = { "Finished the tutorial!", "Beat the level without anyone dying!", "Beat the recipe!", 
-										 "Beat the recipe without anyone dying", "Defeated the boss with low HPs" };
+static const char* AchievementText[] = { "Finished the tutorial!", "Beat a level without anyone dying!", "Beat a recipe!", 
+										 "Beat a recipe without anyone dying", "Defeated a boss with low HP" };
 
 
 class AchievementSystem {
@@ -40,11 +40,13 @@ public:
 private:
 	EventListenerInfo finishedTutorialListener;
 	EventListenerInfo reachedBossListener;
+	EventListenerInfo beatLevelListener;
 	EventListenerInfo defeatedBossListener;
 
 	void onFinishedTutorialEvent();
 	void onReachedBossEvent();
-	void onDefeatedBossEvent(const DefeatedBossEvent& event);
+	void onBeatLevelEvent();
+	void onDefeatedBossEvent();
 
 	bool isTracking(Achievement item);
 };

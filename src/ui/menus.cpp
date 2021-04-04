@@ -292,8 +292,6 @@ void Screens::createCreditsScreen(int frameBufferWidth, int frameBufferHeight, i
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
-}
-;
 };
 
 void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeight)

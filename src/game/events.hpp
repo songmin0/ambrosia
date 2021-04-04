@@ -149,7 +149,8 @@ struct AdvanceStoryEvent {};
 
 // Events related to achievements
 struct FinishedTutorialEvent {};
-struct ReachedBossEvent {};
+struct ReachedBossEvent {};	// Helper event
+struct BeatLevelEvent {};
 struct DefeatedBossEvent {};
 
 struct ChangeRangeIndicatorEvent {
