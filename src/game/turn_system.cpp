@@ -69,8 +69,14 @@ void TurnSystem::nextActiveEntity()
 		}
 	};
 
+	//Sort the vector of players that are alive based on the player enum. I had to create this temp variable because if i sorted directly on the registy it broke.
+	auto playerEntities = ECS::registry<PlayerComponent>.entities;
+	std::sort(playerEntities.begin(), playerEntities.end(), [](ECS::Entity a, ECS::Entity b) {
+		return a.get<PlayerComponent>().player < b.get<PlayerComponent>().player;
+		});
 	// Loop through the player's TurnComponents and set the first player found that hasn't gone yet
-	tryToSetActiveEntity(ECS::registry<PlayerComponent>.entities);
+	tryToSetActiveEntity(playerEntities);
+	
 
 	// If all the players have gone start going through all the mobs
 	if (ECS::registry<TurnComponentIsActive>.size() == 0)
