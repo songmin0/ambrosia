@@ -41,8 +41,6 @@ public:
 	};
 	void clearAchievements() { achievements.clear(); }
 	std::list<Achievement> getAchievements() { return achievements; };
-	void addToTracking(Achievement item);
-	void removeFromTracking(Achievement item);
 
 private:
 	EventListenerInfo finishedTutorialListener;
@@ -56,4 +54,6 @@ private:
 	void onDefeatedBossEvent();
 
 	bool isTracking(Achievement item);
+	void addToTracking(Achievement item);
+	void removeFromTracking(Achievement item);
 };

@@ -40,16 +40,6 @@ AchievementSystem::~AchievementSystem()
 	}
 }
 
-void AchievementSystem::addToTracking(Achievement item)
-{
-	tracking.push_back(item);
-}
-
-void AchievementSystem::removeFromTracking(Achievement item)
-{
-	tracking.remove(item);
-}
-
 void AchievementSystem::onReachedBossEvent()
 {
 	// TODO: Achievements that happen multiple times for each recipe?
@@ -111,4 +101,14 @@ bool AchievementSystem::isTracking(Achievement item)
 			return true;
 	}
 	return false;
+}
+
+void AchievementSystem::addToTracking(Achievement item)
+{
+	tracking.push_back(item);
+}
+
+void AchievementSystem::removeFromTracking(Achievement item)
+{
+	tracking.remove(item);
 }

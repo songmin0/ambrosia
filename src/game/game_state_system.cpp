@@ -166,15 +166,14 @@ void GameStateSystem::launchVictoryScreen()
 	Camera::createCamera(vec2(0.f));
 	isInVictoryScreen = true;
 
-	EventSystem<BeatLevelEvent>::instance().sendEvent(BeatLevelEvent{});
-	std::cout << "BeatLevelEvent\n";
-	// Defeated the boss
-	if (currentLevelIndex == recipe["maps"].size() - 1 && recipe["name"] != "tutorial")
+	if (recipe["name"] != "tutorial")
 	{
-		EventSystem<DefeatedBossEvent>::instance().sendEvent(DefeatedBossEvent{});
-		std::cout << "DefeatedBossEvent\n";
+		EventSystem<BeatLevelEvent>::instance().sendEvent(BeatLevelEvent{});
+		// Defeated the boss
+		if (currentLevelIndex == recipe["maps"].size() - 1)
+			EventSystem<DefeatedBossEvent>::instance().sendEvent(DefeatedBossEvent{});
 	}
-	// Must call removeAllMotionEntities() after sending achievement events
+	// Must call removeAllMotionEntities() *after* sending achievement events
 	removeAllMotionEntities();
 	vec2 screenBufferSize = getScreenBufferSize();
 	Screens::createVictoryScreen(screenBufferSize.x, screenBufferSize.y);
