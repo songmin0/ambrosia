@@ -141,17 +141,6 @@ void Screens::createVictoryScreen(int frameBufferWidth, int frameBufferHeight, i
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
-	Button::createButton(ButtonShape::RECTANGLE,
-		{ frameBufferWidth / 2, frameBufferHeight / 2 + 280 }, "menus/start/achievements-button",
-		[]() {
-			std::cout << "Achievements button clicked from victory screen!" << std::endl;
-			TransitionEvent event;
-			event.callback = []() {
-				GameStateSystem::instance().isInVictoryScreen = false;
-				GameStateSystem::instance().launchAchievementsScreen();
-			};
-			EventSystem<TransitionEvent>::instance().sendEvent(event);
-		});
 };
 
 void Screens::createDefeatScreen(int frameBufferWidth, int frameBufferHeight, int type)
