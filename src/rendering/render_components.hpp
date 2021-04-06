@@ -207,6 +207,8 @@ struct TimerComponent
 	bool isCountingUp = true;
 	bool complete = false;
 	TimerComponent() : maxTime_ms{ 1000.f }, counter_ms{ 0.f }, isCountingUp{ true }, complete{ false } {};
+	TimerComponent(float maxTime_ms)
+		: maxTime_ms{ maxTime_ms }, counter_ms{ 0.f }, isCountingUp{ true }, complete{ false } {};
 	TimerComponent(float maxTime_ms, float initCounter_ms, bool isCountingUp) 
 		: maxTime_ms{ maxTime_ms }, counter_ms{ initCounter_ms }, isCountingUp{ isCountingUp }, complete{ false } {};
 };

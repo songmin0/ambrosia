@@ -2,10 +2,13 @@
 #include "map.hpp"
 #include "game/game_state_system.hpp"
 #include "rendering/text.hpp"
+#include "game/achievement_system.hpp"
 #include <iostream>
 #include <SDL.h>
 #include <SDL_mixer.h>
 #define SDL_MAIN_HANDLED
+
+const float TITLE_LINE_Y = 80.f;
 
 void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 {
@@ -73,9 +76,29 @@ void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 		});
 
 	Button::createButton(ButtonShape::RECTANGLE,
+		{ frameBufferWidth - 250, frameBufferHeight / 2 + 250 }, "menus/start/achievements-button",
+		[]() {
+			std::cout << "Achievement button clicked!" << std::endl;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInMainScreen = false;
+				GameStateSystem::instance().isInAchievementsScreen = true;
+				GameStateSystem::instance().launchAchievementsScreen();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
+		});
+
+	Button::createButton(ButtonShape::RECTANGLE,
 		{ 100, frameBufferHeight - 100 }, "menus/start/credits-button",
 		[]() {
 			std::cout << "Credits button clicked!" << std::endl;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInMainScreen = false;
+				GameStateSystem::instance().isInCreditsScreen = true;
+				GameStateSystem::instance().launchCreditsScreen();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
 }
 
@@ -179,6 +202,81 @@ void Screens::createDefeatScreen(int frameBufferWidth, int frameBufferHeight, in
 			TransitionEvent event;
 			event.callback = []() {
 				GameStateSystem::instance().isInDefeatScreen = false;
+				GameStateSystem::instance().launchMainMenu();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
+		});
+}
+
+void Screens::createAchievementsScreen(int frameBufferWidth, int frameBufferHeight, int type)
+{
+	const float leftAlignX = 100;
+	const float lineSpaceY = 80.f;
+	createText("Achievements", { leftAlignX, TITLE_LINE_Y });
+
+	// Getting all achievements
+	std::list<Achievement> achievements = AchievementSystem::instance().getAchievements();
+	int lineIndex = 1;
+	for (Achievement curr : achievements)
+	{
+		auto text = AchievementText[curr];
+		createText(std::string(text), { leftAlignX, TITLE_LINE_Y + lineSpaceY * lineIndex }, 0.75);
+		lineIndex++;
+	}
+	//createText("Beat tutorial", { leftAlignX, TITLE_LINE_Y + lineSpaceY }, 0.5);
+	Button::createButton(ButtonShape::RECTANGLE,
+		{ frameBufferWidth - 200, 60 }, "menus/back-button",
+		[]() {
+			std::cout << "Back button clicked!" << std::endl;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInAchievementsScreen = false;
+				GameStateSystem::instance().launchMainMenu();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
+		});
+}
+void Screens::createCreditsScreen(int frameBufferWidth, int frameBufferHeight, int type)
+{
+	const float leftAlignX = 100;
+	const float middleAlignX = frameBufferWidth / 2.f;
+	const float paragraphSpaceY = 80;
+	const float newlineSpaceY = 50;
+	createText("Credits", { leftAlignX, TITLE_LINE_Y });
+
+	float firstSectionY = TITLE_LINE_Y + paragraphSpaceY;
+	createText("Developers", { leftAlignX, firstSectionY }, 0.75);
+	createText("Louise Hsu", { leftAlignX, firstSectionY + newlineSpaceY }, 0.5);
+	createText("Emma Liu", { leftAlignX, firstSectionY + newlineSpaceY * 2 }, 0.5);
+	createText("Jacques Marais", { leftAlignX, firstSectionY + newlineSpaceY * 3 }, 0.5);
+	createText("Alexander Neumann", { middleAlignX, firstSectionY + newlineSpaceY }, 0.5);
+	createText("Matthew Ng", { middleAlignX, firstSectionY + newlineSpaceY * 2 }, 0.5);
+	createText("Christine Song", { middleAlignX, firstSectionY + newlineSpaceY * 3 }, 0.5);
+
+	float secondSectionY = firstSectionY + newlineSpaceY * 3 + paragraphSpaceY;
+	createText("Music", { leftAlignX, secondSectionY }, 0.75);
+	createText("Ambrosia Theme - Emma Liu", { leftAlignX, secondSectionY + newlineSpaceY }, 0.5);
+	createText("Overworld Theme - David Vitas", { leftAlignX, secondSectionY + newlineSpaceY * 2 }, 0.5);
+	createText("Victory Fanfare Loop - David Vitas", { leftAlignX, secondSectionY + newlineSpaceY * 3 }, 0.5);
+	createText("Boss Battle Loop - David Vitas", { middleAlignX, secondSectionY + newlineSpaceY }, 0.5);
+	createText("Lullaby Loop - David Vitas", { middleAlignX, secondSectionY + newlineSpaceY * 2 }, 0.5);
+
+	float thirdSectionY = secondSectionY + newlineSpaceY * 3 + paragraphSpaceY;
+	createText("Sound Effects", { leftAlignX, thirdSectionY }, 0.75);
+	createText("Player hit, mob hit, defeat", { leftAlignX, thirdSectionY + newlineSpaceY }, 0.5);
+	createText("Sound effects obtained from https ://www.zapsplat.com", { leftAlignX, thirdSectionY + newlineSpaceY * 2 }, 0.3);
+	
+	createText("Mouse click, melee, projectile throw, buff, debuff", { leftAlignX, thirdSectionY + newlineSpaceY * 3 }, 0.5);
+	createText("Credit: https://www.FesliyanStudios.com Background Music", { leftAlignX, thirdSectionY + newlineSpaceY * 4 }, 0.3);
+
+
+	Button::createButton(ButtonShape::RECTANGLE,
+		{ frameBufferWidth - 200, 60 }, "menus/back-button",
+		[]() {
+			std::cout << "Back button clicked!" << std::endl;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInCreditsScreen = false;
 				GameStateSystem::instance().launchMainMenu();
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
