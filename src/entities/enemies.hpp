@@ -42,4 +42,10 @@ struct Lettuce
 	static ECS::Entity createLettuce(json stats, json position);
 };
 
+struct SaltnPepper
+{
+	static ECS::Entity createSaltnPepper(json stats, json position);
+};
+
+
 void createEnemies(json mobsConfig);

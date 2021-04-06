@@ -36,6 +36,9 @@ void StateSystem::onStartMobTurnEvent()
 	case MobType::LETTUCE:
 		activeTree = std::make_shared<BehaviourTree>(LettuceBehaviourTree());
 		break;
+	case MobType::SALTNPEPPER:
+		activeTree = std::make_shared<BehaviourTree>(SaltnPepperBehaviourTree());
+		break;
 	default:
 		break;
 	}
@@ -168,6 +171,18 @@ LettuceTurnSequence::LettuceTurnSequence()
 }
 
 void LettuceTurnSequence::run()
+{
+	Node::run();
+	Sequence::run();
+}
+
+SaltnPepperTurnSequence::SaltnPepperTurnSequence()
+{
+	addChild(std::make_shared<EggMoveSelector>(EggMoveSelector()));
+	addChild(std::make_shared<RngAttackTask>(RngAttackTask()));
+}
+
+void SaltnPepperTurnSequence::run()
 {
 	Node::run();
 	Sequence::run();
@@ -469,6 +484,11 @@ LettuceBehaviourTree::LettuceBehaviourTree()
 	root = std::make_shared<LettuceTurnSequence>(LettuceTurnSequence());
 }
 
+SaltnPepperBehaviourTree::SaltnPepperBehaviourTree()
+{
+	root = std::make_shared<SaltnPepperTurnSequence>(SaltnPepperTurnSequence());
+}
+
 
 RandomMeleeBehaviourTree::RandomMeleeBehaviourTree()
 {
@@ -714,7 +734,7 @@ void RangedAttackTask::run()
 		std::cout << "Attacking with alternate ranged attack \n";
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
-			std::bind(&UltimateAttackTask::onFinishedTaskEvent, this));
+			std::bind(&RangedAttackTask::onFinishedTaskEvent, this));
 		ECS::Entity activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 		SetActiveSkillEvent activeEvent;
 		activeEvent.entity = activeEntity;
@@ -736,6 +756,48 @@ void RangedAttackTask::run()
 		StartMobSkillEvent skillEvent;
 		skillEvent.entity = activeEntity;
 		skillEvent.targetIsPlayer = true;
+		EventSystem<StartMobSkillEvent>::instance().sendEvent(skillEvent);
+	}
+}
+
+void RngAttackTask::run()
+{
+	if (this->status == Status::INVALID)
+	{
+		Node::run();
+		taskCompletedListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
+			std::bind(&RngAttackTask::onFinishedTaskEvent, this));
+		ECS::Entity activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+		SetActiveSkillEvent activeEvent;
+		activeEvent.entity = activeEntity;
+		auto& mobType = activeEntity.get<BehaviourTreeType>().mobType;
+
+		if (mobType == MobType::SALTNPEPPER)
+		{
+			int skill = rand() % 2; // 0 or 1
+			if (skill == 0)
+			{
+				std::cout << "Attacking with randomly chosen skill 1\n";
+				activeEvent.type = SkillType::SKILL1;
+			}
+			else
+			{
+				std::cout << "Attacking with randomly chosen skill 2\n";
+				activeEvent.type = SkillType::SKILL2;
+			}
+		}
+		else
+		{
+			std::cout << "Mob not designed for rng attack was called in RngAttackTask\n";
+			activeEvent.type = SkillType::SKILL1;
+		}
+
+		EventSystem<SetActiveSkillEvent>::instance().sendEvent(activeEvent);
+
+		StartMobSkillEvent skillEvent;
+		skillEvent.entity = activeEntity;
+		skillEvent.targetIsPlayer = true;
+		skillEvent.isRandomTarget = true;
 		EventSystem<StartMobSkillEvent>::instance().sendEvent(skillEvent);
 	}
 }

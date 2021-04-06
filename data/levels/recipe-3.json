@@ -55,6 +55,25 @@
             },
             "mobs": [
                 {
+                    "type": "saltnpepper",
+                    "stats": {
+                        "hp": 80,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            1634,
+                            474,
+                            1
+                        ],
+                        [
+                            1504,
+                            916,
+                            1
+                        ]
+                    ]
+                },
+                {
                     "type": "pepper",
                     "stats": {
                         "hp": 50,
@@ -67,8 +86,41 @@
                             1
                         ],
                         [
-                            1041,
-                            280,
+                            1212,
+                            555,
+                            1
+                        ]
+                    ]
+                },
+                {
+                    "type": "tomato",
+                    "stats": {
+                        "hp": 70,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            1926,
+                            1232,
+                            1
+                        ],
+                        [
+                            1930,
+                            277,
+                            1
+                        ]
+                    ]
+                },
+                {
+                    "type": "milk",
+                    "stats": {
+                        "hp": 80,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            1998,
+                            747,
                             1
                         ]
                     ]

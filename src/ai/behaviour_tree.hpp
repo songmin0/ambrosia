@@ -26,7 +26,8 @@ enum class MobType
 	POTATO,
 	POTATO_CHUNK,
 	TOMATO,
-	LETTUCE
+	LETTUCE,
+	SALTNPEPPER
 };
 
 struct BehaviourTreeType
@@ -121,6 +122,13 @@ class LettuceTurnSequence : public Sequence
 {
 public:
 	LettuceTurnSequence();
+	void run();
+};
+
+class SaltnPepperTurnSequence : public Sequence
+{
+public:
+	SaltnPepperTurnSequence();
 	void run();
 };
 
@@ -236,6 +244,13 @@ struct LettuceBehaviourTree : public BehaviourTree
 {
 public:
 	LettuceBehaviourTree();
+};
+
+// Movement mimics Egg, attacks random player with randomly chosen attack
+struct SaltnPepperBehaviourTree : public BehaviourTree
+{
+public:
+	SaltnPepperBehaviourTree();
 };
 
 // Melee behaviour tree for moving to random player and attacking
@@ -368,6 +383,13 @@ public:
 
 // Task to use ranged attack on closest player
 class RangedAttackTask : public SkillTask
+{
+public:
+	void run();
+};
+
+// Task to randomly skills
+class RngAttackTask : public SkillTask
 {
 public:
 	void run();
