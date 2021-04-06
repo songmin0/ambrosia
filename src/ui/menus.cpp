@@ -367,7 +367,16 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth / 4 * 3, frameBufferHeight / 2 + 100 }, "recipe_select/recipe2-select",
 		[]() {
-			std::cout << "There will be a recipe 3. This is a placeholder for now." << std::endl;
+			std::cout << "Recipe 3 selected!" << std::endl;
+			GameStateSystem::instance().isTransitioning = true;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInMainScreen = false;
+				GameStateSystem::instance().isInStory = false;
+				GameStateSystem::instance().isInTutorial = false;
+				GameStateSystem::instance().loadRecipe("recipe-3");
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
 	ECS::registry<Text>.emplace(ECS::Entity(), "Recipe 3", path, vec2(frameBufferWidth / 4 * 3 - 85, frameBufferHeight / 2 + 230), 0.6f, color);
 

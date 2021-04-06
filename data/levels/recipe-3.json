@@ -1,0 +1,162 @@
+{
+  "name": "recipe-3",
+    "maps": [
+        {
+            "map": "bbq",
+            "camera": {
+                "position": [
+                    0,
+                    0
+                ]
+            },
+            "taji": {
+                "stats": {
+                    "hp": 70,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    362,
+                    617
+                ]
+            },
+            "chia": {
+                "stats": {
+                    "hp": 80,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    213,
+                    919
+                ]
+            },
+            "raoul": {
+                "stats": {
+                    "hp": 100,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    635,
+                    912
+                ]
+            },
+            "ember": {
+                "stats": {
+                    "hp": 80,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    569,
+                    612
+                ]
+            },
+            "mobs": [
+                {
+                    "type": "pepper",
+                    "stats": {
+                        "hp": 50,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            1020,
+                            1250,
+                            1
+                        ],
+                        [
+                            1041,
+                            280,
+                            1
+                        ]
+                    ]
+                }
+            ]
+        },
+        {
+            "map": "bbq",
+            "camera": {
+                "position": [
+                    0,
+                    0
+                ]
+            },
+            "taji": {
+                "stats": {
+                    "hp": 70,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    500,
+                    400
+                ]
+            },
+            "chia": {
+                "stats": {
+                    "hp": 80,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    200,
+                    700
+                ]
+            },
+            "raoul": {
+                "stats": {
+                    "hp": 100,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    640,
+                    512
+                ]
+            },
+            "ember": {
+                "stats": {
+                    "hp": 80,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    400,
+                    700
+                ]
+            },
+            "mobs": [
+                {
+                    "type": "potato",
+                    "stats": {
+                        "hp": 400,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            950,
+                            700,
+                            1
+                        ]
+                    ]
+                },
+                {
+                    "type": "milk",
+                    "stats": {
+                        "hp": 80,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            900,
+                            800,
+                            1
+                        ]
+                    ]
+                }
+            ]
+        }
+    ]
+}

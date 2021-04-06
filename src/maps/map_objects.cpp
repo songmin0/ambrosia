@@ -21,6 +21,11 @@ ECS::Entity CheeseBlob::createCheeseBlob(vec2 position)
 
 ECS::Entity DessertForeground::createDessertForeground(vec2 position)
 {
+	// There should only ever be one of this type of entity
+	while (!ECS::registry<DessertForeground>.entities.empty()) {
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<DessertForeground>.entities.back());
+	}
+
 	auto entity = ECS::Entity();
 
 	ShadedMesh& resource = cacheResource("dessertmap_foreground");
@@ -33,5 +38,26 @@ ECS::Entity DessertForeground::createDessertForeground(vec2 position)
 	entity.emplace<Motion>().position = position;
 
 	entity.emplace<DessertForeground>();
+	return entity;
+};
+
+ECS::Entity BBQBackground::createBBQBackground(vec2 position)
+{
+	// There should only ever be one of this type of entity
+	while (!ECS::registry<BBQBackground>.entities.empty()) {
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<BBQBackground>.entities.back());
+	}
+
+	auto entity = ECS::Entity();
+	ShadedMesh& resource = cacheResource("bbq_background");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, mapsPath("bbq/bbq-back.png"), "textured");
+	}
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::MAP_BACKGROUND);
+	entity.emplace<Motion>().position = position;
+
+	entity.emplace<BBQBackground>();
 	return entity;
 };

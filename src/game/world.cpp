@@ -370,7 +370,11 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 		DessertForeground::createDessertForeground({ 1920, 672 });
 		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ std::make_shared<BasicEmitter>(BasicEmitter(5)) });
 		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ std::make_shared<BlueCottonCandyEmitter>(BlueCottonCandyEmitter(5)) });
-		
+	}
+
+	if (GameStateSystem::instance().currentLevel.at("map") == "bbq")
+	{
+		BBQBackground::createBBQBackground({ 1120, 720 });
 	}
 }
 
@@ -662,7 +666,12 @@ void WorldSystem::onMouseClick(int button, int action, int mods) const
 		double mousePosX, mousePosY;
 		glfwGetCursorPos(window, &mousePosX, &mousePosY);
 
-		std::cout << "Mouse click (release): {" << mousePosX << ", " << mousePosY << "}" << std::endl;
+		//std::cout << "Mouse click (release): {" << mousePosX << ", " << mousePosY << "}" << std::endl;
+
+		auto camera = ECS::registry<CameraComponent>.entities[0];
+		auto& cameraPos = camera.get<CameraComponent>().position;
+		// mouse click print without camera position
+		std::cout << "Mouse click (release): {" << mousePosX + cameraPos.x << ", " << mousePosY + cameraPos.y << "}" << std::endl;
 
 		if (GameStateSystem::instance().isTransitioning)
 		{
@@ -842,6 +851,10 @@ void WorldSystem::playAudio()
 	else if (GameStateSystem::instance().currentLevel.at("map") == "veggie-forest")
 	{
 		nextMusicType = MusicType::PLACEHOLDER3;
+	}
+	else if (GameStateSystem::instance().currentLevel.at("map") == "bbq")
+	{
+		nextMusicType = MusicType::BOSS;
 	}
 	else
 	{

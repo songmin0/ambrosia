@@ -11,3 +11,5 @@ struct DessertForeground
 {
 	static ECS::Entity createDessertForeground(vec2 position);
 };
+
+struct BBQBackground { static ECS::Entity createBBQBackground(vec2 position); };
