@@ -373,7 +373,7 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 	ECS::registry<Text>.emplace(ECS::Entity(), "Recipe 3", path, vec2(frameBufferWidth / 4 * 3 - 85, frameBufferHeight / 2 + 230), 0.6f, color);
 
 	Button::createButton(ButtonShape::RECTANGLE,
-		{ 200, frameBufferHeight - 100 }, "back-button",
+		{ 200, frameBufferHeight - 100 }, "menus/back-button",
 		[]() {
 			std::cout << "Returning to start screen" << std::endl;
 			GameStateSystem::instance().isTransitioning = true;
