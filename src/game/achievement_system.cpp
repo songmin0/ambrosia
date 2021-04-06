@@ -87,6 +87,10 @@ void AchievementSystem::onDefeatedBossEvent()
 
 void AchievementSystem::createMessage(vec2 position, Achievement achievement)
 {
+
+	auto text = AchievementText[achievement];
+	createAchievementText(std::string(text), position);
+
 	auto entity = ECS::Entity();
 
 	std::string key = "message_box";
@@ -136,11 +140,8 @@ void AchievementSystem::createMessage(vec2 position, Achievement achievement)
 	motion.position = position;
 	motion.scale = { 100.f, 200.f };
 
-	auto text = AchievementText[achievement];
-	createAchievementText(std::string(text), position);
-
 	entity.emplace<AchievementPopup>();
-	entity.emplace<TimerComponent>(1500.0);
+	entity.emplace<TimerComponent>(2500.0);
 }
 
 void AchievementSystem::onFinishedTutorialEvent()
