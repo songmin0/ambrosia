@@ -76,7 +76,7 @@ void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 		});
 
 	Button::createButton(ButtonShape::RECTANGLE,
-		{ frameBufferWidth - 250, frameBufferHeight / 2 + 250 }, "menus/start/achievements-button",
+		{ frameBufferWidth - 250, frameBufferHeight - 100 }, "menus/start/achievements-button",
 		[]() {
 			std::cout << "Achievement button clicked!" << std::endl;
 			TransitionEvent event;
@@ -326,7 +326,6 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 			TransitionEvent event;
 			event.callback = []() {
 				GameStateSystem::instance().isInMainScreen = false;
-				GameStateSystem::instance().loadRecipe("tutorial");
 				GameStateSystem::instance().beginStory();
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);

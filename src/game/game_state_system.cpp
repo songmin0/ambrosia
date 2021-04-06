@@ -59,6 +59,8 @@ bool GameStateSystem::hasLights() {
 
 void GameStateSystem::newGame()
 {
+	LevelLoader lc;
+	recipe = lc.readLevel("tutorial");
 	isInTutorial = true;
 	hasDoneTutorial = false;
 	isInDefeatScreen = false;
