@@ -2,6 +2,7 @@
 
 #include <common.hpp>
 #include <render.hpp>
+#include "game/achievement_system.hpp"
 
 #include <codecvt>
 #include <iomanip>
@@ -542,8 +543,6 @@ void createText(std::string text, glm::vec2 position)
 
     ECS::Entity entity;
     ECS::registry<Text>.emplace(entity, text, path, position, scale, color);
-    // Needed when removing all components from the screen with `removeAllMotionEntities()`
-    //entity.emplace<Motion>();
 }
 
 void createText(std::string text, glm::vec2 position, float scale)
@@ -553,5 +552,15 @@ void createText(std::string text, glm::vec2 position, float scale)
 
     ECS::Entity entity;
     ECS::registry<Text>.emplace(entity, text, path, position, scale, color);
-    entity.emplace<Motion>();
+}
+
+void createAchievementText(std::string text, glm::vec2 position)
+{
+    std::string path = fontPath("anime_ace/animeace2_reg.ttf");
+    float scale = 0.75f;
+    vec3 color(1.f, 1.f, 1.f);
+
+    ECS::Entity entity;
+    ECS::registry<Text>.emplace(entity, text, path, position, scale, color);
+    entity.emplace<AchievementMessage>();
 }

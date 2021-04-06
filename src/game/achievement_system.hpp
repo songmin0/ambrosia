@@ -18,6 +18,9 @@ enum Achievement {
 static const char* AchievementText[] = { "Finished the tutorial!", "Beat a level without anyone dying!", "Beat a recipe!", 
 										 "Beat a recipe without anyone dying", "Defeated a boss with low HP" };
 
+struct AchievementPopup {};
+struct AchievementMessage {};
+
 
 class AchievementSystem {
 protected:
@@ -36,7 +39,8 @@ public:
 
 	void addAchievement(Achievement item) 
 	{ 
-		achievements.push_back(item); 
+		achievements.push_back(item);
+		createMessage({ 100.f, 150.f }, item);
 		removeFromTracking(item);
 	};
 	void clearAchievements() { achievements.clear(); }
@@ -53,6 +57,7 @@ private:
 	void onBeatLevelEvent();
 	void onDefeatedBossEvent();
 
+	void createMessage(vec2 position, Achievement achievement);
 	bool isTracking(Achievement item);
 	void addToTracking(Achievement item);
 	void removeFromTracking(Achievement item);

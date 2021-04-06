@@ -1,5 +1,6 @@
 #include "achievement_system.hpp"
 #include "stats_component.hpp"
+#include "rendering/text.hpp"
 
 AchievementSystem::AchievementSystem()
 {
@@ -82,6 +83,64 @@ void AchievementSystem::onDefeatedBossEvent()
 			addAchievement(Achievement::BEAT_RECIPE_ALL_ALIVE);
 		}
 	}
+}
+
+void AchievementSystem::createMessage(vec2 position, Achievement achievement)
+{
+	auto entity = ECS::Entity();
+
+	std::string key = "message_box";
+	ShadedMesh& resource = cacheResource(key);
+	if (resource.effect.program.resource == 0) {
+		// create a procedural circle
+		constexpr float z = -0.1f;
+		vec3 white = { 0.8,0.1,0.1 };
+
+		// Corner points
+		ColoredVertex v;
+		v.position = { -0.5,-0.5,z };
+		v.color = white;
+		resource.mesh.vertices.push_back(v);
+		v.position = { -0.5,0.5,z };
+		v.color = white;
+		resource.mesh.vertices.push_back(v);
+		v.position = { 0.5,0.5,z };
+		v.color = white;
+		resource.mesh.vertices.push_back(v);
+		v.position = { 0.5,-0.5,z };
+		v.color = white;
+		resource.mesh.vertices.push_back(v);
+
+		// Two triangles
+		resource.mesh.vertex_indices.push_back(0);
+		resource.mesh.vertex_indices.push_back(1);
+		resource.mesh.vertex_indices.push_back(3);
+		resource.mesh.vertex_indices.push_back(1);
+		resource.mesh.vertex_indices.push_back(2);
+		resource.mesh.vertex_indices.push_back(3);
+		resource.mesh.vertex_indices.push_back(0);
+		resource.mesh.vertex_indices.push_back(2);
+		resource.mesh.vertex_indices.push_back(3);
+
+		RenderSystem::createColoredMesh(resource, "colored_mesh");
+	}
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+	entity.emplace<RenderableComponent>(RenderLayer::UI_TOOLTIP);
+
+	// Create motion
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = { 100.f, 200.f };
+
+	auto text = AchievementText[achievement];
+	createAchievementText(std::string(text), position);
+
+	entity.emplace<AchievementPopup>();
+	entity.emplace<TimerComponent>(1500.0);
 }
 
 void AchievementSystem::onFinishedTutorialEvent()

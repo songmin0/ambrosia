@@ -148,6 +148,8 @@ private:
 void createText(std::string text, glm::vec2 position);
 // Common function to create Text entity with Anime Ace font and custom size
 void createText(std::string text, glm::vec2 position, float scale);
+// Common function to create achievement popup text with Anime Ace font
+void createAchievementText(std::string text, glm::vec2 position);
 
 /**
  * Draw a Text object to the screen, given the screen buffer size.

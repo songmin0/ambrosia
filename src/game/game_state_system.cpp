@@ -226,11 +226,19 @@ void GameStateSystem::launchRecipeSelectMenu()
 
 void GameStateSystem::removeAllMotionEntities()
 {
-	while (!ECS::registry<Motion>.entities.empty())
-		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Motion>.entities.back());
+	//while (!ECS::registry<Motion>.entities.empty())
+	//	ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Motion>.entities.back());
+	for (auto& motion : ECS::registry<Motion>.entities)
+	{
+		if (!(motion.has<AchievementPopup>() && isInVictoryScreen))
+			ECS::ContainerInterface::removeAllComponentsOf(motion);
+	}
 
-	while (!ECS::registry<Text>.entities.empty())
-		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Text>.entities.back());
+	for (auto& text : ECS::registry<Text>.entities)
+	{
+		if (!(text.has<AchievementMessage>() && isInVictoryScreen))
+			ECS::ContainerInterface::removeAllComponentsOf(text);
+	}
 
 	std::cout << "Entity removal complete. \n";
 	ECS::ContainerInterface::listAllComponents();
