@@ -60,6 +60,7 @@ void GameStateSystem::newGame()
 	hasDoneTutorial = false;
 	isInDefeatScreen = false;
 	isInVictoryScreen = false;
+	isInShopScreen = false;
 	isInMainScreen = false;
 	isInStory = false;
 	currentTutorialIndex = 0;
@@ -75,6 +76,7 @@ void GameStateSystem::beginStory()
 	isInTutorial = false;
 	isInDefeatScreen = false;
 	isInVictoryScreen = false;
+	isInShopScreen = false;
 	isInMainScreen = false;
 	isInStory = true;
 	currentStoryIndex = 0;
@@ -149,13 +151,25 @@ void GameStateSystem::launchVictoryScreen()
 	Screens::createVictoryScreen(screenBufferSize.x, screenBufferSize.y);
 }
 
+
+
 void GameStateSystem::launchDefeatScreen()
 {
+
 	Camera::createCamera(vec2(0.f));
 	isInDefeatScreen = true;
 	removeAllMotionEntities();
 	vec2 screenBufferSize = getScreenBufferSize();
 	Screens::createDefeatScreen(screenBufferSize.x, screenBufferSize.y);
+}
+
+void GameStateSystem::launchShopScreen()
+{
+	Camera::createCamera(vec2(0.f));
+	isInDefeatScreen = true;
+	removeAllMotionEntities();
+	vec2 screenBufferSize = getScreenBufferSize();
+	Screens::createShopScreen(screenBufferSize.x, screenBufferSize.y);
 }
 
 void GameStateSystem::launchMainMenu()

@@ -35,6 +35,7 @@ public:
 	bool isTransitioning;
 	bool isInVictoryScreen;
 	bool isInDefeatScreen;
+	bool isInShopScreen;
 	json currentLevel;
 	json recipe;
 	int currentLevelIndex; //THIS SHOULD NOT BE PUBLIC but for now this easily lets me debug change maps
@@ -55,6 +56,8 @@ public:
 	void launchVictoryScreen();
 	//This will call the defeat screen for the current map
 	void launchDefeatScreen();
+	//This will call the shop screen
+	void launchShopScreen();
 	//This will call the main menu
 	void launchMainMenu();
 	void launchRecipeSelectMenu();

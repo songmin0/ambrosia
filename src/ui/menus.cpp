@@ -114,7 +114,8 @@ void Screens::createVictoryScreen(int frameBufferWidth, int frameBufferHeight, i
 			TransitionEvent event;
 			event.callback = []() {
 				GameStateSystem::instance().isInVictoryScreen = false;
-				GameStateSystem::instance().nextMap();
+				GameStateSystem::instance().launchShopScreen();
+				std::cout << "launched" << std::endl;
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
@@ -184,6 +185,54 @@ void Screens::createDefeatScreen(int frameBufferWidth, int frameBufferHeight, in
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
 };
+
+void Screens::createShopScreen(int frameBufferWidth, int frameBufferHeight)
+{
+	auto background = ECS::Entity();
+	const std::string key = "shop";
+	ShadedMesh& splashResource = cacheResource(key);
+	if (splashResource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(splashResource, uiPath("menus/" + key + ".png"), "textured");
+	}
+	background.emplace<ShadedMeshRef>(splashResource);
+	background.emplace<RenderableComponent>(RenderLayer::MAP);
+	background.emplace<Motion>();
+	auto& mapComponent = background.emplace<MapComponent>();
+	mapComponent.name = key;
+	mapComponent.mapSize = static_cast<vec2>(splashResource.texture.size);
+
+	// TODO: Hook up 
+	//Button::createButton(ButtonShape::RECTANGLE,
+	//	{ frameBufferWidth / 2, frameBufferHeight / 2 + 180 }, "menus/next-button",
+	//	[]() {
+	//		std::cout << "Next button clicked!" << std::endl;
+	//		TransitionEvent event;
+	//		event.callback = []() {
+	//			GameStateSystem::instance().isInVictoryScreen = false;
+	//			GameStateSystem::instance().nextMap();
+	//		};
+	//		EventSystem<TransitionEvent>::instance().sendEvent(event);
+	//	});
+
+	int starting_x = 95;
+	int starting_y = 90;
+
+	// create RAOUL upgrade buttons
+	for (int j = 0; j < 4; j++) { // and for each skill
+		Button::createButton(ButtonShape::CIRCLE,
+			{ starting_x, starting_y }, "menus/next-button",
+			[]() {
+				std::cout << "Next button clicked!" << std::endl;
+				TransitionEvent event;
+				event.callback = []() {
+					GameStateSystem::instance().isInVictoryScreen = false;
+					GameStateSystem::instance().nextMap();
+				};
+				EventSystem<TransitionEvent>::instance().sendEvent(event);
+			});
+	}
+}
 
 void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeight)
 {
@@ -286,3 +335,5 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
 }
+
+
