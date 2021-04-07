@@ -66,7 +66,18 @@ int main()
 	TutorialSystem tutorialSystem;
 	RangeIndicatorSystem rangeIndicatorSystem;
 	SwarmBehaviour swarmBehaviour;
+
 	AchievementSystem::instance();
+	LevelLoader lc;
+	json save_obj = lc.load();
+	if (save_obj.contains("recipe"))
+	{
+		AchievementSystem::instance().clearAchievements();
+		for (Achievement achievement : save_obj["achievements"])
+		{
+			AchievementSystem::instance().addAchievement(achievement);
+		}
+	}
 
 	// Set all states to default
 	//TODO once the main menu is hooked up this should launch the main menu not the next map.

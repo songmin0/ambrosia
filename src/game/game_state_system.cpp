@@ -89,11 +89,6 @@ void GameStateSystem::nextMap()
 	//Save the game
 	LevelLoader lc;
 	std::list<Achievement> achievements = AchievementSystem::instance().getAchievements();
-	//std::list<std::string> achievementsText;
-	//for (Achievement curr : achievements)
-	//{
-	//	achievementsText.push_back(AchievementText[curr]);
-	//}
 	lc.save(recipe["name"], currentLevelIndex, achievements);
 
 	currentLevelIndex++;
@@ -133,13 +128,6 @@ void GameStateSystem::loadSave()
 	{
 		GameStateSystem::instance().recipe = lc.readLevel(save_obj["recipe"]);
 		GameStateSystem::instance().currentLevelIndex = save_obj["level"];
-
-		AchievementSystem::instance().clearAchievements();
-		for (Achievement achievement : save_obj["achievements"])
-		{
-			AchievementSystem::instance().addAchievement(achievement);
-		}
-
 		GameStateSystem::instance().restartMap();
 	}
 	else // load a new game because there's no save
