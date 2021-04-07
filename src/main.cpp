@@ -67,11 +67,9 @@ int main()
 	RangeIndicatorSystem rangeIndicatorSystem;
 	SwarmBehaviour swarmBehaviour;
 	AchievementSystem::instance();
-
-	// Set all states to default
-	//TODO once the main menu is hooked up this should launch the main menu not the next map.
 	GameStateSystem::instance().setWindow(world.window);
 	world.preloadResources();
+
 	GameStateSystem::instance().launchMainMenu();
 
 	// Reference: https://gafferongames.com/post/fix_your_timestep/#the-final-touch
