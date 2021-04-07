@@ -27,16 +27,15 @@ GameStateSystem::GameStateSystem() {
 	LevelLoader lc;
 	recipe = lc.readLevel("tutorial");
 	currentLevel = recipe["maps"][0];
-	//Create all the recipes here
-	//auto firstRecipe = ECS::Entity();
-	//auto& recipe = firstRecipe.emplace<Recipe>();
-	//recipe.levels.push_back("pizza-arena");
-	//recipe.levels.push_back("dessert-arena");
-	//TODO add the victory and defeat screens
-
-
-	//For now start with the firstRecipe as the currentRecipeEntity but in the future it should start as nothing and we will start in the main menu which will select a recipe
-	//currentRecipeEntity = firstRecipe;
+	json save_obj = lc.load();
+	if (save_obj.contains("recipe"))
+	{
+		AchievementSystem::instance().clearAchievements();
+		for (Achievement achievement : save_obj["achievements"])
+		{
+			AchievementSystem::instance().addAchievement(achievement);
+		}
+	}
 }
 
 const vec2 GameStateSystem::getScreenBufferSize()
