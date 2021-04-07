@@ -18,6 +18,8 @@ namespace Screens
 {
 	void createVictoryScreen(int frameBufferWidth, int frameBufferHeight, int type = 1);
 	void createDefeatScreen(int frameBufferWidth, int frameBufferHeight, int type = 1);
+	void createAchievementsScreen(int frameBufferWidth, int frameBufferHeight, int type = 1);
+	void createCreditsScreen(int frameBufferWidth, int frameBufferHeight, int type = 1);
 	void createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeight);
 	void createShopScreen(int frameBufferWidth, int frameBufferHeight);
 };

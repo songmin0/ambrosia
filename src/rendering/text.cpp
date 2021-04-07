@@ -2,6 +2,7 @@
 
 #include <common.hpp>
 #include <render.hpp>
+#include "game/achievement_system.hpp"
 
 #include <codecvt>
 #include <iomanip>
@@ -532,4 +533,34 @@ void drawText(const Text& text, glm::vec2 gameUnitSize) {
 	glBindTexture(GL_TEXTURE_2D, 0);
         
     gl_has_errors();
+}
+
+void createText(std::string text, glm::vec2 position)
+{
+    std::string path = fontPath("anime_ace/animeace2_reg.ttf");
+    float scale = 1.f;
+    vec3 color(1.f, 1.f, 1.f);
+
+    ECS::Entity entity;
+    ECS::registry<Text>.emplace(entity, text, path, position, scale, color);
+}
+
+void createText(std::string text, glm::vec2 position, float scale)
+{
+    std::string path = fontPath("anime_ace/animeace2_reg.ttf");
+    vec3 color(1.f, 1.f, 1.f);
+
+    ECS::Entity entity;
+    ECS::registry<Text>.emplace(entity, text, path, position, scale, color);
+}
+
+void createAchievementText(std::string text, glm::vec2 position)
+{
+    std::string path = fontPath("anime_ace/animeace2_reg.ttf");
+    float scale = 0.75f;
+    vec3 color(1.f, 1.f, 1.f);
+
+    ECS::Entity entity;
+    ECS::registry<Text>.emplace(entity, text, path, position, scale, color);
+    entity.emplace<AchievementMessage>();
 }
