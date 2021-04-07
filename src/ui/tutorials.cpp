@@ -135,6 +135,10 @@ void TutorialSystem::onTutorialEnd(const EndTutorialEvent& event)
 	GameStateSystem::instance().currentTutorialIndex = 0;
 	GameStateSystem::instance().hasDoneTutorial = true;
 	TutorialSystem::cleanTutorial();
+
+	// Send achievement event
+	EventSystem<FinishedTutorialEvent>::instance().sendEvent(FinishedTutorialEvent{});
+	std::cout << "Sent FinishedTutorialEvent";
 };
 
 void TutorialSystem::onShowHelp(const ShowHelpEvent& event)

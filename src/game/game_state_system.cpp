@@ -3,6 +3,7 @@
 #include "camera.hpp"
 #include "level_loader/level_loader.hpp"
 #include "rendering/text.hpp"
+#include "achievement_system.hpp"
 
 #include <string.h>
 #include <cassert>
@@ -14,7 +15,9 @@
 GameStateSystem::GameStateSystem() {
 	isInStory = false;
 	isInTutorial = false;
-	hasDoneTutorial = false;
+	hasDoneTutorial = false; 
+	isInAchievementsScreen = false;
+	isInCreditsScreen = false;
 	isInMainScreen = false;
 	isInHelpScreen = false;
 	currentLevelIndex = -1;
@@ -45,7 +48,7 @@ const vec2 GameStateSystem::getScreenBufferSize()
 
 bool GameStateSystem::inGameState() {
 	//TODO if we add more states that the game can be in add them here if they are relevant.
-	return !isInMainScreen && !isInVictoryScreen && !isInDefeatScreen && !isInStory;
+	return !isInMainScreen && !isInVictoryScreen && !isInDefeatScreen && !isInStory && !isInAchievementsScreen && !isInCreditsScreen;
 }
 
 bool GameStateSystem::hasLights() {
@@ -56,6 +59,8 @@ bool GameStateSystem::hasLights() {
 
 void GameStateSystem::newGame()
 {
+	LevelLoader lc;
+	recipe = lc.readLevel("tutorial");
 	isInTutorial = true;
 	hasDoneTutorial = false;
 	isInDefeatScreen = false;
@@ -85,9 +90,20 @@ void GameStateSystem::nextMap()
 {
 	//Save the game
 	LevelLoader lc;
-	lc.save(recipe["name"], currentLevelIndex);
+	std::list<Achievement> achievements = AchievementSystem::instance().getAchievements();
+	//std::list<std::string> achievementsText;
+	//for (Achievement curr : achievements)
+	//{
+	//	achievementsText.push_back(AchievementText[curr]);
+	//}
+	lc.save(recipe["name"], currentLevelIndex, achievements);
 
 	currentLevelIndex++;
+	if (currentLevelIndex == recipe["maps"].size() - 1)
+	{
+		EventSystem<ReachedBossEvent>::instance().sendEvent(ReachedBossEvent{});
+		std::cout << "ReachedBossEvent\n";
+	}
 
 	//auto& currentRecipe = currentRecipeEntity.get<Recipe>();
 	if (currentLevelIndex < recipe["maps"].size()) {
@@ -119,6 +135,13 @@ void GameStateSystem::loadSave()
 	{
 		GameStateSystem::instance().recipe = lc.readLevel(save_obj["recipe"]);
 		GameStateSystem::instance().currentLevelIndex = save_obj["level"];
+
+		AchievementSystem::instance().clearAchievements();
+		for (Achievement achievement : save_obj["achievements"])
+		{
+			AchievementSystem::instance().addAchievement(achievement);
+		}
+
 		GameStateSystem::instance().restartMap();
 	}
 	else // load a new game because there's no save
@@ -144,6 +167,15 @@ void GameStateSystem::launchVictoryScreen()
 {
 	Camera::createCamera(vec2(0.f));
 	isInVictoryScreen = true;
+
+	if (recipe["name"] != "tutorial")
+	{
+		EventSystem<BeatLevelEvent>::instance().sendEvent(BeatLevelEvent{});
+		// Defeated the boss
+		if (currentLevelIndex == recipe["maps"].size() - 1)
+			EventSystem<DefeatedBossEvent>::instance().sendEvent(DefeatedBossEvent{});
+	}
+	// Must call removeAllMotionEntities() *after* sending achievement events
 	removeAllMotionEntities();
 	vec2 screenBufferSize = getScreenBufferSize();
 	Screens::createVictoryScreen(screenBufferSize.x, screenBufferSize.y);
@@ -160,12 +192,29 @@ void GameStateSystem::launchDefeatScreen()
 
 void GameStateSystem::launchMainMenu()
 {
-	isInMainScreen = true;
 	Camera::createCamera(vec2(0.f));
-	MouseClickFX::createMouseClickFX();
+	isInMainScreen = true;
 	removeAllMotionEntities();
+	MouseClickFX::createMouseClickFX();
 	vec2 screenBufferSize = getScreenBufferSize();
 	StartMenu::createStartMenu(screenBufferSize.x, screenBufferSize.y);
+}
+
+void GameStateSystem::launchAchievementsScreen()
+{
+	removeAllMotionEntities();
+	isInAchievementsScreen = true;
+	Camera::createCamera(vec2(0.f));
+	vec2 screenBufferSize = getScreenBufferSize();
+	Screens::createAchievementsScreen(screenBufferSize.x, screenBufferSize.y);
+}
+
+void GameStateSystem::launchCreditsScreen()
+{
+	removeAllMotionEntities();
+	Camera::createCamera(vec2(0.f));
+	vec2 screenBufferSize = getScreenBufferSize();
+	Screens::createCreditsScreen(screenBufferSize.x, screenBufferSize.y);
 }
 
 void GameStateSystem::launchRecipeSelectMenu()
@@ -179,11 +228,19 @@ void GameStateSystem::launchRecipeSelectMenu()
 
 void GameStateSystem::removeAllMotionEntities()
 {
-	while (!ECS::registry<Motion>.entities.empty())
-		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Motion>.entities.back());
+	//while (!ECS::registry<Motion>.entities.empty())
+	//	ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Motion>.entities.back());
+	for (auto& motion : ECS::registry<Motion>.entities)
+	{
+		if (!(motion.has<AchievementPopup>() && isInVictoryScreen))
+			ECS::ContainerInterface::removeAllComponentsOf(motion);
+	}
 
-	while (!ECS::registry<Text>.entities.empty())
-		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Text>.entities.back());
+	for (auto& text : ECS::registry<Text>.entities)
+	{
+		if (!(text.has<AchievementMessage>() && isInVictoryScreen))
+			ECS::ContainerInterface::removeAllComponentsOf(text);
+	}
 
 	std::cout << "Entity removal complete. \n";
 	ECS::ContainerInterface::listAllComponents();
