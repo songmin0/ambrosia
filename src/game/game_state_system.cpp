@@ -84,6 +84,7 @@ void GameStateSystem::beginStory()
 	isInStory = true;
 	currentStoryIndex = 0;
 	EventSystem<AdvanceStoryEvent>::instance().sendEvent(AdvanceStoryEvent{});
+	createText("Press space to skip.", { 50.0, 50.0 }, 0.3f);
 };
 
 void GameStateSystem::nextMap()
@@ -91,11 +92,6 @@ void GameStateSystem::nextMap()
 	//Save the game
 	LevelLoader lc;
 	std::list<Achievement> achievements = AchievementSystem::instance().getAchievements();
-	//std::list<std::string> achievementsText;
-	//for (Achievement curr : achievements)
-	//{
-	//	achievementsText.push_back(AchievementText[curr]);
-	//}
 	lc.save(recipe["name"], currentLevelIndex, achievements);
 
 	currentLevelIndex++;
