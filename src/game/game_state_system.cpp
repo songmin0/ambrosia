@@ -84,6 +84,7 @@ void GameStateSystem::beginStory()
 	isInStory = true;
 	currentStoryIndex = 0;
 	EventSystem<AdvanceStoryEvent>::instance().sendEvent(AdvanceStoryEvent{});
+	createText("Press space to skip.", { 50.0, 50.0 }, 0.3f);
 };
 
 void GameStateSystem::nextMap()
