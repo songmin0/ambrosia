@@ -544,6 +544,7 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		{
 			GameStateSystem::instance().newGame();
 		}
+		return;
 	}
 	// Handles inputs for camera movement
 	assert(!ECS::registry<CameraComponent>.entities.empty());
