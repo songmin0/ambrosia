@@ -775,9 +775,9 @@ ECS::Entity Chicken::createChicken(json stats, json position)
 	Motion& motion = entity.emplace<Motion>();
 	motion.position = vec2(position[0], position[1]);
 	motion.orientation = -1;
-	motion.scale = vec2({ 1.2f * (float)position[2] , 1.2f });
+	motion.scale = vec2({ 1.3f * (float)position[2] , 1.3f });
 	motion.colliderType = CollisionGroup::MOB;
-	auto hitboxScale = vec2({ 0.8f, 0.95f });
+	auto hitboxScale = vec2({ 0.7f, 0.7f });
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 
 	// Animations
@@ -805,7 +805,7 @@ ECS::Entity Chicken::createChicken(json stats, json position)
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f }, { 1.1f, 0.55f });
-	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f, -360.0f };
+	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f, -420.0f };
 	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
 	ECS::registry<HPBar>.get(statsComponent.healthBar).isMob = true;
 
