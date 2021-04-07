@@ -300,12 +300,9 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 	mapComponent.mapSize = static_cast<vec2>(splashResource.texture.size);
 
 	std::string selectText("Select a recipe to play:");
-	std::string path = fontPath("anime_ace/animeace2_reg.ttf");
 	vec2 position(70.f, 80.f);
 	float scale = 0.75f;
-	vec3 color(1.f, 1.f, 1.f);
-	auto text = ECS::Entity();
-	ECS::registry<Text>.emplace(text, selectText, path, position, scale, color);
+	createText(selectText, position, scale);
 
 	// Glow
 	auto glow = ECS::Entity();
@@ -319,7 +316,7 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 	glow.emplace<Motion>().position = vec2(frameBufferWidth / 2, frameBufferHeight / 2);
 
 	Button::createButton(ButtonShape::RECTANGLE,
-		{ frameBufferWidth / 2, frameBufferHeight / 2 - 200}, "recipe_select/tutorial-select",
+		{ frameBufferWidth / 2, frameBufferHeight / 2 - 200 }, "recipe_select/tutorial-select",
 		[]() {
 			std::cout << "Tutorial selected!" << std::endl;
 			GameStateSystem::instance().isTransitioning = true;
@@ -330,10 +327,10 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
-	ECS::registry<Text>.emplace(ECS::Entity(), "tutorial", path, vec2(frameBufferWidth/2 - 85, frameBufferHeight/2 - 70), 0.6f, color);
+	createText("tutorial", vec2(frameBufferWidth / 2 - 85, frameBufferHeight / 2 - 70), 0.6f);
 
 	Button::createButton(ButtonShape::RECTANGLE,
-		{ frameBufferWidth / 4, frameBufferHeight / 2 + 100}, "recipe_select/recipe1-select",
+		{ frameBufferWidth / 4, frameBufferHeight / 2 + 100 }, "recipe_select/recipe1-select",
 		[]() {
 			std::cout << "Recipe 1 selected!" << std::endl;
 			GameStateSystem::instance().isTransitioning = true;
@@ -346,7 +343,7 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
-	ECS::registry<Text>.emplace(ECS::Entity(), "Recipe 1", path, vec2(frameBufferWidth / 4 - 85, frameBufferHeight / 2 + 230), 0.6f, color);
+	createText("Recipe 1", vec2(frameBufferWidth / 4 - 85, frameBufferHeight / 2 + 230), 0.6f);
 
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth / 4 * 2, frameBufferHeight / 2 + 100 }, "recipe_select/recipe2-select",
@@ -362,7 +359,7 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
-	ECS::registry<Text>.emplace(ECS::Entity(), "Recipe 2", path, vec2(frameBufferWidth / 4 * 2 - 85, frameBufferHeight / 2 + 230), 0.6f, color);
+	createText("Recipe 2", vec2(frameBufferWidth / 4 * 2 - 85, frameBufferHeight / 2 + 230), 0.6f);
 
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth / 4 * 3, frameBufferHeight / 2 + 100 }, "recipe_select/recipe2-select",
@@ -378,7 +375,7 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
-	ECS::registry<Text>.emplace(ECS::Entity(), "Recipe 3", path, vec2(frameBufferWidth / 4 * 3 - 85, frameBufferHeight / 2 + 230), 0.6f, color);
+	createText("Recipe 3", vec2(frameBufferWidth / 4 * 3 - 85, frameBufferHeight / 2 + 230), 0.6f);
 
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ 200, frameBufferHeight - 100 }, "menus/back-button",

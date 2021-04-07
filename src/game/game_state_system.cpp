@@ -27,16 +27,15 @@ GameStateSystem::GameStateSystem() {
 	LevelLoader lc;
 	recipe = lc.readLevel("tutorial");
 	currentLevel = recipe["maps"][0];
-	//Create all the recipes here
-	//auto firstRecipe = ECS::Entity();
-	//auto& recipe = firstRecipe.emplace<Recipe>();
-	//recipe.levels.push_back("pizza-arena");
-	//recipe.levels.push_back("dessert-arena");
-	//TODO add the victory and defeat screens
-
-
-	//For now start with the firstRecipe as the currentRecipeEntity but in the future it should start as nothing and we will start in the main menu which will select a recipe
-	//currentRecipeEntity = firstRecipe;
+	json save_obj = lc.load();
+	if (save_obj.contains("recipe"))
+	{
+		AchievementSystem::instance().clearAchievements();
+		for (Achievement achievement : save_obj["achievements"])
+		{
+			AchievementSystem::instance().addAchievement(achievement);
+		}
+	}
 }
 
 const vec2 GameStateSystem::getScreenBufferSize()
@@ -84,6 +83,7 @@ void GameStateSystem::beginStory()
 	isInStory = true;
 	currentStoryIndex = 0;
 	EventSystem<AdvanceStoryEvent>::instance().sendEvent(AdvanceStoryEvent{});
+	createText("Press space to skip.", { 50.0, 50.0 }, 0.3f);
 };
 
 void GameStateSystem::nextMap()
@@ -91,11 +91,6 @@ void GameStateSystem::nextMap()
 	//Save the game
 	LevelLoader lc;
 	std::list<Achievement> achievements = AchievementSystem::instance().getAchievements();
-	//std::list<std::string> achievementsText;
-	//for (Achievement curr : achievements)
-	//{
-	//	achievementsText.push_back(AchievementText[curr]);
-	//}
 	lc.save(recipe["name"], currentLevelIndex, achievements);
 
 	currentLevelIndex++;
@@ -135,13 +130,6 @@ void GameStateSystem::loadSave()
 	{
 		GameStateSystem::instance().recipe = lc.readLevel(save_obj["recipe"]);
 		GameStateSystem::instance().currentLevelIndex = save_obj["level"];
-
-		AchievementSystem::instance().clearAchievements();
-		for (Achievement achievement : save_obj["achievements"])
-		{
-			AchievementSystem::instance().addAchievement(achievement);
-		}
-
 		GameStateSystem::instance().restartMap();
 	}
 	else // load a new game because there's no save

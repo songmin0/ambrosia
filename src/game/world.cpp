@@ -551,9 +551,12 @@ void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
 // On key callback
 void WorldSystem::onKey(int key, int, int action, int mod)
 {
-	//Don't let debug buttons work unless in game
 	if (!GameStateSystem::instance().inGameState()) {
-		return;
+		// Skip story
+		if (GameStateSystem::instance().isInStory && action == GLFW_RELEASE && key == GLFW_KEY_SPACE)
+		{
+			GameStateSystem::instance().newGame();
+		}
 	}
 	// Handles inputs for camera movement
 	assert(!ECS::registry<CameraComponent>.entities.empty());
@@ -665,6 +668,11 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	// Play the next audio track (this is just so that we can give all of them a try)
 	if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
 		playNextAudioTrack_DEBUG();
+	}
+
+	// Go to main menu (for checking achievements after saving)
+	if (action == GLFW_RELEASE && key == GLFW_KEY_BACKSPACE) {
+		GameStateSystem::instance().launchMainMenu();
 	}
 }
 
