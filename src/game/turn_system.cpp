@@ -42,7 +42,7 @@ TurnSystem::~TurnSystem()
 //Just sets the next available entity as the current entity
 void TurnSystem::nextActiveEntity()
 {
-	std::cout << "switching to the next active entity \n";
+	std::cout << "nextActiveEntity: switching to the next active entity \n";
 	//Remove the active entity
 	ECS::registry<TurnComponentIsActive>.clear();
 
@@ -60,7 +60,7 @@ void TurnSystem::nextActiveEntity()
 				continue;
 			}
 
-			if (!hasCompletedTurn(turnComponent))
+			if (!hasCompletedTurn(turnComponent) && !entity.has<DeathTimer>())
 			{
 				ECS::registry<TurnComponentIsActive>.emplace(entity);
 				EventSystem<PlayerChangeEvent>::instance().sendEvent(PlayerChangeEvent{ entity });
@@ -156,6 +156,7 @@ void TurnSystem::step(float elapsed_ms)
 
 	//If there is no active entity (this could be due to a restart) get the next active entity
 	if (ECS::registry<TurnComponentIsActive>.entities.empty()) {
+		std::cout << "There is no active entity\n";
 		nextActiveEntity();
 	}
 	// Check happens with above if statement.
@@ -191,10 +192,12 @@ void TurnSystem::step(float elapsed_ms)
 			}
 		}
 	}
-	else 
+	else
 	{
 		//The current user is dead so switch to the next
+		std::cout << "current user is dead\n";
 		nextActiveEntity();
+		
 	}
 }
 
