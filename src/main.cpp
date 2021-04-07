@@ -105,6 +105,7 @@ int main()
 			skillSystem.step(dt);
 			animations.step();
 			effectSystem.step();
+			ui.step(dt);
 			turnSystem.step(dt);
 			stateSystem.step(dt);
 			particleSystem.step(dt);

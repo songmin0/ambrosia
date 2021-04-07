@@ -524,8 +524,12 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 	// for nearly all use cases. If you need text to appear behind meshes,
 	// consider using a depth buffer during rendering and adding a
 	// Z-component or depth index to all renderable components.
-	for (const Text& text : ECS::registry<Text>.components)
-	{
+	for (auto entity : ECS::registry<Text>.entities) {
+		Text& text = entity.get<Text>();
+		// Prevent damage numbers moving with the camera
+		if (entity.has<DamageNumberComponent>()) {
+			text.offset = -cameraComponent.position;
+		}
 		drawText(text, window_size_in_game_units);
 	}
 
