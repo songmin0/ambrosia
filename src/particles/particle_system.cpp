@@ -41,28 +41,42 @@ ParticleSystem::ParticleSystem()
 		addEmitterListener = EventSystem<AddEmitterEvent>::instance().registerListener(
 			std::bind(&ParticleSystem::onAddedEmitterEvent, this, std::placeholders::_1));
 
+		deleteEmitterListener = EventSystem<DeleteEmitterEvent>::instance().registerListener(
+			std::bind(&ParticleSystem::onDeleteEmitterEvent, this, std::placeholders::_1));
+
+		deleteAllEmittersListener = EventSystem<DeleteAllEmittersEvent>::instance().registerListener(
+			std::bind(&ParticleSystem::onDeleteAllEmitterEvent, this, std::placeholders::_1));
+
 }
 
 
 //http://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
 void ParticleSystem::drawParticles(const mat3& projection, const vec2& cameraPos)
 {
-		for (int i = 0; i < emitters.size(); i++) {
-				emitters[i]->drawParticles(particleVertexBuffer, cameraRightWorldspaceID, cameraUpWorldspaceID, projectionMatrixID, projection, cameraPos);
+		for (std::map<std::string, std::shared_ptr<ParticleEmitter>>::iterator it = newEmitters.begin(); it != newEmitters.end(); ++it){
+			it->second->drawParticles(particleVertexBuffer, cameraRightWorldspaceID, cameraUpWorldspaceID, projectionMatrixID, projection, cameraPos);
 		}
 }
 
 void ParticleSystem::onAddedEmitterEvent(const AddEmitterEvent& event)
 {
-	emitters.push_back(event.emitter);
-	emitters.back()->initEmitter();
+	newEmitters.emplace(event.label, event.emitter);
+	event.emitter->initEmitter();
+}
+
+void ParticleSystem::onDeleteEmitterEvent(const DeleteEmitterEvent& event) {
+	newEmitters.erase(event.label);
+}
+
+void ParticleSystem::onDeleteAllEmitterEvent(const DeleteAllEmittersEvent& event) {
+	newEmitters.erase(newEmitters.begin(), newEmitters.end());
 }
 
 void ParticleSystem::step(float elapsed_ms)
 {
 	//Call the step function for each emitter in the world NOTE this does nothing right now because emitters haven't been fully built
-	for (int i = 0; i < emitters.size(); i++) {
-		emitters[i]->step(elapsed_ms);
+	for (std::map<std::string, std::shared_ptr<ParticleEmitter>>::iterator it = newEmitters.begin(); it != newEmitters.end(); ++it) {
+		it->second->step(elapsed_ms);
 	}
 	
 }

@@ -368,8 +368,8 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 
 	if (GameStateSystem::instance().currentLevel.at("map") == "dessert-arena") {
 		DessertForeground::createDessertForeground({ 1920, 672 });
-		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ std::make_shared<BasicEmitter>(BasicEmitter(5)) });
-		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ std::make_shared<BlueCottonCandyEmitter>(BlueCottonCandyEmitter(5)) });
+		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ "pinkCottonCandy",std::make_shared<BasicEmitter>(BasicEmitter(5)) });
+		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ "blueCottonCandy", std::make_shared<BlueCottonCandyEmitter>(BlueCottonCandyEmitter(5)) });
 		
 	}
 }
@@ -652,6 +652,10 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	// Play the next audio track (this is just so that we can give all of them a try)
 	if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
 		playNextAudioTrack_DEBUG();
+	}
+
+	if (action == GLFW_RELEASE && key == GLFW_KEY_BACKSPACE) {
+		GameStateSystem::instance().launchMainMenu();
 	}
 }
 
