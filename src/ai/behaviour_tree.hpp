@@ -27,7 +27,8 @@ enum class MobType
 	POTATO_CHUNK,
 	TOMATO,
 	LETTUCE,
-	SALTNPEPPER
+	SALTNPEPPER,
+	CHICKEN
 };
 
 struct BehaviourTreeType
@@ -129,6 +130,13 @@ class SaltnPepperTurnSequence : public Sequence
 {
 public:
 	SaltnPepperTurnSequence();
+	void run();
+};
+
+class ChickenTurnSequence : public Sequence
+{
+public:
+	ChickenTurnSequence();
 	void run();
 };
 
@@ -251,6 +259,13 @@ struct SaltnPepperBehaviourTree : public BehaviourTree
 {
 public:
 	SaltnPepperBehaviourTree();
+};
+
+// No movement, randomly chooses between attack and big damage buff
+struct ChickenBehaviourTree : public BehaviourTree
+{
+public:
+	ChickenBehaviourTree();
 };
 
 // Melee behaviour tree for moving to random player and attacking

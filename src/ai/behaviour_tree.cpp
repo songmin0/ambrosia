@@ -39,6 +39,9 @@ void StateSystem::onStartMobTurnEvent()
 	case MobType::SALTNPEPPER:
 		activeTree = std::make_shared<BehaviourTree>(SaltnPepperBehaviourTree());
 		break;
+	case MobType::CHICKEN:
+		activeTree = std::make_shared<BehaviourTree>(ChickenBehaviourTree());
+		break;
 	default:
 		break;
 	}
@@ -183,6 +186,17 @@ SaltnPepperTurnSequence::SaltnPepperTurnSequence()
 }
 
 void SaltnPepperTurnSequence::run()
+{
+	Node::run();
+	Sequence::run();
+}
+
+ChickenTurnSequence::ChickenTurnSequence()
+{
+	addChild(std::make_shared<RngAttackTask>(RngAttackTask()));
+}
+
+void ChickenTurnSequence::run()
 {
 	Node::run();
 	Sequence::run();
@@ -489,6 +503,11 @@ SaltnPepperBehaviourTree::SaltnPepperBehaviourTree()
 	root = std::make_shared<SaltnPepperTurnSequence>(SaltnPepperTurnSequence());
 }
 
+ChickenBehaviourTree::ChickenBehaviourTree()
+{
+	root = std::make_shared<ChickenTurnSequence>(ChickenTurnSequence());
+}
+
 
 RandomMeleeBehaviourTree::RandomMeleeBehaviourTree()
 {
@@ -784,6 +803,20 @@ void RngAttackTask::run()
 			{
 				std::cout << "Attacking with randomly chosen skill 2\n";
 				activeEvent.type = SkillType::SKILL2;
+			}
+		}
+		else if (mobType == MobType::CHICKEN)
+		{
+			int skill = rand() % 3; // 0 to 2
+			if (skill == 0) // 33% chance of activating Strength Buff
+			{
+				std::cout << "Using big strength buff\n";
+				activeEvent.type = SkillType::SKILL2;
+			}
+			else
+			{
+				std::cout << "Attacking random player with drumstick\n";
+				activeEvent.type = SkillType::SKILL1;
 			}
 		}
 		else

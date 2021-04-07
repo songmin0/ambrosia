@@ -16,7 +16,8 @@ enum class ProjectileType
 	HEAL_ORB,
 	DAMAGE_ORB,
 	PEPPER,
-	SALT
+	SALT,
+	DRUMSTICK
 };
 
 enum class Phase

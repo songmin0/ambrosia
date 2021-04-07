@@ -142,8 +142,8 @@
                     "ambrosia": 0
                 },
                 "position": [
-                    500,
-                    400
+                    362,
+                    617
                 ]
             },
             "chia": {
@@ -153,8 +153,8 @@
                     "ambrosia": 0
                 },
                 "position": [
-                    200,
-                    700
+                    213,
+                    919
                 ]
             },
             "raoul": {
@@ -164,8 +164,8 @@
                     "ambrosia": 0
                 },
                 "position": [
-                    640,
-                    512
+                    635,
+                    912
                 ]
             },
             "ember": {
@@ -175,35 +175,78 @@
                     "ambrosia": 0
                 },
                 "position": [
-                    400,
-                    700
+                    569,
+                    612
                 ]
             },
             "mobs": [
                 {
-                    "type": "potato",
+                    "type": "chicken",
                     "stats": {
                         "hp": 400,
                         "strength": 1
                     },
                     "positions": [
                         [
-                            950,
-                            700,
+                            1998,
+                            811,
                             1
                         ]
                     ]
                 },
                 {
-                    "type": "milk",
+                    "type": "saltnpepper",
                     "stats": {
                         "hp": 80,
                         "strength": 1
                     },
                     "positions": [
                         [
-                            900,
-                            800,
+                            1295,
+                            350,
+                            1
+                        ],
+                        [
+                            1504,
+                            916,
+                            1
+                        ],
+                        [
+                            1020,
+                            1250,
+                            1
+                        ]
+                    ]
+                },
+                {
+                    "type": "pepper",
+                    "stats": {
+                        "hp": 50,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            80,
+                            328,
+                            -1
+                        ]
+                    ]
+                },
+                {
+                    "type": "tomato",
+                    "stats": {
+                        "hp": 70,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            1926,
+                            1232,
+                            1
+                        ],
+                        [
+                            1930,
+                            277,
                             1
                         ]
                     ]

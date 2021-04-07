@@ -595,10 +595,10 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		anim.changeAnimation(AnimationType::ATTACK3);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_4) {
-		for (auto entity : ECS::registry<SaltnPepper>.entities)
+		for (auto entity : ECS::registry<Chicken>.entities)
 		{
 			auto& anim = entity.get<AnimationsComponent>();
-			anim.changeAnimation(AnimationType::DEFEAT);
+			anim.changeAnimation(AnimationType::ATTACK1);
 		}
 	}
 

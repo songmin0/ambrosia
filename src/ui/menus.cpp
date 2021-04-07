@@ -327,7 +327,7 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
-	createText("tutorial", vec2(frameBufferWidth / 2 - 85, frameBufferHeight / 2 - 70), 0.6f);
+	createText("Tutorial", vec2(frameBufferWidth / 2 - 85, frameBufferHeight / 2 - 70), 0.6f);
 
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth / 4, frameBufferHeight / 2 + 100 }, "recipe_select/recipe1-select",
@@ -343,7 +343,8 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
-	createText("Recipe 1", vec2(frameBufferWidth / 4 - 85, frameBufferHeight / 2 + 230), 0.6f);
+	createText("Mashed", vec2(frameBufferWidth / 4 - 85, frameBufferHeight / 2 + 230), 0.6f);
+	createText("Potatoes", vec2(frameBufferWidth / 4 - 105, frameBufferHeight / 2 + 260), 0.6f);
 
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth / 4 * 2, frameBufferHeight / 2 + 100 }, "recipe_select/recipe2-select",
@@ -359,10 +360,10 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
-	createText("Recipe 2", vec2(frameBufferWidth / 4 * 2 - 85, frameBufferHeight / 2 + 230), 0.6f);
+	createText("Salad", vec2(frameBufferWidth / 4 * 2 - 65, frameBufferHeight / 2 + 230), 0.6f);
 
 	Button::createButton(ButtonShape::RECTANGLE,
-		{ frameBufferWidth / 4 * 3, frameBufferHeight / 2 + 100 }, "recipe_select/recipe2-select",
+		{ frameBufferWidth / 4 * 3, frameBufferHeight / 2 + 100 }, "recipe_select/recipe3-select",
 		[]() {
 			std::cout << "Recipe 3 selected!" << std::endl;
 			GameStateSystem::instance().isTransitioning = true;
@@ -375,7 +376,7 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
-	createText("Recipe 3", vec2(frameBufferWidth / 4 * 3 - 85, frameBufferHeight / 2 + 230), 0.6f);
+	createText("BBQ Chicken", vec2(frameBufferWidth / 4 * 3 - 125, frameBufferHeight / 2 + 230), 0.6f);
 
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ 200, frameBufferHeight - 100 }, "menus/back-button",
