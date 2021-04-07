@@ -305,7 +305,6 @@ void WorldSystem::preloadResources()
 	int frameBufferWidth, frameBufferHeight;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
-	createMap(frameBufferWidth, frameBufferHeight);
 	createPlayers(frameBufferWidth, frameBufferHeight);
 	createMobs(frameBufferWidth, frameBufferHeight);
 	createButtons(frameBufferWidth, frameBufferHeight);
@@ -363,18 +362,28 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 	// Create a deforming blob for pizza arena
 	// maybe add own section in level file we have more of these
 	if (GameStateSystem::instance().currentLevel.at("map") == "pizza-arena") {
-		CheeseBlob::createCheeseBlob({ 700, 950 });
+		CheeseBlob::createCheeseBlob(vec2(700.f, 950.f));
 	}
 
 	if (GameStateSystem::instance().currentLevel.at("map") == "dessert-arena") {
-		DessertForeground::createDessertForeground({ 1920, 672 });
+		DessertForeground::createDessertForeground(vec2(1920.f, 672.f));
 		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ std::make_shared<BasicEmitter>(BasicEmitter(5)) });
 		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ std::make_shared<BlueCottonCandyEmitter>(BlueCottonCandyEmitter(5)) });
 	}
 
 	if (GameStateSystem::instance().currentLevel.at("map") == "bbq")
 	{
-		BBQBackground::createBBQBackground({ 1120, 720 });
+		BBQBackground::createBBQBackground(vec2(1120.f, 720.f));
+		BBQFire::createBBQFire(vec2(2153.f, 1015.f));
+		BBQFire::createBBQFire(vec2(1378.f, 1403.f));
+		BBQFire::createBBQFire(vec2(41.f, 1264.f));
+		BBQFire::createBBQFire(vec2(2137.f, 222.f));
+		BBQFire::createBBQFire(vec2(954.f, 716.f), RenderLayer::MAP2);
+		BBQFire::createBBQFire(vec2(1621.f, 1228.f), RenderLayer::MAP2);
+		BBQFire::createBBQFire(vec2(1406.f, 285.f), RenderLayer::MAP2);
+		BBQFire::createBBQFire(vec2(243.f, 326.f), RenderLayer::MAP2);
+		BBQFire::createBBQFire(vec2(943.f, 1227.f), RenderLayer::MAP2);
+		BBQFire::createBBQFire(vec2(358, 1079.f), RenderLayer::MAP2);
 	}
 }
 

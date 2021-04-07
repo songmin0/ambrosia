@@ -1,6 +1,7 @@
 #pragma once
 #include "game/common.hpp"
 #include "entities/tiny_ecs.hpp"
+#include "rendering/render.hpp"
 
 struct CheeseBlob
 {
@@ -13,3 +14,5 @@ struct DessertForeground
 };
 
 struct BBQBackground { static ECS::Entity createBBQBackground(vec2 position); };
+
+struct BBQFire { static ECS::Entity createBBQFire(vec2 position, RenderLayer layer = RenderLayer::MAP_FOREGROUND, vec2 scale = vec2(1.f)); };

@@ -24,6 +24,7 @@ enum class RenderLayer {
 	PLAYER_AND_MOB,
 	MAP_OBJECT,
 	MAP,
+	MAP2,
 	MAP_BACKGROUND
 };
 
