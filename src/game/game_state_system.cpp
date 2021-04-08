@@ -93,6 +93,8 @@ void GameStateSystem::nextMap()
 	std::list<Achievement> achievements = AchievementSystem::instance().getAchievements();
 	lc.save(recipe["name"], currentLevelIndex, achievements);
 
+	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
+
 	currentLevelIndex++;
 	if (currentLevelIndex == recipe["maps"].size() - 1)
 	{
@@ -116,6 +118,7 @@ void GameStateSystem::nextMap()
 
 void GameStateSystem::restartMap()
 {
+	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
 	currentLevel = recipe["maps"][currentLevelIndex];
 	EventSystem<LoadLevelEvent>::instance().sendEvent(LoadLevelEvent{});
 
@@ -154,8 +157,8 @@ void GameStateSystem::save()
 void GameStateSystem::launchVictoryScreen()
 {
 	Camera::createCamera(vec2(0.f));
+	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
 	isInVictoryScreen = true;
-
 	if (recipe["name"] != "tutorial")
 	{
 		EventSystem<BeatLevelEvent>::instance().sendEvent(BeatLevelEvent{});
@@ -172,6 +175,7 @@ void GameStateSystem::launchVictoryScreen()
 void GameStateSystem::launchDefeatScreen()
 {
 	Camera::createCamera(vec2(0.f));
+	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
 	isInDefeatScreen = true;
 	removeAllMotionEntities();
 	vec2 screenBufferSize = getScreenBufferSize();
@@ -181,6 +185,7 @@ void GameStateSystem::launchDefeatScreen()
 void GameStateSystem::launchMainMenu()
 {
 	Camera::createCamera(vec2(0.f));
+	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
 	isInMainScreen = true;
 	removeAllMotionEntities();
 	MouseClickFX::createMouseClickFX();
