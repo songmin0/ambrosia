@@ -383,8 +383,7 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 		BBQFire::createBBQFire(vec2(1406.f, 285.f), RenderLayer::MAP2);
 		BBQFire::createBBQFire(vec2(243.f, 326.f), RenderLayer::MAP2);
 		BBQFire::createBBQFire(vec2(943.f, 1227.f), RenderLayer::MAP2);
-		BBQFire::createBBQFire(vec2(358, 1079.f), RenderLayer::MAP2);
-		DessertForeground::createDessertForeground({ 1920, 672 });		
+		BBQFire::createBBQFire(vec2(358, 1079.f), RenderLayer::MAP2);	
 	}
 }
 

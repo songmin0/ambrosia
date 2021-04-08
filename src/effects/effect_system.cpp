@@ -205,17 +205,17 @@ void EffectSystem::setBuffedOffsetAndScale(ECS::Entity entity, ECS::Entity fxEnt
 	else if (entity.has<Egg>()) {
 		skillFX.offset = vec2(0, 25);
 	}
-	else if (entity.has<Pepper>()) {
+	else if (entity.has<Pepper>() || entity.has<SaltnPepper>()) {
 		skillFX.offset = vec2(0, 25);
 	}
 	else if (entity.has<Milk>()) {
 		skillFX.offset = vec2(0, 25);
 	}
-	else if (entity.has<Potato>()) {
+	else if (entity.has<Potato>() || entity.has<Chicken>()) {
 		skillFX.offset = vec2(0, 25);
 		motion.scale = vec2(2, 2);
 	}
-	else if (entity.has<MashedPotato>()) {
+	else if (entity.has<MashedPotato>() || entity.has<Lettuce>()) {
 		skillFX.offset = vec2(0, 0);
 		motion.scale = vec2(2, 2);
 	}
