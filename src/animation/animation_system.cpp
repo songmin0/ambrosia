@@ -7,6 +7,9 @@ AnimationSystem::AnimationSystem()
 {
 	performSkillListener = EventSystem<PerformActiveSkillEvent>::instance().registerListener(
 		std::bind(&AnimationSystem::onPerformSkillEvent, this, std::placeholders::_1));
+
+	prepForNextMapListener = EventSystem<PrepForNextMapEvent>::instance().registerListener(
+			std::bind(&AnimationSystem::onPrepForNextMapEvent, this, std::placeholders::_1));
 }
 
 AnimationSystem::~AnimationSystem()
@@ -14,6 +17,10 @@ AnimationSystem::~AnimationSystem()
 	if (performSkillListener.isValid())
 	{
 		EventSystem<PerformActiveSkillEvent>::instance().unregisterListener(performSkillListener);
+	}
+	if (prepForNextMapListener.isValid())
+	{
+		EventSystem<PrepForNextMapEvent>::instance().unregisterListener(prepForNextMapListener);
 	}
 }
 
@@ -49,6 +56,11 @@ void AnimationSystem::step()
 	// for each Animation component...
 	for (auto& entity : ECS::registry<AnimationsComponent>.entities)
 	{
+		if (!entity.has<Motion>())
+		{
+			continue;
+		}
+
 		auto& anims = entity.get<AnimationsComponent>();
 		// get the data for the current animation
 		std::shared_ptr<AnimationData>& currAnim = anims.currAnimData;
@@ -140,5 +152,14 @@ void AnimationSystem::onPerformSkillEvent(const PerformActiveSkillEvent& event)
 				anim.changeAnimation(activeSkill->getAnimationType());
 			}
 		}
+	}
+}
+
+void AnimationSystem::onPrepForNextMapEvent(const PrepForNextMapEvent& event)
+{
+	auto entity = event.entity;
+	if (entity.has<AnimationsComponent>())
+	{
+		entity.get<AnimationsComponent>().changeAnimation(AnimationType::IDLE);
 	}
 }

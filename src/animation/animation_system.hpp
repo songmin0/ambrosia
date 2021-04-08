@@ -20,5 +20,8 @@ public:
 
 private:
 	void onPerformSkillEvent(const PerformActiveSkillEvent& event);
+	void onPrepForNextMapEvent(const PrepForNextMapEvent& event);
+
 	EventListenerInfo performSkillListener;
+	EventListenerInfo prepForNextMapListener;
 };
