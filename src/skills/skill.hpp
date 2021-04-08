@@ -51,7 +51,7 @@ public:
 	AreaOfEffectSkill(std::shared_ptr<AoESkillParams> params);
 	~AreaOfEffectSkill() override = default;
 
-	float getRange();
+	float getRange() override;
 
 private:
 	void performSkillInternal() override;
@@ -70,7 +70,7 @@ public:
 	ProjectileSkill(std::shared_ptr<ProjectileSkillParams> params);
 	~ProjectileSkill() override = default;
 
-	float getRange();
+	float getRange() override;
 
 private:
 	void performSkillInternal() override;

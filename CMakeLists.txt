@@ -71,6 +71,7 @@ SET(SOURCE_FILES
         "src/skills/entity_filter.cpp"
         "src/skills/entity_handler.cpp"
         "src/skills/skill_system.cpp"
+        "src/skills/skill_component.cpp"
         "src/game/game_state_system.cpp" "src/game/range_indicator_system.cpp")
 
 # Add the directories that the compiler has to search for #include files
