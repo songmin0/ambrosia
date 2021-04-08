@@ -18,14 +18,8 @@ private:
 	EventListenerInfo stopFXListener;
 	void onStopFX(const StopFXEvent& event);
 
-	void setBuffedOffsetAndScale(ECS::Entity entity, ECS::Entity fxEntity);
-	void setStunnedOffsetAndScale(ECS::Entity entity, ECS::Entity fxEntity);
-	void setBlueberriedOffset(ECS::Entity entity, ECS::Entity fxEntity);
-	void setCandyOffset(ECS::Entity entity, ECS::Entity fxEntity);
-
-	// Used to assign an order to skillFX so render order does not change if an entity has multple FXs
-	static unsigned int nextOrderId() {
-		static unsigned int order = 1;
-		return order++;
-	}
+	void setBuffedOffsetAndScale(ECS::Entity fxEntity);
+	void setStunnedOffsetAndScale(ECS::Entity fxEntity);
+	void setBlueberriedOffset(ECS::Entity fxEntity);
+	void setCandyOffset(ECS::Entity fxEntity);
 };

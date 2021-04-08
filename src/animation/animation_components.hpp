@@ -32,4 +32,6 @@ struct AnimationsComponent
 	AnimationsComponent(AnimationType type, const std::shared_ptr<AnimationData>& anim);
 	void addAnimation(AnimationType type, const std::shared_ptr<AnimationData>& anim);
 	void changeAnimation(AnimationType newAnim);
+	AnimationType getCurrAnim();
+	float getCurrAnimProgress();
 };
