@@ -43,6 +43,13 @@ struct SkillInfoComponent
 	SkillType skillType;
 };
 
+struct DamageNumberComponent
+{
+	DamageNumberComponent(vec2 offset, float timerMs) : offset{ offset }, timerMs{ timerMs } {}
+	vec2 offset;
+	float timerMs;
+};
+
 // ECS-style Button Labels
 struct UIComponent {};
 struct MoveToolTipComponent {};

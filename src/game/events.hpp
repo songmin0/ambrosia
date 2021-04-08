@@ -157,3 +157,9 @@ struct ChangeRangeIndicatorEvent {
 	ECS::Entity entity;
 	SkillType type;
 };
+
+struct DamageNumberEvent
+{
+	ECS::Entity target;
+	float damage;
+};
