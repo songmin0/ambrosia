@@ -1,19 +1,23 @@
 #include "raoul.hpp"
 
-#include "rendering/render.hpp"
 #include "animation/animation_components.hpp"
-#include "game/turn_system.hpp"
 #include "skills/skill_component.hpp"
-#include "ui/ui_entities.hpp"
 
-ECS::Entity Raoul::commonInit()
+void Raoul::initialize(ECS::Entity entity)
 {
-	auto entity = ECS::Entity();
-	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
+	//////////////////////////////////////////////////////////////////////////////
+	// Create sprite
+	ShadedMesh& resource = cacheResource("raoul_static");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, spritePath("players/raoul/raoul_static.png"), "textured");
+	}
+	entity.emplace<ShadedMeshRef>(resource);
 
-	// Animations
+	//////////////////////////////////////////////////////////////////////////////
+	// Set up animations
 	auto idle_anim = AnimationData("raoul_idle", spritePath("players/raoul/idle/idle"), 62);
-	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, std::make_shared<AnimationData>(idle_anim));
+	auto& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, std::make_shared<AnimationData>(idle_anim));
 
 	auto move_anim = AnimationData("raoul_move", spritePath("players/raoul/move/move"), 32);
 	anims.addAnimation(AnimationType::MOVE, std::make_shared<AnimationData>(move_anim));
@@ -33,11 +37,8 @@ ECS::Entity Raoul::commonInit()
 	auto defeat = AnimationData("raoul_defeat", spritePath("players/raoul/defeat/defeat"), 61, 1, true, false, vec2({ 0.16f, 0.055f }));
 	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat));
 
-	// Player and Turn Components
-	entity.emplace<TurnSystem::TurnComponent>();
-	entity.emplace<PlayerComponent>().player = PlayerType::RAOUL;
-
-	// Initialize skills
+	//////////////////////////////////////////////////////////////////////////////
+	// Set up skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
 
 	// Melee hit
@@ -73,79 +74,4 @@ ECS::Entity Raoul::commonInit()
 	boneThrowParams->entityHandler = std::make_shared<DamageHandler>(15.f);
 	boneThrowParams->projectileType = ProjectileType::BONE;
 	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<ProjectileSkill>(boneThrowParams));
-
-	entity.emplace<Raoul>();
-	return entity;
-};
-
-ECS::Entity Raoul::createRaoul(json configValues)
-{
-	auto entity = commonInit();
-
-	ShadedMesh& resource = cacheResource("raoul_static");
-	if (resource.effect.program.resource == 0)
-	{
-		RenderSystem::createSprite(resource, spritePath("players/raoul/raoul_static.png"), "textured");
-	}
-	entity.emplace<ShadedMeshRef>(resource);
-
-	// Setting initial motion values
-	Motion& motion = entity.emplace<Motion>();
-	motion.position = vec2(configValues.at("position")[0], configValues.at("position")[1]);
-	motion.colliderType = CollisionGroup::PLAYER;
-
-	// hitbox scaling
-	auto hitboxScale = vec2({ 0.6f, 0.9f });
-	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
-
-	// Initialize stats
-	auto& statsComponent = entity.emplace<StatsComponent>();
-	json stats = configValues.at("stats");
-	statsComponent.stats[StatType::HP] = stats.at("hp");
-	statsComponent.stats[StatType::MAX_HP] = stats.at("hp");
-	statsComponent.stats[StatType::AMBROSIA] = stats.at("ambrosia");
-	statsComponent.stats[StatType::STRENGTH] = stats.at("strength");
-
-	//Add HP bar
-	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 225.0f });
-	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f,-225.0f };
-	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
-
-	return entity;
-};
-
-ECS::Entity Raoul::createRaoul(vec2 position)
-{
-	auto entity = commonInit();
-
-	std::string key = "raoul_static";
-	ShadedMesh& resource = cacheResource(key);
-	if (resource.effect.program.resource == 0)
-	{
-		RenderSystem::createSprite(resource, spritePath("players/raoul/raoul_static.png"), "textured");
-	}
-	entity.emplace<ShadedMeshRef>(resource);
-
-	// Setting initial motion values
-	Motion& motion = entity.emplace<Motion>();
-	motion.position = position;
-	motion.colliderType = CollisionGroup::PLAYER;
-
-	// hitbox scaling
-	auto hitboxScale = vec2({ 0.6f, 0.9f });
-	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
-
-	// Initialize stats
-	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAX_HP] = 100.f;
-	statsComponent.stats[StatType::HP] = 100.f;
-	statsComponent.stats[StatType::AMBROSIA] = 0.f;
-	statsComponent.stats[StatType::STRENGTH] = 1.f;
-
-	//Add HP bar
-	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 225.0f });
-	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f,-225.0f };
-	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
-
-	return entity;
-};
+}
