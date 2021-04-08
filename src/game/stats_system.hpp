@@ -17,6 +17,8 @@ private:
 	void removeStatModifier(ECS::Entity entity,
 													StatsComponent& statsComponent,
 													StatType statType);
+	void removeAllStatModifiers(ECS::Entity entity,
+															StatsComponent& statsComponent);
 	FXType getFXType(StatModifier statModifier);
 	void handleHitReaction(ECS::Entity entity);
 	void handleDeathReaction(ECS::Entity entity, StatsComponent& statsComponent);
@@ -26,10 +28,12 @@ private:
 	void onHealEvent(const HealEvent& event);
 	void onStartNextRoundEvent(const StartNextRoundEvent& event);
 	void onFinishedSkillEvent(const FinishedSkillEvent& event);
+	void onPrepForNextMapEvent(const PrepForNextMapEvent& event);
 
 	EventListenerInfo hitEventListener;
 	EventListenerInfo buffEventListener;
 	EventListenerInfo healEventListener;
 	EventListenerInfo startNextRoundListener;
 	EventListenerInfo finishedSkillListener;
+	EventListenerInfo prepForNextMapListener;
 };
