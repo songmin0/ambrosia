@@ -1,6 +1,7 @@
 #include "ui_system.hpp"
 #include "game/camera.hpp"
 #include <game/game_state_system.hpp>
+#include "rendering/text.hpp"
 #include <iostream>
 
 UISystem::UISystem()
@@ -22,6 +23,15 @@ UISystem::UISystem()
 
 	finishedMovementListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
 		std::bind(&UISystem::onMoveFinished, this, std::placeholders::_1));
+
+	damageNumberEventListener = EventSystem<DamageNumberEvent>::instance().registerListener(
+		std::bind(&UISystem::onDamageNumberEvent, this, std::placeholders::_1));
+
+	healEventListener = EventSystem<HealEvent>::instance().registerListener(
+		std::bind(&UISystem::onHealEvent, this, std::placeholders::_1));
+
+	buffEventListener = EventSystem<BuffEvent>::instance().registerListener(
+		std::bind(&UISystem::onBuffEvent, this, std::placeholders::_1));
 }
 
 UISystem::~UISystem()
@@ -48,6 +58,30 @@ UISystem::~UISystem()
 
 	if (finishedMovementListener.isValid()) {
 		EventSystem<FinishedMovementEvent>::instance().unregisterListener(finishedMovementListener);
+	}
+
+	if (damageNumberEventListener.isValid()) {
+		EventSystem<DamageNumberEvent>::instance().unregisterListener(damageNumberEventListener);
+	}
+
+	if (healEventListener.isValid()) {
+		EventSystem<HealEvent>::instance().unregisterListener(healEventListener);
+	}
+
+	if (buffEventListener.isValid()) {
+		EventSystem<BuffEvent>::instance().unregisterListener(buffEventListener);
+	}
+}
+
+void UISystem::step(float elapsed_ms) {
+	// Remove damage number once timer expires
+	for (auto entity : ECS::registry<DamageNumberComponent>.entities) {
+		auto& damageNumberComponent = entity.get<DamageNumberComponent>();
+		damageNumberComponent.timerMs -= elapsed_ms;
+
+		if (damageNumberComponent.timerMs < 0) {
+			ECS::ContainerInterface::removeAllComponentsOf(entity);
+		}
 	}
 }
 
@@ -404,6 +438,32 @@ void UISystem::onSkillFinished(const FinishedSkillEvent& event)
 			activeFX.get<VisibilityComponent>().isVisible = false;
 		}
 	}
+}
+
+void UISystem::onDamageNumberEvent(const DamageNumberEvent& event) {
+	createDamageNumber(event.target, event.damage, vec3(0.9f, 0.f, 0.f));
+}
+
+void UISystem::onHealEvent(const HealEvent& event) {
+	createDamageNumber(event.entity, event.amount, vec3(0.f, 0.9f, 0.f));
+}
+
+void UISystem::onBuffEvent(const BuffEvent& event) {
+	// Create damage number for hp shield buff
+	if (event.statModifier.statType == StatType::HP_SHIELD) {
+		createDamageNumber(event.entity, event.statModifier.value, vec3(0.f, 0.9f, 0.9f));
+	}
+}
+
+void UISystem::createDamageNumber(ECS::Entity entity, float value, vec3 color) {
+	auto& motion = entity.get<Motion>();
+	std::string number = std::to_string((int)value);
+	// Position the damage number using the target's hp bar offset
+	auto offset = entity.get<StatsComponent>().healthBar.get<HPBar>().offset;
+	offset += vec2(-20, -20); // Hardcoded offset
+
+	auto text = createText(number, motion.position + offset, 1.f, color);
+	text.emplace<DamageNumberComponent>(offset, 2500.f);
 }
 
 void UISystem::playMouseClickFX(vec2 position)

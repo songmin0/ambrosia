@@ -446,7 +446,7 @@ void drawText(const Text& text, glm::vec2 gameUnitSize) {
     assert(text.font);
 
     // The on-screen baseline origin of the current glyph being drawn
-    auto cursor = text.position;
+    auto cursor = text.position + text.offset;
 
     // invert y-axis to place origin at top-left corner for consistency
     cursor.y = gameUnitSize.y - cursor.y;
@@ -535,23 +535,13 @@ void drawText(const Text& text, glm::vec2 gameUnitSize) {
     gl_has_errors();
 }
 
-void createText(std::string text, glm::vec2 position)
+ECS::Entity createText(std::string text, glm::vec2 position, float scale, glm::vec3 color)
 {
     std::string path = fontPath("anime_ace/animeace2_reg.ttf");
-    float scale = 1.f;
-    vec3 color(1.f, 1.f, 1.f);
 
     ECS::Entity entity;
     ECS::registry<Text>.emplace(entity, text, path, position, scale, color);
-}
-
-void createText(std::string text, glm::vec2 position, float scale)
-{
-    std::string path = fontPath("anime_ace/animeace2_reg.ttf");
-    vec3 color(1.f, 1.f, 1.f);
-
-    ECS::Entity entity;
-    ECS::registry<Text>.emplace(entity, text, path, position, scale, color);
+    return entity;
 }
 
 void createAchievementText(std::string text, glm::vec2 position)
