@@ -46,8 +46,8 @@ private:
 	EventListenerInfo finishedMovementListener;
 	void onMoveFinished(const FinishedMovementEvent& event);
 
-	EventListenerInfo hitEventListener;
-	void onHitEvent(const HitEvent& event);
+	EventListenerInfo damageNumberEventListener;
+	void onDamageNumberEvent(const DamageNumberEvent& event);
 
 	EventListenerInfo healEventListener;
 	void onHealEvent(const HealEvent& event);

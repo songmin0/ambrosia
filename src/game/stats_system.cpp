@@ -214,6 +214,9 @@ void StatsSystem::onHitEvent(const HitEvent &event)
 			handleHitReaction(target);
 		}
 	}
+
+	// Send event for displaying damage number
+	EventSystem<DamageNumberEvent>::instance().sendEvent(DamageNumberEvent{ target, actualDamage });
 }
 
 void StatsSystem::onBuffEvent(const BuffEvent &event)

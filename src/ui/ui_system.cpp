@@ -24,8 +24,8 @@ UISystem::UISystem()
 	finishedMovementListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
 		std::bind(&UISystem::onMoveFinished, this, std::placeholders::_1));
 
-	hitEventListener = EventSystem<HitEvent>::instance().registerListener(
-		std::bind(&UISystem::onHitEvent, this, std::placeholders::_1));
+	damageNumberEventListener = EventSystem<DamageNumberEvent>::instance().registerListener(
+		std::bind(&UISystem::onDamageNumberEvent, this, std::placeholders::_1));
 
 	healEventListener = EventSystem<HealEvent>::instance().registerListener(
 		std::bind(&UISystem::onHealEvent, this, std::placeholders::_1));
@@ -60,8 +60,8 @@ UISystem::~UISystem()
 		EventSystem<FinishedMovementEvent>::instance().unregisterListener(finishedMovementListener);
 	}
 
-	if (hitEventListener.isValid()) {
-		EventSystem<HitEvent>::instance().unregisterListener(hitEventListener);
+	if (damageNumberEventListener.isValid()) {
+		EventSystem<DamageNumberEvent>::instance().unregisterListener(damageNumberEventListener);
 	}
 
 	if (healEventListener.isValid()) {
@@ -440,7 +440,7 @@ void UISystem::onSkillFinished(const FinishedSkillEvent& event)
 	}
 }
 
-void UISystem::onHitEvent(const HitEvent& event) {
+void UISystem::onDamageNumberEvent(const DamageNumberEvent& event) {
 	createDamageNumber(event.target, event.damage, vec3(0.9f, 0.f, 0.f));
 }
 
@@ -460,7 +460,7 @@ void UISystem::createDamageNumber(ECS::Entity entity, float value, vec3 color) {
 	std::string number = std::to_string((int)value);
 	// Position the damage number using the target's hp bar offset
 	auto offset = entity.get<StatsComponent>().healthBar.get<HPBar>().offset;
-	offset += vec2(-20, 50); // Hardcoded offset
+	offset += vec2(-20, -20); // Hardcoded offset
 
 	auto text = createText(number, motion.position + offset, 1.f, color);
 	text.emplace<DamageNumberComponent>(offset, 2500.f);
