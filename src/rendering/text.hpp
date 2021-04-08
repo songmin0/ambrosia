@@ -11,6 +11,8 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H"freetype/freetype.h"
 
+#include "tiny_ecs.hpp"
+
 // Forward declaration, see class definition below
 class Font;
 
@@ -65,6 +67,7 @@ struct Text {
     // The on-screen position of the left edge of the first glyph's baseline,
     // relative to the bottom left corner.
     glm::vec2 position;
+    glm::vec2 offset = { 0, 0 };
 
     // The text's scale. Default value is 1.0f
     float scale;
@@ -144,10 +147,8 @@ private:
     friend void drawText(const Text&, glm::vec2);
 };
 
-// Common function to create Text entity with Anime Ace font
-void createText(std::string text, glm::vec2 position);
-// Common function to create Text entity with Anime Ace font and custom size
-void createText(std::string text, glm::vec2 position, float scale);
+// Common function to create Text entity with Anime Ace font, custom size and color
+ECS::Entity createText(std::string text, glm::vec2 position, float scale = 1.f, glm::vec3 color = vec3(1.f, 1.f, 1.f));
 // Common function to create achievement popup text with Anime Ace font
 void createAchievementText(std::string text, glm::vec2 position);
 

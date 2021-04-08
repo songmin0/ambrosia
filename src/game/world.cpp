@@ -367,8 +367,8 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 
 	if (GameStateSystem::instance().currentLevel.at("map") == "dessert-arena") {
 		DessertForeground::createDessertForeground(vec2(1920.f, 672.f));
-		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ std::make_shared<BasicEmitter>(BasicEmitter(5)) });
-		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ std::make_shared<BlueCottonCandyEmitter>(BlueCottonCandyEmitter(5)) });
+		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ "pinkCottonCandy",std::make_shared<BasicEmitter>(BasicEmitter(5)) });
+		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ "blueCottonCandy", std::make_shared<BlueCottonCandyEmitter>(BlueCottonCandyEmitter(5)) });
 	}
 
 	if (GameStateSystem::instance().currentLevel.at("map") == "bbq")
@@ -384,6 +384,7 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 		BBQFire::createBBQFire(vec2(243.f, 326.f), RenderLayer::MAP2);
 		BBQFire::createBBQFire(vec2(943.f, 1227.f), RenderLayer::MAP2);
 		BBQFire::createBBQFire(vec2(358, 1079.f), RenderLayer::MAP2);
+		DessertForeground::createDessertForeground({ 1920, 672 });		
 	}
 }
 
@@ -557,6 +558,7 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		{
 			GameStateSystem::instance().newGame();
 		}
+		return;
 	}
 	// Handles inputs for camera movement
 	assert(!ECS::registry<CameraComponent>.entities.empty());
