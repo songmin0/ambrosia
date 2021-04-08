@@ -136,6 +136,12 @@ void UISystem::onMouseClick(const RawMouseClickEvent& event)
 		}
 	}
 
+	for (auto entity : ECS::registry<UpgradeButton>.entities) {
+		if (handleClick<ClickableCircleComponent>(entity, event)) {
+			return;
+		}
+	}
+
 	// Sends a MouseClickEvent to event system if no buttons are clicked, takes into account the camera position
 	assert(!ECS::registry<CameraComponent>.entities.empty());
 	auto camera = ECS::registry<CameraComponent>.entities[0];

@@ -29,6 +29,7 @@
 #include "effects/effect_system.hpp"
 #include "game/range_indicator_system.hpp"
 #include "game/achievement_system.hpp"
+#include "game/shop_system.hpp"
 
 
 using Clock = std::chrono::high_resolution_clock;

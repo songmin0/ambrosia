@@ -48,7 +48,7 @@ const vec2 GameStateSystem::getScreenBufferSize()
 
 bool GameStateSystem::inGameState() {
 	//TODO if we add more states that the game can be in add them here if they are relevant.
-	return !isInMainScreen && !isInVictoryScreen && !isInDefeatScreen && !isInStory && !isInAchievementsScreen && !isInCreditsScreen;
+	return !isInMainScreen && !isInVictoryScreen && !isInDefeatScreen && !isInStory && !isInAchievementsScreen && !isInShopScreen && !isInCreditsScreen;
 }
 
 bool GameStateSystem::hasLights() {
@@ -198,7 +198,7 @@ void GameStateSystem::launchDefeatScreen()
 void GameStateSystem::launchShopScreen()
 {
 	Camera::createCamera(vec2(0.f));
-	isInDefeatScreen = true;
+	isInShopScreen = true;
 	removeAllMotionEntities();
 	vec2 screenBufferSize = getScreenBufferSize();
 	Screens::createShopScreen(screenBufferSize.x, screenBufferSize.y);

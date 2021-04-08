@@ -3,6 +3,7 @@
 #include "game/game_state_system.hpp"
 #include "rendering/text.hpp"
 #include "game/achievement_system.hpp"
+#include "game/shop_system.hpp"
 #include <iostream>
 #include <SDL.h>
 #include <SDL_mixer.h>
@@ -137,6 +138,7 @@ void Screens::createVictoryScreen(int frameBufferWidth, int frameBufferHeight, i
 			TransitionEvent event;
 			event.callback = []() {
 				GameStateSystem::instance().isInVictoryScreen = false;
+				GameStateSystem::instance().isInShopScreen = true;
 				GameStateSystem::instance().launchShopScreen();
 				std::cout << "launched" << std::endl;
 			};
@@ -284,6 +286,27 @@ void Screens::createCreditsScreen(int frameBufferWidth, int frameBufferHeight, i
 		});
 };
 
+
+
+//// utility fcn to make buttons to avoid code duplication
+//void createUpgradeButtonsForPlayer(std::string player_name, int y_pos) {
+//	int starting_x = 160;
+//	int x_gap = 225;
+//	int i = 0;
+//	for (i = 0; i < 4; i++) { // and for each skill
+//		std::string path = i == 0 ? "shop/" + player_name : std::string("skill_buttons/skill") + std::to_string(i) + "/" + player_name;
+//
+//		ShopSystem::instance().setCurrPlayer(player_name);
+//		ShopSystem::instance().setCurrSkillNum(i);
+//
+//		Button::createButton(ButtonShape::CIRCLE,
+//			{ starting_x + (x_gap * i) , y_pos }, path,
+//			[]() {
+//				ShopSystem::instance().executeShopEffect(3, "chia");
+//			});
+//	}
+//}
+
 void Screens::createShopScreen(int frameBufferWidth, int frameBufferHeight)
 {
 	auto background = ECS::Entity();
@@ -300,36 +323,32 @@ void Screens::createShopScreen(int frameBufferWidth, int frameBufferHeight)
 	mapComponent.name = key;
 	mapComponent.mapSize = static_cast<vec2>(splashResource.texture.size);
 
-	// TODO: Hook up 
-	//Button::createButton(ButtonShape::RECTANGLE,
-	//	{ frameBufferWidth / 2, frameBufferHeight / 2 + 180 }, "menus/next-button",
-	//	[]() {
-	//		std::cout << "Next button clicked!" << std::endl;
-	//		TransitionEvent event;
-	//		event.callback = []() {
-	//			GameStateSystem::instance().isInVictoryScreen = false;
-	//			GameStateSystem::instance().nextMap();
-	//		};
-	//		EventSystem<TransitionEvent>::instance().sendEvent(event);
-	//	});
+	Button::createButton(ButtonShape::RECTANGLE,
+		{ frameBufferWidth - 125, 50 }, "menus/next-button",
+		[]() {
+			std::cout << "Next button clicked!" << std::endl;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInShopScreen = false;
+				GameStateSystem::instance().nextMap();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
+		});
 
-	int starting_x = 95;
-	int starting_y = 90;
+	Button::createButton(ButtonShape::RECTANGLE,
+		{ frameBufferWidth - 250, frameBufferHeight - 300 }, "shop/buy_button",
+		[]() {
+			std::cout << "Buy button clicked!" << std::endl;
+			TransitionEvent event;
+			event.callback = []() {
 
-	// create RAOUL upgrade buttons
-	for (int j = 0; j < 4; j++) { // and for each skill
-		Button::createButton(ButtonShape::CIRCLE,
-			{ starting_x, starting_y }, "menus/next-button",
-			[]() {
-				std::cout << "Next button clicked!" << std::endl;
-				TransitionEvent event;
-				event.callback = []() {
-					GameStateSystem::instance().isInVictoryScreen = false;
-					GameStateSystem::instance().nextMap();
-				};
-				EventSystem<TransitionEvent>::instance().sendEvent(event);
-			});
-	}
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
+		});
+
+	ShopSystem::instance().drawButtons();
+	ShopSystem::instance().renderLabels();
+	
 }
 
 void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeight)

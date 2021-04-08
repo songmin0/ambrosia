@@ -79,7 +79,7 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(sizeof(vec3)));
 		
 		// Non-animated Layered 2D Texture Arrays
-		if ((entity.has<SkillButton>() || entity.has<ToolTip>()) 
+		if ((entity.has<SkillButton>() || entity.has<ToolTip>() || entity.has<UpgradeButton>())
 			&& !entity.has<MoveButtonComponent>() && !entity.has<MoveToolTipComponent>())
 		{
 			// bind texture as 2d array

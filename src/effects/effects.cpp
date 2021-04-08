@@ -58,7 +58,7 @@ ECS::Entity ActiveSkillFX::createActiveSkillFX()
 	entity.emplace<UIComponent>();
 	entity.emplace<RenderableComponent>(RenderLayer::UI_ACTIVE_SKILL_FX);
 	entity.emplace<ButtonStateComponent>(true, false);
-	entity.emplace<VisibilityComponent>().isVisible = false;
+	entity.emplace<VisibilityComponent>().isVisible = true;
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
 	motion.position = vec2(100, 1024 - 80);
