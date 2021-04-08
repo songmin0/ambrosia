@@ -76,6 +76,8 @@ float AnimationsComponent::getCurrAnimProgress()
 	{
 		return currAnimData->currFrame / (float) (currAnimData->numFrames - 1);
 	}
+
+	return 0.f;
 }
 
 void AnimationData::updateTexMeshCache(const std::string& key, const std::string& path)
