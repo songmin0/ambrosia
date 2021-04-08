@@ -305,7 +305,6 @@ void WorldSystem::preloadResources()
 	int frameBufferWidth, frameBufferHeight;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
-	createMap(frameBufferWidth, frameBufferHeight);
 	createPlayers(frameBufferWidth, frameBufferHeight);
 	createMobs(frameBufferWidth, frameBufferHeight);
 	createButtons(frameBufferWidth, frameBufferHeight);
@@ -363,14 +362,28 @@ void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 	// Create a deforming blob for pizza arena
 	// maybe add own section in level file we have more of these
 	if (GameStateSystem::instance().currentLevel.at("map") == "pizza-arena") {
-		CheeseBlob::createCheeseBlob({ 700, 950 });
+		CheeseBlob::createCheeseBlob(vec2(700.f, 950.f));
 	}
 
 	if (GameStateSystem::instance().currentLevel.at("map") == "dessert-arena") {
-		DessertForeground::createDessertForeground({ 1920, 672 });
+		DessertForeground::createDessertForeground(vec2(1920.f, 672.f));
 		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ "pinkCottonCandy",std::make_shared<BasicEmitter>(BasicEmitter(5)) });
 		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ "blueCottonCandy", std::make_shared<BlueCottonCandyEmitter>(BlueCottonCandyEmitter(5)) });
-		
+	}
+
+	if (GameStateSystem::instance().currentLevel.at("map") == "bbq")
+	{
+		BBQBackground::createBBQBackground(vec2(1120.f, 720.f));
+		BBQFire::createBBQFire(vec2(2153.f, 1015.f));
+		BBQFire::createBBQFire(vec2(1378.f, 1403.f));
+		BBQFire::createBBQFire(vec2(41.f, 1264.f));
+		BBQFire::createBBQFire(vec2(2137.f, 222.f));
+		BBQFire::createBBQFire(vec2(954.f, 716.f), RenderLayer::MAP2);
+		BBQFire::createBBQFire(vec2(1621.f, 1228.f), RenderLayer::MAP2);
+		BBQFire::createBBQFire(vec2(1406.f, 285.f), RenderLayer::MAP2);
+		BBQFire::createBBQFire(vec2(243.f, 326.f), RenderLayer::MAP2);
+		BBQFire::createBBQFire(vec2(943.f, 1227.f), RenderLayer::MAP2);
+		BBQFire::createBBQFire(vec2(358, 1079.f), RenderLayer::MAP2);	
 	}
 }
 
@@ -583,10 +596,10 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		anim.changeAnimation(AnimationType::ATTACK3);
 	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_4) {
-		for (auto entity : ECS::registry<Lettuce>.entities)
+		for (auto entity : ECS::registry<Chicken>.entities)
 		{
 			auto& anim = entity.get<AnimationsComponent>();
-			anim.changeAnimation(AnimationType::ATTACK2);
+			anim.changeAnimation(AnimationType::ATTACK1);
 		}
 	}
 
@@ -671,7 +684,12 @@ void WorldSystem::onMouseClick(int button, int action, int mods) const
 		double mousePosX, mousePosY;
 		glfwGetCursorPos(window, &mousePosX, &mousePosY);
 
-		std::cout << "Mouse click (release): {" << mousePosX << ", " << mousePosY << "}" << std::endl;
+		//std::cout << "Mouse click (release): {" << mousePosX << ", " << mousePosY << "}" << std::endl;
+
+		auto camera = ECS::registry<CameraComponent>.entities[0];
+		auto& cameraPos = camera.get<CameraComponent>().position;
+		// mouse click print without camera position
+		std::cout << "Mouse click (release): {" << mousePosX + cameraPos.x << ", " << mousePosY + cameraPos.y << "}" << std::endl;
 
 		if (GameStateSystem::instance().isTransitioning)
 		{
@@ -851,6 +869,10 @@ void WorldSystem::playAudio()
 	else if (GameStateSystem::instance().currentLevel.at("map") == "veggie-forest")
 	{
 		nextMusicType = MusicType::PLACEHOLDER3;
+	}
+	else if (GameStateSystem::instance().currentLevel.at("map") == "bbq")
+	{
+		nextMusicType = MusicType::BOSS;
 	}
 	else
 	{

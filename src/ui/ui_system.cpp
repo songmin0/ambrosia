@@ -1,6 +1,6 @@
 #include "ui_system.hpp"
 #include "game/camera.hpp"
-#include <game/game_state_system.hpp>
+#include "game/game_state_system.hpp"
 #include "rendering/text.hpp"
 #include <iostream>
 
