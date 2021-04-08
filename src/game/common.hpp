@@ -6,6 +6,7 @@
 #include <vector>
 #include <stdexcept>
 #include <stack>
+#include <list>
 
 // glfw (OpenGL)
 #define NOMINMAX
