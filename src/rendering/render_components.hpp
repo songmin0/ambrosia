@@ -23,7 +23,9 @@ enum class RenderLayer {
 	SKILL,
 	PLAYER_AND_MOB,
 	MAP_OBJECT,
-	MAP
+	MAP,
+	MAP2,
+	MAP_BACKGROUND
 };
 
 // This class is a wrapper around OpenGL resources that deletes allocated memory on destruction.

@@ -256,6 +256,7 @@ void WorldSystem::processTimers(float elapsed_ms)
 	}
 }
 
+
 // Compute collisions between entities
 void WorldSystem::handleCollisions()
 {
@@ -343,10 +344,10 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 
 	// Animation Test
 	if (action == GLFW_RELEASE && key == GLFW_KEY_4) {
-		for (auto entity : ECS::registry<Lettuce>.entities)
+		for (auto entity : ECS::registry<Chicken>.entities)
 		{
 			auto& anim = entity.get<AnimationsComponent>();
-			anim.changeAnimation(AnimationType::ATTACK2);
+			anim.changeAnimation(AnimationType::ATTACK1);
 		}
 	}
 
@@ -410,7 +411,12 @@ void WorldSystem::onMouseClick(int button, int action, int mods) const
 		double mousePosX, mousePosY;
 		glfwGetCursorPos(window, &mousePosX, &mousePosY);
 
-		std::cout << "Mouse click (release): {" << mousePosX << ", " << mousePosY << "}" << std::endl;
+		//std::cout << "Mouse click (release): {" << mousePosX << ", " << mousePosY << "}" << std::endl;
+
+		auto camera = ECS::registry<CameraComponent>.entities[0];
+		auto& cameraPos = camera.get<CameraComponent>().position;
+		// mouse click print without camera position
+		std::cout << "Mouse click (release): {" << mousePosX + cameraPos.x << ", " << mousePosY + cameraPos.y << "}" << std::endl;
 
 		if (GameStateSystem::instance().isTransitioning)
 		{

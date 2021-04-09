@@ -90,6 +90,8 @@ void GameStateSystem::nextMap()
 {
 	std::cout << "GameStateSystem::nextMap: attempting to start next map in current recipe" << std::endl;
 
+	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
+
 	currentLevelIndex++;
 	if (currentLevelIndex == recipe["maps"].size() - 1)
 	{
@@ -118,6 +120,8 @@ void GameStateSystem::nextMap()
 
 void GameStateSystem::restartMap()
 {
+	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
+
 	resetFlags();
 	currentLevel = recipe["maps"][currentLevelIndex];
 
@@ -254,6 +258,8 @@ void GameStateSystem::launchVictoryScreen()
 {
 	std::cout << "GameStateSystem::launchVictoryScreen: creating victory screen" << std::endl;
 
+	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
+
 	resetFlags();
 	isInVictoryScreen = true;
 
@@ -279,6 +285,8 @@ void GameStateSystem::launchVictoryScreen()
 void GameStateSystem::launchDefeatScreen()
 {
 	std::cout << "GameStateSystem::launchDefeatScreen: creating defeat screen" << std::endl;
+
+	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
 
 	resetFlags();
 	isInDefeatScreen = true;
@@ -421,8 +429,10 @@ void GameStateSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 		EventSystem<PlayMusicEvent>::instance().sendEvent({MusicType::DESSERT_ARENA});
 
 		DessertForeground::createDessertForeground({ 1920, 672 });
-		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ std::make_shared<BasicEmitter>(BasicEmitter(5)) });
-		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ std::make_shared<BlueCottonCandyEmitter>(BlueCottonCandyEmitter(5)) });
+		EventSystem<AddEmitterEvent>::instance().sendEvent(
+				AddEmitterEvent{ "pinkCottonCandy",std::make_shared<BasicEmitter>(BasicEmitter(5)) });
+		EventSystem<AddEmitterEvent>::instance().sendEvent(
+				AddEmitterEvent{ "blueCottonCandy", std::make_shared<BlueCottonCandyEmitter>(BlueCottonCandyEmitter(5)) });
 	}
 	else if (mapName == "veggie-forest")
 	{

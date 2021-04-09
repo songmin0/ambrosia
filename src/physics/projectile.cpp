@@ -59,6 +59,33 @@ ProjectileParams ProjectileParams::create(ProjectileType type)
 		params.rotationSpeed = 50.f;
 		params.trajectory = Trajectory::LINEAR;
 	}
+	else if (type == ProjectileType::PEPPER)
+	{
+		params.spritePath = "enemies/saltnpepper/pepper";
+		params.spriteScale = vec2(1.f);
+		params.launchOffset = { 0.f, -175.f };
+		params.launchSpeed = 400.f;
+		params.rotationSpeed = 10.f;
+		params.trajectory = Trajectory::LINEAR;
+	}
+	else if (type == ProjectileType::SALT)
+	{
+		params.spritePath = "enemies/saltnpepper/salt";
+		params.spriteScale = vec2(1.f);
+		params.launchOffset = { 0.f, -175.f };
+		params.launchSpeed = 400.f;
+		params.rotationSpeed = 10.f;
+		params.trajectory = Trajectory::LINEAR;
+	}
+	else if (type == ProjectileType::DRUMSTICK)
+	{
+		params.spritePath = "enemies/chicken/drumstick";
+		params.spriteScale = vec2(1.f);
+		params.launchOffset = { -60.f, -275.f };
+		params.launchSpeed = 500.f;
+		params.rotationSpeed = 5.f;
+		params.trajectory = Trajectory::BOOMERANG;
+	}
 
 	return params;
 }

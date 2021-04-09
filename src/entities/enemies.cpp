@@ -665,6 +665,180 @@ ECS::Entity Lettuce::createLettuce(json stats, json position)
 	return entity;
 };
 
+ECS::Entity SaltnPepper::createSaltnPepper(json stats, json position)
+{
+	auto entity = ECS::Entity();
+	ShadedMesh& resource = cacheResource("saltnpepper_static");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, spritePath("enemies/saltnpepper/idle/idle_000.png"), "textured");
+	}
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
+
+	// Give it a Mob component
+	entity.emplace<AISystem::MobComponent>();
+	auto& btType = entity.emplace<BehaviourTreeType>();
+	btType.mobType = MobType::SALTNPEPPER;
+
+	entity.emplace<TurnSystem::TurnComponent>();
+
+	// Setting initial motion values
+	Motion& motion = entity.emplace<Motion>();
+	motion.position = vec2(position[0], position[1]);
+	motion.orientation = -1;
+	motion.scale = vec2({(float)position[2] , 1.f });
+	motion.colliderType = CollisionGroup::MOB;
+
+	// hitbox scaling
+	auto hitboxScale = vec2({ 0.7f, 0.8f });
+	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
+
+	// Animations
+	auto idle_anim = AnimationData("saltnpepper_idle", spritePath("enemies/saltnpepper/idle/idle"), 22);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, std::make_shared<AnimationData>(idle_anim));
+
+	auto move_anim = AnimationData("saltnpepper_move", spritePath("enemies/saltnpepper/move/move"), 15, 1, true, false);
+	anims.addAnimation(AnimationType::MOVE, std::make_shared<AnimationData>(move_anim));
+
+	auto hit_anim = AnimationData("saltnpepper_hit", spritePath("enemies/saltnpepper/hit/hit"), 9, 2, true, false);
+	anims.addAnimation(AnimationType::HIT, std::make_shared<AnimationData>(hit_anim));
+
+	auto attack1_anim = AnimationData("saltnpepper_attack1", spritePath("enemies/saltnpepper/attack1/attack1"), 15, 2, true, false);
+	anims.addAnimation(AnimationType::ATTACK1, std::make_shared<AnimationData>(attack1_anim));
+
+	auto attack2_anim = AnimationData("saltnpepper_attack2", spritePath("enemies/saltnpepper/attack2/attack2"), 15, 2, true, false);
+	anims.addAnimation(AnimationType::ATTACK2, std::make_shared<AnimationData>(attack2_anim));
+
+	auto defeat_anim = AnimationData("saltnpepper_defeat", spritePath("enemies/saltnpepper/defeat/defeat"), 10, 2, true, false, vec2(-0.15f, 0.06f));
+	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
+
+	// Initialize stats
+	auto& statsComponent = entity.emplace<StatsComponent>();
+	statsComponent.stats[StatType::MAX_HP] = stats["hp"];
+	statsComponent.stats[StatType::HP] = stats["hp"];
+	statsComponent.stats[StatType::AMBROSIA] = 0.f;
+	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
+
+	//Add HP bar
+	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
+	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f, -220.0f };
+	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
+	ECS::registry<HPBar>.get(statsComponent.healthBar).isMob = true;
+
+	// Initialize skills
+	auto& skillComponent = entity.emplace<SkillComponent>();
+
+	// Skill 1 Pepper projectile, hurts
+	auto pepperParams = std::make_shared<ProjectileSkillParams>();
+	pepperParams->instigator = entity;
+	pepperParams->soundEffect = SoundEffect::PROJECTILE;
+	pepperParams->animationType = AnimationType::ATTACK1;
+	pepperParams->delay = 0.6f;
+	pepperParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
+	pepperParams->entityHandler = std::make_shared<DamageHandler>(40.f);
+	pepperParams->projectileType = ProjectileType::PEPPER;
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(pepperParams));
+
+	// Skill 2 Salt projectile, utility debuff
+	auto saltParams = std::make_shared<ProjectileSkillParams>();
+	saltParams->instigator = entity;
+	saltParams->soundEffect = SoundEffect::PROJECTILE;
+	saltParams->animationType = AnimationType::ATTACK2;
+	saltParams->delay = 0.6f;
+	saltParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
+	saltParams->entityHandler = std::make_shared<DebuffAndDamageHandler>(StatType::STRENGTH, -0.3f, 1, 20.f);
+	saltParams->projectileType = ProjectileType::SALT;
+	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<ProjectileSkill>(saltParams));
+
+	entity.emplace<SaltnPepper>();
+	return entity;
+};
+
+ECS::Entity Chicken::createChicken(json stats, json position)
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource("chicken_static");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, spritePath("enemies/chicken/idle/idle_000.png"), "textured");
+	}
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
+
+	entity.emplace<AISystem::MobComponent>();
+	auto& btType = entity.emplace<BehaviourTreeType>();
+	btType.mobType = MobType::CHICKEN;
+	entity.emplace<TurnSystem::TurnComponent>();
+
+	Motion& motion = entity.emplace<Motion>();
+	motion.position = vec2(position[0], position[1]);
+	motion.orientation = -1;
+	motion.scale = vec2({ 1.3f * (float)position[2] , 1.3f });
+	motion.colliderType = CollisionGroup::MOB;
+	auto hitboxScale = vec2({ 0.7f, 0.7f });
+	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
+
+	// Animations
+	auto idle_anim = AnimationData("chicken_idle", spritePath("enemies/chicken/idle/idle"), 10, 2);
+	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, std::make_shared<AnimationData>(idle_anim));
+
+	auto hit_anim = AnimationData("chicken_hit", spritePath("enemies/chicken/hit/hit"), 8, 2, true, false);
+	anims.addAnimation(AnimationType::HIT, std::make_shared<AnimationData>(hit_anim));
+
+	auto defeat_anim = AnimationData("chicken_defeat", spritePath("enemies/chicken/defeat/defeat"), 7, 2, true, false);
+	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
+
+	auto attack1_anim = AnimationData("chicken_attack1", spritePath("enemies/chicken/attack1/attack1"), 10, 3, true, false);
+	anims.addAnimation(AnimationType::ATTACK1, std::make_shared<AnimationData>(attack1_anim));
+
+	auto attack2_anim = AnimationData("chicken_attack2", spritePath("enemies/chicken/attack2/attack2"), 12, 2, true, false);
+	anims.addAnimation(AnimationType::ATTACK2, std::make_shared<AnimationData>(attack2_anim));
+
+	// Initialize stats
+	auto& statsComponent = entity.emplace<StatsComponent>();
+	statsComponent.stats[StatType::MAX_HP] = stats["hp"];
+	statsComponent.stats[StatType::HP] = stats["hp"];
+	statsComponent.stats[StatType::AMBROSIA] = 0.f;
+	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
+
+	//Add HP bar
+	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f }, { 1.1f, 0.55f });
+	ECS::registry<HPBar>.get(statsComponent.healthBar).offset = { 0.0f, -420.0f };
+	ECS::registry<HPBar>.get(statsComponent.healthBar).statsCompEntity = entity;
+	ECS::registry<HPBar>.get(statsComponent.healthBar).isMob = true;
+
+	// Initialize skills
+	auto& skillComponent = entity.emplace<SkillComponent>();
+
+	// Boomerang projectile attack
+	auto drumstickParams = std::make_shared<ProjectileSkillParams>();
+	drumstickParams->instigator = entity;
+	drumstickParams->soundEffect = SoundEffect::PROJECTILE;
+	drumstickParams->animationType = AnimationType::ATTACK1;
+	drumstickParams->delay = 0.8f;
+	drumstickParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
+	drumstickParams->entityHandler = std::make_shared<DamageHandler>(35.f);
+	drumstickParams->projectileType = ProjectileType::DRUMSTICK;
+	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(drumstickParams));
+
+	// Massive 100% strength buff for all allies
+	auto strengthBuffParams = std::make_shared<AoESkillParams>();
+	strengthBuffParams->instigator = entity;
+	strengthBuffParams->soundEffect = SoundEffect::BUFF;
+	strengthBuffParams->animationType = AnimationType::ATTACK2;
+	strengthBuffParams->delay = 1.f;
+	strengthBuffParams->entityProvider = std::make_shared<AllEntitiesProvider>();
+	strengthBuffParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+	strengthBuffParams->entityHandler = std::make_shared<BuffHandler>(StatType::STRENGTH, 1.f, 1);
+	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(strengthBuffParams));
+
+	entity.emplace<CCImmunityComponent>();
+	entity.emplace<Chicken>();
+	return entity;
+};
+
 void createEnemies(json enemies) {
 	for (json enemy : enemies) {
 		auto type = enemy["type"];
@@ -701,6 +875,18 @@ void createEnemies(json enemies) {
 		if (type == "lettuce") {
 			for (json position : enemy["positions"]) {
 				Lettuce::createLettuce(enemy["stats"], position);
+			}
+		}
+
+		if (type == "saltnpepper") {
+			for (json position : enemy["positions"]) {
+				SaltnPepper::createSaltnPepper(enemy["stats"], position);
+			}
+		}
+
+		if (type == "chicken") {
+			for (json position : enemy["positions"]) {
+				Chicken::createChicken(enemy["stats"], position);
 			}
 		}
 	}
