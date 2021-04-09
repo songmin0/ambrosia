@@ -40,40 +40,135 @@ void Chia::initialize(ECS::Entity entity)
 	//////////////////////////////////////////////////////////////////////////////
 	// Set up skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
+	addSkill1(entity, skillComponent);
+	addSkill2(entity, skillComponent);
+	addSkill3(entity, skillComponent);
+}
 
+void Chia::addSkill1(ECS::Entity entity, SkillComponent& skillComponent)
+{
 	// Blueberry projectile that heals allies and damages enemies
-	auto blueberryParams = std::make_shared<ProjectileSkillParams>();
-	blueberryParams->instigator = entity;
-	blueberryParams->soundEffect = SoundEffect::PROJECTILE;
-	blueberryParams->animationType = AnimationType::ATTACK1;
-	blueberryParams->delay = 0.6f;
-	blueberryParams->entityFilters.push_back(std::make_shared<InstigatorFilter>(entity));
-	blueberryParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER | CollisionGroup::MOB));
-	blueberryParams->entityHandler = std::make_shared<HealAndDamageHandler>(CollisionGroup::PLAYER, 30.f, CollisionGroup::MOB, 20.f);
-	blueberryParams->entityHandler->addFX(FXType::BLUEBERRIED);
-	blueberryParams->projectileType = ProjectileType::BLUEBERRY;
-	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<ProjectileSkill>(blueberryParams));
 
-	// Debuff the target's strength and deal damage (need to click on the target you want to attack)
-	auto debuffAndDamageParams = std::make_shared<AoESkillParams>();
-	debuffAndDamageParams->instigator = entity;
-	debuffAndDamageParams->soundEffect = SoundEffect::DEBUFF;
-	debuffAndDamageParams->animationType = AnimationType::ATTACK2;
-	debuffAndDamageParams->delay = 1.f;
-	debuffAndDamageParams->entityProvider = std::make_shared<MouseClickProvider>(100.f);
-	debuffAndDamageParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
-	debuffAndDamageParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
-	debuffAndDamageParams->entityHandler = std::make_shared<DebuffAndDamageHandler>(StatType::STRENGTH, -0.4f, 1, 15.f);
-	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(debuffAndDamageParams));
+	// For the params that should be common to all levels of this skill, put them
+	// in this lambda. The upgradeable params should be handled below
+	auto createParams = [=]()
+	{
+		auto params = std::make_shared<ProjectileSkillParams>();
+		params->instigator = entity;
+		params->soundEffect = SoundEffect::PROJECTILE;
+		params->animationType = AnimationType::ATTACK1;
+		params->delay = 0.6f;
+		params->entityFilters.push_back(std::make_shared<InstigatorFilter>(entity));
+		params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER | CollisionGroup::MOB));
+		params->projectileType = ProjectileType::BLUEBERRY;
+		return params;
+	};
 
-	// Grant x amount of HP shield to all allies (for 60 seconds...but change it to one turn when buffs become turn-based)
-	auto hpShieldParams = std::make_shared<AoESkillParams>();
-	hpShieldParams->instigator = entity;
-	hpShieldParams->soundEffect = SoundEffect::BUFF;
-	hpShieldParams->animationType = AnimationType::ATTACK3;
-	hpShieldParams->delay = 0.6f;
-	hpShieldParams->entityProvider = std::make_shared<AllEntitiesProvider>();
-	hpShieldParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
-	hpShieldParams->entityHandler = std::make_shared<BuffHandler>(StatType::HP_SHIELD, 30.f, 1);
-	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<AreaOfEffectSkill>(hpShieldParams));
+	// Create as many levels of this skill as needed
+	auto level1Params = createParams();
+	level1Params->entityHandler = std::make_shared<HealAndDamageHandler>(CollisionGroup::PLAYER, 30.f, CollisionGroup::MOB, 20.f);
+	level1Params->entityHandler->addFX(FXType::BLUEBERRIED);
+	auto level1Skill = std::make_shared<ProjectileSkill>(level1Params);
+
+	auto level2Params = createParams();
+	level2Params->entityHandler = std::make_shared<HealAndDamageHandler>(CollisionGroup::PLAYER, 40.f, CollisionGroup::MOB, 30.f);
+	level2Params->entityHandler->addFX(FXType::BLUEBERRIED);
+	auto level2Skill = std::make_shared<ProjectileSkill>(level2Params);
+
+	auto level3Params = createParams();
+	level3Params->entityHandler = std::make_shared<HealAndDamageHandler>(CollisionGroup::PLAYER, 50.f, CollisionGroup::MOB, 40.f);
+	level3Params->entityHandler->addFX(FXType::BLUEBERRIED);
+	auto level3Skill = std::make_shared<ProjectileSkill>(level3Params);
+
+	SkillLevels levels = {
+			level1Skill,
+			level2Skill,
+			level3Skill
+	};
+
+	skillComponent.addUpgradeableSkill(SkillType::SKILL1, levels);
+}
+
+void Chia::addSkill2(ECS::Entity entity, SkillComponent& skillComponent)
+{
+	// Debuff the target's strength and deal damage
+	// (need to click on the target you want to attack)
+
+	// For the params that should be common to all levels of this skill, put them in
+	// this lambda. The upgradeable params should be handled separately (see below)
+	auto createParams = [=]()
+	{
+		auto params = std::make_shared<AoESkillParams>();
+		params->instigator = entity;
+		params->soundEffect = SoundEffect::DEBUFF;
+		params->animationType = AnimationType::ATTACK2;
+		params->delay = 1.f;
+		params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+		params->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
+		return params;
+	};
+
+	// Create as many levels of this skill as needed
+	auto level1Params = createParams();
+	level1Params->entityProvider = std::make_shared<MouseClickProvider>(100.f);
+	level1Params->entityHandler = std::make_shared<DebuffAndDamageHandler>(StatType::STRENGTH, -0.4f, 1, 15.f);
+	auto level1Skill = std::make_shared<AreaOfEffectSkill>(level1Params);
+
+	auto level2Params = createParams();
+	level2Params->entityProvider = std::make_shared<MouseClickProvider>(125.f);
+	level2Params->entityHandler = std::make_shared<DebuffAndDamageHandler>(StatType::STRENGTH, -0.5f, 1, 20.f);
+	auto level2Skill = std::make_shared<AreaOfEffectSkill>(level2Params);
+
+	auto level3Params = createParams();
+	level3Params->entityProvider = std::make_shared<MouseClickProvider>(150.f);
+	level3Params->entityHandler = std::make_shared<DebuffAndDamageHandler>(StatType::STRENGTH, -0.6f, 1, 25.f);
+	auto level3Skill = std::make_shared<AreaOfEffectSkill>(level3Params);
+
+	SkillLevels levels = {
+			level1Skill,
+			level2Skill,
+			level3Skill
+	};
+
+	skillComponent.addUpgradeableSkill(SkillType::SKILL2, levels);
+}
+
+void Chia::addSkill3(ECS::Entity entity, SkillComponent& skillComponent)
+{
+	// Grant x amount of HP shield to all allies for 1 turn
+
+	// For the params that should be common to all levels of this skill, put them in
+	// this lambda. The upgradeable params should be handled separately (see below)
+	auto createParams = [=]()
+	{
+		auto params = std::make_shared<AoESkillParams>();
+		params->instigator = entity;
+		params->soundEffect = SoundEffect::BUFF;
+		params->animationType = AnimationType::ATTACK3;
+		params->delay = 0.6f;
+		params->entityProvider = std::make_shared<AllEntitiesProvider>();
+		params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
+		return params;
+	};
+
+	// Create as many levels of this skill as needed
+	auto level1Params = createParams();
+	level1Params->entityHandler = std::make_shared<BuffHandler>(StatType::HP_SHIELD, 30.f, 1);
+	auto level1Skill = std::make_shared<AreaOfEffectSkill>(level1Params);
+
+	auto level2Params = createParams();
+	level2Params->entityHandler = std::make_shared<BuffHandler>(StatType::HP_SHIELD, 40.f, 1);
+	auto level2Skill = std::make_shared<AreaOfEffectSkill>(level2Params);
+
+	auto level3Params = createParams();
+	level3Params->entityHandler = std::make_shared<BuffHandler>(StatType::HP_SHIELD, 50.f, 2);
+	auto level3Skill = std::make_shared<AreaOfEffectSkill>(level3Params);
+
+	SkillLevels levels = {
+			level1Skill,
+			level2Skill,
+			level3Skill
+	};
+
+	skillComponent.addUpgradeableSkill(SkillType::SKILL3, levels);
 }

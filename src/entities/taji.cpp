@@ -40,40 +40,138 @@ void Taji::initialize(ECS::Entity entity)
 	//////////////////////////////////////////////////////////////////////////////
 	// Set up skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
+	addSkill1(entity, skillComponent);
+	addSkill2(entity, skillComponent);
+	addSkill3(entity, skillComponent);
+}
 
+void Taji::addSkill1(ECS::Entity entity, SkillComponent& skillComponent)
+{
 	// Ranged damage with small area of effect
-	auto aoeParams = std::make_shared<AoESkillParams>();
-	aoeParams->instigator = entity;
-	aoeParams->soundEffect = SoundEffect::BUFF;
-	aoeParams->animationType = AnimationType::ATTACK1;
-	aoeParams->delay = 1.f;
-	aoeParams->entityProvider = std::make_shared<MouseClickProvider>(250.f);
-	aoeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
-	aoeParams->entityHandler = std::make_shared<DamageHandler>(20.f);
-	aoeParams->entityHandler->addFX(FXType::CANDY1);
-	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(aoeParams));
 
-	// Single-target ranged attack, deals damage and makes the target skip a turn (that part is not supported yet)
-	auto castAttackParams = std::make_shared<AoESkillParams>();
-	castAttackParams->instigator = entity;
-	castAttackParams->soundEffect = SoundEffect::BUFF;
-	castAttackParams->animationType = AnimationType::ATTACK2;
-	castAttackParams->delay = 1.f;
-	castAttackParams->entityProvider = std::make_shared<MouseClickProvider>(100.f);
-	castAttackParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
-	castAttackParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
-	castAttackParams->entityHandler = std::make_shared<DebuffAndDamageHandler>(StatType::STUNNED, 1.f, 1, 20.f);
-	castAttackParams->entityHandler->addFX(FXType::CANDY2);
-	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(castAttackParams));
+	// For the params that should be common to all levels of this skill, put them
+	// in this lambda. The upgradeable params should be handled below
+	auto createParams = [&]()
+	{
+		auto params = std::make_shared<AoESkillParams>();
+		params->instigator = entity;
+		params->soundEffect = SoundEffect::BUFF;
+		params->animationType = AnimationType::ATTACK1;
+		params->delay = 1.f;
+		params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+		return params;
+	};
 
+	// Create as many levels of this skill as needed
+	auto level1Params = createParams();
+	level1Params->entityProvider = std::make_shared<MouseClickProvider>(250.f);
+	level1Params->entityHandler = std::make_shared<DamageHandler>(20.f);
+	level1Params->entityHandler->addFX(FXType::CANDY1);
+	auto level1Skill = std::make_shared<AreaOfEffectSkill>(level1Params);
+
+	auto level2Params = createParams();
+	level2Params->entityProvider = std::make_shared<MouseClickProvider>(275.f);
+	level2Params->entityHandler = std::make_shared<DamageHandler>(25.f);
+	level2Params->entityHandler->addFX(FXType::CANDY1);
+	auto level2Skill = std::make_shared<AreaOfEffectSkill>(level2Params);
+
+	auto level3Params = createParams();
+	level3Params->entityProvider = std::make_shared<MouseClickProvider>(300.f);
+	level3Params->entityHandler = std::make_shared<DamageHandler>(30.f);
+	level3Params->entityHandler->addFX(FXType::CANDY1);
+	auto level3Skill = std::make_shared<AreaOfEffectSkill>(level3Params);
+
+	SkillLevels levels = {
+			level1Skill,
+			level2Skill,
+			level3Skill
+	};
+
+	skillComponent.addUpgradeableSkill(SkillType::SKILL1, levels);
+}
+
+void Taji::addSkill2(ECS::Entity entity, SkillComponent& skillComponent)
+{
+	// Single-target ranged attack, deals damage and makes the target skip a turn
+
+	// For the params that should be common to all levels of this skill, put them in
+	// this lambda. The upgradeable params should be handled separately (see below)
+	auto createParams = [=]()
+	{
+		auto params = std::make_shared<AoESkillParams>();
+		params->instigator = entity;
+		params->soundEffect = SoundEffect::BUFF;
+		params->animationType = AnimationType::ATTACK2;
+		params->delay = 1.f;
+		params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+		params->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
+		return params;
+	};
+
+	// Create as many levels of this skill as needed
+	auto level1Params = createParams();
+	level1Params->entityProvider = std::make_shared<MouseClickProvider>(100.f);
+	level1Params->entityHandler = std::make_shared<DebuffAndDamageHandler>(StatType::STUNNED, 1.f, 1, 20.f);
+	level1Params->entityHandler->addFX(FXType::CANDY2);
+	auto level1Skill = std::make_shared<AreaOfEffectSkill>(level1Params);
+
+	auto level2Params = createParams();
+	level2Params->entityProvider = std::make_shared<MouseClickProvider>(125.f);
+	level2Params->entityHandler = std::make_shared<DebuffAndDamageHandler>(StatType::STUNNED, 1.f, 1, 30.f);
+	level2Params->entityHandler->addFX(FXType::CANDY2);
+	auto level2Skill = std::make_shared<AreaOfEffectSkill>(level2Params);
+
+	auto level3Params = createParams();
+	level3Params->entityProvider = std::make_shared<MouseClickProvider>(150.f);
+	level3Params->entityHandler = std::make_shared<DebuffAndDamageHandler>(StatType::STUNNED, 1.f, 2, 40.f);
+	level3Params->entityHandler->addFX(FXType::CANDY2);
+	auto level3Skill = std::make_shared<AreaOfEffectSkill>(level3Params);
+
+	SkillLevels levels = {
+			level1Skill,
+			level2Skill,
+			level3Skill
+	};
+
+	skillComponent.addUpgradeableSkill(SkillType::SKILL2, levels);
+}
+
+void Taji::addSkill3(ECS::Entity entity, SkillComponent& skillComponent)
+{
 	// Small damage to all enemies, small heal to all allies
-	auto healAndDamageParams = std::make_shared<AoESkillParams>();
-	healAndDamageParams->instigator = entity;
-	healAndDamageParams->soundEffect = SoundEffect::BUFF;
-	healAndDamageParams->animationType = AnimationType::ATTACK3;
-	healAndDamageParams->delay = 1.f;
-	healAndDamageParams->entityProvider = std::make_shared<AllEntitiesProvider>();
-	healAndDamageParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER | CollisionGroup::MOB));
-	healAndDamageParams->entityHandler = std::make_shared<HealAndDamageHandler>(CollisionGroup::PLAYER, 8.f, CollisionGroup::MOB, 8.f);
-	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<AreaOfEffectSkill>(healAndDamageParams));
+
+	// For the params that should be common to all levels of this skill, put them in
+	// this lambda. The upgradeable params should be handled separately (see below)
+	auto createParams = [=]()
+	{
+		auto params = std::make_shared<AoESkillParams>();
+		params->instigator = entity;
+		params->soundEffect = SoundEffect::BUFF;
+		params->animationType = AnimationType::ATTACK3;
+		params->delay = 1.f;
+		params->entityProvider = std::make_shared<AllEntitiesProvider>();
+		params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER | CollisionGroup::MOB));
+		return params;
+	};
+
+	// Create as many levels of this skill as needed
+	auto level1Params = createParams();
+	level1Params->entityHandler = std::make_shared<HealAndDamageHandler>(CollisionGroup::PLAYER, 8.f, CollisionGroup::MOB, 8.f);
+	auto level1Skill = std::make_shared<AreaOfEffectSkill>(level1Params);
+
+	auto level2Params = createParams();
+	level2Params->entityHandler = std::make_shared<HealAndDamageHandler>(CollisionGroup::PLAYER, 12.f, CollisionGroup::MOB, 12.f);
+	auto level2Skill = std::make_shared<AreaOfEffectSkill>(level2Params);
+
+	auto level3Params = createParams();
+	level3Params->entityHandler = std::make_shared<HealAndDamageHandler>(CollisionGroup::PLAYER, 16.f, CollisionGroup::MOB, 16.f);
+	auto level3Skill = std::make_shared<AreaOfEffectSkill>(level3Params);
+
+	SkillLevels levels = {
+			level1Skill,
+			level2Skill,
+			level3Skill
+	};
+
+	skillComponent.addUpgradeableSkill(SkillType::SKILL3, levels);
 }

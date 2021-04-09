@@ -40,38 +40,132 @@ void Raoul::initialize(ECS::Entity entity)
 	//////////////////////////////////////////////////////////////////////////////
 	// Set up skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
+	addSkill1(entity, skillComponent);
+	addSkill2(entity, skillComponent);
+	addSkill3(entity, skillComponent);
+}
 
+void Raoul::addSkill1(ECS::Entity entity, SkillComponent& skillComponent)
+{
 	// Melee hit
-	auto meleeParams = std::make_shared<AoESkillParams>();
-	meleeParams->instigator = entity;
-	meleeParams->soundEffect = SoundEffect::MELEE;
-	meleeParams->animationType = AnimationType::ATTACK1;
-	meleeParams->delay = 1.f;
-	meleeParams->entityProvider = std::make_shared<CircularProvider>(200.f);
-	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
-	meleeParams->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
-	meleeParams->entityHandler = std::make_shared<DamageHandler>(30.f);
-	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(meleeParams));
 
+	// For the params that should be common to all levels of this skill, put them
+	// in this lambda. The upgradeable params should be handled below
+	auto createParams = [=]()
+	{
+		auto params = std::make_shared<AoESkillParams>();
+		params->instigator = entity;
+		params->soundEffect = SoundEffect::MELEE;
+		params->animationType = AnimationType::ATTACK1;
+		params->delay = 1.f;
+		params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+		params->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
+		return params;
+	};
+
+	// Create as many levels of this skill as needed
+	auto level1Params = createParams();
+	level1Params->entityProvider = std::make_shared<CircularProvider>(200.f);
+	level1Params->entityHandler = std::make_shared<DamageHandler>(30.f);
+	auto level1Skill = std::make_shared<AreaOfEffectSkill>(level1Params);
+
+	auto level2Params = createParams();
+	level2Params->entityProvider = std::make_shared<CircularProvider>(225.f);
+	level2Params->entityHandler = std::make_shared<DamageHandler>(35.f);
+	auto level2Skill = std::make_shared<AreaOfEffectSkill>(level2Params);
+
+	auto level3Params = createParams();
+	level3Params->entityProvider = std::make_shared<CircularProvider>(250.f);
+	level3Params->entityHandler = std::make_shared<DamageHandler>(40.f);
+	auto level3Skill = std::make_shared<AreaOfEffectSkill>(level3Params);
+
+	SkillLevels levels = {
+			level1Skill,
+			level2Skill,
+			level3Skill
+	};
+
+	skillComponent.addUpgradeableSkill(SkillType::SKILL1, levels);
+}
+
+void Raoul::addSkill2(ECS::Entity entity, SkillComponent& skillComponent)
+{
 	// Strength buff for nearby players (the instigator will also be buffed)
-	auto strengthBuffParams = std::make_shared<AoESkillParams>();
-	strengthBuffParams->instigator = entity;
-	strengthBuffParams->soundEffect = SoundEffect::BUFF;
-	strengthBuffParams->animationType = AnimationType::ATTACK2;
-	strengthBuffParams->delay = 1.f;
-	strengthBuffParams->entityProvider = std::make_shared<CircularProvider>(300.f);
-	strengthBuffParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
-	strengthBuffParams->entityHandler = std::make_shared<BuffHandler>(StatType::STRENGTH, 0.4f, 1);
-	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(strengthBuffParams));
 
+	// For the params that should be common to all levels of this skill, put them in
+	// this lambda. The upgradeable params should be handled separately (see below)
+	auto createParams = [=]()
+	{
+		auto params = std::make_shared<AoESkillParams>();
+		params->instigator = entity;
+		params->soundEffect = SoundEffect::BUFF;
+		params->animationType = AnimationType::ATTACK2;
+		params->delay = 1.f;
+		params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
+		return params;
+	};
+
+	// Create as many levels of this skill as needed
+	auto level1Params = createParams();
+	level1Params->entityProvider = std::make_shared<CircularProvider>(300.f);
+	level1Params->entityHandler = std::make_shared<BuffHandler>(StatType::STRENGTH, 0.4f, 1);
+	auto level1Skill = std::make_shared<AreaOfEffectSkill>(level1Params);
+
+	auto level2Params = createParams();
+	level2Params->entityProvider = std::make_shared<CircularProvider>(325.f);
+	level2Params->entityHandler = std::make_shared<BuffHandler>(StatType::STRENGTH, 0.5f, 1);
+	auto level2Skill = std::make_shared<AreaOfEffectSkill>(level2Params);
+
+	auto level3Params = createParams();
+	level3Params->entityProvider = std::make_shared<CircularProvider>(350.f);
+	level3Params->entityHandler = std::make_shared<BuffHandler>(StatType::STRENGTH, 0.6f, 2);
+	auto level3Skill = std::make_shared<AreaOfEffectSkill>(level3Params);
+
+	SkillLevels levels = {
+			level1Skill,
+			level2Skill,
+			level3Skill
+	};
+
+	skillComponent.addUpgradeableSkill(SkillType::SKILL2, levels);
+}
+
+void Raoul::addSkill3(ECS::Entity entity, SkillComponent& skillComponent)
+{
 	// Bone throw projectile attack
-	auto boneThrowParams = std::make_shared<ProjectileSkillParams>();
-	boneThrowParams->instigator = entity;
-	boneThrowParams->soundEffect = SoundEffect::PROJECTILE;
-	boneThrowParams->animationType = AnimationType::ATTACK3;
-	boneThrowParams->delay = 0.6f;
-	boneThrowParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
-	boneThrowParams->entityHandler = std::make_shared<DamageHandler>(15.f);
-	boneThrowParams->projectileType = ProjectileType::BONE;
-	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<ProjectileSkill>(boneThrowParams));
+
+	// For the params that should be common to all levels of this skill, put them in
+	// this lambda. The upgradeable params should be handled separately (see below)
+	auto createParams = [=]()
+	{
+		auto params = std::make_shared<ProjectileSkillParams>();
+		params->instigator = entity;
+		params->soundEffect = SoundEffect::PROJECTILE;
+		params->animationType = AnimationType::ATTACK3;
+		params->delay = 0.6f;
+		params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+		params->projectileType = ProjectileType::BONE;
+		return params;
+	};
+
+	// Create as many levels of this skill as needed
+	auto level1Params = createParams();
+	level1Params->entityHandler = std::make_shared<DamageHandler>(15.f);
+	auto level1Skill = std::make_shared<ProjectileSkill>(level1Params);
+
+	auto level2Params = createParams();
+	level2Params->entityHandler = std::make_shared<DamageHandler>(20.f);
+	auto level2Skill = std::make_shared<ProjectileSkill>(level2Params);
+
+	auto level3Params = createParams();
+	level3Params->entityHandler = std::make_shared<DamageHandler>(25.f);
+	auto level3Skill = std::make_shared<ProjectileSkill>(level3Params);
+
+	SkillLevels levels = {
+			level1Skill,
+			level2Skill,
+			level3Skill
+	};
+
+	skillComponent.addUpgradeableSkill(SkillType::SKILL3, levels);
 }

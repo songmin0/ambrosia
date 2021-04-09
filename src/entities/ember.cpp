@@ -40,38 +40,134 @@ void Ember::initialize(ECS::Entity entity)
 	//////////////////////////////////////////////////////////////////////////////
 	// Set up skills
 	auto& skillComponent = entity.emplace<SkillComponent>();
+	addSkill1(entity, skillComponent);
+	addSkill2(entity, skillComponent);
+	addSkill3(entity, skillComponent);
+}
 
-	// Skill 1 Melee hit
-	auto meleeParams = std::make_shared<AoESkillParams>();
-	meleeParams->instigator = entity;
-	meleeParams->soundEffect = SoundEffect::MELEE;
-	meleeParams->animationType = AnimationType::ATTACK1;
-	meleeParams->delay = 1.f;
-	meleeParams->entityProvider = std::make_shared<CircularProvider>(300.f);
-	meleeParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
-	meleeParams->entityHandler = std::make_shared<DamageHandler>(25.f);
-	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(meleeParams));
+void Ember::addSkill1(ECS::Entity entity, SkillComponent& skillComponent)
+{
+	// Melee hit
 
-	// Skill 2 Melee hit
-	auto melee2Params = std::make_shared<AoESkillParams>();
-	melee2Params->instigator = entity;
-	melee2Params->soundEffect = SoundEffect::MELEE;
-	melee2Params->animationType = AnimationType::ATTACK2;
-	melee2Params->delay = 1.5f;
-	melee2Params->entityProvider = std::make_shared<CircularProvider>(250.f);
-	melee2Params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
-	melee2Params->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
-	melee2Params->entityHandler = std::make_shared<DamageHandler>(50.f);
-	skillComponent.addSkill(SkillType::SKILL2, std::make_shared<AreaOfEffectSkill>(melee2Params));
+	// For the params that should be common to all levels of this skill, put them
+	// in this lambda. The upgradeable params should be handled below
+	auto createParams = [=]()
+	{
+		auto params = std::make_shared<AoESkillParams>();
+		params->instigator = entity;
+		params->soundEffect = SoundEffect::MELEE;
+		params->animationType = AnimationType::ATTACK1;
+		params->delay = 1.f;
+		params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+		return params;
+	};
 
-	// Skill 3 AOE Knockback, without the knockback
-	auto melee3Params = std::make_shared<AoESkillParams>();
-	melee3Params->instigator = entity;
-	melee3Params->soundEffect = SoundEffect::MELEE;
-	melee3Params->animationType = AnimationType::ATTACK3;
-	melee3Params->delay = 1.5f;
-	melee3Params->entityProvider = std::make_shared<CircularProvider>(350.f);
-	melee3Params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
-	melee3Params->entityHandler = std::make_shared<KnockbackHandler>(350.f, 300.f, 40.f);
-	skillComponent.addSkill(SkillType::SKILL3, std::make_shared<AreaOfEffectSkill>(melee3Params));
+	// Create as many levels of this skill as needed
+	auto level1Params = createParams();
+	level1Params->entityProvider = std::make_shared<CircularProvider>(300.f);
+	level1Params->entityHandler = std::make_shared<DamageHandler>(25.f);
+	auto level1Skill = std::make_shared<AreaOfEffectSkill>(level1Params);
+
+	auto level2Params = createParams();
+	level2Params->entityProvider = std::make_shared<CircularProvider>(325.f);
+	level2Params->entityHandler = std::make_shared<DamageHandler>(30.f);
+	auto level2Skill = std::make_shared<AreaOfEffectSkill>(level2Params);
+
+	auto level3Params = createParams();
+	level3Params->entityProvider = std::make_shared<CircularProvider>(350.f);
+	level3Params->entityHandler = std::make_shared<DamageHandler>(35.f);
+	auto level3Skill = std::make_shared<AreaOfEffectSkill>(level3Params);
+
+	SkillLevels levels = {
+			level1Skill,
+			level2Skill,
+			level3Skill
+	};
+
+	skillComponent.addUpgradeableSkill(SkillType::SKILL1, levels);
+}
+
+void Ember::addSkill2(ECS::Entity entity, SkillComponent& skillComponent)
+{
+	// Melee hit
+
+	// For the params that should be common to all levels of this skill, put them in
+	// this lambda. The upgradeable params should be handled separately (see below)
+	auto createParams = [=]()
+	{
+		auto params = std::make_shared<AoESkillParams>();
+		params->instigator = entity;
+		params->soundEffect = SoundEffect::MELEE;
+		params->animationType = AnimationType::ATTACK2;
+		params->delay = 1.5f;
+		params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+		params->entityFilters.push_back(std::make_shared<MaxTargetsFilter>(1));
+		return params;
+	};
+
+	// Create as many levels of this skill as needed
+	auto level1Params = createParams();
+	level1Params->entityProvider = std::make_shared<CircularProvider>(250.f);
+	level1Params->entityHandler = std::make_shared<DamageHandler>(50.f);
+	auto level1Skill = std::make_shared<AreaOfEffectSkill>(level1Params);
+
+	auto level2Params = createParams();
+	level2Params->entityProvider = std::make_shared<CircularProvider>(275.f);
+	level2Params->entityHandler = std::make_shared<DamageHandler>(58.f);
+	auto level2Skill = std::make_shared<AreaOfEffectSkill>(level2Params);
+
+	auto level3Params = createParams();
+	level3Params->entityProvider = std::make_shared<CircularProvider>(300.f);
+	level3Params->entityHandler = std::make_shared<DamageHandler>(65.f);
+	auto level3Skill = std::make_shared<AreaOfEffectSkill>(level3Params);
+
+	SkillLevels levels = {
+			level1Skill,
+			level2Skill,
+			level3Skill
+	};
+
+	skillComponent.addUpgradeableSkill(SkillType::SKILL2, levels);
+}
+
+void Ember::addSkill3(ECS::Entity entity, SkillComponent& skillComponent)
+{
+	// AOE knockback
+
+	// For the params that should be common to all levels of this skill, put them in
+	// this lambda. The upgradeable params should be handled separately (see below)
+	auto createParams = [=]()
+	{
+		auto params = std::make_shared<AoESkillParams>();
+		params->instigator = entity;
+		params->soundEffect = SoundEffect::MELEE;
+		params->animationType = AnimationType::ATTACK3;
+		params->delay = 1.5f;
+		params->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::MOB));
+		return params;
+	};
+
+	// Create as many levels of this skill as needed
+	auto level1Params = createParams();
+	level1Params->entityProvider = std::make_shared<CircularProvider>(350.f);
+	level1Params->entityHandler = std::make_shared<KnockbackHandler>(350.f, 300.f, 40.f);
+	auto level1Skill = std::make_shared<AreaOfEffectSkill>(level1Params);
+
+	auto level2Params = createParams();
+	level2Params->entityProvider = std::make_shared<CircularProvider>(375.f);
+	level2Params->entityHandler = std::make_shared<KnockbackHandler>(375.f, 325.f, 45.f);
+	auto level2Skill = std::make_shared<AreaOfEffectSkill>(level2Params);
+
+	auto level3Params = createParams();
+	level3Params->entityProvider = std::make_shared<CircularProvider>(400.f);
+	level3Params->entityHandler = std::make_shared<KnockbackHandler>(400.f, 350.f, 50.f);
+	auto level3Skill = std::make_shared<AreaOfEffectSkill>(level3Params);
+
+	SkillLevels levels = {
+			level1Skill,
+			level2Skill,
+			level3Skill
+	};
+
+	skillComponent.addUpgradeableSkill(SkillType::SKILL3, levels);
 }
