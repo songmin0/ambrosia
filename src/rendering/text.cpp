@@ -535,22 +535,24 @@ void drawText(const Text& text, glm::vec2 gameUnitSize) {
     gl_has_errors();
 }
 
-ECS::Entity createText(std::string text, glm::vec2 position, float scale, glm::vec3 color)
+void addText(ECS::Entity entity, const std::string& text, vec2 position,
+						 float scale, vec3 color)
 {
-    std::string path = fontPath("anime_ace/animeace2_reg.ttf");
-
-    ECS::Entity entity;
-    ECS::registry<Text>.emplace(entity, text, path, position, scale, color);
-    return entity;
+	std::string path = fontPath("anime_ace/animeace2_reg.ttf");
+	entity.emplace<Text>(text, path, position, scale, color);
 }
 
-void createAchievementText(std::string text, glm::vec2 position)
+ECS::Entity createText(const std::string& text, vec2 position,
+											 float scale, vec3 color)
 {
-    std::string path = fontPath("anime_ace/animeace2_reg.ttf");
-    float scale = 0.75f;
-    vec3 color(1.f, 1.f, 1.f);
+	auto entity = ECS::Entity();
+	addText(entity, text, position, scale, color);
+	return entity;
+}
 
-    ECS::Entity entity;
-    ECS::registry<Text>.emplace(entity, text, path, position, scale, color);
-    entity.emplace<AchievementMessage>();
+ECS::Entity createAchievementText(const std::string& text, vec2 position)
+{
+	auto entity = createText(text, position, 0.75f, vec3(1.f));
+	entity.emplace<AchievementMessage>();
+	return entity;
 }
