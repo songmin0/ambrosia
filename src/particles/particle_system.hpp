@@ -144,3 +144,10 @@ public:
 	void createParticle(int index);
 };
 
+class RainEmitter : public ParticleEmitter {
+public:
+	RainEmitter(int particlesPerSecond);
+	void initEmitter();
+	void simulateParticles(float elapsedMs, int numNewParticles);
+	void createParticle(int index);
+};

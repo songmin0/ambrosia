@@ -104,7 +104,7 @@ void ParticleEmitter::step(float elapsedMs)
 		float elapsed_time_sec = elapsedMs / 1000.0f;
 
 		secSinceLastParticleSpawn += elapsed_time_sec;
-		int newParticles = (int)(secSinceLastParticleSpawn * 1);
+		int newParticles = (int)(secSinceLastParticleSpawn * particlesPerSecond);
 		if (newParticles != 0) {
 				secSinceLastParticleSpawn = 0.0f;
 		}

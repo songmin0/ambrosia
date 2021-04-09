@@ -180,6 +180,9 @@ void Screens::createDefeatScreen(int frameBufferWidth, int frameBufferHeight, in
 	tryAgain.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
 	tryAgain.emplace<Motion>().position = vec2(frameBufferWidth / 2, frameBufferHeight / 2 + 20);
 
+	//Create the rain
+	EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ "rainEmitter",std::make_shared<RainEmitter>(RainEmitter(10)) });
+
 	// TODO: Hook up 
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth / 2 - 120, frameBufferHeight / 2 + 180 }, "menus/yes-button",
