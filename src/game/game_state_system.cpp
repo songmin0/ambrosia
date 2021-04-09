@@ -406,13 +406,13 @@ void GameStateSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 	{
 		EventSystem<PlayMusicEvent>::instance().sendEvent({MusicType::PIZZA_ARENA});
 
-		CheeseBlob::createCheeseBlob({ 700, 950 });
+		CheeseBlob::createCheeseBlob(vec2(700.f, 950.f));
 	}
 	else if (mapName == "dessert-arena")
 	{
 		EventSystem<PlayMusicEvent>::instance().sendEvent({MusicType::DESSERT_ARENA});
 
-		DessertForeground::createDessertForeground({ 1920, 672 });
+		DessertForeground::createDessertForeground(vec2(1920.f, 672.f));
 		EventSystem<AddEmitterEvent>::instance().sendEvent(
 				AddEmitterEvent{ "pinkCottonCandy",std::make_shared<BasicEmitter>(BasicEmitter(5)) });
 		EventSystem<AddEmitterEvent>::instance().sendEvent(
@@ -421,6 +421,22 @@ void GameStateSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 	else if (mapName == "veggie-forest")
 	{
 		EventSystem<PlayMusicEvent>::instance().sendEvent({MusicType::PLACEHOLDER3});
+	}
+	else if (mapName == "bbq")
+	{
+		EventSystem<PlayMusicEvent>::instance().sendEvent({MusicType::BOSS});
+
+		BBQBackground::createBBQBackground(vec2(1120.f, 720.f));
+		BBQFire::createBBQFire(vec2(2153.f, 1015.f));
+		BBQFire::createBBQFire(vec2(1378.f, 1403.f));
+		BBQFire::createBBQFire(vec2(41.f, 1264.f));
+		BBQFire::createBBQFire(vec2(2137.f, 222.f));
+		BBQFire::createBBQFire(vec2(954.f, 716.f), RenderLayer::MAP2);
+		BBQFire::createBBQFire(vec2(1621.f, 1228.f), RenderLayer::MAP2);
+		BBQFire::createBBQFire(vec2(1406.f, 285.f), RenderLayer::MAP2);
+		BBQFire::createBBQFire(vec2(243.f, 326.f), RenderLayer::MAP2);
+		BBQFire::createBBQFire(vec2(943.f, 1227.f), RenderLayer::MAP2);
+		BBQFire::createBBQFire(vec2(358, 1079.f), RenderLayer::MAP2);
 	}
 	else
 	{
