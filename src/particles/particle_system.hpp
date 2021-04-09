@@ -110,6 +110,7 @@ protected:
 		Texture particleTexture;
 		int particlesPerSecond;
 		float secSinceLastParticleSpawn;
+		bool burst = false;
 
 
 		Particle ParticlesContainer[ParticleSystem::MaxParticles];
@@ -147,6 +148,14 @@ public:
 class RainEmitter : public ParticleEmitter {
 public:
 	RainEmitter(int particlesPerSecond);
+	void initEmitter();
+	void simulateParticles(float elapsedMs, int numNewParticles);
+	void createParticle(int index);
+};
+
+class ConfettiEmitter : public ParticleEmitter {
+public:
+	ConfettiEmitter();
 	void initEmitter();
 	void simulateParticles(float elapsedMs, int numNewParticles);
 	void createParticle(int index);

@@ -129,6 +129,8 @@ void Screens::createVictoryScreen(int frameBufferWidth, int frameBufferHeight, i
 	victoryLogo.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
 	victoryLogo.emplace<Motion>().position = vec2(frameBufferWidth / 2, frameBufferHeight / 2 - 150);
 
+	EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ "confettiEmitter",std::make_shared<ConfettiEmitter>(ConfettiEmitter()) });
+
 	// TODO: Hook up 
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth / 2, frameBufferHeight / 2 + 180 }, "menus/next-button",
