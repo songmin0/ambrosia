@@ -6,6 +6,9 @@
 #include <vector>
 #include <stdexcept>
 #include <stack>
+#include <list>
+#include <unordered_map>
+#include <utility>
 
 // glfw (OpenGL)
 #define NOMINMAX
