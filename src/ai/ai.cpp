@@ -327,10 +327,20 @@ void AISystem::onStartMobSkillEvent(const StartMobSkillEvent& event)
 	bool targetExists = false;
 	// Set the correct target depending on target type
 	// This is important within startMobSkill which calls getTarget()
-	if (event.targetIsPlayer)
+	// Overrides others if the target is random
+	if (event.isRandomTarget)
+	{
+		targetExists = setTargetToRandomPlayer(entity);
+	}
+	else if (event.targetIsPlayer)
+	{
 		targetExists = setTargetToClosestPlayer(entity);
+	}
 	else
+	{
 		targetExists = setTargetToWeakestMob(entity);
+	}
+
 	// Mob turn should only start when players are alive
 	assert(targetExists);
 	startMobSkill(event.entity);

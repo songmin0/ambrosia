@@ -5,6 +5,30 @@
 #include "entities/tiny_ecs.hpp"
 #include "game/game_state_system.hpp"
 
+namespace
+{
+	// Takes a list of FX entities for a particular FX type and checks whether
+	// that type of FX is already applied to the refEntity
+	std::vector<ECS::Entity>::iterator getFXEntity(std::vector<ECS::Entity>& fxEntities, ECS::Entity refEntity)
+	{
+		auto it = std::find_if(fxEntities.begin(), fxEntities.end(), [=](ECS::Entity fxEntity)
+		{
+			return fxEntity.has<SkillFXData>() && fxEntity.get<SkillFXData>().refEntity.id == refEntity.id;
+		});
+
+		return it;
+	}
+
+	void findAndRemoveFX(std::vector<ECS::Entity>& fxEntities, ECS::Entity refEntity)
+	{
+		auto it = getFXEntity(fxEntities, refEntity);
+		if (it != fxEntities.end())
+		{
+			ECS::ContainerInterface::removeAllComponentsOf(*it);
+		}
+	}
+}
+
 EffectSystem::EffectSystem() {
 	startFXListener = EventSystem<StartFXEvent>::instance().registerListener(
 		std::bind(&EffectSystem::onStartFX, this, std::placeholders::_1));
@@ -28,276 +52,268 @@ void EffectSystem::step() {
 		return;
 	}
 
-	// Move the skill effects with the player
-	for (auto entity : ECS::registry<TurnSystem::TurnComponent>.entities) {
-		if (!entity.has<PlayerComponent>() && !entity.has< AISystem::MobComponent>()) {
-			continue;
+	for (int i = ECS::registry<SkillFXData>.entities.size() - 1; i >= 0; i--)
+	{
+		auto fxEntity = ECS::registry<SkillFXData>.entities[i];
+		auto& fxData = ECS::registry<SkillFXData>.components[i];
+
+		// If the animation doesn't cycle, check whether it's done
+		if (!fxData.doesCycle && fxEntity.has<AnimationsComponent>())
+		{
+			// If it's done, remove the FX entity and its components
+			auto& anim = fxEntity.get<AnimationsComponent>();
+			if (anim.getCurrAnim() != AnimationType::EFFECT || anim.getCurrAnimProgress() >= 1.f)
+			{
+				ECS::ContainerInterface::removeAllComponentsOf(fxEntity);
+				continue;
+			}
 		}
 
-		auto& motion = entity.get<Motion>();
-		if (entity.has<BuffedFX>()) {
-			entity.get<BuffedFX>().fxEntity.get<Motion>().position = motion.position;
-		}
-		if (entity.has<DebuffedFX>()) {
-			entity.get<DebuffedFX>().fxEntity.get<Motion>().position = motion.position;
-		}
-		if (entity.has<HealedFX>()) {
-			entity.get<HealedFX>().fxEntity.get<Motion>().position = motion.position;
-		}
-		if (entity.has<ShieldedFX>()) {
-			entity.get<ShieldedFX>().fxEntity.get<Motion>().position = motion.position;
-		}
-		if (entity.has<StunnedFX>()) {
-			entity.get<StunnedFX>().fxEntity.get<Motion>().position = motion.position;
+		// Keep the FX at the same position as the reference entity
+		if (fxEntity.has<Motion>() && fxData.refEntity.has<Motion>())
+		{
+			fxEntity.get<Motion>().position = fxData.refEntity.get<Motion>().position;
 		}
 	}
 }
 
 void EffectSystem::onStartFX(const StartFXEvent& event) {
-	auto entity = event.entity;
-	auto& motion = entity.get<Motion>();
+	auto refEntity = event.entity;
+	if (!refEntity.has<Motion>() || event.fxType == FXType::NONE)
+	{
+		return;
+	}
+	auto& refMotion = refEntity.get<Motion>();
 
-	switch (event.fxType) {
-	case FXType::BUFFED:
-		if (!entity.has<BuffedFX>()) {
-			auto& fxEntity = entity.emplace<BuffedFX>().fxEntity; 
-			fxEntity = BuffedFX::createBuffedFX(motion.position);
-			fxEntity.get<SkillFX>().order = nextOrderId();
-			setBuffedOffsetAndScale(entity, fxEntity);
+	if (event.fxType == FXType::BUFFED)
+	{
+		auto& fxEntities = ECS::registry<BuffedFX>.entities;
+		if (getFXEntity(fxEntities, refEntity) == fxEntities.end())
+		{
+			auto fxEntity = BuffedFX::createBuffedFX(refEntity, refMotion.position);
+			setBuffedOffsetAndScale(fxEntity);
 		}
-		break;
-	case FXType::DEBUFFED:
-		if (!entity.has<DebuffedFX>()) {
-			auto& fxEntity = entity.emplace<DebuffedFX>().fxEntity;
-			fxEntity = DebuffedFX::createDebuffedFX(motion.position);
-			fxEntity.get<SkillFX>().order = nextOrderId();
-			setBuffedOffsetAndScale(entity, fxEntity);
+	}
+	else if (event.fxType == FXType::DEBUFFED)
+	{
+		auto& fxEntities = ECS::registry<DebuffedFX>.entities;
+		if (getFXEntity(fxEntities, refEntity) == fxEntities.end())
+		{
+			auto fxEntity = DebuffedFX::createDebuffedFX(refEntity, refMotion.position);
+			setBuffedOffsetAndScale(fxEntity);
 		}
-		break;
-	case FXType::HEALED:
-		if (!entity.has<HealedFX>()) {
-			auto& fxEntity = entity.emplace<HealedFX>().fxEntity;
-			fxEntity = HealedFX::createHealedFX(motion.position);
-			fxEntity.get<SkillFX>().order = nextOrderId();
-			setBuffedOffsetAndScale(entity, fxEntity);
+	}
+	else if (event.fxType == FXType::HEALED)
+	{
+		findAndRemoveFX(ECS::registry<HealedFX>.entities, refEntity);
+
+		auto fxEntity = HealedFX::createHealedFX(refEntity, refMotion.position);
+		setBuffedOffsetAndScale(fxEntity);
+	}
+	else if (event.fxType == FXType::SHIELDED)
+	{
+		auto& fxEntities = ECS::registry<ShieldedFX>.entities;
+		if (getFXEntity(fxEntities, refEntity) == fxEntities.end())
+		{
+			auto fxEntity = ShieldedFX::createShieldedFX(refEntity, refMotion.position);
+			setBuffedOffsetAndScale(fxEntity);
 		}
-		else {
-			auto& fxEntity = entity.get<HealedFX>().fxEntity;
-			fxEntity.get<SkillFX>().order = nextOrderId();
-			fxEntity.get<AnimationsComponent>().currAnimData->currFrame = 0;
+	}
+	else if (event.fxType == FXType::CANDY1)
+	{
+		findAndRemoveFX(ECS::registry<Candy1FX>.entities, refEntity);
+
+		auto fxEntity = Candy1FX::createCandy1FX(refEntity, refMotion.position);
+		setCandyOffset(fxEntity);
+	}
+	else if (event.fxType == FXType::CANDY2)
+	{
+		findAndRemoveFX(ECS::registry<Candy2FX>.entities, refEntity);
+
+		auto fxEntity = Candy2FX::createCandy2FX(refEntity, refMotion.position);
+		setCandyOffset(fxEntity);
+	}
+	else if (event.fxType == FXType::BLUEBERRIED)
+	{
+		findAndRemoveFX(ECS::registry<BlueberriedFX>.entities, refEntity);
+
+		auto fxEntity = BlueberriedFX::createBlueberriedFX(refEntity, refMotion.position);
+		setBlueberriedOffset(fxEntity);
+	}
+	else if (event.fxType == FXType::STUNNED)
+	{
+		if (!refEntity.has<CCImmunityComponent>())
+		{
+			auto& fxEntities = ECS::registry<StunnedFX>.entities;
+			if (getFXEntity(fxEntities, refEntity) == fxEntities.end())
+			{
+				auto fxEntity = StunnedFX::createStunnedFX(refEntity, refMotion.position);
+				setStunnedOffsetAndScale(fxEntity);
+			}
 		}
-	break;
-	case FXType::SHIELDED:
-		if (!entity.has<ShieldedFX>()) {
-			auto& fxEntity = entity.emplace<ShieldedFX>().fxEntity;
-			fxEntity = ShieldedFX::createShieldedFX(motion.position);
-			fxEntity.get<SkillFX>().order = nextOrderId();
-			setBuffedOffsetAndScale(entity, fxEntity);
-		}
-		break;
-	case FXType::CANDY1:
-		if (!entity.has<Candy1FX>()) {
-			auto& fxEntity = entity.emplace<Candy1FX>().fxEntity;
-			fxEntity = Candy1FX::createCandy1FX(motion.position);
-			fxEntity.get<SkillFX>().order = nextOrderId();
-			setCandyOffset(entity, fxEntity);
-		}
-		else {
-			auto& fxEntity = entity.get<Candy1FX>().fxEntity;
-			fxEntity.get<SkillFX>().order = nextOrderId();
-			fxEntity.get<Motion>().position = motion.position;
-			fxEntity.get<AnimationsComponent>().currAnimData->currFrame = 0;
-		}
-		break;
-	case FXType::CANDY2:
-		if (!entity.has<Candy2FX>()) {
-			auto& fxEntity = entity.emplace<Candy2FX>().fxEntity;
-			fxEntity = Candy2FX::createCandy2FX(motion.position);
-			fxEntity.get<SkillFX>().order = nextOrderId();
-			setCandyOffset(entity, fxEntity);
-		}
-		else {
-			auto& fxEntity = entity.get<Candy2FX>().fxEntity;
-			fxEntity.get<SkillFX>().order = nextOrderId();
-			fxEntity.get<Motion>().position = motion.position;
-			fxEntity.get<AnimationsComponent>().currAnimData->currFrame = 0;
-		}
-		break;
-	case FXType::BLUEBERRIED:
-		if (!entity.has<BlueberriedFX>()) {
-			auto& fxEntity = entity.emplace<BlueberriedFX>().fxEntity;
-			fxEntity = BlueberriedFX::createBlueberriedFX(motion.position);
-			fxEntity.get<SkillFX>().order = nextOrderId();
-			setBlueberriedOffset(entity, fxEntity);
-		}
-		else {
-			auto& fxEntity = entity.get<BlueberriedFX>().fxEntity;
-			fxEntity.get<SkillFX>().order = nextOrderId();
-			fxEntity.get<Motion>().position = motion.position;
-			fxEntity.get<AnimationsComponent>().currAnimData->currFrame = 0;
-		}
-		break;
-	case FXType::STUNNED:
-		if (!entity.has<StunnedFX>() && !entity.has<CCImmunityComponent>()) {
-			auto& fxEntity = entity.emplace<StunnedFX>().fxEntity;
-			fxEntity = StunnedFX::createStunnedFX(motion.position);
-			fxEntity.get<SkillFX>().order = nextOrderId();
-			setStunnedOffsetAndScale(entity, fxEntity);
-		}
-		break;
-	default:
-		break;
 	}
 }
 
 void EffectSystem::onStopFX(const StopFXEvent& event) {
-	auto entity = event.entity;
+	auto refEntity = event.entity;
 
-	switch (event.fxType) {
-	case FXType::BUFFED:
-		if (entity.has<BuffedFX>()) {
-			ECS::ContainerInterface::removeAllComponentsOf(entity.get<BuffedFX>().fxEntity);
-			entity.remove<BuffedFX>();
-		}
-		break;
-	case FXType::DEBUFFED:
-		if (entity.has<DebuffedFX>()) {
-			ECS::ContainerInterface::removeAllComponentsOf(entity.get<DebuffedFX>().fxEntity);
-			entity.remove<DebuffedFX>();
-		}
-		break;
-	case FXType::HEALED:
+	if (event.fxType == FXType::BUFFED)
+	{
+		findAndRemoveFX(ECS::registry<BuffedFX>.entities, refEntity);
+	}
+	else if (event.fxType == FXType::DEBUFFED)
+	{
+		findAndRemoveFX(ECS::registry<DebuffedFX>.entities, refEntity);
+	}
+	else if (event.fxType == FXType::HEALED)
+	{
 		// Does not have a stopFX event
-		break;
-	case FXType::SHIELDED:
-		if (entity.has<ShieldedFX>()) {
-			ECS::ContainerInterface::removeAllComponentsOf(entity.get<ShieldedFX>().fxEntity);
-			entity.remove<ShieldedFX>();
-		}
-		break;
-	case FXType::CANDY1:
+	}
+	else if (event.fxType == FXType::SHIELDED)
+	{
+		findAndRemoveFX(ECS::registry<ShieldedFX>.entities, refEntity);
+	}
+	else if (event.fxType == FXType::CANDY1)
+	{
 		// Does not have a stopFX event
-		break;
-	case FXType::CANDY2:
+	}
+	else if (event.fxType == FXType::CANDY2)
+	{
 		// Does not have a stopFX event
-		break;
-	case FXType::BLUEBERRIED:
+	}
+	else if (event.fxType == FXType::BLUEBERRIED)
+	{
 		// Does not have a stopFX event
-		break;
-	case FXType::STUNNED:
-		if (entity.has<StunnedFX>()) {
-			ECS::ContainerInterface::removeAllComponentsOf(entity.get<StunnedFX>().fxEntity);
-			entity.remove<StunnedFX>();
-		}
-		break;
-	default:
-		break;
+	}
+	else if (event.fxType == FXType::STUNNED)
+	{
+		findAndRemoveFX(ECS::registry<StunnedFX>.entities, refEntity);
 	}
 }
 
 // Sets offset and scale for buffed, debuffed, shielded, and healed FXs
-void EffectSystem::setBuffedOffsetAndScale(ECS::Entity entity, ECS::Entity fxEntity) {
-	auto& motion = fxEntity.get<Motion>();
-	auto& skillFX = fxEntity.get<SkillFX>();
-	if (entity.has<PlayerComponent>()) {
-		skillFX.offset = vec2(0, 25);
+void EffectSystem::setBuffedOffsetAndScale(ECS::Entity fxEntity)
+{
+	assert(fxEntity.has<SkillFXData>());
+	auto& fxData = fxEntity.get<SkillFXData>();
+	auto refEntity = fxData.refEntity;
+
+	assert(fxEntity.has<Motion>());
+	auto& fxMotion = fxEntity.get<Motion>();
+
+	if (refEntity.has<PlayerComponent>()) {
+		fxData.offset = vec2(0.f, 25.f);
 	}
-	else if (entity.has<Egg>()) {
-		skillFX.offset = vec2(0, 25);
+	else if (refEntity.has<Egg>()) {
+		fxData.offset = vec2(0.f, 25.f);
 	}
-	else if (entity.has<Pepper>()) {
-		skillFX.offset = vec2(0, 25);
+	else if (refEntity.has<Pepper>() || refEntity.has<SaltnPepper>()) {
+		fxData.offset = vec2(0.f, 25.f);
 	}
-	else if (entity.has<Milk>()) {
-		skillFX.offset = vec2(0, 25);
+	else if (refEntity.has<Milk>()) {
+		fxData.offset = vec2(0.f, 25.f);
 	}
-	else if (entity.has<Potato>()) {
-		skillFX.offset = vec2(0, 25);
-		motion.scale = vec2(2, 2);
+	else if (refEntity.has<Potato>() || refEntity.has<Chicken>()) {
+		fxData.offset = vec2(0.f, 25.f);
+		fxMotion.scale = vec2(2.f, 2.f);
 	}
-	else if (entity.has<MashedPotato>()) {
-		skillFX.offset = vec2(0, 0);
-		motion.scale = vec2(2, 2);
+	else if (refEntity.has<MashedPotato>() || refEntity.has<Lettuce>()) {
+		fxData.offset = vec2(0.f, 0.f);
+		fxMotion.scale = vec2(2.f, 2.f);
 	}
-	else if (entity.has<PotatoChunk>()) {
-		skillFX.offset = vec2(0, 25);
+	else if (refEntity.has<PotatoChunk>()) {
+		fxData.offset = vec2(0.f, 25.f);
 	}
 }
 
-void EffectSystem::setStunnedOffsetAndScale(ECS::Entity entity, ECS::Entity fxEntity) {
-	auto& motion = fxEntity.get<Motion>();
-	auto& skillFX = fxEntity.get<SkillFX>();
-	if (entity.has<PlayerComponent>()) {
-		skillFX.offset = vec2(0, -50);
+void EffectSystem::setStunnedOffsetAndScale(ECS::Entity fxEntity)
+{
+	assert(fxEntity.has<SkillFXData>());
+	auto& fxData = fxEntity.get<SkillFXData>();
+	auto refEntity = fxData.refEntity;
+
+	assert(fxEntity.has<Motion>());
+	auto& fxMotion = fxEntity.get<Motion>();
+
+	if (refEntity.has<PlayerComponent>()) {
+		fxData.offset = vec2(0.f, -50.f);
 	}
-	else if (entity.has<Egg>()) {
-		skillFX.offset = vec2(0, 10);
+	else if (refEntity.has<Egg>()) {
+		fxData.offset = vec2(0.f, 10.f);
 	}
-	else if (entity.has<Pepper>()) {
-		skillFX.offset = vec2(0, -50);
+	else if (refEntity.has<Pepper>()) {
+		fxData.offset = vec2(0.f, -50.f);
 	}
-	else if (entity.has<Milk>()) {
-		skillFX.offset = vec2(0, -50);
+	else if (refEntity.has<Milk>()) {
+		fxData.offset = vec2(0.f, -50.f);
 	}
-	else if (entity.has<Potato>()) {
-		skillFX.offset = vec2(0, 0);
-		motion.scale = vec2(1.5, 1.5);
+	else if (refEntity.has<Potato>()) {
+		fxData.offset = vec2(0.f, 0.f);
+		fxMotion.scale = vec2(1.5f, 1.5f);
 	}
-	else if (entity.has<MashedPotato>()) {
-		skillFX.offset = vec2(0, 0);
-		motion.scale = vec2(1.5, 1.5);
+	else if (refEntity.has<MashedPotato>()) {
+		fxData.offset = vec2(0.f, 0.f);
+		fxMotion.scale = vec2(1.5f, 1.5f);
 	}
-	else if (entity.has<PotatoChunk>()) {
-		skillFX.offset = vec2(0, 25);
+	else if (refEntity.has<PotatoChunk>()) {
+		fxData.offset = vec2(0.f, 25.f);
 	}
 }
 
-void EffectSystem::setBlueberriedOffset(ECS::Entity entity, ECS::Entity fxEntity) {
-	auto& skillFX = fxEntity.get<SkillFX>();
-	if (entity.has<PlayerComponent>()) {
-		skillFX.offset = vec2(0, -20);
+void EffectSystem::setBlueberriedOffset(ECS::Entity fxEntity)
+{
+	assert(fxEntity.has<SkillFXData>());
+	auto& fxData = fxEntity.get<SkillFXData>();
+	auto refEntity = fxData.refEntity;
+
+	if (refEntity.has<PlayerComponent>()) {
+		fxData.offset = vec2(0.f, -20.f);
 	}
-	else if (entity.has<Egg>()) {
-		skillFX.offset = vec2(0, 0);
+	else if (refEntity.has<Egg>()) {
+		fxData.offset = vec2(0.f, 0.f);
 	}
-	else if (entity.has<Pepper>()) {
-		skillFX.offset = vec2(0, -20);
+	else if (refEntity.has<Pepper>()) {
+		fxData.offset = vec2(0.f, -20.f);
 	}
-	else if (entity.has<Milk>()) {
-		skillFX.offset = vec2(0, -20);
+	else if (refEntity.has<Milk>()) {
+		fxData.offset = vec2(0.f, -20.f);
 	}
-	else if (entity.has<Potato>()) {
-		skillFX.offset = vec2(0, -100);
+	else if (refEntity.has<Potato>()) {
+		fxData.offset = vec2(0.f, -100.f);
 	}
-	else if (entity.has<MashedPotato>()) {
-		skillFX.offset = vec2(0, -80);
+	else if (refEntity.has<MashedPotato>()) {
+		fxData.offset = vec2(0.f, -80.f);
 	}
-	else if (entity.has<PotatoChunk>()) {
-		skillFX.offset = vec2(0, 10);
+	else if (refEntity.has<PotatoChunk>()) {
+		fxData.offset = vec2(0.f, 10.f);
 	}
 }
 
-void EffectSystem::setCandyOffset(ECS::Entity entity, ECS::Entity fxEntity) {
-	auto& skillFX = fxEntity.get<SkillFX>();
-	if (entity.has<PlayerComponent>()) {
-		skillFX.offset = vec2(0, 0);
+void EffectSystem::setCandyOffset(ECS::Entity fxEntity)
+{
+	assert(fxEntity.has<SkillFXData>());
+	auto& fxData = fxEntity.get<SkillFXData>();
+	auto refEntity = fxData.refEntity;
+
+	if (refEntity.has<PlayerComponent>()) {
+		fxData.offset = vec2(0.f, 0.f);
 	}
-	else if (entity.has<Egg>()) {
-		skillFX.offset = vec2(0, 30);
+	else if (refEntity.has<Egg>()) {
+		fxData.offset = vec2(0.f, 30.f);
 	}
-	else if (entity.has<Pepper>()) {
-		skillFX.offset = vec2(0, 0);
+	else if (refEntity.has<Pepper>()) {
+		fxData.offset = vec2(0.f, 0.f);
 	}
-	else if (entity.has<Milk>()) {
-		skillFX.offset = vec2(0, 0);
+	else if (refEntity.has<Milk>()) {
+		fxData.offset = vec2(0.f, 0.f);
 	}
-	else if (entity.has<Potato>()) {
-		skillFX.offset = vec2(0, -120);
+	else if (refEntity.has<Potato>()) {
+		fxData.offset = vec2(0.f, -120.f);
 	}
-	else if (entity.has<MashedPotato>()) {
-		skillFX.offset = vec2(0, -100);
+	else if (refEntity.has<MashedPotato>()) {
+		fxData.offset = vec2(0.f, -100.f);
 	}
-	else if (entity.has<PotatoChunk>()) {
-		skillFX.offset = vec2(0, 50);
+	else if (refEntity.has<PotatoChunk>()) {
+		fxData.offset = vec2(0.f, 50.f);
 	}
 }

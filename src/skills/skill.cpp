@@ -92,6 +92,11 @@ void AreaOfEffectSkill::performSkillInternal()
 
 		for (auto entity : entities)
 		{
+			if (entity.has<DeathTimer>())
+			{
+				continue;
+			}
+
 			// Run the entity through the filters. A filter returns false if the
 			// entity should get filtered out
 			bool shouldKeepEntity = true;

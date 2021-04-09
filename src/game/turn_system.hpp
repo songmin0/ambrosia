@@ -61,6 +61,9 @@ private:
 	void onFinishedSkill(const FinishedSkillEvent& event);
 	EventListenerInfo finishedSkillListener;
 
+	void onPrepForNextMap(const PrepForNextMapEvent& event);
+	EventListenerInfo prepForNextMapListener;
+
 	// This amount of time works well for allowing skills to finish completely
 	// before switching to the next active entity
 	static constexpr float TIMER_PERIOD = 1200.f;

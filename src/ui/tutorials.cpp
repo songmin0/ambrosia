@@ -133,7 +133,6 @@ void TutorialSystem::onTutorialEnd(const EndTutorialEvent& event)
 {
 	GameStateSystem::instance().isInTutorial = false;
 	GameStateSystem::instance().currentTutorialIndex = 0;
-	GameStateSystem::instance().hasDoneTutorial = true;
 	TutorialSystem::cleanTutorial();
 
 	// Send achievement event
@@ -239,11 +238,10 @@ void TutorialSystem::onAdvanceStory(const AdvanceStoryEvent& event)
 	// done story, begin tutorial
 	if (storyStage > 9)
 	{
-		GameStateSystem::instance().isInStory = false;
 		GameStateSystem::instance().isTransitioning = true;
 		TransitionEvent event;
 		event.callback = []() {
-			GameStateSystem::instance().newGame();
+			GameStateSystem::instance().beginTutorial();
 		};
 		EventSystem<TransitionEvent>::instance().sendEvent(event);
 		return;

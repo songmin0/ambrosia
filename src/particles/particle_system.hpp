@@ -14,8 +14,15 @@
 class ParticleEmitter;
 
 struct AddEmitterEvent {
+	std::string label;
 	std::shared_ptr<ParticleEmitter> emitter;
 };
+
+struct DeleteEmitterEvent {
+	std::string label;
+};
+
+struct DeleteAllEmittersEvent{};
 
 // CPU representation of a particle
 struct Particle {
@@ -40,7 +47,7 @@ public:
 
 		static const int MaxParticles = 100;
 		//All of the emitters
-		std::vector<std::shared_ptr<ParticleEmitter>> emitters;
+		std::map<std::string, std::shared_ptr<ParticleEmitter>> newEmitters;
 
 
 
@@ -62,6 +69,8 @@ private:
 		Texture particleTexture;
 
 		EventListenerInfo addEmitterListener;
+		EventListenerInfo deleteEmitterListener;
+		EventListenerInfo deleteAllEmittersListener;
 
 
 
@@ -78,6 +87,8 @@ private:
 		float secSinceLastParticleSpawn;
 
 		void onAddedEmitterEvent(const AddEmitterEvent& event);
+		void onDeleteEmitterEvent(const DeleteEmitterEvent& event);
+		void onDeleteAllEmitterEvent(const DeleteAllEmittersEvent& event);
 
 };
 

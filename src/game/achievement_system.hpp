@@ -1,11 +1,9 @@
 #pragma once
-
-#include <vector>
-#include <string>
-#include "entities/tiny_ecs.hpp"
+#include "common.hpp"
 #include "event_system.hpp"
 #include "events.hpp"
 
+#include "entities/tiny_ecs.hpp"
 
 enum Achievement {
 	FINISH_TUTORIAL,

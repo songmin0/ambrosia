@@ -12,8 +12,7 @@ const float TITLE_LINE_Y = 80.f;
 
 void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 {
-	//Play menu music
-	Mix_PlayMusic(Mix_LoadMUS(audioPath("music/Ambrosia_Theme.wav").c_str()), -1);
+	EventSystem<PlayMusicEvent>::instance().sendEvent({MusicType::START_SCREEN});
 
 	// Background
 	auto background = ECS::Entity();
@@ -69,7 +68,6 @@ void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 			std::cout << "Load button clicked!" << std::endl;
 			TransitionEvent event;
 			event.callback = []() {
-				GameStateSystem::instance().isInMainScreen = false;
 				GameStateSystem::instance().loadSave();
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
@@ -81,8 +79,6 @@ void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 			std::cout << "Achievement button clicked!" << std::endl;
 			TransitionEvent event;
 			event.callback = []() {
-				GameStateSystem::instance().isInMainScreen = false;
-				GameStateSystem::instance().isInAchievementsScreen = true;
 				GameStateSystem::instance().launchAchievementsScreen();
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
@@ -94,8 +90,6 @@ void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 			std::cout << "Credits button clicked!" << std::endl;
 			TransitionEvent event;
 			event.callback = []() {
-				GameStateSystem::instance().isInMainScreen = false;
-				GameStateSystem::instance().isInCreditsScreen = true;
 				GameStateSystem::instance().launchCreditsScreen();
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
@@ -136,7 +130,6 @@ void Screens::createVictoryScreen(int frameBufferWidth, int frameBufferHeight, i
 			std::cout << "Next button clicked!" << std::endl;
 			TransitionEvent event;
 			event.callback = []() {
-				GameStateSystem::instance().isInVictoryScreen = false;
 				GameStateSystem::instance().nextMap();
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
@@ -188,7 +181,6 @@ void Screens::createDefeatScreen(int frameBufferWidth, int frameBufferHeight, in
 			std::cout << "Yes button clicked!" << std::endl;
 			TransitionEvent event;
 			event.callback = []() {
-				GameStateSystem::instance().isInDefeatScreen = false;
 				GameStateSystem::instance().restartMap();
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
@@ -201,7 +193,6 @@ void Screens::createDefeatScreen(int frameBufferWidth, int frameBufferHeight, in
 			std::cout << "No button clicked..." << std::endl;
 			TransitionEvent event;
 			event.callback = []() {
-				GameStateSystem::instance().isInDefeatScreen = false;
 				GameStateSystem::instance().launchMainMenu();
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
@@ -230,7 +221,6 @@ void Screens::createAchievementsScreen(int frameBufferWidth, int frameBufferHeig
 			std::cout << "Back button clicked!" << std::endl;
 			TransitionEvent event;
 			event.callback = []() {
-				GameStateSystem::instance().isInAchievementsScreen = false;
 				GameStateSystem::instance().launchMainMenu();
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
@@ -276,7 +266,6 @@ void Screens::createCreditsScreen(int frameBufferWidth, int frameBufferHeight, i
 			std::cout << "Back button clicked!" << std::endl;
 			TransitionEvent event;
 			event.callback = []() {
-				GameStateSystem::instance().isInCreditsScreen = false;
 				GameStateSystem::instance().launchMainMenu();
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
@@ -322,12 +311,11 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 			GameStateSystem::instance().isTransitioning = true;
 			TransitionEvent event;
 			event.callback = []() {
-				GameStateSystem::instance().isInMainScreen = false;
 				GameStateSystem::instance().beginStory();
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
-	createText("tutorial", vec2(frameBufferWidth / 2 - 85, frameBufferHeight / 2 - 70), 0.6f);
+	createText("Tutorial", vec2(frameBufferWidth / 2 - 85, frameBufferHeight / 2 - 70), 0.6f);
 
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth / 4, frameBufferHeight / 2 + 100 }, "recipe_select/recipe1-select",
@@ -336,14 +324,12 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 			GameStateSystem::instance().isTransitioning = true;
 			TransitionEvent event;
 			event.callback = []() {
-				GameStateSystem::instance().isInMainScreen = false;
-				GameStateSystem::instance().isInStory = false;
-				GameStateSystem::instance().isInTutorial = false;
 				GameStateSystem::instance().loadRecipe("recipe-1");
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
-	createText("Recipe 1", vec2(frameBufferWidth / 4 - 85, frameBufferHeight / 2 + 230), 0.6f);
+	createText("Mashed", vec2(frameBufferWidth / 4 - 85, frameBufferHeight / 2 + 230), 0.6f);
+	createText("Potatoes", vec2(frameBufferWidth / 4 - 105, frameBufferHeight / 2 + 260), 0.6f);
 
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth / 4 * 2, frameBufferHeight / 2 + 100 }, "recipe_select/recipe2-select",
@@ -352,21 +338,27 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 			GameStateSystem::instance().isTransitioning = true;
 			TransitionEvent event;
 			event.callback = []() {
-				GameStateSystem::instance().isInMainScreen = false;
-				GameStateSystem::instance().isInStory = false;
-				GameStateSystem::instance().isInTutorial = false;
 				GameStateSystem::instance().loadRecipe("recipe-2");
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
-	createText("Recipe 2", vec2(frameBufferWidth / 4 * 2 - 85, frameBufferHeight / 2 + 230), 0.6f);
+	createText("Salad", vec2(frameBufferWidth / 4 * 2 - 65, frameBufferHeight / 2 + 230), 0.6f);
 
 	Button::createButton(ButtonShape::RECTANGLE,
-		{ frameBufferWidth / 4 * 3, frameBufferHeight / 2 + 100 }, "recipe_select/recipe2-select",
+		{ frameBufferWidth / 4 * 3, frameBufferHeight / 2 + 100 }, "recipe_select/recipe3-select",
 		[]() {
-			std::cout << "There will be a recipe 3. This is a placeholder for now." << std::endl;
+			std::cout << "Recipe 3 selected!" << std::endl;
+			GameStateSystem::instance().isTransitioning = true;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInMainScreen = false;
+				GameStateSystem::instance().isInStory = false;
+				GameStateSystem::instance().isInTutorial = false;
+				GameStateSystem::instance().loadRecipe("recipe-3");
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
-	createText("Recipe 3", vec2(frameBufferWidth / 4 * 3 - 85, frameBufferHeight / 2 + 230), 0.6f);
+	createText("BBQ Chicken", vec2(frameBufferWidth / 4 * 3 - 125, frameBufferHeight / 2 + 230), 0.6f);
 
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ 200, frameBufferHeight - 100 }, "menus/back-button",
@@ -375,7 +367,6 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 			GameStateSystem::instance().isTransitioning = true;
 			TransitionEvent event;
 			event.callback = []() {
-				GameStateSystem::instance().isInMainScreen = true;
 				GameStateSystem::instance().launchMainMenu();
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);

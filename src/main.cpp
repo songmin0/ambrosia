@@ -67,9 +67,9 @@ int main()
 	RangeIndicatorSystem rangeIndicatorSystem;
 	SwarmBehaviour swarmBehaviour;
 	AchievementSystem::instance();
-	GameStateSystem::instance().setWindow(world.window);
-	world.preloadResources();
 
+	GameStateSystem::instance().setWindow(world.window);
+	GameStateSystem::instance().preloadResources();
 	GameStateSystem::instance().launchMainMenu();
 
 	// Reference: https://gafferongames.com/post/fix_your_timestep/#the-final-touch
