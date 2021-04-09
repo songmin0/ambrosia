@@ -226,8 +226,9 @@ void PathFindingSystem::setCurrentObstacles(ECS::Entity sourceEntity)
 	{
 		if (entity.has<PlayerComponent>() || entity.has<AISystem::MobComponent>())
 		{
-			// The entity whose path we are generating can't be an obstacle
-			if (entity.id == sourceEntity.id)
+			// The entity whose path we are generating can't be an obstacle, and
+			// dead entities can't be obstacles either
+			if (entity.id == sourceEntity.id || entity.has<DeathTimer>())
 			{
 				continue;
 			}

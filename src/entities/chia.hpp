@@ -3,14 +3,14 @@
 #include "game/common.hpp"
 #include "skills/skill_component.hpp"
 
-struct Chia
+namespace Chia
 {
-public:
-	static ECS::Entity createChia(json initialStats);
-	static ECS::Entity createChia(vec2 position);
-private:
-	static ECS::Entity commonInit();
-	static void addSkill1(ECS::Entity entity, SkillComponent& skillComponent);
-	static void addSkill2(ECS::Entity entity, SkillComponent& skillComponent);
-	static void addSkill3(ECS::Entity entity, SkillComponent& skillComponent);
-};
+	static constexpr vec2 SCALE(1.f);
+	static constexpr vec2 HITBOX_SCALE(0.5f, 0.8f);
+
+	void initialize(ECS::Entity entity);
+
+	void addSkill1(ECS::Entity entity, SkillComponent& skillComponent);
+	void addSkill2(ECS::Entity entity, SkillComponent& skillComponent);
+	void addSkill3(ECS::Entity entity, SkillComponent& skillComponent);
+}

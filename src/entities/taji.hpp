@@ -3,14 +3,14 @@
 #include "game/common.hpp"
 #include "skills/skill_component.hpp"
 
-struct Taji
+namespace Taji
 {
-public:
-	static ECS::Entity createTaji(json initialStats);
-	static ECS::Entity createTaji(vec2 pos);
-private:
-	static ECS::Entity commonInit();
-	static void addSkill1(ECS::Entity entity, SkillComponent& skillComponent);
-	static void addSkill2(ECS::Entity entity, SkillComponent& skillComponent);
-	static void addSkill3(ECS::Entity entity, SkillComponent& skillComponent);
-};
+	static constexpr vec2 SCALE(0.97f, 0.97f);
+	static constexpr vec2 HITBOX_SCALE(0.5f, 0.85f);
+
+	void initialize(ECS::Entity entity);
+
+	void addSkill1(ECS::Entity entity, SkillComponent& skillComponent);
+	void addSkill2(ECS::Entity entity, SkillComponent& skillComponent);
+	void addSkill3(ECS::Entity entity, SkillComponent& skillComponent);
+}

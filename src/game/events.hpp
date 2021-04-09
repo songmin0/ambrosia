@@ -28,6 +28,9 @@ struct MouseHoverEvent
 	vec2 mousePos;
 };
 
+struct ResetMouseCursorEvent
+{};
+
 struct LaunchEvent
 {
 	ProjectileSkillParams skillParams;
@@ -115,6 +118,11 @@ struct FinishedSkillEvent
 	ECS::Entity entity;
 };
 
+struct PlayMusicEvent
+{
+	MusicType musicType;
+};
+
 struct PlaySoundEffectEvent
 {
 	SoundEffect effect = SoundEffect::NONE;
@@ -139,7 +147,6 @@ struct TransitionEvent
 	float duration = 1000.f;
 };
 
-struct LoadLevelEvent {};
 struct StartTutorialEvent {};
 struct AdvanceTutorialEvent {};
 struct EndTutorialEvent {};
@@ -162,4 +169,9 @@ struct DamageNumberEvent
 {
 	ECS::Entity target;
 	float damage;
+};
+
+struct PrepForNextMapEvent
+{
+	ECS::Entity entity;
 };

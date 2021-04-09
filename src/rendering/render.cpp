@@ -245,8 +245,8 @@ void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 		auto camera = ECS::registry<CameraComponent>.entities[0];
 		auto& cameraComponent = camera.get<CameraComponent>();
 		// Add skill fx offset to translate
-		if (entity.has<SkillFX>()) {
-			auto& fxOffset = entity.get<SkillFX>().offset;
+		if (entity.has<SkillFXData>()) {
+			auto& fxOffset = entity.get<SkillFXData>().offset;
 			transform.translate(motion.renderPosition + fxOffset - cameraComponent.position);
 		}
 		else {
@@ -257,7 +257,7 @@ void RenderSystem::drawAnimatedMesh(ECS::Entity entity, const mat3& projection)
 	transform.scale(motion.scale * static_cast<vec2>(texmesh.texture.size));
 
 	// The entity's feet are at the bottom of the texture, so move it upward by half the texture size
-	if (entity.has<PlayerComponent>() || entity.has<AISystem::MobComponent>() || entity.has<SkillFX>())
+	if (entity.has<PlayerComponent>() || entity.has<AISystem::MobComponent>() || entity.has<SkillFXData>())
 	{
 		transform.translate(vec2(0.f, -0.5f));
 	}
@@ -433,8 +433,8 @@ struct CompareRenderableEntity
 
 		// Last skill fx applied should render on top
 		if (renderable1.layer == renderable2.layer && renderable1.layer == RenderLayer::SKILL) {
-			auto& skillFXOrder1 = entity1.get<SkillFX>().order;
-			auto& skillFXOrder2 = entity2.get<SkillFX>().order;
+			auto& skillFXOrder1 = entity1.get<SkillFXData>().order;
+			auto& skillFXOrder2 = entity2.get<SkillFXData>().order;
 			return motion1.renderPosition.y + skillFXOrder1 < motion2.renderPosition.y + skillFXOrder2;
 		}
 
@@ -483,7 +483,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
 
 	// List of entities to render
-	std::vector<ECS::Entity> entities = ECS::registry<ShadedMeshRef>.entities;
+	std::vector<ECS::Entity> entities = ECS::registry<RenderableComponent>.entities;
 	// Sort the entities depending on their render layer
 	std::sort(entities.begin(), entities.end(), CompareRenderableEntity());
 

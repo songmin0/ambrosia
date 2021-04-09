@@ -14,17 +14,20 @@ TurnSystem::TurnSystem(PathFindingSystem& pfs)
 	: pathFindingSystem(pfs)
 	, timer(0.f)
 {
-	EventSystem<MouseClickEvent>::instance().registerListener(
-		std::bind(&TurnSystem::onMouseClick, this, std::placeholders::_1));
+	mouseClickListener = EventSystem<MouseClickEvent>::instance().registerListener(
+			std::bind(&TurnSystem::onMouseClick, this, std::placeholders::_1));
 
-	EventSystem<PlayerButtonEvent>::instance().registerListener(
-		std::bind(&TurnSystem::onPlayerButtonClick, this, std::placeholders::_1));
+	playerButtonListener = EventSystem<PlayerButtonEvent>::instance().registerListener(
+			std::bind(&TurnSystem::onPlayerButtonClick, this, std::placeholders::_1));
 
-	EventSystem<FinishedMovementEvent>::instance().registerListener(
-		std::bind(&TurnSystem::onFinishedMovement, this, std::placeholders::_1));
+	finishedMovementListener = EventSystem<FinishedMovementEvent>::instance().registerListener(
+			std::bind(&TurnSystem::onFinishedMovement, this, std::placeholders::_1));
 
-	EventSystem<FinishedSkillEvent>::instance().registerListener(
-		std::bind(&TurnSystem::onFinishedSkill, this, std::placeholders::_1));
+	finishedSkillListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
+			std::bind(&TurnSystem::onFinishedSkill, this, std::placeholders::_1));
+
+	prepForNextMapListener = EventSystem<PrepForNextMapEvent>::instance().registerListener(
+			std::bind(&TurnSystem::onPrepForNextMap, this, std::placeholders::_1));
 }
 
 TurnSystem::~TurnSystem()
@@ -36,6 +39,18 @@ TurnSystem::~TurnSystem()
 	if (playerButtonListener.isValid())
 	{
 		EventSystem<MouseClickEvent>::instance().unregisterListener(playerButtonListener);
+	}
+	if (finishedMovementListener.isValid())
+	{
+		EventSystem<FinishedMovementEvent>::instance().unregisterListener(finishedMovementListener);
+	}
+	if (finishedSkillListener.isValid())
+	{
+		EventSystem<FinishedSkillEvent>::instance().unregisterListener(finishedSkillListener);
+	}
+	if (prepForNextMapListener.isValid())
+	{
+		EventSystem<PrepForNextMapEvent>::instance().unregisterListener(prepForNextMapListener);
 	}
 }
 
@@ -336,4 +351,20 @@ void TurnSystem::onFinishedSkill(const FinishedSkillEvent& event)
 	}
 
 	timer = TIMER_PERIOD;
+}
+
+void TurnSystem::onPrepForNextMap(const PrepForNextMapEvent& event)
+{
+	auto entity = event.entity;
+	if (entity.has<TurnComponent>())
+	{
+		auto& turnComponent = entity.get<TurnComponent>();
+		turnComponent.isMoving = false;
+		turnComponent.isUsingSkill = false;
+		turnComponent.hasMoved = false;
+		turnComponent.hasUsedSkill = false;
+		turnComponent.activeAction = SkillType::NONE;
+	}
+
+	entity.remove<TurnComponentIsActive>();
 }

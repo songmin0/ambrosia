@@ -65,6 +65,21 @@ void AnimationsComponent::changeAnimation(AnimationType newAnim)
 	referenceToCache = &cacheResource(currAnimData->texture_key);
 }
 
+AnimationType AnimationsComponent::getCurrAnim()
+{
+	return currentAnim;
+}
+
+float AnimationsComponent::getCurrAnimProgress()
+{
+	if (currAnimData && currAnimData->numFrames != 0)
+	{
+		return currAnimData->currFrame / (float) (currAnimData->numFrames - 1);
+	}
+
+	return 0.f;
+}
+
 void AnimationData::updateTexMeshCache(const std::string& key, const std::string& path)
 {
 	ShadedMesh& resource = cacheResource(key);
