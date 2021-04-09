@@ -1,5 +1,10 @@
 #include "stats_component.hpp"
 
+void StatsComponent::setBaseValue(StatType type, float value)
+{
+	stats[type] = value;
+}
+
 float StatsComponent::getStatValue(StatType type)
 {
 	assert(type != StatType::INVALID);
