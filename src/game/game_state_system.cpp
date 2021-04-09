@@ -15,7 +15,7 @@
 
 GameStateSystem::GameStateSystem()
 {
-	resetFlags();
+	resetState();
 	isTransitioning = false;
 
 	currentLevelIndex = 0;
@@ -34,7 +34,7 @@ GameStateSystem::GameStateSystem()
 	}
 }
 
-void GameStateSystem::resetFlags()
+void GameStateSystem::resetState()
 {
 	isInMainScreen = false;
 	isInAchievementsScreen = false;
@@ -44,6 +44,9 @@ void GameStateSystem::resetFlags()
 	isInHelpScreen = false;
 	isInVictoryScreen = false;
 	isInDefeatScreen = false;
+
+	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
+	EventSystem<ResetMouseCursorEvent>::instance().sendEvent({});
 }
 
 bool GameStateSystem::inGameState()
@@ -63,7 +66,7 @@ void GameStateSystem::beginStory()
 {
 	std::cout << "GameStateSystem::beginStory: attempting to start the story..." << std::endl;
 
-	resetFlags();
+	resetState();
 	isInStory = true;
 
 	removeNonPlayerEntities();
@@ -78,7 +81,7 @@ void GameStateSystem::beginTutorial()
 {
 	std::cout << "GameStateSystem::beginTutorial: attempting to load/start tutorial..." << std::endl;
 
-	resetFlags();
+	resetState();
 	isInTutorial = true;
 
 	currentTutorialIndex = 0;
@@ -89,8 +92,6 @@ void GameStateSystem::beginTutorial()
 void GameStateSystem::nextMap()
 {
 	std::cout << "GameStateSystem::nextMap: attempting to start next map in current recipe" << std::endl;
-
-	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
 
 	currentLevelIndex++;
 	if (currentLevelIndex == recipe["maps"].size() - 1)
@@ -120,9 +121,7 @@ void GameStateSystem::nextMap()
 
 void GameStateSystem::restartMap()
 {
-	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
-
-	resetFlags();
+	resetState();
 	currentLevel = recipe["maps"][currentLevelIndex];
 
 	std::cout << "GameStateSystem::restartMap: starting " << currentLevel.at("map") << std::endl;
@@ -137,9 +136,6 @@ void GameStateSystem::restartMap()
 
 	// Get the players ready for the new map
 	preparePlayersForNextMap();
-
-	// Make sure the mouse cursor is just the normal one
-	EventSystem<ResetMouseCursorEvent>::instance().sendEvent({});
 }
 
 void GameStateSystem::save()
@@ -176,7 +172,7 @@ void GameStateSystem::loadRecipe(const std::string& recipeName, int level,
 	std::cout << "GameStateSystem::loadRecipe: loading " << recipeName
 						<< ", level " << level << std::endl;
 
-	resetFlags();
+	resetState();
 	this->isInTutorial = isInTutorial;
 	currentLevelIndex = level;
 
@@ -197,7 +193,7 @@ void GameStateSystem::launchMainMenu()
 {
 	std::cout << "GameStateSystem::launchMainMenu: creating main menu" << std::endl;
 
-	resetFlags();
+	resetState();
 	isInMainScreen = true;
 
 	Camera::createCamera(vec2(0.f));
@@ -206,15 +202,13 @@ void GameStateSystem::launchMainMenu()
 	removePlayerEntities();
 	vec2 screenBufferSize = getScreenBufferSize();
 	StartMenu::createStartMenu(screenBufferSize.x, screenBufferSize.y);
-
-	EventSystem<ResetMouseCursorEvent>::instance().sendEvent({});
 }
 
 void GameStateSystem::launchAchievementsScreen()
 {
 	std::cout << "GameStateSystem::launchAchievementsScreen: creating achievements screen" << std::endl;
 
-	resetFlags();
+	resetState();
 	isInAchievementsScreen = true;
 
 	Camera::createCamera(vec2(0.f));
@@ -228,7 +222,7 @@ void GameStateSystem::launchCreditsScreen()
 {
 	std::cout << "GameStateSystem::launchCreditsScreen: creating credits screen" << std::endl;
 
-	resetFlags();
+	resetState();
 	isInCreditsScreen = true;
 
 	Camera::createCamera(vec2(0.f));
@@ -242,7 +236,7 @@ void GameStateSystem::launchRecipeSelectMenu()
 {
 	std::cout << "GameStateSystem::launchRecipeSelectMenu: creating recipe selection menu" << std::endl;
 
-	resetFlags();
+	resetState();
 	isInMainScreen = true;
 
 	Camera::createCamera(vec2(0.f));
@@ -250,17 +244,13 @@ void GameStateSystem::launchRecipeSelectMenu()
 	removePlayerEntities();
 	vec2 screenBufferSize = getScreenBufferSize();
 	Screens::createRecipeSelectScreen(screenBufferSize.x, screenBufferSize.y);
-
-	EventSystem<ResetMouseCursorEvent>::instance().sendEvent({});
 }
 
 void GameStateSystem::launchVictoryScreen()
 {
 	std::cout << "GameStateSystem::launchVictoryScreen: creating victory screen" << std::endl;
 
-	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
-
-	resetFlags();
+	resetState();
 	isInVictoryScreen = true;
 
 	if (recipe["name"] != "tutorial")
@@ -278,17 +268,13 @@ void GameStateSystem::launchVictoryScreen()
 	hidePlayers();
 	vec2 screenBufferSize = getScreenBufferSize();
 	Screens::createVictoryScreen(screenBufferSize.x, screenBufferSize.y);
-
-	EventSystem<ResetMouseCursorEvent>::instance().sendEvent({});
 }
 
 void GameStateSystem::launchDefeatScreen()
 {
 	std::cout << "GameStateSystem::launchDefeatScreen: creating defeat screen" << std::endl;
 
-	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
-
-	resetFlags();
+	resetState();
 	isInDefeatScreen = true;
 
 	save();
@@ -298,8 +284,6 @@ void GameStateSystem::launchDefeatScreen()
 	hidePlayers();
 	vec2 screenBufferSize = getScreenBufferSize();
 	Screens::createDefeatScreen(screenBufferSize.x, screenBufferSize.y);
-
-	EventSystem<ResetMouseCursorEvent>::instance().sendEvent({});
 }
 
 const vec2 GameStateSystem::getScreenBufferSize()

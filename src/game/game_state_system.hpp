@@ -10,7 +10,7 @@ using json = nlohmann::json;
 class GameStateSystem {
 private:
 	GameStateSystem();
-	void resetFlags();
+	void resetState();
 
 public:
 	// Returns the singleton instance of this system
