@@ -6,7 +6,7 @@
 #include "maps/path_finding_system.hpp"
 #include "ai/behaviour_tree.hpp"
 
-#include <vector>
+#include <random>
 
 // AI system that moves the enemies (mobs and bosses)
 class AISystem
@@ -41,4 +41,7 @@ private:
 	EventListenerInfo startMobSkillListener;
 
 	PathFindingSystem& pathFindingSystem;
+
+	// Random number generator
+	std::default_random_engine rng;
 };

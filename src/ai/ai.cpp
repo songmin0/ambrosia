@@ -11,6 +11,9 @@
 AISystem::AISystem(PathFindingSystem& pfs)
 	: pathFindingSystem(pfs)
 {
+	// Seeding rng with random device
+	rng = std::default_random_engine(std::random_device()());
+
 	startMobMoveListener = EventSystem<StartMobMoveEvent>::instance().registerListener(
 		std::bind(&AISystem::onStartMobMoveEvent, this, std::placeholders::_1));
 
@@ -157,41 +160,23 @@ bool AISystem::setTargetToRandomPlayer(ECS::Entity& mob)
 	// Movement for mobs - move to a random player
 	assert(mob.has<MobComponent>());
 	auto& mobComponent = mob.get<MobComponent>();
-	auto& mobMotion = mob.get<Motion>();
 
 	auto& playerContainer = ECS::registry<PlayerComponent>;
 	assert(!playerContainer.entities.empty());
 
-	int playerIndex = rand() % playerContainer.entities.size(); // [0, size)
-	auto& player = playerContainer.entities[playerIndex];
+	std::vector<ECS::Entity> playerEntities(playerContainer.entities);
+	std::shuffle(playerEntities.begin(), playerEntities.end(), rng);
 
-	// reroll if the selected player is not valid
-	int counter = 0;
-	while (player.has<DeathTimer>() || !player.has<Motion>())
+	for (auto player : playerEntities)
 	{
-		playerIndex = rand() % playerContainer.entities.size();
-		player = playerContainer.entities[playerIndex];
-		counter++;
-		
-		// safety break in case of strange edge cases
-		if (counter >= playerContainer.entities.size())
+		if (!player.has<DeathTimer>() && player.has<Motion>())
 		{
-			break;
+			mobComponent.setTarget(player);
+			return true;
 		}
 	}
 
-	// fail if we couldn't find a valid player
-	if (player.has<DeathTimer>() || !player.has<Motion>())
-	{
-		return false;
-	}
-
-	// Calculate the distance to this player
-	auto& playerMotion = player.get<Motion>();
-	float playerDistance = distance(mobMotion.position, playerMotion.position);
-
-	mobComponent.setTarget(playerContainer.entities[playerIndex]);
-	return true;
+	return false;
 }
 
 bool AISystem::setTargetToWeakestMob(ECS::Entity& mob)
