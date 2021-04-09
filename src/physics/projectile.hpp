@@ -14,7 +14,10 @@ enum class ProjectileType
 	BONE,
 	EGG_SHELL,
 	HEAL_ORB,
-	DAMAGE_ORB
+	DAMAGE_ORB,
+	PEPPER,
+	SALT,
+	DRUMSTICK
 };
 
 enum class Phase

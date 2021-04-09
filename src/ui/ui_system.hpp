@@ -19,6 +19,8 @@ public:
 	UISystem();
 	~UISystem();
 
+	void step(float elapsed_ms);
+
 private:
 	bool isClicked(ClickableCircleComponent clickable, vec2 position);
 	bool isClicked(ClickableRectangleComponent clickable, vec2 position);
@@ -44,6 +46,16 @@ private:
 	EventListenerInfo finishedMovementListener;
 	void onMoveFinished(const FinishedMovementEvent& event);
 
+	EventListenerInfo damageNumberEventListener;
+	void onDamageNumberEvent(const DamageNumberEvent& event);
+
+	EventListenerInfo healEventListener;
+	void onHealEvent(const HealEvent& event);
+
+	EventListenerInfo buffEventListener;
+	void onBuffEvent(const BuffEvent& event);
+
+	void createDamageNumber(ECS::Entity entity, float value, vec3 color);
 	void playMouseClickFX(vec2 position);
 	void updatePlayerSkillButton(ECS::Entity& entity);
 	void activateSkillButton(const SkillType& skillType);

@@ -1,23 +1,17 @@
-#include <vector>
-#include <string>
-#include "entities/tiny_ecs.hpp"
-#include "../ext/nlohmann/json.hpp"
+#include "common.hpp"
 #include "event_system.hpp"
 #include "events.hpp"
+#include "entities/tiny_ecs.hpp"
+
+#include "../ext/nlohmann/json.hpp"
 
 using json = nlohmann::json;
 
-
-struct Recipe {
-	//TODO what should the type be for these
-	std::vector<std::string> levels;
-	std::vector<std::string> victoryScreens;
-	std::vector<std::string> defeatScreens;
-};
-
-
 class GameStateSystem {
-	//TODO should I move all the music logic from the WorldSystem to here?
+private:
+	GameStateSystem();
+	void resetState();
+
 public:
 	// Returns the singleton instance of this system
 	static GameStateSystem& instance() {
@@ -27,6 +21,7 @@ public:
 
 	bool inGameState();
 	bool hasLights();
+<<<<<<< HEAD
 	bool isInTutorial;
 	bool hasDoneTutorial;
 	bool isInAchievementsScreen;
@@ -43,17 +38,16 @@ public:
 	int currentLevelIndex; //THIS SHOULD NOT BE PUBLIC but for now this easily lets me debug change maps
 	int currentTutorialIndex;
 	int currentStoryIndex;
+=======
+>>>>>>> master
 
-	// Load a fresh playthrough with tutorial on, does not save
-	void newGame();
-	//Load the next map in the current recipe
+	void beginStory();
+	void beginTutorial();
 	void nextMap();
-	//If the players lose restart the current map
 	void restartMap();
-	//TODO should loading a save be called from here?
-	void loadSave();
-	//TODO should save be called from here
+
 	void save();
+<<<<<<< HEAD
 	//This will call the victory screen for the current map
 	void launchVictoryScreen();
 	//This will call the defeat screen for the current map
@@ -61,26 +55,68 @@ public:
 	//This will call the shop screen
 	void launchShopScreen();
 	//This will call the main menu
+=======
+	void loadSave();
+	void loadRecipe(const std::string& recipeName, int level = 0,
+									bool isInTutorial = false);
+
+>>>>>>> master
 	void launchMainMenu();
-	// This will call the achievements screen
 	void launchAchievementsScreen();
-	// This will call the credits screen
 	void launchCreditsScreen();
 	void launchRecipeSelectMenu();
-
-	void beginStory();
-	void loadRecipe(const std::string& recipe);
-
-//This removes all the enitities with a motion component
-	void removeAllMotionEntities();
+	void launchVictoryScreen();
+	void launchDefeatScreen();
 
 	const vec2 getScreenBufferSize();
-
 	void setWindow(GLFWwindow* window);
+	void preloadResources();
 
-private:	
-	GameStateSystem();
-		
-	//ECS::Entity currentRecipeEntity;
+private:
+	////////////////////////
+	// Player entities
+	////////////////////////
+	// Creates new player entities at beginning of recipe
+	void createPlayerEntities();
+	// Completely removes player entities (e.g., when going back to main menu)
+	void removePlayerEntities();
+	// Disables player rendering (e.g., when going to victory/defeat/shop screens)
+	void hidePlayers();
+	// Enables player rendering, fills HP to maximum, removes buffs/debuffs, etc.
+	void preparePlayersForNextMap();
+
+	////////////////////////
+	// Non-player entities
+	////////////////////////
+	// These entities don't persist between levels, so the functions are straightforward
+	void createNonPlayerEntities();
+	void removeNonPlayerEntities();
+	void createMap(int frameBufferWidth, int frameBufferHeight);
+	void createMobs();
+	void createButtons(int frameBufferWidth, int frameBufferHeight);
+	void createEffects();
+
+public:
+	bool isInMainScreen;
+	bool isInAchievementsScreen;
+	bool isInCreditsScreen;
+	bool isInStory;
+	bool isInTutorial;
+	bool isInHelpScreen;
+	bool isInVictoryScreen;
+	bool isInDefeatScreen;
+	bool isTransitioning;
+	json currentLevel;
+	json recipe;
+	int currentLevelIndex;
+	int currentTutorialIndex;
+	int currentStoryIndex;
+
+private:
+	ECS::Entity playerRaoul;
+	ECS::Entity playerTaji;
+	ECS::Entity playerEmber;
+	ECS::Entity playerChia;
+
 	GLFWwindow* window;
 };

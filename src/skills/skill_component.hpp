@@ -1,7 +1,6 @@
 #pragma once
 #include "skill.hpp"
-
-#include <unordered_map>
+#include "game/common.hpp"
 
 enum class SkillType
 {
@@ -13,18 +12,43 @@ enum class SkillType
 	NONE
 };
 
+typedef std::vector<std::shared_ptr<Skill>> SkillLevels;
+
 class SkillComponent
 {
+private:
+	struct Entry
+	{
+		Entry();
+		Entry(SkillLevels levels);
+
+		unsigned int currLevel;
+		SkillLevels levels;
+	};
+
 public:
-	SkillComponent() = default;
+	SkillComponent();
 	~SkillComponent() = default;
 
-	inline void addSkill(SkillType type, const std::shared_ptr<Skill>& skill) {skills[type] = skill;};
-	inline void setActiveSkill(SkillType type) {activeType = type;}
-	inline std::shared_ptr<Skill> getActiveSkill() {return skills[activeType];}
-	inline SkillType getActiveSkillType() { return activeType; }
+	// For mobs. They don't have upgradeable skills, so use this function to set
+	// their "level 1" skill for the given skill type
+	void addSkill(SkillType type, const std::shared_ptr<Skill>& skill);
+
+	// For players. Adds a list of skills which will correspond to "level 1",
+	// "level 2", etc., for the given skill type
+	void addUpgradeableSkill(SkillType type, const SkillLevels& levels);
+
+	void setActiveSkill(SkillType type);
+	std::shared_ptr<Skill> getActiveSkill();
+	SkillType getActiveSkillType();
+
+	unsigned int getActiveSkillLevel();
+	unsigned int getSkillLevel(SkillType type);
+	unsigned int getMaxLevel(SkillType type);
+
+	void upgradeSkillLevel(SkillType type);
 
 private:
-	std::unordered_map<SkillType, std::shared_ptr<Skill>> skills;
+	std::unordered_map<SkillType, Entry> skills;
 	SkillType activeType;
 };

@@ -2,19 +2,13 @@
 #include "camera.hpp"
 #include "event_system.hpp"
 #include "events.hpp"
-#include "turn_system.hpp"
 
 #include "physics/physics.hpp"
 #include "physics/projectile.hpp"
 #include "physics/debug.hpp"
-#include "entities/raoul.hpp"
-#include "entities/taji.hpp"
-#include "entities/ember.hpp"
-#include "entities/chia.hpp"
 #include "entities/enemies.hpp"
 #include "rendering/render_components.hpp"
 #include "animation/animation_components.hpp"
-#include "maps/map_objects.hpp"
 #include "ui/button.hpp"
 #include "ui/ui_system.hpp"
 #include "ui/ui_entities.hpp"
@@ -24,6 +18,7 @@
 #include "game_state_system.hpp"
 #include "game/swarm_behaviour.hpp"
 #include "rendering/text.hpp"
+#include "entities/players.hpp"
 
 
 // stlib
@@ -78,10 +73,6 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	initAudio();
 	std::cout << "Loaded music\n";
 
-	//Register the loadLevelEvent listener
-	loadLevelListener = EventSystem<LoadLevelEvent>::instance().registerListener(
-			std::bind(&WorldSystem::onLoadLevelEvent, this, std::placeholders::_1));
-
 	transitionEventListener = EventSystem<TransitionEvent>::instance().registerListener(
 		std::bind(&WorldSystem::onTransition, this, std::placeholders::_1));
 
@@ -91,11 +82,6 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 WorldSystem::~WorldSystem(){
 	releaseAudio();
 	releaseCursors();
-
-	if (loadLevelListener.isValid())
-	{
-		EventSystem<LoadLevelEvent>::instance().unregisterListener(loadLevelListener);
-	}
 
 	if (transitionEventListener.isValid())
 	{
@@ -147,21 +133,35 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			if (entity.has<StatsComponent>()) {
 				ECS::ContainerInterface::removeAllComponentsOf(entity.get<StatsComponent>().healthBar);
 			}
-			ECS::ContainerInterface::removeAllComponentsOf(entity);
-			// Check if there are no more players left, restart game
-			if (ECS::registry<PlayerComponent>.entities.empty())
+
+			if (entity.has<PlayerComponent>())
 			{
-				if (!GameStateSystem::instance().isTransitioning)
-				{
-					GameStateSystem::instance().isTransitioning = true;
-					EventSystem<PlaySoundEffectEvent>::instance().sendEvent({ SoundEffect::GAME_OVER });
-					TransitionEvent event;
-					event.callback = []() {
-						GameStateSystem::instance().launchDefeatScreen();
-					};
-					EventSystem<TransitionEvent>::instance().sendEvent(event);
-					return;
-				}
+				// For player deaths, disable their rendering but keep everything else
+				Player::disableRendering(entity);
+			}
+			else
+			{
+				// For mob deaths, get rid of all their components
+				ECS::ContainerInterface::removeAllComponentsOf(entity);
+			}
+
+			// Check if there are no more players left, restart game
+			auto& players = ECS::registry<PlayerComponent>.entities;
+			int numAlive = std::count_if(players.begin(), players.end(), [](ECS::Entity e)
+			{
+				return !e.has<DeathTimer>();
+			});
+
+			if (numAlive == 0 && !GameStateSystem::instance().isTransitioning)
+			{
+				GameStateSystem::instance().isTransitioning = true;
+				EventSystem<PlaySoundEffectEvent>::instance().sendEvent({ SoundEffect::GAME_OVER });
+				TransitionEvent event;
+				event.callback = []() {
+					GameStateSystem::instance().launchDefeatScreen();
+				};
+				EventSystem<TransitionEvent>::instance().sendEvent(event);
+				return;
 			}
 		}
 	}
@@ -256,72 +256,6 @@ void WorldSystem::processTimers(float elapsed_ms)
 	}
 }
 
-// Reset the world state to its initial state
-void WorldSystem::restart()
-{
-	// Debugging for memory/component leaks
-	ECS::ContainerInterface::listAllComponents();
-	std::cout << "Restarting\n";
-
-	// Remove all entities that we created
-	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
-	while (!ECS::registry<Motion>.entities.empty())
-		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Motion>.entities.back());
-
-	// Remove camera entity
-	while (!ECS::registry<CameraComponent>.entities.empty()) {
-		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<CameraComponent>.entities.back());
-	}
-
-	while (!ECS::registry<Text>.entities.empty())
-		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Text>.entities.back());
-
-	// Debugging for memory/component leaks
-	ECS::ContainerInterface::listAllComponents();
-
-	// Get screen/buffer size
-	int frameBufferWidth, frameBufferHeight;
-	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
-	
-	Camera::createCamera(GameStateSystem::instance().currentLevel.at("camera"));
-	createMap(frameBufferWidth, frameBufferHeight);
-	createPlayers(frameBufferWidth, frameBufferHeight);
-	createMobs(frameBufferWidth, frameBufferHeight);
-	createButtons(frameBufferWidth, frameBufferHeight);
-	createEffects(frameBufferWidth, frameBufferHeight);
-
-	playAudio();
-	shouldPlayAudioAtStartOfTurn = false;
-
-	// On restart, go back to the normal mouse cursor
-	glfwSetCursor(window, nullptr);
-}
-
-void WorldSystem::preloadResources()
-{
-	ECS::ContainerInterface::listAllComponents();
-	std::cout << "Preloading... \n";
-
-	int frameBufferWidth, frameBufferHeight;
-	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
-
-	createMap(frameBufferWidth, frameBufferHeight);
-	createPlayers(frameBufferWidth, frameBufferHeight);
-	createMobs(frameBufferWidth, frameBufferHeight);
-	createButtons(frameBufferWidth, frameBufferHeight);
-	createEffects(frameBufferWidth, frameBufferHeight);
-
-	std::cout << "Preload complete. Unloading... \n";
-	while (!ECS::registry<Motion>.entities.empty())
-		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<Motion>.entities.back());
-
-	while (!ECS::registry<CameraComponent>.entities.empty()) {
-		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<CameraComponent>.entities.back());
-	}
-
-	ECS::ContainerInterface::listAllComponents();
-	std::cout << "Unload complete. \n";
-}
 
 // Compute collisions between entities
 void WorldSystem::handleCollisions()
@@ -355,191 +289,26 @@ bool WorldSystem::isOver() const
 	return glfwWindowShouldClose(window)>0;
 }
 
-void WorldSystem::createMap(int frameBufferWidth, int frameBufferHeight)
-{
-	// Create the map
-	MapComponent::createMap(GameStateSystem::instance().currentLevel.at("map"), { frameBufferWidth, frameBufferHeight });
-
-	// Create a deforming blob for pizza arena
-	// maybe add own section in level file we have more of these
-	if (GameStateSystem::instance().currentLevel.at("map") == "pizza-arena") {
-		CheeseBlob::createCheeseBlob({ 700, 950 });
-	}
-
-	if (GameStateSystem::instance().currentLevel.at("map") == "dessert-arena") {
-		DessertForeground::createDessertForeground({ 1920, 672 });
-		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ std::make_shared<BasicEmitter>(BasicEmitter(5)) });
-		EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ std::make_shared<BlueCottonCandyEmitter>(BlueCottonCandyEmitter(5)) });
-		
-	}
-}
-
-void WorldSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
-{
-	// Create UI buttons
-	auto player_button_1 = Button::createPlayerButton(PlayerType::RAOUL, { frameBufferWidth / 2.f - 300, 60 },
-		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::RAOUL }); });
-
-	auto player_button_2 = Button::createPlayerButton(PlayerType::TAJI, { frameBufferWidth / 2.f - 100, 60 },
-		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::TAJI }); });
-
-	auto player_button_3 = Button::createPlayerButton(PlayerType::EMBER, { frameBufferWidth / 2.f + 100, 60 },
-		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::EMBER }); });
-
-	auto player_button_4 = Button::createPlayerButton(PlayerType::CHIA, { frameBufferWidth / 2.f + 300, 60 },
-		[]() { EventSystem<PlayerButtonEvent>::instance().sendEvent(PlayerButtonEvent{ PlayerType::CHIA }); });
-
-	SkillButton::createMoveButton({ 100, frameBufferHeight - 80 }, "skill_buttons/skill_generic_move",
-		[]() {
-		std::cout << "Move button clicked!" << std::endl;
-		if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
-		{
-			auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-			if (!activeEntity.has<PlayerComponent>())
-			{
-				return;
-			}
-			
-			auto& turnComponent = activeEntity.get<TurnSystem::TurnComponent>();
-			if (turnComponent.canStartMoving())
-			{
-				turnComponent.activeAction = SkillType::MOVE;
-				SetActiveSkillEvent event;
-				event.entity = activeEntity;
-				event.type = SkillType::MOVE;
-				EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
-
-
-				if (GameStateSystem::instance().isInTutorial && GameStateSystem::instance().currentTutorialIndex == 3)
-				{
-					EventSystem<AdvanceTutorialEvent>::instance().sendEvent(AdvanceTutorialEvent{});
-				}
-			}
-		};
-	});
-
-	SkillButton::createSkillButton({ 250, frameBufferHeight - 80 }, PlayerType::RAOUL, SkillType::SKILL1, "skill1",
-		[]() {
-			std::cout << "Skill one button clicked!" << std::endl;
-
-			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
-			{
-				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-				if (!activeEntity.has<PlayerComponent>())
-				{
-					return;
-				}
-
-				auto& turnComponent = activeEntity.get<TurnSystem::TurnComponent>();
-				if (turnComponent.canStartSkill())
-				{
-					turnComponent.activeAction = SkillType::SKILL1;
-					SetActiveSkillEvent event;
-					event.entity = activeEntity;
-					event.type = SkillType::SKILL1;
-
-					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
-
-					if (GameStateSystem::instance().isInTutorial && GameStateSystem::instance().currentTutorialIndex == 5)
-					{
-						EventSystem<AdvanceTutorialEvent>::instance().sendEvent(AdvanceTutorialEvent{});
-					}
-				}
-			}
-		});
-
-	SkillButton::createSkillButton({ 400, frameBufferHeight - 80 }, PlayerType::RAOUL, SkillType::SKILL2, "skill2",
-		[]() {
-			std::cout << "Skill two button clicked!" << std::endl;
-
-			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
-			{
-				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-				if (!activeEntity.has<PlayerComponent>())
-				{
-					return;
-				}
-
-				auto& turnComponent = activeEntity.get<TurnSystem::TurnComponent>();
-				if (turnComponent.canStartSkill())
-				{
-					turnComponent.activeAction = SkillType::SKILL2;
-					SetActiveSkillEvent event;
-					event.entity = activeEntity;
-					event.type = SkillType::SKILL2;
-
-					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
-				}
-			}
-		});
-
-	SkillButton::createSkillButton({ 550, frameBufferHeight - 80 }, PlayerType::RAOUL, SkillType::SKILL3, "skill3",
-		[]() {
-			std::cout << "Skill three button clicked!" << std::endl;
-
-			if (!ECS::registry<TurnSystem::TurnComponentIsActive>.entities.empty())
-			{
-				auto activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities.front();
-				if (!activeEntity.has<PlayerComponent>())
-				{
-					return;
-				}
-
-				auto& turnComponent = activeEntity.get<TurnSystem::TurnComponent>();
-				if (turnComponent.canStartSkill())
-				{
-					turnComponent.activeAction = SkillType::SKILL3;
-					SetActiveSkillEvent event;
-					event.entity = activeEntity;
-					event.type = SkillType::SKILL3;
-
-					EventSystem<SetActiveSkillEvent>::instance().sendEvent(event);
-
-					if (GameStateSystem::instance().isInTutorial && GameStateSystem::instance().currentTutorialIndex == 8)
-					{
-						EventSystem<AdvanceTutorialEvent>::instance().sendEvent(AdvanceTutorialEvent{});
-					}
-				}
-			}
-		});
-
-	ToolTip::createMoveToolTip({ 100, frameBufferHeight - 120 });
-	ToolTip::createToolTip(PlayerType::RAOUL, SkillType::SKILL1, { 250, frameBufferHeight - 120 });
-	ToolTip::createToolTip(PlayerType::RAOUL, SkillType::SKILL2, { 400, frameBufferHeight - 120 });
-	ToolTip::createToolTip(PlayerType::RAOUL, SkillType::SKILL3, { 550, frameBufferHeight - 120 });
-
-	HelpButton::createHelpButton(vec2(frameBufferWidth - 60.f, 30.f));
-}
-
-void WorldSystem::createEffects(int frameBufferWidth, int frameBufferHeight)
-{
-	MouseClickFX::createMouseClickFX();
-	ActiveSkillFX::createActiveSkillFX();
-}
-
-void WorldSystem::createPlayers(int frameBufferWidth, int frameBufferHeight)
-{ 
-	// you can also createPlayers using the old method 
-	// eg: playerRaoul = Raoul::createRaoul(vec2( 640, 512 ));
-	// please specify vec2(x, y), as {x , y} is also valid json
-
-	playerRaoul = Raoul::createRaoul(GameStateSystem::instance().currentLevel.at("raoul"));
-	playerTaji = Taji::createTaji(GameStateSystem::instance().currentLevel.at("taji"));
-	playerEmber = Ember::createEmber(GameStateSystem::instance().currentLevel.at("ember"));
-	playerChia = Chia::createChia(GameStateSystem::instance().currentLevel.at("chia"));
-}
-
-void WorldSystem::createMobs(int frameBufferWidth, int frameBufferHeight)
-{
-	auto mobs = GameStateSystem::instance().currentLevel.at("mobs");
-	createEnemies(mobs);
-}
-
 // On key callback
 void WorldSystem::onKey(int key, int, int action, int mod)
 {
+	// Mute the music (but leave sound effects on)
+	if (action == GLFW_RELEASE && key == GLFW_KEY_M) {
+		Mix_VolumeMusic(0);
+	}
+
+	// Debug printout of the entity registries
+	if (action == GLFW_RELEASE && key == GLFW_KEY_P) {
+		ECS::ContainerInterface::listAllComponents();
+	}
+
 	//Don't let debug buttons work unless in game
 	if (!GameStateSystem::instance().inGameState()) {
+		// Skip story
+		if (GameStateSystem::instance().isInStory && action == GLFW_RELEASE && key == GLFW_KEY_SPACE)
+		{
+			GameStateSystem::instance().beginTutorial();
+		}
 		return;
 	}
 	// Handles inputs for camera movement
@@ -574,15 +343,11 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	}
 
 	// Animation Test
-	if (action == GLFW_RELEASE && key == GLFW_KEY_3) {
-		auto& anim = playerEmber.get<AnimationsComponent>();
-		anim.changeAnimation(AnimationType::ATTACK3);
-	}
 	if (action == GLFW_RELEASE && key == GLFW_KEY_4) {
-		for (auto entity : ECS::registry<Lettuce>.entities)
+		for (auto entity : ECS::registry<Chicken>.entities)
 		{
 			auto& anim = entity.get<AnimationsComponent>();
-			anim.changeAnimation(AnimationType::ATTACK2);
+			anim.changeAnimation(AnimationType::ATTACK1);
 		}
 	}
 
@@ -602,15 +367,6 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		}
 	}
 
-	// Resetting game
-	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
-	{
-			int w, h;
-			glfwGetWindowSize(window, &w, &h);
-
-			restart();
-	}
-
 	if (key == GLFW_KEY_H && action == GLFW_RELEASE)
 	{
 		if (GameStateSystem::instance().isInHelpScreen)
@@ -627,31 +383,24 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	if (key == GLFW_KEY_D)
 		DebugSystem::in_debug_mode = (action != GLFW_RELEASE);
 
-	// swap maps for swapping between pizza and dessert maps for recipe 1
-	if (action == GLFW_RELEASE && key == GLFW_KEY_M) {
-			GameStateSystem::instance().currentLevelIndex = 1;
-			GameStateSystem::instance().restartMap();
-	}
-
+	// Advance to next level or go back to main menu if no levels left
 	if (action == GLFW_RELEASE && key == GLFW_KEY_N) {
-		GameStateSystem::instance().currentLevelIndex = 0;
-		GameStateSystem::instance().restartMap();
+			GameStateSystem::instance().nextMap();
 	}
 
 	// load save debug
 	if (action == GLFW_RELEASE && key == GLFW_KEY_L) {
-		json save_obj = lc.load();
-		if (save_obj.contains("recipe")) // only try to load if a save actually exists
-		{
-			GameStateSystem::instance().recipe = lc.readLevel(save_obj["recipe"]);
-			GameStateSystem::instance().currentLevelIndex = save_obj["level"];
-			GameStateSystem::instance().restartMap();
-		}
+		GameStateSystem::instance().loadSave();
 	}
 
 	// Play the next audio track (this is just so that we can give all of them a try)
 	if (action == GLFW_RELEASE && key == GLFW_KEY_A) {
 		playNextAudioTrack_DEBUG();
+	}
+
+	// Go to main menu (for checking achievements after saving)
+	if (action == GLFW_RELEASE && key == GLFW_KEY_BACKSPACE) {
+		GameStateSystem::instance().launchMainMenu();
 	}
 }
 
@@ -662,7 +411,12 @@ void WorldSystem::onMouseClick(int button, int action, int mods) const
 		double mousePosX, mousePosY;
 		glfwGetCursorPos(window, &mousePosX, &mousePosY);
 
-		std::cout << "Mouse click (release): {" << mousePosX << ", " << mousePosY << "}" << std::endl;
+		//std::cout << "Mouse click (release): {" << mousePosX << ", " << mousePosY << "}" << std::endl;
+
+		auto camera = ECS::registry<CameraComponent>.entities[0];
+		auto& cameraPos = camera.get<CameraComponent>().position;
+		// mouse click print without camera position
+		std::cout << "Mouse click (release): {" << mousePosX + cameraPos.x << ", " << mousePosY + cameraPos.y << "}" << std::endl;
 
 		if (GameStateSystem::instance().isTransitioning)
 		{
@@ -679,7 +433,7 @@ void WorldSystem::onMouseClick(int button, int action, int mods) const
 				GameStateSystem::instance().isTransitioning = true;
 				TransitionEvent event;
 				event.callback = []() {
-					GameStateSystem::instance().newGame();
+					GameStateSystem::instance().beginTutorial();
 				};
 				EventSystem<TransitionEvent>::instance().sendEvent(event);
 			}
@@ -789,7 +543,10 @@ void WorldSystem::initAudio()
 		}
 	}
 
-	// Hook up the listener for sound effect events
+	// Hook up the listeners for music and sound effect events
+	musicListener = EventSystem<PlayMusicEvent>::instance().registerListener(
+			std::bind(&WorldSystem::onPlayMusicEvent, this, std::placeholders::_1));
+
 	soundEffectListener = EventSystem<PlaySoundEffectEvent>::instance().registerListener(
 			std::bind(&WorldSystem::onPlaySoundEffectEvent, this, std::placeholders::_1));
 
@@ -800,7 +557,12 @@ void WorldSystem::initAudio()
 
 void WorldSystem::releaseAudio()
 {
-	// Stop listening for sound effect events
+	// Stop listening for music and sound effect events
+	if (musicListener.isValid())
+	{
+		EventSystem<PlayMusicEvent>::instance().unregisterListener(musicListener);
+	}
+
 	if (soundEffectListener.isValid())
 	{
 		EventSystem<PlaySoundEffectEvent>::instance().unregisterListener(soundEffectListener);
@@ -827,37 +589,19 @@ void WorldSystem::releaseAudio()
 	Mix_CloseAudio();
 }
 
-void WorldSystem::playAudio()
-{
-	MusicType nextMusicType;
-
-	if (GameStateSystem::instance().currentLevel.at("map") == "pizza-arena")
-	{
-		nextMusicType = MusicType::PIZZA_ARENA;
-	}
-	else if (GameStateSystem::instance().currentLevel.at("map") == "dessert-arena")
-	{
-		nextMusicType = MusicType::DESSERT_ARENA;
-	}
-	else if (GameStateSystem::instance().currentLevel.at("map") == "veggie-forest")
-	{
-		nextMusicType = MusicType::PLACEHOLDER3;
-	}
-	else
-	{
-		nextMusicType = MusicType::PLACEHOLDER1;
-	}
-
-	Mix_PlayMusic(music[nextMusicType], -1);
-	currentMusic_DEBUG = nextMusicType;
-}
-
 void WorldSystem::playNextAudioTrack_DEBUG()
 {
 	int nextMusicType = (currentMusic_DEBUG + 1) % MusicType::LAST;
 	currentMusic_DEBUG = static_cast<MusicType>(nextMusicType);
 
 	Mix_PlayMusic(music[currentMusic_DEBUG], -1);
+}
+
+void WorldSystem::onPlayMusicEvent(const PlayMusicEvent& event)
+{
+	Mix_PlayMusic(music[event.musicType], -1);
+	currentMusic_DEBUG = event.musicType;
+	shouldPlayAudioAtStartOfTurn = false;
 }
 
 void WorldSystem::onPlaySoundEffectEvent(const PlaySoundEffectEvent& event)
@@ -878,11 +622,6 @@ void WorldSystem::onPlayerChangeEvent(const PlayerChangeEvent& event)
 
 	// When the active player changes, go back to the normal mouse cursor
 	glfwSetCursor(window, nullptr);
-}
-
-void WorldSystem::onLoadLevelEvent(const LoadLevelEvent& event)
-{
-	restart();
 }
 
 void WorldSystem::onTransition(TransitionEvent event)
@@ -957,6 +696,9 @@ void WorldSystem::initCursors()
 
 	finishedSkillListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
 			std::bind(&WorldSystem::onFinishedSkillEvent, this, std::placeholders::_1));
+
+	resetMouseCursorListener = EventSystem<ResetMouseCursorEvent>::instance().registerListener(
+			std::bind(&WorldSystem::onResetMouseCursorEvent, this, std::placeholders::_1));
 }
 
 void WorldSystem::releaseCursors()
@@ -1032,5 +774,10 @@ void WorldSystem::onFinishedSkillEvent(const FinishedSkillEvent& event)
 	}
 
 	// When a skill finishes, go back to the normal mouse cursor
+	glfwSetCursor(window, nullptr);
+}
+
+void WorldSystem::onResetMouseCursorEvent(const ResetMouseCursorEvent& event)
+{
 	glfwSetCursor(window, nullptr);
 }
