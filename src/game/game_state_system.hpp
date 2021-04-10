@@ -1,23 +1,18 @@
-#include <vector>
-#include <string>
-#include "entities/tiny_ecs.hpp"
-#include "../ext/nlohmann/json.hpp"
+#include "common.hpp"
 #include "event_system.hpp"
 #include "events.hpp"
+#include "entities/tiny_ecs.hpp"
+
+#include "../ext/nlohmann/json.hpp"
 
 using json = nlohmann::json;
 
-
-struct Recipe {
-	//TODO what should the type be for these
-	std::vector<std::string> levels;
-	std::vector<std::string> victoryScreens;
-	std::vector<std::string> defeatScreens;
-};
-
-
 class GameStateSystem {
-	//TODO should I move all the music logic from the WorldSystem to here?
+private:
+	GameStateSystem();
+	~GameStateSystem();
+	void resetState();
+
 public:
 	// Returns the singleton instance of this system
 	static GameStateSystem& instance() {
@@ -27,57 +22,82 @@ public:
 
 	bool inGameState();
 	bool hasLights();
-	bool isInTutorial;
-	bool hasDoneTutorial;
+
+	void beginStory();
+	void beginTutorial();
+	void nextMap();
+	void restartMap();
+
+	void save();
+	void loadSave();
+	void loadRecipe(const std::string& recipeName, int level = 0,
+									int ambrosia = 0, bool isInTutorial = false);
+
+	void launchMainMenu();
+	void launchAchievementsScreen();
+	void launchCreditsScreen();
+	void launchRecipeSelectMenu();
+	void launchVictoryScreen();
+	void launchDefeatScreen();
+
+	const vec2 getScreenBufferSize();
+	void setWindow(GLFWwindow* window);
+	void preloadResources();
+
+	inline int getAmbrosia() const {return ambrosia;}
+	void setAmbrosia(int amt);
+
+private:
+	////////////////////////
+	// Player entities
+	////////////////////////
+	// Creates new player entities at beginning of recipe
+	void createPlayerEntities();
+	// Completely removes player entities (e.g., when going back to main menu)
+	void removePlayerEntities();
+	// Disables player rendering (e.g., when going to victory/defeat/shop screens)
+	void hidePlayers();
+	// Enables player rendering, fills HP to maximum, removes buffs/debuffs, etc.
+	void preparePlayersForNextMap();
+
+	////////////////////////
+	// Non-player entities
+	////////////////////////
+	// These entities don't persist between levels, so the functions are straightforward
+	void createNonPlayerEntities();
+	void removeNonPlayerEntities();
+	void createMap(int frameBufferWidth, int frameBufferHeight);
+	void createMobs();
+	void createButtons(int frameBufferWidth, int frameBufferHeight);
+	void createEffects();
+	void createAmbrosiaUI();
+
+	void onAmbrosiaEvent(const AmbrosiaEvent& event);
+
+public:
+	bool isInMainScreen;
 	bool isInAchievementsScreen;
 	bool isInCreditsScreen;
 	bool isInStory;
-	bool isInMainScreen;
+	bool isInTutorial;
 	bool isInHelpScreen;
-	bool isTransitioning;
 	bool isInVictoryScreen;
 	bool isInDefeatScreen;
+	bool isTransitioning;
 	json currentLevel;
 	json recipe;
-	int currentLevelIndex; //THIS SHOULD NOT BE PUBLIC but for now this easily lets me debug change maps
+	int currentLevelIndex;
 	int currentTutorialIndex;
 	int currentStoryIndex;
 
-	// Load a fresh playthrough with tutorial on, does not save
-	void newGame();
-	//Load the next map in the current recipe
-	void nextMap();
-	//If the players lose restart the current map
-	void restartMap();
-	//TODO should loading a save be called from here?
-	void loadSave();
-	//TODO should save be called from here
-	void save();
-	//This will call the victory screen for the current map
-	void launchVictoryScreen();
-	//This will call the defeat screen for the current map
-	void launchDefeatScreen();
-	//This will call the main menu
-	void launchMainMenu();
-	// This will call the achievements screen
-	void launchAchievementsScreen();
-	// This will call the credits screen
-	void launchCreditsScreen();
-	void launchRecipeSelectMenu();
+private:
+	int ambrosia;
+	EventListenerInfo ambrosiaListener;
 
-	void beginStory();
-	void loadRecipe(const std::string& recipe);
+	ECS::Entity playerRaoul;
+	ECS::Entity playerTaji;
+	ECS::Entity playerEmber;
+	ECS::Entity playerChia;
 
-//This removes all the enitities with a motion component
-	void removeAllMotionEntities();
-
-	const vec2 getScreenBufferSize();
-
-	void setWindow(GLFWwindow* window);
-
-private:	
-	GameStateSystem();
-		
-	//ECS::Entity currentRecipeEntity;
 	GLFWwindow* window;
 };

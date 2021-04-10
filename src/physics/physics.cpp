@@ -146,6 +146,9 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			// Move camera to follow moving entity
 			CameraSystem::moveCamera(step_seconds * motion.velocity, window_size_in_game_units);
 		}
+		else if (entity.has<ProjectileComponent>()) {
+			CameraSystem::viewPosition(motion.position, window_size_in_game_units);
+		}
 
 		// Position active arrow above active entity
 		if (entity.has<TurnSystem::TurnComponentIsActive>()) {
@@ -200,42 +203,36 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 
 
-	// Check for collisions between all moving entities
-	auto& motion_container = ECS::registry<Motion>;
-	for (unsigned int i = 0; i < motion_container.components.size(); i++)
+	// Check for collisions between projectiles and all moving entities
+	for (auto projectileEntity : ECS::registry<ProjectileComponent>.entities)
 	{
-		Motion& motion_i = motion_container.components[i];
-		ECS::Entity entity_i = motion_container.entities[i];
-
-		// Don't check for collisions if entity_i is dead
-		if (entity_i.has<DeathTimer>())
+		if (!projectileEntity.has<Motion>())
 		{
 			continue;
 		}
+		auto& projectileMotion = projectileEntity.get<Motion>();
 
-		// Calculate the current bounds for entity_i
-		BoundingBox boundingBox_i = getBoundingBox(entity_i, motion_i);
+		// Calculate the current bounds for the projectile
+		BoundingBox projectileBoundingBox = getBoundingBox(projectileEntity, projectileMotion);
 
-		for (unsigned int j = i + 1; j < motion_container.components.size(); j++)
+		// Check whether the projectile collides with any Motion entities
+		for (auto targetEntity : ECS::registry<Motion>.entities)
 		{
-			Motion& motion_j = motion_container.components[j];
-			ECS::Entity entity_j = motion_container.entities[j];
-
-			// Don't check for collisions if entity_j is dead
-			if (entity_j.has<DeathTimer>())
+			// Ignore if targetEntity is dead or is a projectile itself
+			if (targetEntity.has<DeathTimer>() || targetEntity.has<ProjectileComponent>())
 			{
 				continue;
 			}
+			auto& targetMotion = targetEntity.get<Motion>();
 
-			// Calculate the current bounds for entity_j
-			BoundingBox boundingBox_j = getBoundingBox(entity_j, motion_j);
+			// Calculate the current bounds for the targetEntity
+			BoundingBox targetBoundingBox = getBoundingBox(targetEntity, targetMotion);
 
 			// Check for collision
-			if (collides(boundingBox_i, boundingBox_j))
+			if (collides(projectileBoundingBox, targetBoundingBox))
 			{
-				// Log the collisions
-				ECS::registry<Collision>.emplaceWithDuplicates(entity_i, entity_j);
-				ECS::registry<Collision>.emplaceWithDuplicates(entity_j, entity_i);
+				// Log the collision
+				ECS::registry<Collision>.emplaceWithDuplicates(projectileEntity, targetEntity);
 			}
 		}
 	}

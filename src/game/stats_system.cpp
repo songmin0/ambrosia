@@ -18,6 +18,9 @@ StatsSystem::StatsSystem()
 
 	finishedSkillListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
 			std::bind(&StatsSystem::onFinishedSkillEvent, this, std::placeholders::_1));
+
+	prepForNextMapListener = EventSystem<PrepForNextMapEvent>::instance().registerListener(
+			std::bind(&StatsSystem::onPrepForNextMapEvent, this, std::placeholders::_1));
 }
 
 StatsSystem::~StatsSystem()
@@ -45,6 +48,11 @@ StatsSystem::~StatsSystem()
 	if (finishedSkillListener.isValid())
 	{
 		EventSystem<FinishedSkillEvent>::instance().unregisterListener(finishedSkillListener);
+	}
+
+	if (prepForNextMapListener.isValid())
+	{
+		EventSystem<PrepForNextMapEvent>::instance().unregisterListener(prepForNextMapListener);
 	}
 }
 
@@ -92,6 +100,20 @@ void StatsSystem::removeStatModifier(ECS::Entity entity,
 	}
 }
 
+void StatsSystem::removeAllStatModifiers(ECS::Entity entity,
+																				 StatsComponent& statsComponent)
+{
+	// Stop the FX for each modifier
+	for (auto& statModifier : statsComponent.statModifiers)
+	{
+		FXType fxType = getFXType(statModifier.second);
+		EventSystem<StopFXEvent>::instance().sendEvent({entity, fxType});
+	}
+
+	// Remove all modifiers
+	statsComponent.statModifiers.clear();
+}
+
 FXType StatsSystem::getFXType(StatModifier statModifier)
 {
 	FXType type = FXType::NONE;
@@ -131,16 +153,7 @@ void StatsSystem::handleHitReaction(ECS::Entity entity)
 void StatsSystem::handleDeathReaction(ECS::Entity entity, StatsComponent& statsComponent)
 {
 	entity.emplace<DeathTimer>();
-
-	// Stop the FX for each modifier
-	for (auto& statModifier : statsComponent.statModifiers)
-	{
-		FXType fxType = getFXType(statModifier.second);
-		EventSystem<StopFXEvent>::instance().sendEvent({entity, fxType});
-	}
-
-	// Remove all modifiers
-	statsComponent.statModifiers.clear();
+	removeAllStatModifiers(entity, statsComponent);
 
 	// Activate target's animation
 	if (entity.has<AnimationsComponent>())
@@ -151,6 +164,13 @@ void StatsSystem::handleDeathReaction(ECS::Entity entity, StatsComponent& statsC
 
 	// Play sound effect
 	EventSystem<PlaySoundEffectEvent>::instance().sendEvent({SoundEffect::DEFEAT});
+
+	// Handle ambrosia
+	int ambrosia = (int) statsComponent.getStatValue(StatType::AMBROSIA);
+	if (ambrosia > 0)
+	{
+		EventSystem<AmbrosiaEvent>::instance().sendEvent({entity, ambrosia});
+	}
 }
 
 void StatsSystem::onHitEvent(const HitEvent &event)
@@ -313,5 +333,20 @@ void StatsSystem::onFinishedSkillEvent(const FinishedSkillEvent& event)
 			// removed at the start of the next round (see `onStartNextRoundEvent`).
 			statModifier.second.numTurns--;
 		}
+	}
+}
+
+void StatsSystem::onPrepForNextMapEvent(const PrepForNextMapEvent& event)
+{
+	auto entity = event.entity;
+	if (entity.has<StatsComponent>())
+	{
+		auto& statsComponent = entity.get<StatsComponent>();
+
+		// Get rid of existing buffs/debuffs
+		removeAllStatModifiers(entity, statsComponent);
+
+		// Restore HP
+		statsComponent.stats[StatType::HP] = statsComponent.stats[StatType::MAX_HP];
 	}
 }

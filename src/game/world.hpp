@@ -28,12 +28,6 @@ public:
 	// Releases all associated resources
 	~WorldSystem();
 
-	// restart level
-	void restart();
-
-	// preload resource cache
-	void preloadResources();
-
 	// Steps the game ahead by ms milliseconds
 	void step(float elapsed_ms, vec2 window_size_in_game_units);
 
@@ -46,12 +40,6 @@ public:
 	// OpenGL window handle
 	GLFWwindow* window;
 private:
-	void createMap(int frameBufferWidth, int frameBufferHeight);
-	void createButtons(int frameBufferWidth, int frameBufferHeight);
-	void createPlayers(int frameBufferWidth, int frameBufferHeight);
-	void createMobs(int frameBufferWidth, int frameBufferHeight);
-	void createEffects(int frameBufferWidth, int frameBufferHeight);
-
 	// Input callback functions
 	void onKey(int key, int, int action, int mod);
 	void onMouseClick(int button, int action, int mods) const;
@@ -60,14 +48,11 @@ private:
 	// Music and sound effects
 	void initAudio();
 	void releaseAudio();
-	void playAudio();
 	void playNextAudioTrack_DEBUG();
+	void onPlayMusicEvent(const PlayMusicEvent& event);
 	void onPlaySoundEffectEvent(const PlaySoundEffectEvent& event);
 	void onPlayerChangeEvent(const PlayerChangeEvent& event);
 	void processTimers(float elapsed_ms);
-
-	// Level loading
-	void onLoadLevelEvent(const LoadLevelEvent& event);
 
 	// Mouse cursor
 	void initCursors();
@@ -75,17 +60,13 @@ private:
 	void onSetActiveSkillEvent(const SetActiveSkillEvent& event);
 	void onFinishedMovementEvent(const FinishedMovementEvent& event);
 	void onFinishedSkillEvent(const FinishedSkillEvent& event);
+	void onResetMouseCursorEvent(const ResetMouseCursorEvent& event);
 
-	// Player test
-	ECS::Entity playerRaoul;
-	ECS::Entity playerTaji;
-	ECS::Entity playerEmber;
-	ECS::Entity playerChia;
-	
 	// Music and sound effects
 	std::unordered_map<MusicType, Mix_Music*> music;
 	std::unordered_map<SoundEffect, Mix_Chunk*> soundEffects;
 	MusicType currentMusic_DEBUG;
+	EventListenerInfo musicListener;
 	EventListenerInfo soundEffectListener;
 	EventListenerInfo playerChangeListener;
 
@@ -95,12 +76,6 @@ private:
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
-
-	// Level loading
-	LevelLoader lc;
-	//config obj
-	//json config;
-	EventListenerInfo loadLevelListener;
 
 	void onTransition(TransitionEvent);
 	EventListenerInfo transitionEventListener;
@@ -112,4 +87,5 @@ private:
 	EventListenerInfo setActiveSkillListener;
 	EventListenerInfo finishedMovementListener;
 	EventListenerInfo finishedSkillListener;
+	EventListenerInfo resetMouseCursorListener;
 };

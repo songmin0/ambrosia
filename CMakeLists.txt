@@ -37,6 +37,7 @@ SET(SOURCE_FILES
         "src/entities/taji.cpp"
         "src/entities/ember.cpp"
         "src/entities/chia.cpp"
+        "src/entities/players.cpp"
         "src/entities/enemies.cpp"
         "src/entities/tiny_ecs.cpp"
         "src/game/camera.cpp"
@@ -73,7 +74,11 @@ SET(SOURCE_FILES
         "src/skills/skill_system.cpp"
         "src/game/game_state_system.cpp"
         "src/game/range_indicator_system.cpp"
-        "src/particles/RainEmitter.cpp" "src/particles/ConfettiEmitter.cpp" "src/particles/SparkleEmitter.cpp")
+        "src/particles/RainEmitter.cpp"
+        "src/particles/ConfettiEmitter.cpp"
+        "src/particles/SparkleEmitter.cpp")
+        "src/skills/skill_component.cpp"
+        )
 
 # Add the directories that the compiler has to search for #include files
 INCLUDE_DIRECTORIES(
