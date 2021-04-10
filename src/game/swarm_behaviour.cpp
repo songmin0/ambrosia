@@ -101,10 +101,10 @@ void SwarmBehaviour::step(float elapsed_ms, vec2 window_size_in_game_units) {
 				return;
 			}
 		}
-		auto max_hp = chunks[0].get<StatsComponent>().stats[StatType::MAX_HP] * num_chunks;
+		auto max_hp = chunks[0].get<StatsComponent>().getStatValue(StatType::MAX_HP) * num_chunks;
 		auto remaining_hp = 0.f;
 		for (auto chunk : chunks) {
-			remaining_hp += chunk.get<StatsComponent>().stats[StatType::HP];
+			remaining_hp += chunk.get<StatsComponent>().getStatValue(StatType::HP);
 			ECS::registry<DeathTimer>.emplace(chunk).CustomDeathTimer(100.f);
 		}
 

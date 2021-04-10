@@ -164,6 +164,13 @@ void StatsSystem::handleDeathReaction(ECS::Entity entity, StatsComponent& statsC
 
 	// Play sound effect
 	EventSystem<PlaySoundEffectEvent>::instance().sendEvent({SoundEffect::DEFEAT});
+
+	// Handle ambrosia
+	int ambrosia = (int) statsComponent.getStatValue(StatType::AMBROSIA);
+	if (ambrosia > 0)
+	{
+		EventSystem<AmbrosiaEvent>::instance().sendEvent({entity, ambrosia});
+	}
 }
 
 void StatsSystem::onHitEvent(const HitEvent &event)
