@@ -443,7 +443,8 @@ void GameStateSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 	{
 		EventSystem<PlayMusicEvent>::instance().sendEvent({MusicType::DESSERT_ARENA});
 
-		DessertForeground::createDessertForeground(vec2(1920.f, 672.f));
+		DessertForeground::createDessertForeground(vec2(2291.f, 772.f));
+		DessertBackground::createDessertBackground(vec2(1920.f, 672.f));
 		EventSystem<AddEmitterEvent>::instance().sendEvent(
 				AddEmitterEvent{ "pinkCottonCandy",std::make_shared<BasicEmitter>(BasicEmitter(5)) });
 		EventSystem<AddEmitterEvent>::instance().sendEvent(
@@ -457,7 +458,7 @@ void GameStateSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 	{
 		EventSystem<PlayMusicEvent>::instance().sendEvent({MusicType::BOSS});
 
-		BBQBackground::createBBQBackground(vec2(1120.f, 720.f));
+		BBQBackground::createBBQBackground(vec2(960.f, 720.f));
 		BBQFire::createBBQFire(vec2(2153.f, 1015.f));
 		BBQFire::createBBQFire(vec2(1378.f, 1403.f));
 		BBQFire::createBBQFire(vec2(41.f, 1264.f));
