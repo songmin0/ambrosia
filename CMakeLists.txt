@@ -73,7 +73,7 @@ SET(SOURCE_FILES
         "src/skills/skill_system.cpp"
         "src/game/game_state_system.cpp"
         "src/game/range_indicator_system.cpp"
-        "src/particles/RainEmitter.cpp" "src/particles/ConfettiEmitter.cpp")
+        "src/particles/RainEmitter.cpp" "src/particles/ConfettiEmitter.cpp" "src/particles/SparkleEmitter.cpp")
 
 # Add the directories that the compiler has to search for #include files
 INCLUDE_DIRECTORIES(

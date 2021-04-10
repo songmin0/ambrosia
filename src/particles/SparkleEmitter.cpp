@@ -1,12 +1,12 @@
 #include "particle_system.hpp"
 
-ConfettiEmitter::ConfettiEmitter() {
-	this->burst = true;
+SparkleEmitter::SparkleEmitter(int particlesPerSecond) {
+	this->particlesPerSecond = particlesPerSecond;
 	secSinceLastParticleSpawn = 0;
 }
 
 
-void ConfettiEmitter::simulateParticles(float elapsedMs, int numNewParticles)
+void SparkleEmitter::simulateParticles(float elapsedMs, int numNewParticles)
 {
 	float elapsedTimeSec = elapsedMs / 1000.0f;
 	particlesCount = 0;
@@ -19,8 +19,6 @@ void ConfettiEmitter::simulateParticles(float elapsedMs, int numNewParticles)
 			// Decrease life
 			p.life -= elapsedMs;
 			if (p.life > 0.0f) {
-				//Apply "Gravity"
-				p.speed += vec3(0.0f,50.0f,0.0f) * ((float)elapsedTimeSec);
 				p.pos += p.speed * ((float)elapsedTimeSec);
 
 				// Fill the GPU buffer
@@ -47,58 +45,33 @@ void ConfettiEmitter::simulateParticles(float elapsedMs, int numNewParticles)
 	}
 }
 
-void ConfettiEmitter::createParticle(int index)
+void SparkleEmitter::createParticle(int index)
 {
-	ParticlesContainer[index].life = rand() % 10 * 1000 + 60000;   // This particle will live at least 60 seconds.
-	if (rand() % 2 == 1) {
-		ParticlesContainer[index].pos = glm::vec3(rand() % 200 - 500.0f, 512.0f, 0.0f);
-	}
-	else {
-		ParticlesContainer[index].pos = glm::vec3(rand() % 200 + 300.0f, 512.0f, 0.0f);
-	}
+	ParticlesContainer[index].life = rand() % 2 * 1000 + 3000;   // This particle will live at least 3 seconds.
+	ParticlesContainer[index].pos = glm::vec3(rand() % 1366 - 683.0f, rand() % 1024 - 512.0f, 0.0f);
 
-	glm::vec3 mainVelocity = glm::vec3(0.0f, -250.0f, 0.0f);
+	glm::vec3 mainVelocity = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	//Genertate a random velocity so not all particles follow the same direction
 	glm::vec3 randomVelocity = glm::vec3(
-		rand() % 120 - 60,
-		rand() % 250,
+		0.0f,
+		0.0f,
 		0.0f
 	);
 
 	ParticlesContainer[index].speed = mainVelocity + randomVelocity;
-	vec4 color;
 
-	switch(rand() % 5){
-	case 0: 
-	 color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-		break;
-	case 1:
-		color = vec4(0.0f, 1.0f, 0.0f, 1.0f);
-		break;
-	case 2:
-		color = vec4(0.0f, 0.0f, 1.0f, 1.0f);
-		break;
-	case 3:
-		color = vec4(1.0f, 1.0f, 0.0f, 1.0f);
-		break;
-	case 4:
-		color = vec4(1.0f, 0.0f, 1.0f, 1.0f);
-		break;
-	default:
-		color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	}
-	ParticlesContainer[index].r = color.r;
-	ParticlesContainer[index].g = color.g;
-	ParticlesContainer[index].b = color.b;
-	ParticlesContainer[index].a = color.a;
+	ParticlesContainer[index].r = 1.0;
+	ParticlesContainer[index].g = 1.0;
+	ParticlesContainer[index].b = 1.0;
+	ParticlesContainer[index].a = 1.0;
 
 	//Generate a random size for each particle
-	ParticlesContainer[index].size = (rand() % 15) + 10.0f;
+	ParticlesContainer[index].size = (rand() % 5) + 5.0f;
 
 }
 
-void ConfettiEmitter::initEmitter()
+void SparkleEmitter::initEmitter()
 {
 	// Create and compile our GLSL program from the shaders
 	//TODO create a proper rain texture

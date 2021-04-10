@@ -51,6 +51,8 @@ void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 	logo.emplace<RenderableComponent>(RenderLayer::UI);
 	logo.emplace<Motion>().position = vec2(frameBufferWidth / 2 - 30, frameBufferHeight / 3 - 50);
 
+	EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ "sparkleEmitter",std::make_shared<SparkleEmitter>(SparkleEmitter(20)) });
+
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth - 250, frameBufferHeight / 2 + 50 }, "menus/start/start-button",
 		[]() {

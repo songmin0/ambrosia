@@ -198,6 +198,7 @@ void GameStateSystem::launchAchievementsScreen()
 	removeAllMotionEntities();
 	isInAchievementsScreen = true;
 	Camera::createCamera(vec2(0.f));
+	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
 	vec2 screenBufferSize = getScreenBufferSize();
 	Screens::createAchievementsScreen(screenBufferSize.x, screenBufferSize.y);
 }
@@ -206,6 +207,7 @@ void GameStateSystem::launchCreditsScreen()
 {
 	removeAllMotionEntities();
 	Camera::createCamera(vec2(0.f));
+	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
 	vec2 screenBufferSize = getScreenBufferSize();
 	Screens::createCreditsScreen(screenBufferSize.x, screenBufferSize.y);
 }
@@ -214,6 +216,7 @@ void GameStateSystem::launchRecipeSelectMenu()
 {
 	isInMainScreen = true;
 	Camera::createCamera(vec2(0.f));
+	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
 	removeAllMotionEntities();
 	vec2 screenBufferSize = getScreenBufferSize();
 	Screens::createRecipeSelectScreen(screenBufferSize.x, screenBufferSize.y);

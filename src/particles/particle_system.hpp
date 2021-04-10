@@ -160,3 +160,11 @@ public:
 	void simulateParticles(float elapsedMs, int numNewParticles);
 	void createParticle(int index);
 };
+
+class SparkleEmitter : public ParticleEmitter {
+public:
+	SparkleEmitter(int particlesPerSecond);
+	void initEmitter();
+	void simulateParticles(float elapsedMs, int numNewParticles);
+	void createParticle(int index);
+};
