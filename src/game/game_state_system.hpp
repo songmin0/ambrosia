@@ -30,7 +30,7 @@ public:
 	void save();
 
 	void loadSave();
-	void loadRecipe(const std::string& recipeName, int level = 0,
+	void loadRecipe(const std::string& recipeName, json skill_levels = "", int level = 0,
 									bool isInTutorial = false);
 
 	void launchMainMenu();

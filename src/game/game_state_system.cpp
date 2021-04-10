@@ -167,7 +167,7 @@ void GameStateSystem::loadSave()
 	if (save_obj.contains("recipe"))
 	{
 		std::cout << "GameStateSystem::loadSave: a saved game was found" << std::endl;
-		loadRecipe(save_obj["recipe"], save_obj["level"]);
+		loadRecipe(save_obj["recipe"], save_obj["skill_levels"], save_obj["level"]);
 	}
 	else
 	{
@@ -176,7 +176,7 @@ void GameStateSystem::loadSave()
 	}
 }
 
-void GameStateSystem::loadRecipe(const std::string& recipeName, int level,
+void GameStateSystem::loadRecipe(const std::string& recipeName, json skill_levels, int level,
 																 bool isInTutorial)
 {
 	std::cout << "GameStateSystem::loadRecipe: loading " << recipeName
@@ -377,7 +377,7 @@ void GameStateSystem::hidePlayers()
 
 void GameStateSystem::preparePlayersForNextMap()
 {
-	std::cout << "GameStateSystem::preparePlayersForNextMap: refilling players' HP, removing buffs/debuffs, etc." << std::endl;
+	std::cout << "GameStateSystem::preparePlayersForNextMap: refilling players' HP, removing buffs/debuffs, setting skill levels, etc." << std::endl;
 
 	Player::prepareForNextMap(playerRaoul, currentLevel.at("raoul"));
 	Player::prepareForNextMap(playerTaji, currentLevel.at("taji"));
