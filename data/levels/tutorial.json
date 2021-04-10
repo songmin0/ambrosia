@@ -12,8 +12,7 @@
             "taji": {
                 "stats": {
                     "hp": 70,
-                    "strength": 1,
-                    "ambrosia": 0
+                    "strength": 1
                 },
                 "position": [
                     500,
@@ -23,8 +22,7 @@
             "chia": {
                 "stats": {
                     "hp": 80,
-                    "strength": 1,
-                    "ambrosia": 0
+                    "strength": 1
                 },
                 "position": [
                     200,
@@ -34,8 +32,7 @@
             "raoul": {
                 "stats": {
                     "hp": 100,
-                    "strength": 1,
-                    "ambrosia": 0
+                    "strength": 1
                 },
                 "position": [
                     640,
@@ -45,8 +42,7 @@
             "ember": {
                 "stats": {
                     "hp": 80,
-                    "strength": 1,
-                    "ambrosia": 0
+                    "strength": 1
                 },
                 "position": [
                     400,
@@ -58,7 +54,8 @@
                     "type": "egg",
                     "stats": {
                         "hp": 80,
-                        "strength": 1
+                        "strength": 1,
+                        "ambrosia": 11
                     },
                     "positions": [
                         [
