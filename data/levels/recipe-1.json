@@ -13,7 +13,7 @@
                 "stats": {
                     "hp": 70,
                     "strength": 1,
-                    "ambrosia": 0
+                    "ambrosia":  0
                 },
                 "position": [
                     1600,
@@ -21,33 +21,33 @@
                 ]
             },
             "chia": {
-                "stats": {
-                    "hp": 80,
-                    "strength": 1,
-                    "ambrosia": 0
-                },
+              "stats": {
+                "hp": 80,
+                "strength": 1,
+                "ambrosia": 0
+              },
                 "position": [
                     1750,
                     700
                 ]
             },
             "raoul": {
-                "stats": {
-                    "hp": 100,
-                    "strength": 1,
-                    "ambrosia": 0
-                },
+              "stats": {
+                "hp": 100,
+                "strength": 1,
+                "ambrosia": 0
+              },
                 "position": [
                     1950,
                     800
                 ]
             },
             "ember": {
-                "stats": {
-                    "hp": 80,
-                    "strength": 1,
-                    "ambrosia": 0
-                },
+              "stats": {
+                "hp": 80,
+                "strength": 1,
+                "ambrosia": 0
+              },
                 "position": [
                     1800,
                     1000
@@ -57,7 +57,7 @@
                 {
                     "type": "egg",
                     "stats": {
-                        "hp": 80,
+                        "hp": 10,
                         "strength": 1
                     },
                     "positions": [
@@ -65,44 +65,6 @@
                             2400,
                             1100,
                             1
-                        ],
-                        [
-                            2550,
-                            900,
-                            1
-                        ]
-                    ]
-                },
-                {
-                    "type": "pepper",
-                    "stats": {
-                        "hp": 50,
-                        "strength": 1
-                    },
-                    "positions": [
-                        [
-                            750,
-                            900,
-                            -1
-                        ],
-                        [
-                            850,
-                            1100,
-                            -1
-                        ]
-                    ]
-                },
-                {
-                    "type": "milk",
-                    "stats": {
-                        "hp": 80,
-                        "strength": 1
-                    },
-                    "positions": [
-                        [
-                            900,
-                            800,
-                            -1
                         ]
                     ]
                 }
@@ -117,44 +79,44 @@
                 ]
             },
             "taji": {
-                "stats": {
-                    "hp": 70,
-                    "strength": 1,
-                    "ambrosia": 0
-                },
+              "stats": {
+                "hp": 70,
+                "strength": 1,
+                "ambrosia": 0
+              },
                 "position": [
                     500,
                     400
                 ]
             },
             "chia": {
-                "stats": {
-                    "hp": 80,
-                    "strength": 1,
-                    "ambrosia": 0
-                },
+              "stats": {
+                "hp": 80,
+                "strength": 1,
+                "ambrosia": 0
+              },
                 "position": [
                     200,
                     700
                 ]
             },
             "raoul": {
-                "stats": {
-                    "hp": 100,
-                    "strength": 1,
-                    "ambrosia": 0
-                },
+              "stats": {
+                "hp": 100,
+                "strength": 1,
+                "ambrosia": 0
+              },
                 "position": [
                     640,
                     512
                 ]
             },
             "ember": {
-                "stats": {
-                    "hp": 80,
-                    "strength": 1,
-                    "ambrosia": 0
-                },
+              "stats": {
+                "hp": 80,
+                "strength": 1,
+                "ambrosia": 0
+              },
                 "position": [
                     400,
                     700

@@ -5,28 +5,120 @@
 #include <effects/effects.hpp>
 #include "rendering/text.hpp"
 
-void ShopSystem::executeShopEffect(int i, std::string player, int index)
+std::string getPlayerName(PlayerType player) {
+	switch (player)
+	{
+	case PlayerType::RAOUL:
+		return "raoul";
+		break;
+	case PlayerType::TAJI:
+		return "taji";
+		break;
+	case PlayerType::EMBER:
+		return "ember";
+		break;
+	case PlayerType::CHIA:
+		return "chia";
+		break;
+	default:
+		return "";
+		break;
+	}
+	return "";
+}
+
+ECS::Entity ShopSystem::getPlayerEntity(PlayerType player) {
+	switch (player)
+	{
+	case PlayerType::RAOUL:
+		return raoul;
+		break;
+	case PlayerType::TAJI:
+		return taji;
+		break;
+	case PlayerType::EMBER:
+		return ember;
+		break;
+	case PlayerType::CHIA:
+		return chia;
+		break;
+	default:
+		break;
+	}
+	return raoul;
+}
+
+
+void ShopSystem::executeShopEffect(SkillType skillType, PlayerType player, int index)
 {
 	ShopSystem::instance().selected_player = player;
-	ShopSystem::instance().selected_skill = i;
+	ShopSystem::instance().selected_skill = skillType;
 
 	if (ShopSystem::instance().selected == -1) {
+		// initialize selection fx on first selection
 		ShopSystem::instance().activeFX = ActiveSkillFX::createActiveSkillFX();
 	}
 
 	ShopSystem::instance().selected = index;
 
 	ECS::registry<Motion>.get(ShopSystem::instance().activeFX).position = { ECS::registry<Motion>.get(buttons.at(index)).position };
-	std::cout << "selected skill " << i << "from " << player;
 
 	// render upgrade description
 	ECS::registry<Text>.clear();
-	createText(player + "'s skill " + std::to_string(i), {1000, 350} , 0.5);
-	createText(player + "'s skill " + std::to_string(i), { 1000, 400 }, 0.5);
-	createText(player + "'s skill " + std::to_string(i), { 1000, 450 }, 0.5);
-	createText(player + "'s skill " + std::to_string(i), { 1000, 500 }, 0.5);
+	createText(getPlayerName(player) + "'s skill " + std::to_string((int)skillType), {1000, 350} , 0.5);
+	createText(getPlayerName(player) + "'s skill " + std::to_string((int)skillType), { 1000, 400 }, 0.5);
+	createText(getPlayerName(player) + "'s skill " + std::to_string((int)skillType), { 1000, 450 }, 0.5);
+	createText(getPlayerName(player) + "'s skill " + std::to_string((int)skillType), { 1000, 500 }, 0.5);
 
 	// render labels
+	renderLabels();
+}
+
+bool ShopSystem::checkIfAbleToBuy(int level) {
+
+	if (ambrosia > level * 200) {
+		ambrosia -= level * 200;
+		return true;
+	}
+	return false;
+}
+
+void ShopSystem::buySelectedSkill() {
+	if (ShopSystem::instance().selected == -1) {
+		// nothing is selected
+		std::cout << "Nothing to buy";
+		return;
+	}
+
+	int level;
+
+	std::cout << "Buying " << getPlayerName(selected_player) << "'s skill " << (int)selected_skill << std::endl;
+	SkillComponent component;
+
+	component = ECS::registry<SkillComponent>.get(getPlayerEntity(selected_player));
+	if (component.getSkillLevel(selected_skill) == component.getMaxLevel(selected_skill)) {
+		std::cout << "level maxed already!" << std::endl;
+		return;
+	}
+
+	if (checkIfAbleToBuy(component.getSkillLevel(selected_skill))) {
+		ECS::registry<SkillComponent>.get(getPlayerEntity(selected_player)).upgradeSkillLevel(selected_skill);
+	}
+
+	//std::cout << "Skill level has now went from " << component. - 1 << "to " << level << std::endl;
+
+	ECS::registry<Text>.clear();
+	renderLabels();
+}
+
+void ShopSystem::initialize(ECS::Entity raoul, ECS::Entity chia, ECS::Entity ember, ECS::Entity taji)
+{
+	this->raoul = raoul;
+	this->chia = chia;
+	this->ember = ember;
+	this->taji = taji;
+
+	drawButtons();
 	renderLabels();
 }
 
@@ -51,7 +143,7 @@ void ShopSystem::drawButtons() {
 		Button::createButton(ButtonShape::CIRCLE,
 			{ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, path,
 			[]() {
-				ShopSystem::instance().executeShopEffect(0, "raoul", 0);
+				ShopSystem::instance().executeShopEffect(SkillType::NONE, PlayerType::RAOUL, 0);
 			})
 	);
 
@@ -60,7 +152,7 @@ void ShopSystem::drawButtons() {
 	buttons.push_back(
 		UpgradeButton::createUpgradeButton({ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, PlayerType::RAOUL, SkillType::SKILL1, "skill1",
 			[]() {
-				ShopSystem::instance().executeShopEffect(1, "raoul", 1);
+				ShopSystem::instance().executeShopEffect(SkillType::SKILL1, PlayerType::RAOUL, 1);
 			})
 	);
 
@@ -69,7 +161,7 @@ void ShopSystem::drawButtons() {
 	buttons.push_back(
 		UpgradeButton::createUpgradeButton({ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, PlayerType::RAOUL, SkillType::SKILL2, "skill2",
 			[]() {
-				ShopSystem::instance().executeShopEffect(2, "raoul", 2);
+				ShopSystem::instance().executeShopEffect(SkillType::SKILL2, PlayerType::RAOUL, 2);
 			})
 	);
 
@@ -78,7 +170,7 @@ void ShopSystem::drawButtons() {
 	buttons.push_back(
 		UpgradeButton::createUpgradeButton({ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, PlayerType::RAOUL, SkillType::SKILL3, "skill3",
 			[]() {
-				ShopSystem::instance().executeShopEffect(3, "raoul", 3);
+				ShopSystem::instance().executeShopEffect(SkillType::SKILL3, PlayerType::RAOUL, 3);
 			})
 	);
 
@@ -93,7 +185,7 @@ void ShopSystem::drawButtons() {
 		Button::createButton(ButtonShape::CIRCLE,
 			{ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, path,
 			[]() {
-				ShopSystem::instance().executeShopEffect(0, "taji", 4);
+				ShopSystem::instance().executeShopEffect(SkillType::NONE, PlayerType::TAJI, 4);
 			})
 	);
 
@@ -102,7 +194,7 @@ void ShopSystem::drawButtons() {
 	buttons.push_back(
 		UpgradeButton::createUpgradeButton({ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, PlayerType::TAJI, SkillType::SKILL1, "skill1",
 			[]() {
-				ShopSystem::instance().executeShopEffect(1, "taji", 5);
+				ShopSystem::instance().executeShopEffect(SkillType::SKILL1, PlayerType::TAJI, 5);
 			})
 	);
 
@@ -111,7 +203,7 @@ void ShopSystem::drawButtons() {
 	buttons.push_back(
 		UpgradeButton::createUpgradeButton({ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, PlayerType::TAJI, SkillType::SKILL2, "skill2",
 			[]() {
-				ShopSystem::instance().executeShopEffect(2, "taji", 6);
+				ShopSystem::instance().executeShopEffect(SkillType::SKILL2, PlayerType::TAJI, 6);
 			})
 	);
 
@@ -120,7 +212,7 @@ void ShopSystem::drawButtons() {
 	buttons.push_back(
 		UpgradeButton::createUpgradeButton({ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, PlayerType::TAJI, SkillType::SKILL3, "skill3",
 			[]() {
-				ShopSystem::instance().executeShopEffect(3, "taji", 7);
+				ShopSystem::instance().executeShopEffect(SkillType::SKILL3, PlayerType::TAJI, 7);
 			})
 	);
 
@@ -135,7 +227,7 @@ void ShopSystem::drawButtons() {
 		Button::createButton(ButtonShape::CIRCLE,
 			{ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, path,
 			[]() {
-				ShopSystem::instance().executeShopEffect(0, "chia", 8);
+				ShopSystem::instance().executeShopEffect(SkillType::NONE, PlayerType::CHIA, 8);
 			})
 	);
 
@@ -144,7 +236,7 @@ void ShopSystem::drawButtons() {
 	buttons.push_back(
 		UpgradeButton::createUpgradeButton({ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, PlayerType::CHIA, SkillType::SKILL1, "skill1",
 			[]() {
-				ShopSystem::instance().executeShopEffect(1, "chia", 9);
+				ShopSystem::instance().executeShopEffect(SkillType::SKILL1, PlayerType::CHIA, 9);
 			})
 	);
 
@@ -153,7 +245,7 @@ void ShopSystem::drawButtons() {
 	buttons.push_back(
 		UpgradeButton::createUpgradeButton({ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, PlayerType::CHIA, SkillType::SKILL2, "skill2",
 			[]() {
-				ShopSystem::instance().executeShopEffect(2, "chia", 10);
+				ShopSystem::instance().executeShopEffect(SkillType::SKILL2, PlayerType::CHIA, 10);
 			})
 	);
 
@@ -162,7 +254,7 @@ void ShopSystem::drawButtons() {
 	buttons.push_back(
 		UpgradeButton::createUpgradeButton({ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, PlayerType::CHIA, SkillType::SKILL3, "skill3",
 			[]() {
-				ShopSystem::instance().executeShopEffect(3, "chia", 11);
+				ShopSystem::instance().executeShopEffect(SkillType::SKILL3, PlayerType::CHIA, 11);
 			})
 	);
 
@@ -177,16 +269,24 @@ void ShopSystem::drawButtons() {
 		Button::createButton(ButtonShape::CIRCLE,
 			{ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, path,
 			[]() {
-				ShopSystem::instance().executeShopEffect(0, "ember", 12);
+				ShopSystem::instance().executeShopEffect(SkillType::NONE, PlayerType::EMBER, 12);
 			})
 	);
+
+	//buttons.push_back(
+	//	UpgradeButton::createUpgradeButton({ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, PlayerType::EMBER, SkillType::NONE, "ember",
+	//		[]() {
+	//			ShopSystem::instance().executeShopEffect(SkillType::SKILL1, PlayerType::EMBER, 12);
+	//		})
+	//);
+
 
 	i++;
 
 	buttons.push_back(
 		UpgradeButton::createUpgradeButton({ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, PlayerType::EMBER, SkillType::SKILL1, "skill1",
 			[]() {
-				ShopSystem::instance().executeShopEffect(1, "ember", 13);
+				ShopSystem::instance().executeShopEffect(SkillType::SKILL1, PlayerType::EMBER, 13);
 			})
 	);
 
@@ -195,7 +295,7 @@ void ShopSystem::drawButtons() {
 	buttons.push_back(
 		UpgradeButton::createUpgradeButton({ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, PlayerType::EMBER, SkillType::SKILL2, "skill2",
 			[]() {
-				ShopSystem::instance().executeShopEffect(2, "ember", 14);
+				ShopSystem::instance().executeShopEffect(SkillType::SKILL2, PlayerType::EMBER, 14);
 			})
 	);
 
@@ -204,7 +304,7 @@ void ShopSystem::drawButtons() {
 	buttons.push_back(
 		UpgradeButton::createUpgradeButton({ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, PlayerType::EMBER, SkillType::SKILL3, "skill3",
 			[]() {
-				ShopSystem::instance().executeShopEffect(3, "ember", 15);
+				ShopSystem::instance().executeShopEffect(SkillType::SKILL3, PlayerType::EMBER, 15);
 			})
 	);
 
@@ -215,6 +315,44 @@ void ShopSystem::renderLabels()
 	for (ECS::Entity e : buttons) {
 		vec2 button_pos = ECS::registry<Motion>.get(e).position;
 
-		createText("LVL. 1", { button_pos.x - 40 , button_pos.y + 100}, 0.5);
+		if (!ECS::registry<SkillInfoComponent>.has(e)) {
+			createText("LVL. 1", { button_pos.x - 40 , button_pos.y + 100 }, 0.5);
+		}
+		else {
+			auto buttonInfo = ECS::registry<SkillInfoComponent>.get(e);
+			auto skillComponent = ECS::registry<SkillComponent>.get(getPlayerEntity(buttonInfo.player));
+			std::string text;
+
+			if (skillComponent.getSkillLevel(buttonInfo.skillType) == skillComponent.getMaxLevel(buttonInfo.skillType)) {
+				text = "MAXED";
+			} else {
+				text = "LVL. " + std::to_string(skillComponent.getSkillLevel(buttonInfo.skillType));
+			}
+
+			createText(text, { button_pos.x - 40 , button_pos.y + 100 }, 0.5);
+		}
 	}
+	createText(std::to_string(ambrosia), { 110 , 50 }, 0.5);
+}
+
+void ShopSystem::renderAmbrosia()
+{
+	auto ambrosia_icon = ECS::Entity();
+	ShadedMesh& logoResource = cacheResource("ambrosia-icon");
+	if (logoResource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(logoResource, uiPath("ambrosia-icon.png"), "textured");
+	}
+
+	ambrosia_icon.emplace<ShadedMeshRef>(logoResource);
+	ambrosia_icon.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
+	ambrosia_icon.emplace<Motion>().position = vec2(60, 40);
+	ambrosia_icon.get<Motion>().scale = { 0.5, 0.5 };
+	createText(std::to_string(ambrosia), { 110 , 50 }, 0.5);
+}
+
+void ShopSystem::updateAmbrosia() {
+	ECS::registry<Text>.clear();
+	createText(std::to_string(ambrosia), { 110 , 50 }, 0.5);
+	renderLabels();
 }

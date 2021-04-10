@@ -10,7 +10,7 @@ class LevelLoader
 		json readLevel(const std::string& levelName);
 
 		// save current recipe and level
-		void save(const std::string& recipe, int currLevel, std::list<Achievement> achievementsText);
+		void save(const std::string& recipe, int currLevel, std::list<Achievement> achievementsText, json skillLevel);
 
 		// load save
 		json load();

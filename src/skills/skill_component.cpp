@@ -64,6 +64,21 @@ unsigned int SkillComponent::getMaxLevel(SkillType type)
 void SkillComponent::upgradeSkillLevel(SkillType type)
 {
 	assert(skills.count(type) > 0);
-	skills[type].currLevel++;
+
+	skills[type].currLevel = skills[type].currLevel + 1;
 	skills[type].currLevel = std::min(skills[type].currLevel, getMaxLevel(type));
+}
+
+void SkillComponent::setSkillLevel(SkillType type, int level)
+{
+	assert(skills.count(type) > 0);
+
+	skills[type].currLevel = level;
+	skills[type].currLevel = std::min(skills[type].currLevel, getMaxLevel(type));
+}
+
+json SkillComponent::getAllSkillLevels()
+{
+	// ya its hard coded dont @ me
+	return { skills[SkillType::SKILL1].currLevel , skills[SkillType::SKILL2].currLevel  ,skills[SkillType::SKILL3].currLevel  };
 }

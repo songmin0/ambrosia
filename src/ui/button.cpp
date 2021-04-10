@@ -141,7 +141,13 @@ ECS::Entity UpgradeButton::createUpgradeButton(vec2 position, PlayerType player,
 	ShadedMesh& resource = cacheResource(texture);
 	if (resource.effect.program.resource == 0)
 	{
-		RenderSystem::createPlayerSpecificMesh(resource, uiPath("skill_buttons/" + texture), "skill_button");
+		if (skillType == SkillType::NONE) {
+			RenderSystem::createSprite(resource, uiPath("shop/" + texture + ".png"), "skill_button");
+		}
+		else {
+			RenderSystem::createPlayerSpecificMesh(resource, uiPath("skill_buttons/" + texture), "skill_button");
+		}
+		
 	}
 
 	ECS::registry<ShadedMeshRef>.emplace(entity, resource);

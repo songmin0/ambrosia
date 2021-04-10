@@ -8,10 +8,29 @@
 class ShopSystem
 {
 	protected:
-		int selected_skill;
-		std::string selected_player;
+		SkillType selected_skill;
+		PlayerType selected_player;
+
+
+		// TODO : this is temporary until ambrosia drops are added to the game
+		int ambrosia = 1000;
 		
-		void executeShopEffect(int i, std::string player, int index);
+		ECS::Entity getPlayerEntity(PlayerType player);
+
+		void executeShopEffect(SkillType skillType, PlayerType player, int index);
+
+		bool checkIfAbleToBuy(int level);
+
+		void drawButtons();
+		void renderLabels();
+		void renderAmbrosia();
+		void updateAmbrosia();
+
+		ECS::Entity raoul;
+		ECS::Entity chia;
+		ECS::Entity ember;
+		ECS::Entity taji;
+
 
 	public:
 		static ShopSystem& instance() {
@@ -23,8 +42,8 @@ class ShopSystem
 		ECS::Entity activeFX;
 		std::vector<ECS::Entity> buttons;
 
-		void drawButtons();
-		void renderLabels();
+		void buySelectedSkill();
+		void initialize(ECS::Entity raoul, ECS::Entity chia, ECS::Entity ember, ECS::Entity taji);
 
 };
 

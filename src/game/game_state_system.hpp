@@ -21,25 +21,6 @@ public:
 
 	bool inGameState();
 	bool hasLights();
-<<<<<<< HEAD
-	bool isInTutorial;
-	bool hasDoneTutorial;
-	bool isInAchievementsScreen;
-	bool isInCreditsScreen;
-	bool isInStory;
-	bool isInMainScreen;
-	bool isInHelpScreen;
-	bool isTransitioning;
-	bool isInVictoryScreen;
-	bool isInDefeatScreen;
-	bool isInShopScreen;
-	json currentLevel;
-	json recipe;
-	int currentLevelIndex; //THIS SHOULD NOT BE PUBLIC but for now this easily lets me debug change maps
-	int currentTutorialIndex;
-	int currentStoryIndex;
-=======
->>>>>>> master
 
 	void beginStory();
 	void beginTutorial();
@@ -47,26 +28,18 @@ public:
 	void restartMap();
 
 	void save();
-<<<<<<< HEAD
-	//This will call the victory screen for the current map
-	void launchVictoryScreen();
-	//This will call the defeat screen for the current map
-	void launchDefeatScreen();
-	//This will call the shop screen
-	void launchShopScreen();
-	//This will call the main menu
-=======
+
 	void loadSave();
 	void loadRecipe(const std::string& recipeName, int level = 0,
 									bool isInTutorial = false);
 
->>>>>>> master
 	void launchMainMenu();
 	void launchAchievementsScreen();
 	void launchCreditsScreen();
 	void launchRecipeSelectMenu();
 	void launchVictoryScreen();
 	void launchDefeatScreen();
+	void launchShopScreen();
 
 	const vec2 getScreenBufferSize();
 	void setWindow(GLFWwindow* window);
@@ -105,6 +78,7 @@ public:
 	bool isInHelpScreen;
 	bool isInVictoryScreen;
 	bool isInDefeatScreen;
+	bool isInShopScreen;
 	bool isTransitioning;
 	json currentLevel;
 	json recipe;

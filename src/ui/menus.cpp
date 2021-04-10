@@ -131,14 +131,10 @@ void Screens::createVictoryScreen(int frameBufferWidth, int frameBufferHeight, i
 			std::cout << "Next button clicked!" << std::endl;
 			TransitionEvent event;
 			event.callback = []() {
-<<<<<<< HEAD
 				GameStateSystem::instance().isInVictoryScreen = false;
 				GameStateSystem::instance().isInShopScreen = true;
 				GameStateSystem::instance().launchShopScreen();
 				std::cout << "launched" << std::endl;
-=======
-				GameStateSystem::instance().nextMap();
->>>>>>> master
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
@@ -301,7 +297,7 @@ void Screens::createCreditsScreen(int frameBufferWidth, int frameBufferHeight, i
 //	}
 //}
 
-void Screens::createShopScreen(int frameBufferWidth, int frameBufferHeight)
+void Screens::createShopScreen(int frameBufferWidth, int frameBufferHeight, ECS::Entity raoul, ECS::Entity chia, ECS::Entity ember, ECS::Entity taji)
 {
 	auto background = ECS::Entity();
 	const std::string key = "shop";
@@ -316,7 +312,7 @@ void Screens::createShopScreen(int frameBufferWidth, int frameBufferHeight)
 	auto& mapComponent = background.emplace<MapComponent>();
 	mapComponent.name = key;
 	mapComponent.mapSize = static_cast<vec2>(splashResource.texture.size);
-
+	
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth - 125, 50 }, "menus/next-button",
 		[]() {
@@ -333,15 +329,22 @@ void Screens::createShopScreen(int frameBufferWidth, int frameBufferHeight)
 		{ frameBufferWidth - 250, frameBufferHeight - 300 }, "shop/buy_button",
 		[]() {
 			std::cout << "Buy button clicked!" << std::endl;
-			TransitionEvent event;
-			event.callback = []() {
-
-			};
-			EventSystem<TransitionEvent>::instance().sendEvent(event);
+			ShopSystem::instance().buySelectedSkill();
 		});
 
-	ShopSystem::instance().drawButtons();
-	ShopSystem::instance().renderLabels();
+	auto ambrosia_icon = ECS::Entity();
+	ShadedMesh& logoResource = cacheResource("ambrosia-icon");
+	if (logoResource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(logoResource, uiPath("ambrosia-icon.png"), "textured");
+	}
+
+	ambrosia_icon.emplace<ShadedMeshRef>(logoResource);
+	ambrosia_icon.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
+	ambrosia_icon.emplace<Motion>().position = vec2(60, 40);
+	ambrosia_icon.get<Motion>().scale = { 0.5, 0.5 };
+	
+	ShopSystem::instance().initialize(raoul, chia, ember, taji);
 	
 }
 

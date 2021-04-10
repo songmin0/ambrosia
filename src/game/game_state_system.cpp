@@ -49,16 +49,10 @@ void GameStateSystem::resetState()
 	EventSystem<ResetMouseCursorEvent>::instance().sendEvent({});
 }
 
-<<<<<<< HEAD
-bool GameStateSystem::inGameState() {
-	//TODO if we add more states that the game can be in add them here if they are relevant.
-	return !isInMainScreen && !isInVictoryScreen && !isInDefeatScreen && !isInStory && !isInAchievementsScreen && !isInShopScreen && !isInCreditsScreen;
-=======
 bool GameStateSystem::inGameState()
 {
 	return !isInMainScreen && !isInVictoryScreen && !isInDefeatScreen &&
-				 !isInStory && !isInAchievementsScreen && !isInCreditsScreen;
->>>>>>> master
+				 !isInStory && !isInAchievementsScreen && !isInCreditsScreen && !isInShopScreen;
 }
 
 bool GameStateSystem::hasLights()
@@ -68,40 +62,12 @@ bool GameStateSystem::hasLights()
 	return inGameState() && (isVeggieForest || isSaladCanyon);
 }
 
-<<<<<<< HEAD
-void GameStateSystem::newGame()
-{
-	LevelLoader lc;
-	recipe = lc.readLevel("tutorial");
-	isInTutorial = true;
-	hasDoneTutorial = false;
-	isInDefeatScreen = false;
-	isInVictoryScreen = false;
-	isInShopScreen = false;
-	isInMainScreen = false;
-	isInStory = false;
-	currentTutorialIndex = 0;
-	currentLevelIndex = 0;
-	currentLevel = recipe["maps"][currentLevelIndex];
-	EventSystem<LoadLevelEvent>::instance().sendEvent(LoadLevelEvent{});
-	EventSystem<StartTutorialEvent>::instance().sendEvent(StartTutorialEvent{});
-};
 
-void GameStateSystem::beginStory()
-{
-	removeAllMotionEntities();
-	isInTutorial = false;
-	isInDefeatScreen = false;
-	isInVictoryScreen = false;
-	isInShopScreen = false;
-	isInMainScreen = false;
-=======
 void GameStateSystem::beginStory()
 {
 	std::cout << "GameStateSystem::beginStory: attempting to start the story..." << std::endl;
 
 	resetState();
->>>>>>> master
 	isInStory = true;
 
 	removeNonPlayerEntities();
@@ -180,7 +146,16 @@ void GameStateSystem::save()
 
 	LevelLoader lc;
 	std::list<Achievement> achievements = AchievementSystem::instance().getAchievements();
-	lc.save(recipe["name"], currentLevelIndex, achievements);
+
+	json skill_levels;
+	skill_levels["raoul"] = playerRaoul.get<SkillComponent>().getAllSkillLevels();
+	skill_levels["chia"] = playerChia.get<SkillComponent>().getAllSkillLevels();
+	skill_levels["ember"] = playerEmber.get<SkillComponent>().getAllSkillLevels();
+	skill_levels["taji"] = playerTaji.get<SkillComponent>().getAllSkillLevels();
+
+	std::cout << skill_levels << std::endl;
+
+	lc.save(recipe["name"], currentLevelIndex, achievements, skill_levels);
 }
 
 void GameStateSystem::loadSave()
@@ -309,14 +284,9 @@ void GameStateSystem::launchVictoryScreen()
 
 void GameStateSystem::launchDefeatScreen()
 {
-<<<<<<< HEAD
-
-	Camera::createCamera(vec2(0.f));
-=======
 	std::cout << "GameStateSystem::launchDefeatScreen: creating defeat screen" << std::endl;
 
 	resetState();
->>>>>>> master
 	isInDefeatScreen = true;
 
 	save();
@@ -328,20 +298,24 @@ void GameStateSystem::launchDefeatScreen()
 	Screens::createDefeatScreen(screenBufferSize.x, screenBufferSize.y);
 }
 
-<<<<<<< HEAD
 void GameStateSystem::launchShopScreen()
 {
-	Camera::createCamera(vec2(0.f));
+	std::cout << "GameStateSystem::launchShopScreen: creating shop screen" << std::endl;
+
+	resetState();
 	isInShopScreen = true;
-	removeAllMotionEntities();
+
+	save();
+
+	Camera::createCamera(vec2(0.f));
+	removeNonPlayerEntities();
+	hidePlayers();
 	vec2 screenBufferSize = getScreenBufferSize();
-	Screens::createShopScreen(screenBufferSize.x, screenBufferSize.y);
+	Screens::createShopScreen(screenBufferSize.x, screenBufferSize.y, playerRaoul, playerChia, playerEmber, playerTaji);
 }
 
-void GameStateSystem::launchMainMenu()
-=======
+
 const vec2 GameStateSystem::getScreenBufferSize()
->>>>>>> master
 {
 	int frameBufferWidth, frameBufferHeight;
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
