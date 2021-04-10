@@ -35,8 +35,32 @@ ECS::Entity DessertForeground::createDessertForeground(vec2 position)
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::MAP_FOREGROUND);
 	entity.emplace<Motion>().position = position;
+	entity.emplace<ParallaxComponent>(vec2(1.3f, 1.15f));
 
 	entity.emplace<DessertForeground>();
+	return entity;
+};
+
+ECS::Entity DessertBackground::createDessertBackground(vec2 position)
+{
+	// There should only ever be one of this type of entity
+	while (!ECS::registry<DessertBackground>.entities.empty()) {
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<DessertBackground>.entities.back());
+	}
+
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource("dessertmap_background");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, mapsPath("dessert-arena/dessert-arena-back.png"), "textured");
+	}
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<RenderableComponent>(RenderLayer::MAP_BACKGROUND);
+	entity.emplace<Motion>().position = position;
+	entity.emplace<ParallaxComponent>(vec2(0.7f, 0.85f));
+
+	entity.emplace<DessertBackground>();
 	return entity;
 };
 
@@ -56,6 +80,7 @@ ECS::Entity BBQBackground::createBBQBackground(vec2 position)
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::MAP_BACKGROUND);
 	entity.emplace<Motion>().position = position;
+	entity.emplace<ParallaxComponent>(vec2(0.6f, 0.6f));
 
 	entity.emplace<BBQBackground>();
 	return entity;
