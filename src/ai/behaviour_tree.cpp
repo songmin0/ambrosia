@@ -277,18 +277,19 @@ void PotatoSkillSelector::run()
 	float maxHP = mobStats.getStatValue(StatType::MAX_HP);
 	float hpPercent = hp / maxHP;
 	float numUltLeft = mobStats.getStatValue(StatType::NUM_ULT_LEFT);
+	float maxNumUlt = mobStats.getStatValue(StatType::MAX_NUM_ULT);
 	std::shared_ptr<Node> basicAttack = children.front();
 	std::shared_ptr<Node> ultimateAttack = children.back();
 	
 	// Currently uses ult on first turn and then the first time it goes below 50% HP
-	if  (numUltLeft == MAX_NUM_ULT || 
-		(numUltLeft == (MAX_NUM_ULT-1) && hpPercent < 0.5))
+	if  (numUltLeft == maxNumUlt ||
+		(numUltLeft == (maxNumUlt - 1) && hpPercent < 0.5))
 	{
 		basicAttack->onTerminate(Status::FAILURE);
 		switch (ultimateAttack->getStatus())
 		{
 		case Status::SUCCESS:
-			mobStats.stats[StatType::NUM_ULT_LEFT]--;
+			mobStats.setBaseValue(StatType::NUM_ULT_LEFT, numUltLeft - 1);
 			break;
 		default:
 			break;

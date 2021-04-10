@@ -147,10 +147,14 @@ private:
     friend void drawText(const Text&, glm::vec2);
 };
 
-// Common function to create Text entity with Anime Ace font, custom size and color
-ECS::Entity createText(std::string text, glm::vec2 position, float scale = 1.f, glm::vec3 color = vec3(1.f, 1.f, 1.f));
+// Add Text to an existing entity
+void addText(ECS::Entity entity, const std::string& text, vec2 position,
+						 float scale = 1.f, vec3 color = vec3(1.f));
+// Create a new entity with a Text component
+ECS::Entity createText(const std::string& text, glm::vec2 position,
+											 float scale = 1.f, glm::vec3 color = vec3(1.f));
 // Common function to create achievement popup text with Anime Ace font
-void createAchievementText(std::string text, glm::vec2 position);
+ECS::Entity createAchievementText(const std::string& text, glm::vec2 position);
 
 /**
  * Draw a Text object to the screen, given the screen buffer size.
