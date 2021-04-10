@@ -291,7 +291,7 @@ ECS::Entity AmbrosiaDisplay::createAmbrosiaDisplay()
 	entity.emplace<UIComponent>();
 	entity.emplace<RenderableComponent>(RenderLayer::HELP_BUTTON);
 
-	static constexpr vec2 AMBROSIA_POS(50.f, 50.f);
+	static constexpr vec2 AMBROSIA_POS(100.f, 65.f);
 	static constexpr vec2 AMBROSIA_SCALE(0.8);
 
 	auto& motion = ECS::registry<Motion>.emplace(entity);
