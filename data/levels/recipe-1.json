@@ -12,12 +12,7 @@
             "taji": {
                 "stats": {
                     "hp": 70,
-<<<<<<< HEAD
-                    "strength": 1,
-                    "ambrosia":  0
-=======
                     "strength": 1
->>>>>>> master
                 },
                 "position": [
                     1600,
@@ -25,54 +20,30 @@
                 ]
             },
             "chia": {
-<<<<<<< HEAD
-              "stats": {
-                "hp": 80,
-                "strength": 1,
-                "ambrosia": 0
-              },
-=======
                 "stats": {
                     "hp": 80,
                     "strength": 1
                 },
->>>>>>> master
                 "position": [
                     1750,
                     700
                 ]
             },
             "raoul": {
-<<<<<<< HEAD
-              "stats": {
-                "hp": 100,
-                "strength": 1,
-                "ambrosia": 0
-              },
-=======
                 "stats": {
                     "hp": 100,
                     "strength": 1
                 },
->>>>>>> master
                 "position": [
                     1950,
                     800
                 ]
             },
             "ember": {
-<<<<<<< HEAD
-              "stats": {
-                "hp": 80,
-                "strength": 1,
-                "ambrosia": 0
-              },
-=======
                 "stats": {
                     "hp": 80,
                     "strength": 1
                 },
->>>>>>> master
                 "position": [
                     1800,
                     1000
@@ -82,63 +53,15 @@
                 {
                     "type": "egg",
                     "stats": {
-<<<<<<< HEAD
                         "hp": 10,
-                        "strength": 1
-=======
-                        "hp": 80,
                         "strength": 1,
                         "ambrosia": 13
->>>>>>> master
                     },
                     "positions": [
                         [
                             2400,
                             1100,
                             1
-<<<<<<< HEAD
-=======
-                        ],
-                        [
-                            2550,
-                            900,
-                            1
-                        ]
-                    ]
-                },
-                {
-                    "type": "pepper",
-                    "stats": {
-                        "hp": 50,
-                        "strength": 1,
-                        "ambrosia": 13
-                    },
-                    "positions": [
-                        [
-                            750,
-                            900,
-                            -1
-                        ],
-                        [
-                            850,
-                            1100,
-                            -1
-                        ]
-                    ]
-                },
-                {
-                    "type": "milk",
-                    "stats": {
-                        "hp": 80,
-                        "strength": 1,
-                        "ambrosia": 13
-                    },
-                    "positions": [
-                        [
-                            900,
-                            800,
-                            -1
->>>>>>> master
                         ]
                     ]
                 }
@@ -153,72 +76,40 @@
                 ]
             },
             "taji": {
-<<<<<<< HEAD
-              "stats": {
-                "hp": 70,
-                "strength": 1,
-                "ambrosia": 0
-              },
-=======
                 "stats": {
                     "hp": 70,
                     "strength": 1
                 },
->>>>>>> master
                 "position": [
                     500,
                     400
                 ]
             },
             "chia": {
-<<<<<<< HEAD
-              "stats": {
-                "hp": 80,
-                "strength": 1,
-                "ambrosia": 0
-              },
-=======
                 "stats": {
                     "hp": 80,
                     "strength": 1
                 },
->>>>>>> master
                 "position": [
                     200,
                     700
                 ]
             },
             "raoul": {
-<<<<<<< HEAD
-              "stats": {
-                "hp": 100,
-                "strength": 1,
-                "ambrosia": 0
-              },
-=======
                 "stats": {
                     "hp": 100,
                     "strength": 1
                 },
->>>>>>> master
                 "position": [
                     640,
                     512
                 ]
             },
             "ember": {
-<<<<<<< HEAD
-              "stats": {
-                "hp": 80,
-                "strength": 1,
-                "ambrosia": 0
-              },
-=======
                 "stats": {
                     "hp": 80,
                     "strength": 1
                 },
->>>>>>> master
                 "position": [
                     400,
                     700
@@ -250,8 +141,8 @@
                     },
                     "positions": [
                         [
-                            900,
-                            800,
+                            1132,
+                            341,
                             1
                         ]
                     ]
