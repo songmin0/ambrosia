@@ -175,3 +175,9 @@ struct PrepForNextMapEvent
 {
 	ECS::Entity entity;
 };
+
+struct AmbrosiaEvent
+{
+	ECS::Entity entity;
+	int amount;
+};

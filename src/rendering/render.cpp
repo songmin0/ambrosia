@@ -10,6 +10,7 @@
 #include "ui/ui_entities.hpp"
 #include "game/camera.hpp"
 #include "game/game_state_system.hpp"
+#include "maps/map_objects.hpp"
 
 #include <iostream>
 
@@ -27,7 +28,14 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	else {
 			auto camera = ECS::registry<CameraComponent>.entities[0];
 			auto& cameraComponent = camera.get<CameraComponent>();
-			transform.translate(motion.renderPosition - cameraComponent.position);
+			// Multiply camera positon by scroll rate for parallax entities
+			if (entity.has<ParallaxComponent>()) {
+				auto& parallaxComponent = entity.get<ParallaxComponent>();
+				transform.translate(motion.renderPosition - cameraComponent.position * parallaxComponent.scrollRate);
+			}
+			else {
+				transform.translate(motion.renderPosition - cameraComponent.position);
+			}
 	}
 	transform.rotate(motion.renderAngle);
 

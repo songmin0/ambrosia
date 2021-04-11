@@ -26,11 +26,13 @@ json LevelLoader::readLevel(const std::string& levelName) {
 
 }
 
-void LevelLoader::save(const std::string& levelName, int currLevel, std::list<Achievement> achievements, json skillLevel) {
+void LevelLoader::save(const std::string& levelName, int currLevel,
+											 int ambrosia, std::list<Achievement> achievements, json skillLevel) {
 	json saveFile;
 
 	saveFile["recipe"] = levelName;
 	saveFile["level"] = currLevel;
+	saveFile["ambrosia"] = ambrosia;
 	saveFile["achievements"] = achievements;
 	saveFile["skill_levels"] = skillLevel;
 

@@ -10,6 +10,7 @@ using json = nlohmann::json;
 class GameStateSystem {
 private:
 	GameStateSystem();
+	~GameStateSystem();
 	void resetState();
 
 public:
@@ -31,8 +32,7 @@ public:
 
 	void loadSave();
 	void loadRecipe(const std::string& recipeName, json skill_levels = "", int level = 0,
-									bool isInTutorial = false);
-
+									int ambrosia = 0, bool isInTutorial = false);
 	void launchMainMenu();
 	void launchAchievementsScreen();
 	void launchCreditsScreen();
@@ -44,6 +44,9 @@ public:
 	const vec2 getScreenBufferSize();
 	void setWindow(GLFWwindow* window);
 	void preloadResources();
+
+	inline int getAmbrosia() const {return ambrosia;}
+	void setAmbrosia(int amt);
 
 private:
 	////////////////////////
@@ -68,6 +71,9 @@ private:
 	void createMobs();
 	void createButtons(int frameBufferWidth, int frameBufferHeight);
 	void createEffects();
+	void createAmbrosiaUI();
+
+	void onAmbrosiaEvent(const AmbrosiaEvent& event);
 
 public:
 	bool isInMainScreen;
@@ -87,6 +93,9 @@ public:
 	int currentStoryIndex;
 
 private:
+	int ambrosia;
+	EventListenerInfo ambrosiaListener;
+
 	ECS::Entity playerRaoul;
 	ECS::Entity playerTaji;
 	ECS::Entity playerEmber;
