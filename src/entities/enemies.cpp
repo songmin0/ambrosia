@@ -8,6 +8,31 @@
 #include "ui/ui_entities.hpp"
 #include <game/swarm_behaviour.hpp>
 
+namespace
+{
+	StatsComponent& createStats(ECS::Entity entity, const json& stats)
+	{
+		auto tryLoadStat = [&](std::string name) -> float
+		{
+			if (stats.contains(name))
+			{
+				return stats[name];
+			}
+			return 0.f;
+		};
+
+		auto& statsComponent = entity.emplace<StatsComponent>();
+		statsComponent.setBaseValue(StatType::HP, tryLoadStat("hp"));
+		statsComponent.setBaseValue(StatType::MAX_HP, tryLoadStat("hp"));
+		statsComponent.setBaseValue(StatType::STRENGTH, tryLoadStat("strength"));
+		statsComponent.setBaseValue(StatType::AMBROSIA, tryLoadStat("ambrosia"));
+		statsComponent.setBaseValue(StatType::NUM_ULT_LEFT, tryLoadStat("maxNumUlt"));
+		statsComponent.setBaseValue(StatType::MAX_NUM_ULT, tryLoadStat("maxNumUlt"));
+
+		return statsComponent;
+	}
+}
+
 ECS::Entity Egg::createEgg(json stats, json position)
 {
 	auto entity = ECS::Entity();
@@ -55,11 +80,7 @@ ECS::Entity Egg::createEgg(json stats, json position)
 	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
 
 	// Initialize stats
-	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAX_HP] = stats["hp"];
-	statsComponent.stats[StatType::HP] = stats["hp"];
-	statsComponent.stats[StatType::AMBROSIA] = 0.f;
-	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
+	auto& statsComponent = createStats(entity, stats);
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
@@ -128,11 +149,7 @@ ECS::Entity Pepper::createPepper(json stats, json position)
 	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
 
 	// Initialize stats
-	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAX_HP] = stats["hp"];
-	statsComponent.stats[StatType::HP] = stats["hp"];
-	statsComponent.stats[StatType::AMBROSIA] = 0.f;
-	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
+	auto& statsComponent = createStats(entity, stats);
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
@@ -203,11 +220,7 @@ ECS::Entity Milk::createMilk(json stats, json position)
 	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
 
 	// Initialize stats
-	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAX_HP] = stats["hp"];
-	statsComponent.stats[StatType::HP] = stats["hp"];
-	statsComponent.stats[StatType::AMBROSIA] = 0.f;
-	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
+	auto& statsComponent = createStats(entity, stats);
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
@@ -295,12 +308,7 @@ ECS::Entity Potato::createPotato(json stats, json position)
 	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
 
 	// Initialize stats
-	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAX_HP] = stats["hp"];
-	statsComponent.stats[StatType::HP] = stats["hp"];
-	statsComponent.stats[StatType::AMBROSIA] = 0.f;
-	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
-	statsComponent.stats[StatType::NUM_ULT_LEFT] = MAX_NUM_ULT;
+	auto& statsComponent = createStats(entity, stats);
 	entity.emplace<CCImmunityComponent>();
 
 	//Add HP bar
@@ -388,10 +396,10 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	// the parameter initHPPercent is a % value from 0 -> 1
 	// ie. if we collectively reduced chunks to 50% HP (or defeated half the chunks), then
 	// Mashed Potatoes spawns with 50% of its Max HP
-	statsComponent.stats[StatType::MAX_HP] = 300.f;
-	statsComponent.stats[StatType::HP] = 300.f * initHPPercent;
-	statsComponent.stats[StatType::AMBROSIA] = 0.f;
-	statsComponent.stats[StatType::STRENGTH] = 1.f;
+	statsComponent.setBaseValue(StatType::MAX_HP, 300.f);
+	statsComponent.setBaseValue(StatType::HP, 300.f * initHPPercent);
+	statsComponent.setBaseValue(StatType::AMBROSIA, 0.f);
+	statsComponent.setBaseValue(StatType::STRENGTH, 1.f);
 	entity.emplace<CCImmunityComponent>();
 
 	//Add HP bar
@@ -465,10 +473,10 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, vec2 potato_pos, float orie
 
 	// Initialize stats
 	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAX_HP] = 100.f;
-	statsComponent.stats[StatType::HP] = 100.f;
-	statsComponent.stats[StatType::AMBROSIA] = 0.f;
-	statsComponent.stats[StatType::STRENGTH] = 1.f;
+	statsComponent.setBaseValue(StatType::MAX_HP, 100.f);
+	statsComponent.setBaseValue(StatType::HP, 100.f);
+	statsComponent.setBaseValue(StatType::AMBROSIA, 0.f);
+	statsComponent.setBaseValue(StatType::STRENGTH, 1.f);
 	entity.emplace<CCImmunityComponent>();
 
 	//Add HP bar
@@ -539,11 +547,7 @@ ECS::Entity Tomato::createTomato(json stats, json position)
 	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
 
 	// Initialize stats
-	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAX_HP] = stats["hp"];
-	statsComponent.stats[StatType::HP] = stats["hp"];
-	statsComponent.stats[StatType::AMBROSIA] = 0.f;
-	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
+	auto& statsComponent = createStats(entity, stats);
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
@@ -623,11 +627,7 @@ ECS::Entity Lettuce::createLettuce(json stats, json position)
 	anims.addAnimation(AnimationType::ATTACK2, std::make_shared<AnimationData>(attack2_anim));
 
 	// Initialize stats
-	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAX_HP] = stats["hp"];
-	statsComponent.stats[StatType::HP] = stats["hp"];
-	statsComponent.stats[StatType::AMBROSIA] = 0.f;
-	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
+	auto& statsComponent = createStats(entity, stats);
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f }, { 1.1f, 0.55f });
@@ -714,11 +714,7 @@ ECS::Entity SaltnPepper::createSaltnPepper(json stats, json position)
 	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
 
 	// Initialize stats
-	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAX_HP] = stats["hp"];
-	statsComponent.stats[StatType::HP] = stats["hp"];
-	statsComponent.stats[StatType::AMBROSIA] = 0.f;
-	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
+	auto& statsComponent = createStats(entity, stats);
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f });
@@ -797,11 +793,7 @@ ECS::Entity Chicken::createChicken(json stats, json position)
 	anims.addAnimation(AnimationType::ATTACK2, std::make_shared<AnimationData>(attack2_anim));
 
 	// Initialize stats
-	auto& statsComponent = entity.emplace<StatsComponent>();
-	statsComponent.stats[StatType::MAX_HP] = stats["hp"];
-	statsComponent.stats[StatType::HP] = stats["hp"];
-	statsComponent.stats[StatType::AMBROSIA] = 0.f;
-	statsComponent.stats[StatType::STRENGTH] = stats["strength"];
+	auto& statsComponent = createStats(entity, stats);
 
 	//Add HP bar
 	statsComponent.healthBar = HPBar::createHPBar({ motion.position.x, motion.position.y - 150.0f }, { 1.1f, 0.55f });

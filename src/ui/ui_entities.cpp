@@ -1,5 +1,6 @@
 #include "ui_entities.hpp"
 #include "rendering/render.hpp"
+#include "rendering/text.hpp"
 #include "game/game_state_system.hpp"
 #include "ui/tutorials.hpp"
 #include <iostream>
@@ -268,5 +269,35 @@ ECS::Entity ActiveArrow::createActiveArrow(vec2 position, vec2 scale)
 	motion.scale = scale;
 
 	ECS::registry<ActiveArrow>.emplace(entity);
+	return entity;
+}
+
+ECS::Entity AmbrosiaDisplay::createAmbrosiaDisplay()
+{
+	// There should only ever be one of this type of entity
+	while (!ECS::ComponentContainer<AmbrosiaDisplay>().entities.empty())
+	{
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<AmbrosiaDisplay>.entities.back());
+	}
+
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource("ambrosia_display");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, uiPath("ambrosia-icon.png"), "textured");
+	}
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<UIComponent>();
+	entity.emplace<RenderableComponent>(RenderLayer::HELP_BUTTON);
+
+	static constexpr vec2 AMBROSIA_POS(100.f, 65.f);
+	static constexpr vec2 AMBROSIA_SCALE(0.8);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = AMBROSIA_POS;
+	motion.scale = AMBROSIA_SCALE;
+
+	entity.emplace<AmbrosiaDisplay>();
 	return entity;
 }

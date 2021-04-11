@@ -32,3 +32,11 @@ struct ActiveArrow {
 	static ECS::Entity createActiveArrow(vec2 position = vec2(0.f), vec2 scale = vec2(1.f));
 	vec2 offset = { 0.f, -275.f };
 };
+
+struct AmbrosiaDisplay
+{
+	static ECS::Entity createAmbrosiaDisplay();
+	float textScale = 0.75f;
+	vec2 textOffset = {40.f, 16.f};
+	vec3 textColor = {1.f, 1.f, 1.f};
+};

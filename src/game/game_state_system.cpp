@@ -14,6 +14,7 @@
 #include <iostream>
 
 GameStateSystem::GameStateSystem()
+	: ambrosia(0)
 {
 	resetState();
 	isTransitioning = false;
@@ -31,6 +32,17 @@ GameStateSystem::GameStateSystem()
 		{
 			AchievementSystem::instance().addAchievement(achievement);
 		}
+	}
+
+	ambrosiaListener = EventSystem<AmbrosiaEvent>::instance().registerListener(
+			std::bind(&GameStateSystem::onAmbrosiaEvent, this, std::placeholders::_1));
+}
+
+GameStateSystem::~GameStateSystem()
+{
+	if (ambrosiaListener.isValid())
+	{
+		EventSystem<AmbrosiaEvent>::instance().unregisterListener(ambrosiaListener);
 	}
 }
 
@@ -85,7 +97,7 @@ void GameStateSystem::beginTutorial()
 	isInTutorial = true;
 
 	currentTutorialIndex = 0;
-	loadRecipe("tutorial", 0, isInTutorial);
+	loadRecipe("tutorial", 0, 0, isInTutorial);
 	EventSystem<StartTutorialEvent>::instance().sendEvent(StartTutorialEvent{});
 }
 
@@ -145,7 +157,7 @@ void GameStateSystem::save()
 
 	LevelLoader lc;
 	std::list<Achievement> achievements = AchievementSystem::instance().getAchievements();
-	lc.save(recipe["name"], currentLevelIndex, achievements);
+	lc.save(recipe["name"], currentLevelIndex, ambrosia, achievements);
 }
 
 void GameStateSystem::loadSave()
@@ -157,7 +169,7 @@ void GameStateSystem::loadSave()
 	if (save_obj.contains("recipe"))
 	{
 		std::cout << "GameStateSystem::loadSave: a saved game was found" << std::endl;
-		loadRecipe(save_obj["recipe"], save_obj["level"]);
+		loadRecipe(save_obj["recipe"], save_obj["level"], save_obj["ambrosia"]);
 	}
 	else
 	{
@@ -167,7 +179,7 @@ void GameStateSystem::loadSave()
 }
 
 void GameStateSystem::loadRecipe(const std::string& recipeName, int level,
-																 bool isInTutorial)
+																 int ambrosia, bool isInTutorial)
 {
 	std::cout << "GameStateSystem::loadRecipe: loading " << recipeName
 						<< ", level " << level << std::endl;
@@ -318,6 +330,23 @@ void GameStateSystem::preloadResources()
 	std::cout << "Unload complete.\n";
 }
 
+void GameStateSystem::setAmbrosia(int amt)
+{
+	ambrosia = std::max(0, amt);
+
+	assert(ECS::registry<AmbrosiaDisplay>.entities.size() == 1);
+	auto entity = ECS::registry<AmbrosiaDisplay>.entities.front();
+	auto& ambDisplay = entity.get<AmbrosiaDisplay>();
+
+	assert(entity.has<Motion>());
+	vec2 position = entity.get<Motion>().position + ambDisplay.textOffset;
+
+	std::string str = std::to_string(ambrosia);
+
+	entity.remove<Text>();
+	addText(entity, str, position, ambDisplay.textScale, ambDisplay.textColor);
+}
+
 void GameStateSystem::createPlayerEntities()
 {
 	std::cout << "GameStateSystem::createPlayerEntities: creating new player entities" << std::endl;
@@ -369,6 +398,8 @@ void GameStateSystem::createNonPlayerEntities()
 	createMobs();
 	createButtons(frameBufferWidth, frameBufferHeight);
 	createEffects();
+	createAmbrosiaUI();
+	setAmbrosia(ambrosia);
 }
 
 void GameStateSystem::removeNonPlayerEntities()
@@ -412,7 +443,8 @@ void GameStateSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 	{
 		EventSystem<PlayMusicEvent>::instance().sendEvent({MusicType::DESSERT_ARENA});
 
-		DessertForeground::createDessertForeground(vec2(1920.f, 672.f));
+		DessertForeground::createDessertForeground(vec2(2291.f, 772.f));
+		DessertBackground::createDessertBackground(vec2(1920.f, 672.f));
 		EventSystem<AddEmitterEvent>::instance().sendEvent(
 				AddEmitterEvent{ "pinkCottonCandy",std::make_shared<BasicEmitter>(BasicEmitter(5)) });
 		EventSystem<AddEmitterEvent>::instance().sendEvent(
@@ -426,7 +458,7 @@ void GameStateSystem::createMap(int frameBufferWidth, int frameBufferHeight)
 	{
 		EventSystem<PlayMusicEvent>::instance().sendEvent({MusicType::BOSS});
 
-		BBQBackground::createBBQBackground(vec2(1120.f, 720.f));
+		BBQBackground::createBBQBackground(vec2(960.f, 720.f));
 		BBQFire::createBBQFire(vec2(2153.f, 1015.f));
 		BBQFire::createBBQFire(vec2(1378.f, 1403.f));
 		BBQFire::createBBQFire(vec2(41.f, 1264.f));
@@ -590,4 +622,14 @@ void GameStateSystem::createEffects()
 {
 	MouseClickFX::createMouseClickFX();
 	ActiveSkillFX::createActiveSkillFX();
+}
+
+void GameStateSystem::createAmbrosiaUI()
+{
+	AmbrosiaDisplay::createAmbrosiaDisplay();
+}
+
+void GameStateSystem::onAmbrosiaEvent(const AmbrosiaEvent& event)
+{
+	setAmbrosia(getAmbrosia() + event.amount);
 }
