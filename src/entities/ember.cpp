@@ -69,12 +69,12 @@ void Ember::addSkill1(ECS::Entity entity, SkillComponent& skillComponent)
 	auto level1Skill = std::make_shared<AreaOfEffectSkill>(level1Params);
 
 	auto level2Params = createParams();
-	level2Params->entityProvider = std::make_shared<CircularProvider>(325.f);
+	level2Params->entityProvider = std::make_shared<CircularProvider>(330.f);
 	level2Params->entityHandler = std::make_shared<DamageHandler>(30.f);
 	auto level2Skill = std::make_shared<AreaOfEffectSkill>(level2Params);
 
 	auto level3Params = createParams();
-	level3Params->entityProvider = std::make_shared<CircularProvider>(350.f);
+	level3Params->entityProvider = std::make_shared<CircularProvider>(360.f);
 	level3Params->entityHandler = std::make_shared<DamageHandler>(35.f);
 	auto level3Skill = std::make_shared<AreaOfEffectSkill>(level3Params);
 
@@ -118,7 +118,7 @@ void Ember::addSkill2(ECS::Entity entity, SkillComponent& skillComponent)
 
 	auto level3Params = createParams();
 	level3Params->entityProvider = std::make_shared<CircularProvider>(300.f);
-	level3Params->entityHandler = std::make_shared<DamageHandler>(65.f);
+	level3Params->entityHandler = std::make_shared<DamageHandler>(66.f);
 	auto level3Skill = std::make_shared<AreaOfEffectSkill>(level3Params);
 
 	SkillLevels levels = {
@@ -154,13 +154,13 @@ void Ember::addSkill3(ECS::Entity entity, SkillComponent& skillComponent)
 	auto level1Skill = std::make_shared<AreaOfEffectSkill>(level1Params);
 
 	auto level2Params = createParams();
-	level2Params->entityProvider = std::make_shared<CircularProvider>(375.f);
-	level2Params->entityHandler = std::make_shared<KnockbackHandler>(375.f, 325.f, 45.f);
+	level2Params->entityProvider = std::make_shared<CircularProvider>(385.f);
+	level2Params->entityHandler = std::make_shared<KnockbackHandler>(385.f, 330.f, 49.f);
 	auto level2Skill = std::make_shared<AreaOfEffectSkill>(level2Params);
 
 	auto level3Params = createParams();
-	level3Params->entityProvider = std::make_shared<CircularProvider>(400.f);
-	level3Params->entityHandler = std::make_shared<KnockbackHandler>(400.f, 350.f, 50.f);
+	level3Params->entityProvider = std::make_shared<CircularProvider>(420.f);
+	level3Params->entityHandler = std::make_shared<KnockbackHandler>(420.f, 360.f, 53.f);
 	auto level3Skill = std::make_shared<AreaOfEffectSkill>(level3Params);
 
 	SkillLevels levels = {

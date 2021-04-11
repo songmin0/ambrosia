@@ -165,3 +165,38 @@ ECS::Entity UpgradeButton::createUpgradeButton(vec2 position, PlayerType player,
 
 	return entity;
 }
+
+ECS::Entity Button::createPlayerUpgradeButton(ButtonShape shape, vec2 position, const std::string& texture, void(*callback)())
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource(texture);
+	if (resource.effect.program.resource == 0)
+	{
+		resource = ShadedMesh();
+		RenderSystem::createSprite(resource, uiPath("shop/" + texture + ".png"), "textured");
+	}
+
+	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+	entity.emplace<UIComponent>();
+	entity.emplace<RenderableComponent>(RenderLayer::UI);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+
+	// Add clickable component to button depending on shape
+	switch (shape) {
+	case ButtonShape::CIRCLE:
+		entity.emplace<ClickableCircleComponent>(position, resource.texture.size.x / 2, callback);
+		break;
+	case ButtonShape::RECTANGLE:
+		entity.emplace<ClickableRectangleComponent>(position, resource.texture.size.x, resource.texture.size.y, callback);
+		break;
+	default:
+		break;
+	}
+
+	entity.emplace<Button>();
+
+	return entity;
+}

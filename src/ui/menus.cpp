@@ -305,26 +305,13 @@ void Screens::createShopScreen(int frameBufferWidth, int frameBufferHeight, ECS:
 		});
 
 	Button::createButton(ButtonShape::RECTANGLE,
-		{ frameBufferWidth - 250, frameBufferHeight - 300 }, "shop/buy_button",
+		{ frameBufferWidth - 200, frameBufferHeight - 300 }, "shop/buy_button",
 		[]() {
 			std::cout << "Buy button clicked!" << std::endl;
 			ShopSystem::instance().buySelectedSkill();
 		});
 
-	//auto ambrosia_icon = ECS::Entity();
-	//ShadedMesh& logoResource = cacheResource("ambrosia-icon");
-	//if (logoResource.effect.program.resource == 0)
-	//{
-	//	RenderSystem::createSprite(logoResource, uiPath("ambrosia-icon.png"), "textured");
-	//}
-
-	//ambrosia_icon.emplace<ShadedMeshRef>(logoResource);
-	//ambrosia_icon.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
-	//ambrosia_icon.emplace<Motion>().position = vec2(60, 40);
-	//ambrosia_icon.get<Motion>().scale = { 0.5, 0.5 };
-	//
 	ShopSystem::instance().initialize(raoul, chia, ember, taji);
-	
 }
 
 void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeight)

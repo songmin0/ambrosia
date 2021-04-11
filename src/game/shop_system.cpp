@@ -5,6 +5,7 @@
 #include <effects/effects.hpp>
 #include "rendering/text.hpp"
 #include <game/game_state_system.hpp>
+#include <cctype>
 
 std::string getPlayerName(PlayerType player) {
 	switch (player)
@@ -49,6 +50,27 @@ ECS::Entity ShopSystem::getPlayerEntity(PlayerType player) {
 	return raoul;
 }
 
+void printWrappedText(std::string text) {
+	auto str_len = text.length();
+	int line_width = 20;
+	// hacky text wrapping
+	int firstUnprintedChar = 0;
+	int y_pos = 350;
+
+	for (int i = line_width; i < str_len; i += line_width) {
+		while (!isspace(text.at(i))) {
+			i--;
+		}
+
+		if (isspace(text.at(i))) {
+			createText(text.substr(firstUnprintedChar, i - firstUnprintedChar + 1), { 1000, y_pos+= 50 }, 0.5);
+			firstUnprintedChar = i + 1;
+		}
+
+	}
+
+	createText(text.substr(firstUnprintedChar, str_len - firstUnprintedChar + 1), { 1000, y_pos += 50 }, 0.5);
+}
 
 void ShopSystem::executeShopEffect(SkillType skillType, PlayerType player, int index)
 {
@@ -66,19 +88,19 @@ void ShopSystem::executeShopEffect(SkillType skillType, PlayerType player, int i
 
 	// render upgrade description
 	ECS::registry<Text>.clear();
-	createText(getPlayerName(player) + "'s skill " + std::to_string((int)skillType), {1000, 350} , 0.5);
-	createText(getPlayerName(player) + "'s skill " + std::to_string((int)skillType), { 1000, 400 }, 0.5);
-	createText(getPlayerName(player) + "'s skill " + std::to_string((int)skillType), { 1000, 450 }, 0.5);
-	createText(getPlayerName(player) + "'s skill " + std::to_string((int)skillType), { 1000, 500 }, 0.5);
+	printWrappedText(descriptions[index]);
+
 
 	// render labels
 	renderLabels();
 }
 
 bool ShopSystem::checkIfAbleToBuy(int level) {
+	int cost_multiplier = 1;
+
 	auto ambrosia = GameStateSystem::instance().getAmbrosia();
-	if (ambrosia >= level) {
-		ambrosia -= level;
+	if (ambrosia >= level * cost_multiplier) {
+		ambrosia -= level * cost_multiplier;
 		GameStateSystem::instance().setAmbrosia(ambrosia);
 		return true;
 	}
@@ -95,34 +117,30 @@ void ShopSystem::buySelectedSkill() {
 	int level;
 
 	std::cout << "Buying " << getPlayerName(selected_player) << "'s skill " << (int)selected_skill << std::endl;
-	SkillComponent component;
-	
 
-	
-	
 	if (selected_skill == SkillType::NONE) {
-		StatsComponent stats;
-		stats = ECS::registry<StatsComponent>.get(getPlayerEntity(selected_player));
+		StatsComponent stats = ECS::registry<StatsComponent>.get(getPlayerEntity(selected_player));
 		if (!stats.atMaxLevel()) {
-			checkIfAbleToBuy(stats.getStatValue(StatType::LEVEL));
+			if (checkIfAbleToBuy(stats.getStatValue(StatType::LEVEL))) {
+				ECS::registry<StatsComponent>.get(getPlayerEntity(selected_player)).levelUp();
+			};
 		}
 		else {
 			std::cout << "player level maxed already!" << std::endl;
 			return;
 		}
 	}
+	else {
+		SkillComponent component = ECS::registry<SkillComponent>.get(getPlayerEntity(selected_player));
+		if (component.getSkillLevel(selected_skill) == component.getMaxLevel(selected_skill)) {
+			std::cout << "level maxed already!" << std::endl;
+			return;
+		}
 
-	component = ECS::registry<SkillComponent>.get(getPlayerEntity(selected_player));
-	if (component.getSkillLevel(selected_skill) == component.getMaxLevel(selected_skill)) {
-		std::cout << "level maxed already!" << std::endl;
-		return;
+		if (checkIfAbleToBuy(component.getSkillLevel(selected_skill))) {
+			ECS::registry<SkillComponent>.get(getPlayerEntity(selected_player)).upgradeSkillLevel(selected_skill);
+		}
 	}
-
-	if (checkIfAbleToBuy(component.getSkillLevel(selected_skill))) {
-		ECS::registry<SkillComponent>.get(getPlayerEntity(selected_player)).upgradeSkillLevel(selected_skill);
-	}
-
-	//std::cout << "Skill level has now went from " << component. - 1 << "to " << level << std::endl;
 
 	ECS::registry<Text>.clear();
 	renderLabels();
@@ -138,16 +156,13 @@ void ShopSystem::initialize(ECS::Entity raoul, ECS::Entity chia, ECS::Entity emb
 	drawButtons();
 	renderAmbrosia();
 	renderLabels();
-
-
-
 }
 
 void ShopSystem::drawButtons() {
 
 	// Create the buttons and their effects
 
-	int starting_x = 160;
+	int starting_x = 200;
 	int x_gap = 225;
 
 	int starting_y = 155;
@@ -327,50 +342,52 @@ void ShopSystem::drawButtons() {
 
 void ShopSystem::renderLabels()
 {
-	for (ECS::Entity e : buttons) {
+	for (int i = 0; i < buttons.size(); i++) {
+		auto e = buttons.at(i);
 		vec2 button_pos = ECS::registry<Motion>.get(e).position;
-
+		ECS::Entity player;
+		std::string text;
 		if (!ECS::registry<SkillInfoComponent>.has(e)) {
-			createText("LVL. 1", { button_pos.x - 40 , button_pos.y + 100 }, 0.5);
-		}
-		else {
-			auto buttonInfo = ECS::registry<SkillInfoComponent>.get(e);
-			auto skillComponent = ECS::registry<SkillComponent>.get(getPlayerEntity(buttonInfo.player));
-			std::string text;
-
-			if (skillComponent.getSkillLevel(buttonInfo.skillType) == skillComponent.getMaxLevel(buttonInfo.skillType)) {
-				text = "MAXED";
-			} else {
-				text = "LVL. " + std::to_string(skillComponent.getSkillLevel(buttonInfo.skillType));
+			// player upgrades
+			switch ((i) / 4) {
+			case 0:
+				player = raoul;
+				break;
+			case 1:
+				player = taji;
+				break;
+			case 2:
+				player = chia;
+				break;
+			case 3:
+				player = ember;
+				break;
 			}
 
-			createText(text, { button_pos.x - 40 , button_pos.y + 100 }, 0.5);
+			auto stats = player.get<StatsComponent>();
+			if (stats.atMaxLevel()) {
+				text = "MAX!";
+			}
+			else {
+				text = "LVL. " + std::to_string((int)stats.getStatValue(StatType::LEVEL));
+			}
+		} else {
+			auto buttonInfo = ECS::registry<SkillInfoComponent>.get(e);
+			auto skillComponent = ECS::registry<SkillComponent>.get(getPlayerEntity(buttonInfo.player));
+
+			if (skillComponent.getSkillLevel(buttonInfo.skillType) == skillComponent.getMaxLevel(buttonInfo.skillType)) {
+				text = "MAX!";
+			}
+			else {
+				text = "LVL. " + std::to_string(skillComponent.getSkillLevel(buttonInfo.skillType));
+			}
 		}
+		createText(text, { button_pos.x - 40 , button_pos.y + 100 }, 0.5);
 	}
 	GameStateSystem::instance().setAmbrosia(GameStateSystem::instance().getAmbrosia());
 }
 
 void ShopSystem::renderAmbrosia()
 {
-	//auto ambrosia_icon = ECS::Entity();
-	//ShadedMesh& logoResource = cacheResource("ambrosia-icon");
-	//if (logoResource.effect.program.resource == 0)
-	//{
-	//	RenderSystem::createSprite(logoResource, uiPath("ambrosia-icon.png"), "textured");
-	//}
-
-	//ambrosia_icon.emplace<ShadedMeshRef>(logoResource);
-	//ambrosia_icon.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
-	//ambrosia_icon.emplace<Motion>().position = vec2(60, 40);
-	//ambrosia_icon.get<Motion>().scale = { 0.5, 0.5 };
-	//createText(std::to_string(ambrosia), { 110 , 50 }, 0.5);
-
 	GameStateSystem::instance().createAmbrosiaUI();
-
-}
-
-void ShopSystem::updateAmbrosia() {
-	ECS::registry<Text>.clear();
-	createText(std::to_string(GameStateSystem::instance().getAmbrosia()), { 110 , 50 }, 0.5);
-	renderLabels();
 }

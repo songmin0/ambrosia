@@ -77,6 +77,13 @@ void SkillComponent::setSkillLevel(SkillType type, int level)
 	skills[type].currLevel = std::min(skills[type].currLevel, getMaxLevel(type));
 }
 
+void SkillComponent::setAllSkillLevels(json stored_levels)
+{
+	skills[SkillType::SKILL1].currLevel = stored_levels[0];
+	skills[SkillType::SKILL2].currLevel = stored_levels[1];
+	skills[SkillType::SKILL3].currLevel = stored_levels[2];
+}
+
 json SkillComponent::getAllSkillLevels()
 {
 	// ya its hard coded dont @ me

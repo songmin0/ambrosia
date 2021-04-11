@@ -402,6 +402,11 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	if (action == GLFW_RELEASE && key == GLFW_KEY_BACKSPACE) {
 		GameStateSystem::instance().launchMainMenu();
 	}
+
+	// Print player and skill levels
+	if (action == GLFW_RELEASE && key == GLFW_KEY_U) {
+		std::cout << GameStateSystem::instance().getSkillsForAllPlayers() << std::endl;
+	}
 }
 
 void WorldSystem::onMouseClick(int button, int action, int mods) const

@@ -157,11 +157,11 @@ void Chia::addSkill3(ECS::Entity entity, SkillComponent& skillComponent)
 	auto level1Skill = std::make_shared<AreaOfEffectSkill>(level1Params);
 
 	auto level2Params = createParams();
-	level2Params->entityHandler = std::make_shared<BuffHandler>(StatType::HP_SHIELD, 40.f, 1);
+	level2Params->entityHandler = std::make_shared<BuffHandler>(StatType::HP_SHIELD, 40.f, 2);
 	auto level2Skill = std::make_shared<AreaOfEffectSkill>(level2Params);
 
 	auto level3Params = createParams();
-	level3Params->entityHandler = std::make_shared<BuffHandler>(StatType::HP_SHIELD, 50.f, 2);
+	level3Params->entityHandler = std::make_shared<BuffHandler>(StatType::HP_SHIELD, 50.f, 3);
 	auto level3Skill = std::make_shared<AreaOfEffectSkill>(level3Params);
 
 	SkillLevels levels = {

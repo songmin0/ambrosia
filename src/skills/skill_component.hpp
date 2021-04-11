@@ -51,6 +51,8 @@ public:
 
 	void setSkillLevel(SkillType type, int level);
 
+	void setAllSkillLevels(json stored_levels);
+
 	json getAllSkillLevels();
 
 	void upgradePlayerLevel();

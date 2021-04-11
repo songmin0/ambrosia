@@ -30,6 +30,8 @@ public:
 
 	void save();
 
+	json getSkillsForAllPlayers();
+
 	void loadSave();
 	void loadRecipe(const std::string& recipeName, json skill_levels = "", int level = 0,
 									int ambrosia = 0, bool isInTutorial = false);
@@ -54,7 +56,7 @@ private:
 	// Player entities
 	////////////////////////
 	// Creates new player entities at beginning of recipe
-	void createPlayerEntities();
+	void createPlayerEntities(json levels = "");
 	// Completely removes player entities (e.g., when going back to main menu)
 	void removePlayerEntities();
 	// Disables player rendering (e.g., when going to victory/defeat/shop screens)

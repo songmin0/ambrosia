@@ -9,6 +9,7 @@ enum class StatType
 	HP,
 	MAX_HP,
 	BASE_HP,
+	BASE_STR,
 	NUM_ULT_LEFT, // Given to mobs with ultimate attacks
 	MAX_NUM_ULT,
 	LEVEL,
