@@ -55,10 +55,6 @@ public:
 
 	json getAllSkillLevels();
 
-	void upgradePlayerLevel();
-
-	void setplayerLevel(int level);
-
 private:
 	std::unordered_map<SkillType, Entry> skills;
 	SkillType activeType;

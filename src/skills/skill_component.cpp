@@ -89,14 +89,3 @@ json SkillComponent::getAllSkillLevels()
 	// ya its hard coded dont @ me
 	return { skills[SkillType::SKILL1].currLevel , skills[SkillType::SKILL2].currLevel  ,skills[SkillType::SKILL3].currLevel  };
 }
-
-void SkillComponent::upgradePlayerLevel()
-{
-	playerLevel++;
-	
-}
-
-void SkillComponent::setplayerLevel(int level)
-{
-	playerLevel = level;
-}
