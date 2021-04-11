@@ -137,7 +137,6 @@ void TutorialSystem::onTutorialEnd(const EndTutorialEvent& event)
 
 	// Send achievement event
 	EventSystem<FinishedTutorialEvent>::instance().sendEvent(FinishedTutorialEvent{});
-	std::cout << "Sent FinishedTutorialEvent";
 };
 
 void TutorialSystem::onShowHelp(const ShowHelpEvent& event)
