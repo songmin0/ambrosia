@@ -1,6 +1,6 @@
 #pragma once
-#include "button.hpp"
-#include "effects.hpp"
+#include <button.hpp>
+#include <effects.hpp>
 #include <functional>
 #include <iostream>
 #include <optional>

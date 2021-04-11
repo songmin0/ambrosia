@@ -1,9 +1,9 @@
-#include "shop_system.hpp"
+#include <shop_system.hpp>
 #include <ui/button.hpp>
 #include <ui/ui_components.hpp>
 #include <ui/ui_entities.hpp>
 #include <effects/effects.hpp>
-#include "rendering/text.hpp"
+#include <rendering/text.hpp>
 #include <game/game_state_system.hpp>
 #include <cctype>
 

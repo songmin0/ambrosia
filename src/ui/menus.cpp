@@ -3,7 +3,7 @@
 #include "game/game_state_system.hpp"
 #include "rendering/text.hpp"
 #include "game/achievement_system.hpp"
-#include "game/shop_system.hpp"
+#include "ui/shop_system.hpp"
 #include <iostream>
 #include <SDL.h>
 #include <SDL_mixer.h>
