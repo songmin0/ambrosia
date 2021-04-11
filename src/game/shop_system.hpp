@@ -13,7 +13,6 @@ class ShopSystem
 
 
 		// TODO : this is temporary until ambrosia drops are added to the game
-		int ambrosia = 1000;
 		
 		ECS::Entity getPlayerEntity(PlayerType player);
 

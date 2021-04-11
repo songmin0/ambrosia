@@ -98,7 +98,7 @@ void GameStateSystem::beginTutorial()
 	isInTutorial = true;
 
 	currentTutorialIndex = 0;
-	loadRecipe("tutorial", 0, 0, isInTutorial);
+	loadRecipe("tutorial", "", 0, 0, isInTutorial);
 	EventSystem<StartTutorialEvent>::instance().sendEvent(StartTutorialEvent{});
 }
 
@@ -359,6 +359,11 @@ void GameStateSystem::preloadResources()
 	ECS::ContainerInterface::listAllComponents();
 	std::cout << "Unload complete.\n";
 }
+
+//void GameStateSystem::setAmbrosiaAmount(int amt)
+//{
+//
+//}
 
 void GameStateSystem::setAmbrosia(int amt)
 {

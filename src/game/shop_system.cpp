@@ -4,6 +4,7 @@
 #include <ui/ui_entities.hpp>
 #include <effects/effects.hpp>
 #include "rendering/text.hpp"
+#include <game/game_state_system.hpp>
 
 std::string getPlayerName(PlayerType player) {
 	switch (player)
@@ -75,9 +76,10 @@ void ShopSystem::executeShopEffect(SkillType skillType, PlayerType player, int i
 }
 
 bool ShopSystem::checkIfAbleToBuy(int level) {
-
-	if (ambrosia > level * 200) {
-		ambrosia -= level * 200;
+	auto ambrosia = GameStateSystem::instance().getAmbrosia();
+	if (ambrosia >= level) {
+		ambrosia -= level;
+		GameStateSystem::instance().setAmbrosia(ambrosia);
 		return true;
 	}
 	return false;
@@ -94,6 +96,21 @@ void ShopSystem::buySelectedSkill() {
 
 	std::cout << "Buying " << getPlayerName(selected_player) << "'s skill " << (int)selected_skill << std::endl;
 	SkillComponent component;
+	
+
+	
+	
+	if (selected_skill == SkillType::NONE) {
+		StatsComponent stats;
+		stats = ECS::registry<StatsComponent>.get(getPlayerEntity(selected_player));
+		if (!stats.atMaxLevel()) {
+			checkIfAbleToBuy(stats.getStatValue(StatType::LEVEL));
+		}
+		else {
+			std::cout << "player level maxed already!" << std::endl;
+			return;
+		}
+	}
 
 	component = ECS::registry<SkillComponent>.get(getPlayerEntity(selected_player));
 	if (component.getSkillLevel(selected_skill) == component.getMaxLevel(selected_skill)) {
@@ -119,7 +136,11 @@ void ShopSystem::initialize(ECS::Entity raoul, ECS::Entity chia, ECS::Entity emb
 	this->taji = taji;
 
 	drawButtons();
+	renderAmbrosia();
 	renderLabels();
+
+
+
 }
 
 void ShopSystem::drawButtons() {
@@ -273,12 +294,6 @@ void ShopSystem::drawButtons() {
 			})
 	);
 
-	//buttons.push_back(
-	//	UpgradeButton::createUpgradeButton({ starting_x + (x_gap * i) , starting_y + (y_gap * j) }, PlayerType::EMBER, SkillType::NONE, "ember",
-	//		[]() {
-	//			ShopSystem::instance().executeShopEffect(SkillType::SKILL1, PlayerType::EMBER, 12);
-	//		})
-	//);
 
 
 	i++;
@@ -332,27 +347,30 @@ void ShopSystem::renderLabels()
 			createText(text, { button_pos.x - 40 , button_pos.y + 100 }, 0.5);
 		}
 	}
-	createText(std::to_string(ambrosia), { 110 , 50 }, 0.5);
+	GameStateSystem::instance().setAmbrosia(GameStateSystem::instance().getAmbrosia());
 }
 
 void ShopSystem::renderAmbrosia()
 {
-	auto ambrosia_icon = ECS::Entity();
-	ShadedMesh& logoResource = cacheResource("ambrosia-icon");
-	if (logoResource.effect.program.resource == 0)
-	{
-		RenderSystem::createSprite(logoResource, uiPath("ambrosia-icon.png"), "textured");
-	}
+	//auto ambrosia_icon = ECS::Entity();
+	//ShadedMesh& logoResource = cacheResource("ambrosia-icon");
+	//if (logoResource.effect.program.resource == 0)
+	//{
+	//	RenderSystem::createSprite(logoResource, uiPath("ambrosia-icon.png"), "textured");
+	//}
 
-	ambrosia_icon.emplace<ShadedMeshRef>(logoResource);
-	ambrosia_icon.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
-	ambrosia_icon.emplace<Motion>().position = vec2(60, 40);
-	ambrosia_icon.get<Motion>().scale = { 0.5, 0.5 };
-	createText(std::to_string(ambrosia), { 110 , 50 }, 0.5);
+	//ambrosia_icon.emplace<ShadedMeshRef>(logoResource);
+	//ambrosia_icon.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
+	//ambrosia_icon.emplace<Motion>().position = vec2(60, 40);
+	//ambrosia_icon.get<Motion>().scale = { 0.5, 0.5 };
+	//createText(std::to_string(ambrosia), { 110 , 50 }, 0.5);
+
+	GameStateSystem::instance().createAmbrosiaUI();
+
 }
 
 void ShopSystem::updateAmbrosia() {
 	ECS::registry<Text>.clear();
-	createText(std::to_string(ambrosia), { 110 , 50 }, 0.5);
+	createText(std::to_string(GameStateSystem::instance().getAmbrosia()), { 110 , 50 }, 0.5);
 	renderLabels();
 }

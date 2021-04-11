@@ -47,6 +47,7 @@ public:
 
 	inline int getAmbrosia() const {return ambrosia;}
 	void setAmbrosia(int amt);
+	void createAmbrosiaUI();
 
 private:
 	////////////////////////
@@ -71,7 +72,7 @@ private:
 	void createMobs();
 	void createButtons(int frameBufferWidth, int frameBufferHeight);
 	void createEffects();
-	void createAmbrosiaUI();
+	
 
 	void onAmbrosiaEvent(const AmbrosiaEvent& event);
 

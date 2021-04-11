@@ -276,27 +276,6 @@ void Screens::createCreditsScreen(int frameBufferWidth, int frameBufferHeight, i
 		});
 };
 
-
-
-//// utility fcn to make buttons to avoid code duplication
-//void createUpgradeButtonsForPlayer(std::string player_name, int y_pos) {
-//	int starting_x = 160;
-//	int x_gap = 225;
-//	int i = 0;
-//	for (i = 0; i < 4; i++) { // and for each skill
-//		std::string path = i == 0 ? "shop/" + player_name : std::string("skill_buttons/skill") + std::to_string(i) + "/" + player_name;
-//
-//		ShopSystem::instance().setCurrPlayer(player_name);
-//		ShopSystem::instance().setCurrSkillNum(i);
-//
-//		Button::createButton(ButtonShape::CIRCLE,
-//			{ starting_x + (x_gap * i) , y_pos }, path,
-//			[]() {
-//				ShopSystem::instance().executeShopEffect(3, "chia");
-//			});
-//	}
-//}
-
 void Screens::createShopScreen(int frameBufferWidth, int frameBufferHeight, ECS::Entity raoul, ECS::Entity chia, ECS::Entity ember, ECS::Entity taji)
 {
 	auto background = ECS::Entity();
@@ -332,18 +311,18 @@ void Screens::createShopScreen(int frameBufferWidth, int frameBufferHeight, ECS:
 			ShopSystem::instance().buySelectedSkill();
 		});
 
-	auto ambrosia_icon = ECS::Entity();
-	ShadedMesh& logoResource = cacheResource("ambrosia-icon");
-	if (logoResource.effect.program.resource == 0)
-	{
-		RenderSystem::createSprite(logoResource, uiPath("ambrosia-icon.png"), "textured");
-	}
+	//auto ambrosia_icon = ECS::Entity();
+	//ShadedMesh& logoResource = cacheResource("ambrosia-icon");
+	//if (logoResource.effect.program.resource == 0)
+	//{
+	//	RenderSystem::createSprite(logoResource, uiPath("ambrosia-icon.png"), "textured");
+	//}
 
-	ambrosia_icon.emplace<ShadedMeshRef>(logoResource);
-	ambrosia_icon.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
-	ambrosia_icon.emplace<Motion>().position = vec2(60, 40);
-	ambrosia_icon.get<Motion>().scale = { 0.5, 0.5 };
-	
+	//ambrosia_icon.emplace<ShadedMeshRef>(logoResource);
+	//ambrosia_icon.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
+	//ambrosia_icon.emplace<Motion>().position = vec2(60, 40);
+	//ambrosia_icon.get<Motion>().scale = { 0.5, 0.5 };
+	//
 	ShopSystem::instance().initialize(raoul, chia, ember, taji);
 	
 }

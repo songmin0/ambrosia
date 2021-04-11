@@ -30,3 +30,31 @@ bool StatsComponent::isStunned()
 	// for floating point precision
 	return std::fabs(getStatValue(StatType::STUNNED)) > 0.0005f;
 }
+
+bool StatsComponent::atMaxLevel()
+{
+	return getStatValue(StatType::LEVEL) == 3;
+}
+
+bool StatsComponent::levelUp()
+{
+	return setLevel(getStatValue(StatType::LEVEL) + 1);
+	
+}
+
+bool StatsComponent::setLevel(int level)
+{
+	if (level > 3) {
+		return false;
+	}
+	setBaseValue(StatType::LEVEL, level);
+
+	auto hp = getStatValue(StatType::BASE_HP);
+	auto str = getStatValue(StatType::STRENGTH);
+
+	hp *= 1 + (0.1 * level);
+	str += 0.1 * level;
+	setBaseValue(StatType::MAX_HP, hp);
+	setBaseValue(StatType::STRENGTH, str);
+	return true;
+}
