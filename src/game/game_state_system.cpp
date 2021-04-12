@@ -210,6 +210,7 @@ void GameStateSystem::loadRecipe(const std::string& recipeName, json skill_level
 						<< ", level " << level << std::endl;
 
 	resetState();
+	this->ambrosia = ambrosia;
 	this->isInTutorial = isInTutorial;
 	currentLevelIndex = level;
 

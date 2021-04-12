@@ -24,7 +24,7 @@ struct Potato
 
 struct MashedPotato
 {
-	static ECS::Entity createMashedPotato(vec2 pos, float initHPPercent = 1.f, float orientation = -1.f);
+	static ECS::Entity createMashedPotato(vec2 pos, float initHPPercent = 1.f, float orientation = 1.f);
 };
 
 struct PotatoChunk

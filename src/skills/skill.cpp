@@ -1,7 +1,7 @@
 #include "skill.hpp"
 
-#include <game/event_system.hpp>
-#include <game/events.hpp>
+#include "game/event_system.hpp"
+#include "game/events.hpp"
 #include <utility>
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1,8 +1,8 @@
 #include "swarm_behaviour.hpp"
-#include <entities/tiny_ecs.hpp>
+#include "entities/tiny_ecs.hpp"
 #include "entities/enemies.hpp"
 #include "maps/map.hpp"
-#include "stats_system.hpp"
+#include "game/stats_system.hpp"
 
 #include <math.h>
 #include <iostream>
