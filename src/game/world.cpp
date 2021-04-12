@@ -165,7 +165,11 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			}
 		}
 	}
-	if (ECS::registry<AISystem::MobComponent>.entities.size() == 0) {
+	// If all mobs are dead and there are no active projectiles (e.g., ambrosia
+	// projectiles), then go to the victory screen
+	if (ECS::registry<AISystem::MobComponent>.entities.empty() &&
+			ECS::registry<ProjectileComponent>.components.empty())
+	{
 		if (!GameStateSystem::instance().isTransitioning)
 		{
 			GameStateSystem::instance().isTransitioning = true;

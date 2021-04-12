@@ -163,7 +163,10 @@ void TurnSystem::step(float elapsed_ms)
 	}
 	timer -= elapsed_ms;
 
-	if (timer > 0.f)
+	// The turn system should only run if enough time has passed since the last
+	// movement or skill was performed AND if there are no active projectiles
+	// (e.g., ambrosia projectiles)
+	if (timer > 0.f || !ECS::registry<ProjectileComponent>.components.empty())
 	{
 		return;
 	}
