@@ -358,9 +358,6 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 			GameStateSystem::instance().isTransitioning = true;
 			TransitionEvent event;
 			event.callback = []() {
-				GameStateSystem::instance().isInMainScreen = false;
-				GameStateSystem::instance().isInStory = false;
-				GameStateSystem::instance().isInTutorial = false;
 				GameStateSystem::instance().loadRecipe("recipe-3");
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
