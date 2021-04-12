@@ -1,7 +1,7 @@
-#include <text.hpp>
+#include "text.hpp"
 
-#include <common.hpp>
-#include <render.hpp>
+#include "common.hpp"
+#include "render.hpp"
 #include "game/achievement_system.hpp"
 
 #include <codecvt>
@@ -553,6 +553,5 @@ ECS::Entity createText(const std::string& text, vec2 position,
 ECS::Entity createAchievementText(const std::string& text, vec2 position)
 {
 	auto entity = createText(text, position, 0.75f, vec3(1.f));
-	entity.emplace<AchievementMessage>();
 	return entity;
 }

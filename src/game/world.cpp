@@ -16,7 +16,7 @@
 #include "ai/ai.hpp"
 #include "level_loader/level_loader.hpp"
 #include "game_state_system.hpp"
-#include "game/swarm_behaviour.hpp"
+#include "ai/swarm_behaviour.hpp"
 #include "rendering/text.hpp"
 #include "entities/players.hpp"
 
@@ -212,10 +212,7 @@ void WorldSystem::processTimers(float elapsed_ms)
 		auto& achievementTimer = achievementPopup.get<TimerComponent>();
 		if (achievementTimer.counter_ms == achievementTimer.maxTime_ms)
 		{
-			auto& achievementMessage = ECS::registry<AchievementMessage>.entities[i];
 			ECS::ContainerInterface::removeAllComponentsOf(achievementPopup);
-			ECS::ContainerInterface::removeAllComponentsOf(achievementMessage);
-			assert(ECS::registry<AchievementPopup>.entities.size() == ECS::registry<AchievementMessage>.entities.size());
 		}
 	}
 

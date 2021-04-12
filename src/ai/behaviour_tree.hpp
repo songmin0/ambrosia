@@ -25,6 +25,7 @@ enum class MobType
 	MILK,
 	POTATO,
 	POTATO_CHUNK,
+	MASHED_POTATO,
 	TOMATO,
 	LETTUCE,
 	SALTNPEPPER,
@@ -193,6 +194,13 @@ public:
 	void run();
 };
 
+class MashedPotatoTurnSequence : public Sequence
+{
+public:
+	MashedPotatoTurnSequence();
+	void run();
+};
+
 // Make egg move closer to player or run away (if low HP)
 class EggMoveSelector : public Selector
 {
@@ -307,6 +315,12 @@ struct PotatoChunkBehaviourTree : public BehaviourTree
 {
 public:
 	PotatoChunkBehaviourTree();
+};
+
+struct MashedPotatoBehaviourTree : public BehaviourTree
+{
+public:
+	MashedPotatoBehaviourTree();
 };
 
 // Parent class of all leaf nodes
