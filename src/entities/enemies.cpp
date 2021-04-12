@@ -647,7 +647,7 @@ ECS::Entity Lettuce::createLettuce(json stats, json position)
 	leafSlamParams->soundEffect = SoundEffect::MELEE;
 	leafSlamParams->animationType = AnimationType::ATTACK1;
 	leafSlamParams->delay = 0.8f;
-	leafSlamParams->entityProvider = std::make_shared<CircularProvider>(200.f);
+	leafSlamParams->entityProvider = std::make_shared<CircularProvider>(350.f);
 	leafSlamParams->entityFilters.push_back(std::make_shared<CollisionFilter>(CollisionGroup::PLAYER));
 	leafSlamParams->entityHandler = std::make_shared<DamageHandler>(30.f);
 	skillComponent.addSkill(SkillType::SKILL1, std::make_shared<AreaOfEffectSkill>(leafSlamParams));
