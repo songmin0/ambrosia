@@ -60,7 +60,10 @@ void AchievementSystem::onBeatLevelEvent()
 void AchievementSystem::onDefeatedBossEvent()
 {
 	// TODO: Should change achievement names with multiple playthroughs/recipes
-	addAchievement(Achievement::BEAT_RECIPE);
+	if (isTracking(Achievement::BEAT_RECIPE))
+	{
+		addAchievement(Achievement::BEAT_RECIPE);
+	}
 
 	bool isLowHP = true;
 	auto& players = ECS::registry<PlayerComponent>.entities;
