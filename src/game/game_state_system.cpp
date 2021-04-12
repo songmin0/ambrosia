@@ -103,7 +103,6 @@ void GameStateSystem::beginTutorial()
 
 void GameStateSystem::nextMap()
 {
-	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
 	std::cout << "GameStateSystem::nextMap: attempting to start next map in current recipe" << std::endl;
 
 	currentLevelIndex++;
@@ -134,7 +133,6 @@ void GameStateSystem::nextMap()
 
 void GameStateSystem::restartMap()
 {
-	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
 	resetState();
 	currentLevel = recipe["maps"][currentLevelIndex];
 
@@ -206,7 +204,6 @@ void GameStateSystem::loadRecipe(const std::string& recipeName, int level,
 
 void GameStateSystem::launchMainMenu()
 {
-	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
 	std::cout << "GameStateSystem::launchMainMenu: creating main menu" << std::endl;
 
 	resetState();
@@ -236,7 +233,6 @@ void GameStateSystem::launchAchievementsScreen()
 
 void GameStateSystem::launchCreditsScreen()
 {
-	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
 	std::cout << "GameStateSystem::launchCreditsScreen: creating credits screen" << std::endl;
 
 	resetState();
@@ -251,7 +247,6 @@ void GameStateSystem::launchCreditsScreen()
 
 void GameStateSystem::launchRecipeSelectMenu()
 {
-	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
 	std::cout << "GameStateSystem::launchRecipeSelectMenu: creating recipe selection menu" << std::endl;
 
 	resetState();
@@ -266,7 +261,6 @@ void GameStateSystem::launchRecipeSelectMenu()
 
 void GameStateSystem::launchVictoryScreen()
 {
-	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
 	std::cout << "GameStateSystem::launchVictoryScreen: creating victory screen" << std::endl;
 
 	resetState();
@@ -291,7 +285,6 @@ void GameStateSystem::launchVictoryScreen()
 
 void GameStateSystem::launchDefeatScreen()
 {
-	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
 	std::cout << "GameStateSystem::launchDefeatScreen: creating defeat screen" << std::endl;
 
 	resetState();
