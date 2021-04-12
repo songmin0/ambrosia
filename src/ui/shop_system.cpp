@@ -164,20 +164,12 @@ void ShopSystem::initialize(ECS::Entity raoul, ECS::Entity chia, ECS::Entity emb
 	this->ember = ember;
 	this->taji = taji;
 
-	buttons.clear();
 	drawButtons();
 	renderAmbrosia();
 	renderLabels();
 }
 
 void ShopSystem::drawButtons() {
-
-	//// Create the buttons and their effects
-	//for (ECS::Entity e : buttons) {
-	//	ECS::ContainerInterface::removeAllComponentsOf(e);
-	//}
-
-	//buttons.clear();
 
 	int starting_x = 200;
 	int x_gap = 225;
@@ -359,6 +351,8 @@ void ShopSystem::drawButtons() {
 
 void ShopSystem::renderLabels()
 {
+	buttons.clear();
+
 	for (int i = 0; i < buttons.size(); i++) {
 		auto e = buttons.at(i);
 		vec2 button_pos = ECS::registry<Motion>.get(e).position;
