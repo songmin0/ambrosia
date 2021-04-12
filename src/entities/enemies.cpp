@@ -6,7 +6,7 @@
 #include "ai/behaviour_tree.hpp"
 #include "game/turn_system.hpp"
 #include "ui/ui_entities.hpp"
-#include <game/swarm_behaviour.hpp>
+#include "ai/swarm_behaviour.hpp"
 
 namespace
 {
@@ -359,12 +359,15 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	entity.emplace<ShadedMeshRef>(resource);
 	entity.emplace<RenderableComponent>(RenderLayer::PLAYER_AND_MOB);
 
-	// TODO: Figure this out for MashedPotato
 	entity.emplace<AISystem::MobComponent>();
 	auto& btType = entity.emplace<BehaviourTreeType>();
-	btType.mobType = MobType::POTATO;
+	btType.mobType = MobType::MASHED_POTATO;
 
-	entity.emplace<TurnSystem::TurnComponent>();
+	auto& turnComponent = entity.emplace<TurnSystem::TurnComponent>();
+	// Make the MashedPotato entity wait until the next turn to do its first
+	// attack instead of attacking immediately after it gets spawned.
+	turnComponent.hasMoved = true;
+	turnComponent.hasUsedSkill = true;
 
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
