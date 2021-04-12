@@ -96,7 +96,10 @@ ECS::Entity Player::create(PlayerType type, const json& configValues)
 	json stats = configValues.at("stats");
 	statsComponent.setBaseValue(StatType::HP, stats.at("hp"));
 	statsComponent.setBaseValue(StatType::MAX_HP, stats.at("hp"));
+	statsComponent.setBaseValue(StatType::BASE_HP, stats.at("hp"));
+	statsComponent.setBaseValue(StatType::LEVEL, 1);
 	statsComponent.setBaseValue(StatType::STRENGTH, stats.at("strength"));
+	statsComponent.setBaseValue(StatType::BASE_STR, stats.at("strength"));
 
 	prepareForNextMap(entity, configValues);
 

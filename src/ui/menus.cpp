@@ -3,6 +3,7 @@
 #include "game/game_state_system.hpp"
 #include "rendering/text.hpp"
 #include "game/achievement_system.hpp"
+#include "ui/shop_system.hpp"
 #include <iostream>
 #include <SDL.h>
 #include <SDL_mixer.h>
@@ -134,7 +135,10 @@ void Screens::createVictoryScreen(int frameBufferWidth, int frameBufferHeight, i
 			std::cout << "Next button clicked!" << std::endl;
 			TransitionEvent event;
 			event.callback = []() {
-				GameStateSystem::instance().nextMap();
+				GameStateSystem::instance().isInVictoryScreen = false;
+				GameStateSystem::instance().isInShopScreen = true;
+				GameStateSystem::instance().launchShopScreen();
+				std::cout << "launched" << std::endl;
 			};
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
@@ -279,6 +283,44 @@ void Screens::createCreditsScreen(int frameBufferWidth, int frameBufferHeight, i
 		});
 };
 
+void Screens::createShopScreen(int frameBufferWidth, int frameBufferHeight, ECS::Entity raoul, ECS::Entity chia, ECS::Entity ember, ECS::Entity taji)
+{
+	auto background = ECS::Entity();
+	const std::string key = "shop";
+	ShadedMesh& splashResource = cacheResource(key);
+	if (splashResource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(splashResource, uiPath("menus/" + key + ".png"), "textured");
+	}
+	background.emplace<ShadedMeshRef>(splashResource);
+	background.emplace<RenderableComponent>(RenderLayer::MAP);
+	background.emplace<Motion>();
+	auto& mapComponent = background.emplace<MapComponent>();
+	mapComponent.name = key;
+	mapComponent.mapSize = static_cast<vec2>(splashResource.texture.size);
+	
+	Button::createButton(ButtonShape::RECTANGLE,
+		{ frameBufferWidth - 125, 50 }, "menus/next-button",
+		[]() {
+			std::cout << "Next button clicked!" << std::endl;
+			TransitionEvent event;
+			event.callback = []() {
+				GameStateSystem::instance().isInShopScreen = false;
+				GameStateSystem::instance().nextMap();
+			};
+			EventSystem<TransitionEvent>::instance().sendEvent(event);
+		});
+
+	Button::createButton(ButtonShape::RECTANGLE,
+		{ frameBufferWidth - 200, frameBufferHeight - 300 }, "shop/buy_button",
+		[]() {
+			std::cout << "Buy button clicked!" << std::endl;
+			ShopSystem::instance().buySelectedSkill();
+		});
+
+	ShopSystem::instance().initialize(raoul, chia, ember, taji);
+}
+
 void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeight)
 {
 	// Background
@@ -376,3 +418,5 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 			EventSystem<TransitionEvent>::instance().sendEvent(event);
 		});
 }
+
+

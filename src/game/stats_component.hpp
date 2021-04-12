@@ -8,8 +8,11 @@ enum class StatType
 	AMBROSIA, // Amount of ambrosia a mob drops when it dies
 	HP,
 	MAX_HP,
+	BASE_HP,
+	BASE_STR,
 	NUM_ULT_LEFT, // Given to mobs with ultimate attacks
 	MAX_NUM_ULT,
+	LEVEL,
 
 	// Buffable/debuffable stats
 	HP_SHIELD,
@@ -35,6 +38,9 @@ public:
 	float getStatValue(StatType type);
 	float getEffectiveHP();
 	bool isStunned();
+	bool atMaxLevel();
+	bool levelUp();
+	bool setLevel(int level);
 
 	ECS::Entity healthBar;
 

@@ -48,7 +48,14 @@ public:
 
 	void upgradeSkillLevel(SkillType type);
 
+	void setSkillLevel(SkillType type, int level);
+
+	void setAllSkillLevels(json stored_levels);
+
+	json getAllSkillLevels();
+
 private:
 	std::unordered_map<SkillType, Entry> skills;
 	SkillType activeType;
+	int playerLevel;
 };

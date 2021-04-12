@@ -50,6 +50,7 @@ void GameStateSystem::resetState()
 {
 	isInMainScreen = false;
 	isInAchievementsScreen = false;
+	isInShopScreen = false;
 	isInCreditsScreen = false;
 	isInStory = false;
 	isInTutorial = false;
@@ -64,7 +65,7 @@ void GameStateSystem::resetState()
 bool GameStateSystem::inGameState()
 {
 	return !isInMainScreen && !isInVictoryScreen && !isInDefeatScreen &&
-				 !isInStory && !isInAchievementsScreen && !isInCreditsScreen;
+				 !isInStory && !isInAchievementsScreen && !isInCreditsScreen && !isInShopScreen;
 }
 
 bool GameStateSystem::hasLights()
@@ -73,6 +74,7 @@ bool GameStateSystem::hasLights()
 	bool isSaladCanyon = (currentLevel["map"] == "salad-canyon");
 	return inGameState() && (isVeggieForest || isSaladCanyon);
 }
+
 
 void GameStateSystem::beginStory()
 {
@@ -97,7 +99,7 @@ void GameStateSystem::beginTutorial()
 	isInTutorial = true;
 
 	currentTutorialIndex = 0;
-	loadRecipe("tutorial", 0, 0, isInTutorial);
+	loadRecipe("tutorial", "", 0, 0, isInTutorial);
 	EventSystem<StartTutorialEvent>::instance().sendEvent(StartTutorialEvent{});
 }
 
@@ -158,7 +160,29 @@ void GameStateSystem::save()
 
 	LevelLoader lc;
 	std::list<Achievement> achievements = AchievementSystem::instance().getAchievements();
-	lc.save(recipe["name"], currentLevelIndex, ambrosia, achievements);
+
+	json skill_levels = getSkillsForAllPlayers();
+	std::cout << skill_levels << std::endl;
+
+	lc.save(recipe["name"], currentLevelIndex, ambrosia, achievements, skill_levels);
+}
+
+json GameStateSystem::getSkillsForAllPlayers()
+{
+	json skill_levels;
+	skill_levels["raoul"]["level"] = (int)playerRaoul.get<StatsComponent>().getStatValue(StatType::LEVEL);
+	skill_levels["raoul"]["skills"] = playerRaoul.get<SkillComponent>().getAllSkillLevels();
+
+	skill_levels["chia"]["level"] = (int)playerChia.get<StatsComponent>().getStatValue(StatType::LEVEL);
+	skill_levels["chia"]["skills"] = playerChia.get<SkillComponent>().getAllSkillLevels();
+
+	skill_levels["ember"]["level"] = (int)playerEmber.get<StatsComponent>().getStatValue(StatType::LEVEL);
+	skill_levels["ember"]["skills"] = playerEmber.get<SkillComponent>().getAllSkillLevels();
+
+	skill_levels["taji"]["level"] = (int)playerTaji.get<StatsComponent>().getStatValue(StatType::LEVEL);
+	skill_levels["taji"]["skills"] = playerTaji.get<SkillComponent>().getAllSkillLevels();
+	
+	return skill_levels;
 }
 
 void GameStateSystem::loadSave()
@@ -170,7 +194,7 @@ void GameStateSystem::loadSave()
 	if (save_obj.contains("recipe"))
 	{
 		std::cout << "GameStateSystem::loadSave: a saved game was found" << std::endl;
-		loadRecipe(save_obj["recipe"], save_obj["level"], save_obj["ambrosia"]);
+		loadRecipe(save_obj["recipe"], save_obj["skill_levels"], save_obj["level"], save_obj["ambrosia"]);
 	}
 	else
 	{
@@ -179,7 +203,8 @@ void GameStateSystem::loadSave()
 	}
 }
 
-void GameStateSystem::loadRecipe(const std::string& recipeName, int level,
+
+void GameStateSystem::loadRecipe(const std::string& recipeName, json skill_levels, int level,
 																 int ambrosia, bool isInTutorial)
 {
 	std::cout << "GameStateSystem::loadRecipe: loading " << recipeName
@@ -195,9 +220,10 @@ void GameStateSystem::loadRecipe(const std::string& recipeName, int level,
 	currentLevel = recipe["maps"][currentLevelIndex];
 
 	// Get rid of all entities and create new ones
+	std::cout << skill_levels << std::endl;
 	removeNonPlayerEntities();
 	removePlayerEntities();
-	createPlayerEntities();
+	createPlayerEntities(skill_levels);
 	createNonPlayerEntities();
 	createMap();
 
@@ -212,9 +238,9 @@ void GameStateSystem::launchMainMenu()
 	isInMainScreen = true;
 
 	Camera::createCamera(vec2(0.f));
-	MouseClickFX::createMouseClickFX();
 	removeNonPlayerEntities();
 	removePlayerEntities();
+	MouseClickFX::createMouseClickFX();
 	vec2 screenBufferSize = getScreenBufferSize();
 	StartMenu::createStartMenu(screenBufferSize.x, screenBufferSize.y);
 }
@@ -285,6 +311,8 @@ void GameStateSystem::launchVictoryScreen()
 	Screens::createVictoryScreen(screenBufferSize.x, screenBufferSize.y);
 }
 
+
+
 void GameStateSystem::launchDefeatScreen()
 {
 	std::cout << "GameStateSystem::launchDefeatScreen: creating defeat screen" << std::endl;
@@ -300,6 +328,31 @@ void GameStateSystem::launchDefeatScreen()
 	vec2 screenBufferSize = getScreenBufferSize();
 	Screens::createDefeatScreen(screenBufferSize.x, screenBufferSize.y);
 }
+
+void GameStateSystem::launchShopScreen()
+{
+
+	if (currentLevelIndex == recipe["maps"].size() - 1) {
+		std::cout << "Last map, don't launch shop!" << std::endl;
+		nextMap();
+		return;
+	}
+
+	std::cout << "GameStateSystem::launchShopScreen: creating shop screen" << std::endl;
+
+	resetState();
+	isInShopScreen = true;
+
+	save();
+
+	Camera::createCamera(vec2(0.f));
+	removeNonPlayerEntities();
+	hidePlayers();
+	vec2 screenBufferSize = getScreenBufferSize();
+	MouseClickFX::createMouseClickFX();
+	Screens::createShopScreen(screenBufferSize.x, screenBufferSize.y, playerRaoul, playerChia, playerEmber, playerTaji);
+}
+
 
 const vec2 GameStateSystem::getScreenBufferSize()
 {
@@ -350,14 +403,27 @@ void GameStateSystem::setAmbrosia(int amt)
 	addText(entity, str, position, ambDisplay.textScale, AMBROSIA_COLOUR);
 }
 
-void GameStateSystem::createPlayerEntities()
+void GameStateSystem::createPlayerEntities(json player_levels)
 {
 	std::cout << "GameStateSystem::createPlayerEntities: creating new player entities" << std::endl;
-
 	playerRaoul = Player::create(PlayerType::RAOUL, currentLevel.at("raoul"));
 	playerTaji = Player::create(PlayerType::TAJI, currentLevel.at("taji"));
 	playerEmber = Player::create(PlayerType::EMBER, currentLevel.at("ember"));
 	playerChia = Player::create(PlayerType::CHIA, currentLevel.at("chia"));
+
+	if (player_levels != "") {
+		playerRaoul.get<SkillComponent>().setAllSkillLevels(player_levels["raoul"]["skills"]);
+		playerRaoul.get<StatsComponent>().setLevel(player_levels["raoul"]["level"]);
+
+		playerTaji.get<SkillComponent>().setAllSkillLevels(player_levels["taji"]["skills"]);
+		playerTaji.get<StatsComponent>().setLevel(player_levels["taji"]["level"]);
+
+		playerEmber.get<SkillComponent>().setAllSkillLevels(player_levels["ember"]["skills"]);
+		playerEmber.get<StatsComponent>().setLevel(player_levels["ember"]["level"]);
+
+		playerChia.get<SkillComponent>().setAllSkillLevels(player_levels["chia"]["skills"]);
+		playerChia.get<StatsComponent>().setLevel(player_levels["chia"]["level"]);
+	}
 }
 
 void GameStateSystem::removePlayerEntities()
@@ -380,7 +446,7 @@ void GameStateSystem::hidePlayers()
 
 void GameStateSystem::preparePlayersForNextMap()
 {
-	std::cout << "GameStateSystem::preparePlayersForNextMap: refilling players' HP, removing buffs/debuffs, etc." << std::endl;
+	std::cout << "GameStateSystem::preparePlayersForNextMap: refilling players' HP, removing buffs/debuffs, setting skill levels, etc." << std::endl;
 
 	Player::prepareForNextMap(playerRaoul, currentLevel.at("raoul"));
 	Player::prepareForNextMap(playerTaji, currentLevel.at("taji"));

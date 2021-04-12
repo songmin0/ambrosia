@@ -133,3 +133,70 @@ ECS::Entity SkillButton::createMoveButton(vec2 position, const std::string& text
 
 	return entity;
 }
+
+ECS::Entity UpgradeButton::createUpgradeButton(vec2 position, PlayerType player, SkillType skillType, const std::string& texture, void(*callback)())
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource(texture);
+	if (resource.effect.program.resource == 0)
+	{
+		if (skillType == SkillType::NONE) {
+			RenderSystem::createSprite(resource, uiPath("shop/" + texture + ".png"), "skill_button");
+		}
+		else {
+			RenderSystem::createPlayerSpecificMesh(resource, uiPath("skill_buttons/" + texture), "skill_button");
+		}
+		
+	}
+
+	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+	entity.emplace<UIComponent>();
+	entity.emplace<RenderableComponent>(RenderLayer::UI);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+
+	entity.emplace<ClickableCircleComponent>(position, resource.texture.size.x / 2, callback);
+	entity.emplace<SkillInfoComponent>(player, skillType);
+	entity.emplace<VisibilityComponent>().isVisible = true;
+
+	entity.emplace<UpgradeButton>();
+
+	return entity;
+}
+
+ECS::Entity Button::createPlayerUpgradeButton(ButtonShape shape, vec2 position, const std::string& texture, void(*callback)())
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource(texture);
+	if (resource.effect.program.resource == 0)
+	{
+		resource = ShadedMesh();
+		RenderSystem::createSprite(resource, uiPath("shop/" + texture + ".png"), "textured");
+	}
+
+	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+	entity.emplace<UIComponent>();
+	entity.emplace<RenderableComponent>(RenderLayer::UI);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+
+	// Add clickable component to button depending on shape
+	switch (shape) {
+	case ButtonShape::CIRCLE:
+		entity.emplace<ClickableCircleComponent>(position, resource.texture.size.x / 2, callback);
+		break;
+	case ButtonShape::RECTANGLE:
+		entity.emplace<ClickableRectangleComponent>(position, resource.texture.size.x, resource.texture.size.y, callback);
+		break;
+	default:
+		break;
+	}
+
+	entity.emplace<Button>();
+
+	return entity;
+}

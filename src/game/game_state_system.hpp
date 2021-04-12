@@ -29,16 +29,19 @@ public:
 	void restartMap();
 
 	void save();
-	void loadSave();
-	void loadRecipe(const std::string& recipeName, int level = 0,
-									int ambrosia = 0, bool isInTutorial = false);
 
+	json getSkillsForAllPlayers();
+
+	void loadSave();
+	void loadRecipe(const std::string& recipeName, json skill_levels = "", int level = 0,
+									int ambrosia = 0, bool isInTutorial = false);
 	void launchMainMenu();
 	void launchAchievementsScreen();
 	void launchCreditsScreen();
 	void launchRecipeSelectMenu();
 	void launchVictoryScreen();
 	void launchDefeatScreen();
+	void launchShopScreen();
 
 	const vec2 getScreenBufferSize();
 	void setWindow(GLFWwindow* window);
@@ -46,13 +49,14 @@ public:
 
 	inline int getAmbrosia() const {return ambrosia;}
 	void setAmbrosia(int amt);
+	void createAmbrosiaUI();
 
 private:
 	////////////////////////
 	// Player entities
 	////////////////////////
 	// Creates new player entities at beginning of recipe
-	void createPlayerEntities();
+	void createPlayerEntities(json levels = "");
 	// Completely removes player entities (e.g., when going back to main menu)
 	void removePlayerEntities();
 	// Disables player rendering (e.g., when going to victory/defeat/shop screens)
@@ -70,7 +74,7 @@ private:
 	void createMobs();
 	void createButtons(int frameBufferWidth, int frameBufferHeight);
 	void createEffects();
-	void createAmbrosiaUI();
+	
 
 	void onDepositAmbrosiaEvent(const DepositAmbrosiaEvent& event);
 
@@ -83,6 +87,7 @@ public:
 	bool isInHelpScreen;
 	bool isInVictoryScreen;
 	bool isInDefeatScreen;
+	bool isInShopScreen;
 	bool isTransitioning;
 	json currentLevel;
 	json recipe;
