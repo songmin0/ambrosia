@@ -1,6 +1,6 @@
 #pragma once
-#include <entities/tiny_ecs.hpp>
-#include "common.hpp"
+#include "entities/tiny_ecs.hpp"
+#include "game/common.hpp"
 
 class SwarmBehaviour
 {

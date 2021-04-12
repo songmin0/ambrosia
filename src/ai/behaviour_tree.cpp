@@ -2,7 +2,7 @@
 #include "game/stats_component.hpp"
 #include "tree_components.hpp"
 #include "game/game_state_system.hpp"
-#include "game/swarm_behaviour.hpp"
+#include "swarm_behaviour.hpp"
 #include "ai/ai.hpp"
 
 const float MOB_LOW_HEALTH = 25.f;
@@ -29,6 +29,9 @@ void StateSystem::onStartMobTurnEvent()
 		break;
 	case MobType::POTATO_CHUNK:
 		activeTree = std::make_shared<BehaviourTree>(PotatoChunkBehaviourTree());
+		break;
+	case MobType::MASHED_POTATO:
+		activeTree = std::make_shared<BehaviourTree>(MashedPotatoBehaviourTree());
 		break;
 	case MobType::TOMATO:
 		activeTree = std::make_shared<BehaviourTree>(BasicMeleeBehaviourTree());
@@ -302,6 +305,17 @@ void PotatoSkillSelector::run()
 	Selector::run();
 }
 
+MashedPotatoTurnSequence::MashedPotatoTurnSequence()
+{
+	addChild(std::make_shared<BasicAttackTask>(BasicAttackTask()));
+}
+
+void MashedPotatoTurnSequence::run()
+{
+	Node::run();
+	Sequence::run();
+}
+
 // COMPOSITE BEHAVIOUR NODES
 
 EggMoveSelector::EggMoveSelector()
@@ -540,6 +554,11 @@ PotatoChunkBehaviourTree::PotatoChunkBehaviourTree()
 	root = std::make_shared<PotatoChunkTurnSequence>(PotatoChunkTurnSequence());
 }
 
+MashedPotatoBehaviourTree::MashedPotatoBehaviourTree()
+{
+	root = std::make_shared<MashedPotatoTurnSequence>(MashedPotatoTurnSequence());
+}
+
 // TASKS
 // Public tasks not meant for any single mob
 // =====================================================================
@@ -693,13 +712,12 @@ void BasicAttackTask::run()
 		case MobType::EGG:
 		case MobType::PEPPER:
 		case MobType::POTATO:
+		case MobType::POTATO_CHUNK:
+		case MobType::MASHED_POTATO:
 			activeEvent.type = SkillType::SKILL1;
 			break;
 		case MobType::MILK:
 			activeEvent.type = SkillType::SKILL2;
-			break;
-		case MobType::POTATO_CHUNK:
-			activeEvent.type = SkillType::SKILL1;
 			break;
 		default:
 			activeEvent.type = SkillType::SKILL1;
