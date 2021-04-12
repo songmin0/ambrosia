@@ -76,7 +76,7 @@ SET(SOURCE_FILES
         "src/game/range_indicator_system.cpp"
         "src/particles/RainEmitter.cpp"
         "src/particles/ConfettiEmitter.cpp"
-        "src/particles/SparkleEmitter.cpp")
+        "src/particles/SparkleEmitter.cpp"
         "src/skills/skill_component.cpp"
         )
 
