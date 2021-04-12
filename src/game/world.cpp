@@ -16,7 +16,7 @@
 #include "ai/ai.hpp"
 #include "level_loader/level_loader.hpp"
 #include "game_state_system.hpp"
-#include "game/swarm_behaviour.hpp"
+#include "ai/swarm_behaviour.hpp"
 #include "rendering/text.hpp"
 #include "entities/players.hpp"
 

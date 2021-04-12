@@ -25,7 +25,7 @@
 #include "skills/skill_system.hpp"
 #include "game/stats_system.hpp"
 #include "game/game_state_system.hpp"
-#include "game/swarm_behaviour.hpp"
+#include "ai/swarm_behaviour.hpp"
 #include "effects/effect_system.hpp"
 #include "game/range_indicator_system.hpp"
 #include "game/achievement_system.hpp"

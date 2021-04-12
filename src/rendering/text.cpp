@@ -1,7 +1,7 @@
-#include <text.hpp>
+#include "text.hpp"
 
-#include <common.hpp>
-#include <render.hpp>
+#include "common.hpp"
+#include "render.hpp"
 #include "game/achievement_system.hpp"
 
 #include <codecvt>

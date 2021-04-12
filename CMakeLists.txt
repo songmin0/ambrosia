@@ -29,6 +29,7 @@ SET(SOURCE_FILES
         "src/main.cpp"
         "src/ai/ai.cpp"
         "src/ai/behaviour_tree.cpp"
+        "src/ai/swarm_behaviour.cpp"
         "src/animation/animation_components.cpp"
         "src/animation/animation_system.cpp"
         "src/effects/effects.cpp"
@@ -47,7 +48,9 @@ SET(SOURCE_FILES
         "src/game/world.cpp"
         "src/game/stats_component.cpp"
         "src/game/stats_system.cpp"
-        "src/game/swarm_behaviour.cpp"
+        "src/game/game_state_system.cpp"
+        "src/game/range_indicator_system.cpp"
+        "src/game/achievement_system.cpp"
         "src/level_loader/level_loader.cpp"
         "src/maps/map.cpp"
         "src/maps/map_objects.cpp"
@@ -72,8 +75,7 @@ SET(SOURCE_FILES
         "src/skills/entity_filter.cpp"
         "src/skills/entity_handler.cpp"
         "src/skills/skill_system.cpp"
-        "src/skills/skill_component.cpp"
-        "src/game/game_state_system.cpp" "src/game/range_indicator_system.cpp")
+        "src/skills/skill_component.cpp")
 
 # Add the directories that the compiler has to search for #include files
 INCLUDE_DIRECTORIES(
@@ -97,7 +99,7 @@ if (IS_OS_MAC)
   link_directories(/usr/local/lib)
 endif()
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES} "src/ai/tree_components.hpp" "src/game/achievement_system.hpp" "src/game/achievement_system.cpp")
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 
 # Added this so policy CMP0065 doesn't scream
