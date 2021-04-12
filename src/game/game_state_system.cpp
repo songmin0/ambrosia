@@ -236,9 +236,9 @@ void GameStateSystem::launchMainMenu()
 	isInMainScreen = true;
 
 	Camera::createCamera(vec2(0.f));
-	MouseClickFX::createMouseClickFX();
 	removeNonPlayerEntities();
 	removePlayerEntities();
+	MouseClickFX::createMouseClickFX();
 	vec2 screenBufferSize = getScreenBufferSize();
 	StartMenu::createStartMenu(screenBufferSize.x, screenBufferSize.y);
 }
@@ -347,7 +347,7 @@ void GameStateSystem::launchShopScreen()
 	removeNonPlayerEntities();
 	hidePlayers();
 	vec2 screenBufferSize = getScreenBufferSize();
-
+	MouseClickFX::createMouseClickFX();
 	Screens::createShopScreen(screenBufferSize.x, screenBufferSize.y, playerRaoul, playerChia, playerEmber, playerTaji);
 }
 
