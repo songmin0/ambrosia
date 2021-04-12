@@ -129,6 +129,19 @@ std::stack<vec2> PathFindingSystem::getShortestPath(ECS::Entity sourceEntity, ve
 
 	return shortestPath;
 }
+bool PathFindingSystem::isWalkablePoint(vec2 point)
+{
+	assert(ECS::registry<MapComponent>.components.size() == 1);
+	assert(!ECS::registry<MapComponent>.components.front().grid.empty());
+
+	// Populate the list of obstacles
+	setCurrentObstacles();
+
+	// Check the given point
+	const MapComponent& map = getMap();
+	vec2 gridPosition = getGridPosition(point);
+	return isValidPoint(map, gridPosition) && isWalkablePoint(map, gridPosition);
+}
 
 bool PathFindingSystem::isWalkablePoint(ECS::Entity entity, vec2 point)
 {
@@ -218,7 +231,7 @@ vec2 PathFindingSystem::getCheapestAdjacentPoint(const MapComponent& map,
 	return bestPoint;
 }
 
-void PathFindingSystem::setCurrentObstacles(ECS::Entity sourceEntity)
+void PathFindingSystem::setCurrentObstacles()
 {
 	obstacles.clear();
 
@@ -228,7 +241,7 @@ void PathFindingSystem::setCurrentObstacles(ECS::Entity sourceEntity)
 		{
 			// The entity whose path we are generating can't be an obstacle, and
 			// dead entities can't be obstacles either
-			if (entity.id == sourceEntity.id || entity.has<DeathTimer>())
+			if (entity.has<DeathTimer>())
 			{
 				continue;
 			}
@@ -238,6 +251,22 @@ void PathFindingSystem::setCurrentObstacles(ECS::Entity sourceEntity)
 				// Store this entity as an obstacle in the grid
 				obstacles.push_back(getGridPosition(entity.get<Motion>().position));
 			}
+		}
+	}
+}
+
+void PathFindingSystem::setCurrentObstacles(ECS::Entity sourceEntity)
+{
+	setCurrentObstacles();
+
+	if (sourceEntity.has<Motion>())
+	{
+		vec2 sourcePos = sourceEntity.get<Motion>().position;
+		auto it = std::find(obstacles.begin(), obstacles.end(), getGridPosition(sourcePos));
+
+		if (it != obstacles.end())
+		{
+			obstacles.erase(it);
 		}
 	}
 }

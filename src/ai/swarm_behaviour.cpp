@@ -6,6 +6,7 @@
 
 #include <math.h>
 #include <iostream>
+#include <maps/path_finding_system.hpp>
 
 using namespace std;
 
@@ -20,10 +21,11 @@ vec2 getClosestValidPoint(vec2 point) {
 
 	float min_displacement = INT_MAX;
 	vec2 min_coords;
+	PathFindingSystem pathFindingSystem;
 
 	for (int y = 0; y < map.grid.size(); y++) {
 		for (int x = 0; x < map.grid[0].size(); x++) {
-			if (map.grid[y][x] == 3) {
+			if (map.grid[y][x] == 3 && pathFindingSystem.isWalkablePoint(getWorldPosition(vec2(x, y), map))) {
 				vec2 disp_vectors = vec2(x, y) - grid_point;
 				float displacement = sqrt(pow(disp_vectors.x, 2) + pow(disp_vectors.y, 2));
 				if (min_displacement > displacement) {
@@ -42,16 +44,18 @@ std::vector<vec2> getPointsAroundCentre(int radius, vec2 centre, int totalPoints
 	auto map = ECS::registry<MapComponent>.components.front();
 
 	vector<vec2> res;
+	PathFindingSystem pathFindingSystem;
 
 	for (int i = 0; i < totalPoints; i++) {
 		// get ith angle around centre
 		float angle = theta * i;
 		float x = radius * cos(angle) + centre.x;
 		float y = radius * sin(angle) + centre.y;
-		
+
 		// check validity of point
-		if (x < 0 || y < 0 || y > map.grid.size() || x > map.grid[0].size() 
-			|| map.grid[y / map.tileSize][x / map.tileSize] == 0) {
+		if (x < 0 || y < 0 || y > map.grid.size() || x > map.grid[0].size()
+			|| map.grid[y / map.tileSize][x / map.tileSize] == 0 ||
+			!pathFindingSystem.isWalkablePoint(vec2(x, y))) {
 			res.push_back(getClosestValidPoint(vec2(x, y)));
 		}
 		else {

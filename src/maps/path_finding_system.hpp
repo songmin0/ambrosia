@@ -14,6 +14,7 @@ public:
 	// Checks that the point is within the bounds of the map and that there is no
 	// obstacle at the given point (so it's a bit different than the private
 	// function of the same name)
+	bool isWalkablePoint(vec2 point);
 	bool isWalkablePoint(ECS::Entity entity, vec2 point);
 
 private:
@@ -43,6 +44,7 @@ private:
 
 	// Updates the current obstacles before pathfinding runs. The sourceEntity is
 	// the entity whose path is being generated
+	void setCurrentObstacles();
 	void setCurrentObstacles(ECS::Entity sourceEntity);
 
 	// Player and mob positions (gets updated before pathfinding starts)
