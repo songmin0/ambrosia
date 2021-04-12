@@ -25,7 +25,7 @@ vec2 getClosestValidPoint(vec2 point) {
 
 	for (int y = 0; y < map.grid.size(); y++) {
 		for (int x = 0; x < map.grid[0].size(); x++) {
-			if (map.grid[y][x] == 3 && pathFindingSystem.isWalkablePoint(vec2(x, y))) {
+			if (map.grid[y][x] == 3 && pathFindingSystem.isWalkablePoint(getWorldPosition(vec2(x, y), map))) {
 				vec2 disp_vectors = vec2(x, y) - grid_point;
 				float displacement = sqrt(pow(disp_vectors.x, 2) + pow(disp_vectors.y, 2));
 				if (min_displacement > displacement) {
