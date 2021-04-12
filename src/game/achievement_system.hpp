@@ -17,7 +17,6 @@ static const char* AchievementText[] = { "Finished the tutorial!", "Beat a level
 										 "Beat a recipe without anyone dying", "Defeated a boss with low HP" };
 
 struct AchievementPopup {};
-struct AchievementMessage {};
 
 
 class AchievementSystem {
