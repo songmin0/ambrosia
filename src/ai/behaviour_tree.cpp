@@ -453,28 +453,6 @@ void MeleeSkillSelector::run()
 	assert(mob.has<AISystem::MobComponent>() && mob.has<Motion>());
 	auto& mobM = mob.get<Motion>();
 
-	auto& playerContainer = ECS::registry<PlayerComponent>;
-	assert(!playerContainer.entities.empty());
-
-	// Find the closest living player
-	float closestDistance = 10000.f;
-	for (auto player : playerContainer.entities)
-	{
-		// Check that player is alive and has Motion component
-		if (!player.has<DeathTimer>() && player.has<Motion>())
-		{
-			// Calculate the distance to this player
-			auto& playerMotion = player.get<Motion>();
-			float playerDistance = distance(mobM.position, playerMotion.position);
-
-			// If this player is closer, update the closest player
-			if (playerDistance < closestDistance)
-			{
-				closestDistance = playerDistance;
-			}
-		}
-	}
-
 	float skillRange = 0.f;
 	assert(mob.has<SkillComponent>());
 	auto& skillComponent = mob.get<SkillComponent>();
@@ -485,11 +463,26 @@ void MeleeSkillSelector::run()
 		skillRange = activeSkill->getRange();
 	}
 
+	auto circularProvider = std::make_shared<CircularProvider>(skillRange);
+	auto entitiesInRange = circularProvider->getEntities(mob, vec2(0.f));
+
+	bool isPlayerInRange = false;
+	for (auto entity : entitiesInRange)
+	{
+		// Check if there is an alive player in range
+		if (entity.has<PlayerComponent>() 
+			&& !entity.has<DeathTimer>() && entity.has<Motion>())
+		{
+			isPlayerInRange = true;
+			break;
+		}
+	}
+
 	std::shared_ptr<Node> basicAttack = children.front();
 	std::shared_ptr<Node> rangedAttack = children.back();
 
 	// If within range, use the basic attack
-	if (closestDistance <= skillRange)
+	if (isPlayerInRange)
 	{
 		rangedAttack->onTerminate(Status::FAILURE);
 	}
@@ -705,30 +698,32 @@ void BasicAttackTask::run()
 		ECS::Entity activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 		SetActiveSkillEvent activeEvent;
 		activeEvent.entity = activeEntity;
-		auto& mobType = activeEntity.get<BehaviourTreeType>().mobType;
-		// Choose correct skill based on active mob entity
-		switch (mobType)
-		{
-		case MobType::EGG:
-		case MobType::PEPPER:
-		case MobType::POTATO:
-		case MobType::POTATO_CHUNK:
-		case MobType::MASHED_POTATO:
-			activeEvent.type = SkillType::SKILL1;
-			break;
-		case MobType::MILK:
-			activeEvent.type = SkillType::SKILL2;
-			break;
-		default:
-			activeEvent.type = SkillType::SKILL1;
-			break;
-		}
-		EventSystem<SetActiveSkillEvent>::instance().sendEvent(activeEvent);
+		if (activeEntity.has<BehaviourTreeType>()) {
+			auto& mobType = activeEntity.get<BehaviourTreeType>().mobType;
+			// Choose correct skill based on active mob entity
+			switch (mobType)
+			{
+			case MobType::EGG:
+			case MobType::PEPPER:
+			case MobType::POTATO:
+			case MobType::POTATO_CHUNK:
+			case MobType::MASHED_POTATO:
+				activeEvent.type = SkillType::SKILL1;
+				break;
+			case MobType::MILK:
+				activeEvent.type = SkillType::SKILL2;
+				break;
+			default:
+				activeEvent.type = SkillType::SKILL1;
+				break;
+			}
+			EventSystem<SetActiveSkillEvent>::instance().sendEvent(activeEvent);
 
-		StartMobSkillEvent skillEvent;
-		skillEvent.entity = activeEntity;
-		skillEvent.targetIsPlayer = true;
-		EventSystem<StartMobSkillEvent>::instance().sendEvent(skillEvent);
+			StartMobSkillEvent skillEvent;
+			skillEvent.entity = activeEntity;
+			skillEvent.targetIsPlayer = true;
+			EventSystem<StartMobSkillEvent>::instance().sendEvent(skillEvent);
+		}
 	}
 }
 
@@ -743,6 +738,7 @@ void UltimateAttackTask::run()
 		ECS::Entity activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 		SetActiveSkillEvent activeEvent;
 		activeEvent.entity = activeEntity;
+		
 		auto& mobType = activeEntity.get<BehaviourTreeType>().mobType;
 		// Choose correct skill based on active mob entity
 		switch (mobType)
