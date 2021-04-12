@@ -1,4 +1,5 @@
 #include "ai.hpp"
+#include "swarm_behaviour.hpp"
 
 #include "entities/tiny_ecs.hpp"
 #include "physics/physics.hpp"
@@ -6,7 +7,6 @@
 #include "game/game_state_system.hpp"
 
 #include <iostream>
-#include <game/swarm_behaviour.hpp>
 
 AISystem::AISystem(PathFindingSystem& pfs)
 	: pathFindingSystem(pfs)
