@@ -458,6 +458,7 @@ void MeleeSkillSelector::run()
 
 	// Find the closest living player
 	float closestDistance = 10000.f;
+	vec2 closestPosition = vec2(closestDistance);
 	for (auto player : playerContainer.entities)
 	{
 		// Check that player is alive and has Motion component
@@ -471,6 +472,7 @@ void MeleeSkillSelector::run()
 			if (playerDistance < closestDistance)
 			{
 				closestDistance = playerDistance;
+				closestPosition = playerMotion.position;
 			}
 		}
 	}
@@ -485,11 +487,24 @@ void MeleeSkillSelector::run()
 		skillRange = activeSkill->getRange();
 	}
 
+	auto circularProvider = std::make_shared<CircularProvider>(skillRange);
+	auto entitiesInRange = circularProvider->getEntities(mob, closestPosition);
+
+	bool isPlayerInRange = false;
+	for (auto entity : entitiesInRange)
+	{
+		if (entity.has<PlayerComponent>())
+		{
+			isPlayerInRange = true;
+			break;
+		}
+	}
+
 	std::shared_ptr<Node> basicAttack = children.front();
 	std::shared_ptr<Node> rangedAttack = children.back();
 
 	// If within range, use the basic attack
-	if (closestDistance <= skillRange)
+	if (isPlayerInRange)
 	{
 		rangedAttack->onTerminate(Status::FAILURE);
 	}
