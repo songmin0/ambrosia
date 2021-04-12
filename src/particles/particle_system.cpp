@@ -101,13 +101,19 @@ ParticleEmitter::ParticleEmitter()
 
 void ParticleEmitter::step(float elapsedMs)
 {
+	int newParticles;
+	if (burst) {
+		newParticles = ParticleSystem::MaxParticles;
+		burst = false;
+	}
+	else {
 		float elapsed_time_sec = elapsedMs / 1000.0f;
-
 		secSinceLastParticleSpawn += elapsed_time_sec;
-		int newParticles = (int)(secSinceLastParticleSpawn * 1);
+		newParticles = (int)(secSinceLastParticleSpawn * particlesPerSecond);
 		if (newParticles != 0) {
-				secSinceLastParticleSpawn = 0.0f;
+			secSinceLastParticleSpawn = 0.0f;
 		}
+	}
 
 		this->simulateParticles(elapsedMs, newParticles);
 }

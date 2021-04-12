@@ -50,6 +50,8 @@ void StartMenu::createStartMenu(int frameBufferWidth, int frameBufferHeight)
 	logo.emplace<RenderableComponent>(RenderLayer::UI);
 	logo.emplace<Motion>().position = vec2(frameBufferWidth / 2 - 30, frameBufferHeight / 3 - 50);
 
+	EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ "sparkleEmitter",std::make_shared<SparkleEmitter>(SparkleEmitter(20)) });
+
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth - 250, frameBufferHeight / 2 + 50 }, "menus/start/start-button",
 		[]() {
@@ -123,6 +125,8 @@ void Screens::createVictoryScreen(int frameBufferWidth, int frameBufferHeight, i
 	victoryLogo.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
 	victoryLogo.emplace<Motion>().position = vec2(frameBufferWidth / 2, frameBufferHeight / 2 - 150);
 
+	EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ "confettiEmitter",std::make_shared<ConfettiEmitter>(ConfettiEmitter()) });
+
 	// TODO: Hook up 
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth / 2, frameBufferHeight / 2 + 180 }, "menus/next-button",
@@ -172,6 +176,9 @@ void Screens::createDefeatScreen(int frameBufferWidth, int frameBufferHeight, in
 	tryAgain.emplace<ShadedMeshRef>(tryagainResource);
 	tryAgain.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
 	tryAgain.emplace<Motion>().position = vec2(frameBufferWidth / 2, frameBufferHeight / 2 + 20);
+
+	//Create the rain
+	EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ "rainEmitter",std::make_shared<RainEmitter>(RainEmitter(10)) });
 
 	// TODO: Hook up 
 	Button::createButton(ButtonShape::RECTANGLE,
