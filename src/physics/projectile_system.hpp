@@ -16,9 +16,7 @@ public:
 
 private:
 	void updateLinearTrajectory(float elapsed_s, ECS::Entity projEntity, ProjectileComponent& projComponent);
-	void updateBoomerangTrajectory(float elapsed_s, ECS::Entity projEntity, ProjectileComponent& projComponent);
-
-	void launchProjectile(LaunchEvent launchEvent, const ProjectileParams& params);
+	void updateCurvedTrajectory(float elapsed_s, ECS::Entity projEntity, ProjectileComponent& projComponent);
 
 	void onLaunchEvent(const LaunchEvent& event);
 

@@ -86,6 +86,15 @@ ProjectileParams ProjectileParams::create(ProjectileType type)
 		params.rotationSpeed = 5.f;
 		params.trajectory = Trajectory::BOOMERANG;
 	}
+	else if (type == ProjectileType::AMBROSIA_ICON)
+	{
+		params.spritePath = "ambrosia-icon";
+		params.spriteScale = vec2(0.7f);
+		params.launchOffset = vec2(0.f);
+		params.launchSpeed = 700.f;
+		params.rotationSpeed = 0.f;
+		params.trajectory = Trajectory::CURVED;
+	}
 
 	return params;
 }
@@ -96,6 +105,7 @@ ProjectileComponent::ProjectileComponent()
 	, timeSinceLaunch(0.f)
 	, phase(Phase::INIT)
 	, callback(nullptr)
+	, targetPositionProvider(nullptr)
 {}
 
 void ProjectileComponent::processCollision(ECS::Entity entity)
@@ -120,6 +130,8 @@ void ProjectileComponent::processCollision(ECS::Entity entity)
 	}
 
 	// Apply the entity handler
-	assert(entityHandler);
-	entityHandler->process(instigator, entity);
+	if (entityHandler)
+	{
+		entityHandler->process(instigator, entity);
+	}
 }

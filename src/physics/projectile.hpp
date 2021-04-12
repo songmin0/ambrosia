@@ -17,7 +17,8 @@ enum class ProjectileType
 	DAMAGE_ORB,
 	PEPPER,
 	SALT,
-	DRUMSTICK
+	DRUMSTICK,
+	AMBROSIA_ICON
 };
 
 enum class Phase
@@ -31,6 +32,7 @@ enum class Phase
 enum class Trajectory
 {
 	LINEAR,
+	CURVED,
 	BOOMERANG
 };
 
@@ -66,8 +68,15 @@ public:
 	std::vector<std::shared_ptr<EntityFilter>> entityFilters;
 	std::shared_ptr<EntityHandler> entityHandler;
 
-	// This callback is executed when the projectile is finished. When using a linear trajectory, this happens when the
-	// projectile reaches the target position. When using a boomerang trajectory, this happens when the projectile gets
-	// back to the instigator.
+	// This callback is executed when the projectile is finished. When using a
+	// linear trajectory, this happens when the projectile reaches the target
+	// position. When using a boomerang trajectory, this happens when the
+	// projectile gets back to the instigator.
 	std::function<void()> callback;
+
+	// If provided, this will override the `targetPosition` field. Only applies
+	// to projectiles using a curved trajectory.
+	std::function<vec2()> targetPositionProvider;
 };
+
+struct AmbrosiaProjectileComponent {};
