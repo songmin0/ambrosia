@@ -33,10 +33,17 @@ struct ActiveArrow {
 	vec2 offset = { 0.f, -275.f };
 };
 
+// Creates an entity that manages an ambrosia icon
+struct AmbrosiaIcon
+{
+	static ECS::Entity createAmbrosiaIcon(vec2 position, vec2 scale);
+};
+
+// Creates an entity that manages the ambrosia icon and text in the top-left
+// corner of the screen
 struct AmbrosiaDisplay
 {
 	static ECS::Entity createAmbrosiaDisplay();
 	float textScale = 0.75f;
 	vec2 textOffset = {40.f, 16.f};
-	vec3 textColor = {1.f, 1.f, 1.f};
 };

@@ -145,7 +145,7 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			// Move camera to follow moving entity
 			CameraSystem::moveCamera(step_seconds * motion.velocity, window_size_in_game_units);
 		}
-		else if (entity.has<ProjectileComponent>()) {
+		else if (entity.has<ProjectileComponent>() && !entity.has<AmbrosiaProjectileComponent>()) {
 			CameraSystem::viewPosition(motion.position, window_size_in_game_units);
 		}
 

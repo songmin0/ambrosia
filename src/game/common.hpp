@@ -30,6 +30,11 @@ static constexpr float PI = 3.14159265359f;
 static constexpr float FLOAT_MIN = std::numeric_limits<float>::min();
 static constexpr float FLOAT_MAX = std::numeric_limits<float>::max();
 
+// Colour of ambrosia text
+static constexpr vec3 AMBROSIA_COLOUR(1.f, 1.f, 0.f);
+// Position of AmbrosiaDisplay, relative to top-left corner of screen
+static constexpr vec2 AMBROSIA_DISPLAY_OFFSET(100.f, 65.f);
+
 // Simple utility functions to avoid mistyping directory name
 inline std::string dataPath() { return "data"; };
 inline std::string shaderPath(const std::string& name) { return dataPath() + "/shaders/" + name;};

@@ -401,7 +401,7 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	// Mashed Potatoes spawns with 50% of its Max HP
 	statsComponent.setBaseValue(StatType::MAX_HP, 300.f);
 	statsComponent.setBaseValue(StatType::HP, 300.f * initHPPercent);
-	statsComponent.setBaseValue(StatType::AMBROSIA, 0.f);
+	statsComponent.setBaseValue(StatType::AMBROSIA, 13.f);
 	statsComponent.setBaseValue(StatType::STRENGTH, 1.f);
 	entity.emplace<CCImmunityComponent>();
 
@@ -478,7 +478,7 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, vec2 potato_pos, float orie
 	auto& statsComponent = entity.emplace<StatsComponent>();
 	statsComponent.setBaseValue(StatType::MAX_HP, 100.f);
 	statsComponent.setBaseValue(StatType::HP, 100.f);
-	statsComponent.setBaseValue(StatType::AMBROSIA, 0.f);
+	statsComponent.setBaseValue(StatType::AMBROSIA, 13.f);
 	statsComponent.setBaseValue(StatType::STRENGTH, 1.f);
 	entity.emplace<CCImmunityComponent>();
 

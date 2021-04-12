@@ -45,7 +45,7 @@ void ProjectileSystem::step(float elapsed_ms)
 		}
 		else
 		{
-			updateBoomerangTrajectory(elapsed_s, projEntity, projComponent);
+			updateCurvedTrajectory(elapsed_s, projEntity, projComponent);
 		}
 
 		// Remove projectile if needed
@@ -83,20 +83,26 @@ void ProjectileSystem::updateLinearTrajectory(float elapsed_s, ECS::Entity projE
 	}
 }
 
-void ProjectileSystem::updateBoomerangTrajectory(float elapsed_s, ECS::Entity projEntity, ProjectileComponent& projComponent)
+void ProjectileSystem::updateCurvedTrajectory(float elapsed_s, ECS::Entity projEntity, ProjectileComponent& projComponent)
 {
-	// For the boomerang, the velocity gets updated in every tick, so there's no special "launch" logic. Just put it in
-	// phase 1 immediately
+	// For the curved trajectory, the velocity gets updated in every tick, so there's no special "launch" logic.
+	// Just put it in phase 1 immediately
 	if (projComponent.phase == Phase::INIT)
 	{
 		projComponent.phase = Phase::PHASE1;
+	}
+
+	vec2 targetPosition = projComponent.targetPosition;
+	if (projComponent.params.trajectory == Trajectory::CURVED && projComponent.targetPositionProvider)
+	{
+		targetPosition = projComponent.targetPositionProvider();
 	}
 
 	auto& projMotion = projEntity.get<Motion>();
 	vec2 launchPosition = projComponent.sourcePosition;
 
 	// Vector from source to target
-	vec2 sourceToTarget = projComponent.targetPosition - launchPosition;
+	vec2 sourceToTarget = targetPosition - launchPosition;
 
 	// Direction from instigator to target
 	vec2 directionToTarget = normalize(sourceToTarget);
@@ -131,7 +137,7 @@ void ProjectileSystem::updateBoomerangTrajectory(float elapsed_s, ECS::Entity pr
 	if (proportionTravelled > 1.f)
 	{
 		// The projectile has reached the target, so we turn it around to go back to the instigator
-		if (projComponent.phase == Phase::PHASE1)
+		if (projComponent.params.trajectory == Trajectory::BOOMERANG && projComponent.phase == Phase::PHASE1)
 		{
 			projComponent.phase = Phase::PHASE2;
 			std::swap(projComponent.sourcePosition, projComponent.targetPosition);
@@ -146,9 +152,12 @@ void ProjectileSystem::updateBoomerangTrajectory(float elapsed_s, ECS::Entity pr
 	}
 }
 
-void ProjectileSystem::launchProjectile(LaunchEvent launchEvent, const ProjectileParams& params)
+void ProjectileSystem::onLaunchEvent(const LaunchEvent& event)
 {
 	auto entity = ECS::Entity();
+
+	ProjectileParams params = ProjectileParams::create(event.skillParams.projectileType);
+	auto instigator = event.skillParams.instigator;
 
 	// Create rendering primitives
 	ShadedMesh& resource = cacheResource(params.spritePath);
@@ -163,13 +172,14 @@ void ProjectileSystem::launchProjectile(LaunchEvent launchEvent, const Projectil
 
 	// Projectile component setup
 	auto& projComponent = entity.emplace<ProjectileComponent>();
-	projComponent.instigator = launchEvent.skillParams.instigator;
-	projComponent.sourcePosition = launchEvent.skillParams.instigator.get<Motion>().position + params.launchOffset;
-	projComponent.targetPosition = launchEvent.skillParams.targetPosition;
+	projComponent.instigator = instigator;
+	projComponent.sourcePosition = instigator.get<Motion>().position + params.launchOffset;
+	projComponent.targetPosition = event.skillParams.targetPosition;
 	projComponent.params = params;
-	projComponent.entityFilters = launchEvent.skillParams.entityFilters;
-	projComponent.entityHandler = launchEvent.skillParams.entityHandler;
-	projComponent.callback = launchEvent.callback;
+	projComponent.entityFilters = event.skillParams.entityFilters;
+	projComponent.entityHandler = event.skillParams.entityHandler;
+	projComponent.callback = event.callback;
+	projComponent.targetPositionProvider = event.targetPositionProvider;
 
 	// Setting initial motion values
 	Motion& motion = entity.emplace<Motion>();
@@ -184,9 +194,9 @@ void ProjectileSystem::launchProjectile(LaunchEvent launchEvent, const Projectil
 	vec2 normalBoundingBox = motion.scale * vec2(resource.texture.size.x, resource.texture.size.y);
 	float maxDimension = std::max(normalBoundingBox.x, normalBoundingBox.y);
 	motion.boundingBox = {maxDimension, maxDimension};
-}
 
-void ProjectileSystem::onLaunchEvent(const LaunchEvent& event)
-{
-	launchProjectile(event, ProjectileParams::create(event.skillParams.projectileType));
+	if (event.skillParams.projectileType == ProjectileType::AMBROSIA_ICON)
+	{
+		entity.emplace<AmbrosiaProjectileComponent>();
+	}
 }

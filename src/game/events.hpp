@@ -36,7 +36,11 @@ struct LaunchEvent
 	ProjectileSkillParams skillParams;
 
 	// Callback to be executed at end of projectile trajectory
-	std::function<void()> callback;
+	std::function<void()> callback = nullptr;
+
+	// If provided, this will override the `targetPosition` in the skillParams.
+	// Only applies to projectiles using a curved trajectory.
+	std::function<vec2()> targetPositionProvider = nullptr;
 };
 
 struct HitEvent
@@ -176,8 +180,13 @@ struct PrepForNextMapEvent
 	ECS::Entity entity;
 };
 
-struct AmbrosiaEvent
+struct AmbrosiaNumberEvent
 {
 	ECS::Entity entity;
+	int amount;
+};
+
+struct DepositAmbrosiaEvent
+{
 	int amount;
 };

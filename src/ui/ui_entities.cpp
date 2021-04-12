@@ -272,6 +272,25 @@ ECS::Entity ActiveArrow::createActiveArrow(vec2 position, vec2 scale)
 	return entity;
 }
 
+ECS::Entity AmbrosiaIcon::createAmbrosiaIcon(vec2 position, vec2 scale)
+{
+	auto entity = ECS::Entity();
+
+	ShadedMesh& resource = cacheResource("ambrosia_icon");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, uiPath("ambrosia-icon.png"), "textured");
+	}
+	entity.emplace<ShadedMeshRef>(resource);
+
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = position;
+	motion.scale = scale;
+
+	entity.emplace<AmbrosiaIcon>();
+	return entity;
+}
+
 ECS::Entity AmbrosiaDisplay::createAmbrosiaDisplay()
 {
 	// There should only ever be one of this type of entity
@@ -280,24 +299,12 @@ ECS::Entity AmbrosiaDisplay::createAmbrosiaDisplay()
 		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<AmbrosiaDisplay>.entities.back());
 	}
 
-	auto entity = ECS::Entity();
+	static constexpr vec2 AMBROSIA_SCALE(0.8f);
 
-	ShadedMesh& resource = cacheResource("ambrosia_display");
-	if (resource.effect.program.resource == 0)
-	{
-		RenderSystem::createSprite(resource, uiPath("ambrosia-icon.png"), "textured");
-	}
-	entity.emplace<ShadedMeshRef>(resource);
+	auto entity = AmbrosiaIcon::createAmbrosiaIcon(AMBROSIA_DISPLAY_OFFSET, AMBROSIA_SCALE);
 	entity.emplace<UIComponent>();
 	entity.emplace<RenderableComponent>(RenderLayer::HELP_BUTTON);
-
-	static constexpr vec2 AMBROSIA_POS(100.f, 65.f);
-	static constexpr vec2 AMBROSIA_SCALE(0.8);
-
-	auto& motion = ECS::registry<Motion>.emplace(entity);
-	motion.position = AMBROSIA_POS;
-	motion.scale = AMBROSIA_SCALE;
-
 	entity.emplace<AmbrosiaDisplay>();
+
 	return entity;
 }

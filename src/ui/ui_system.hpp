@@ -49,6 +49,9 @@ private:
 	EventListenerInfo damageNumberEventListener;
 	void onDamageNumberEvent(const DamageNumberEvent& event);
 
+	EventListenerInfo ambrosiaNumberListener;
+	void onAmbrosiaNumberEvent(const AmbrosiaNumberEvent& event);
+
 	EventListenerInfo healEventListener;
 	void onHealEvent(const HealEvent& event);
 
@@ -56,6 +59,8 @@ private:
 	void onBuffEvent(const BuffEvent& event);
 
 	void createDamageNumber(ECS::Entity entity, float value, vec3 color);
+	void createAmbrosiaNumber(ECS::Entity entity, int value);
+	void launchAmbrosiaProjectile(ECS::Entity entity, int value);
 	void playMouseClickFX(vec2 position);
 	void updatePlayerSkillButton(ECS::Entity& entity);
 	void activateSkillButton(const SkillType& skillType);
