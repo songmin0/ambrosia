@@ -353,6 +353,8 @@ void Screens::createRecipeSelectScreen(int frameBufferWidth, int frameBufferHeig
 	glow.emplace<RenderableComponent>(RenderLayer::MAP_OBJECT);
 	glow.emplace<Motion>().position = vec2(frameBufferWidth / 2, frameBufferHeight / 2);
 
+	EventSystem<AddEmitterEvent>::instance().sendEvent(AddEmitterEvent{ "sparkleEmitter",std::make_shared<SparkleEmitter>(SparkleEmitter(20)) });
+
 	Button::createButton(ButtonShape::RECTANGLE,
 		{ frameBufferWidth / 2, frameBufferHeight / 2 - 200 }, "recipe_select/tutorial-select",
 		[]() {

@@ -50,33 +50,31 @@ void SparkleEmitter::createParticle(int index)
 	ParticlesContainer[index].life = rand() % 2 * 1000 + 3000;   // This particle will live at least 3 seconds.
 	ParticlesContainer[index].pos = glm::vec3(rand() % 1366 - 683.0f, rand() % 1024 - 512.0f, 0.0f);
 
-	glm::vec3 mainVelocity = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 mainVelocity = glm::vec3(0.5f, 0.5f, 0.0f);
 
-	//Genertate a random velocity so not all particles follow the same direction
+	//Generate a random velocity so not all particles follow the same direction
 	glm::vec3 randomVelocity = glm::vec3(
-		0.0f,
-		0.0f,
+		rand() % 5,
+		rand() % 10,
 		0.0f
 	);
 
 	ParticlesContainer[index].speed = mainVelocity + randomVelocity;
-
+	
 	ParticlesContainer[index].r = 1.0;
 	ParticlesContainer[index].g = 1.0;
 	ParticlesContainer[index].b = 1.0;
-	ParticlesContainer[index].a = 1.0;
+	ParticlesContainer[index].a = (rand() % 6) / 10.f + 0.5f; // 0.5-1.0
 
 	//Generate a random size for each particle
-	ParticlesContainer[index].size = (rand() % 5) + 5.0f;
-
+	ParticlesContainer[index].size = (rand() % 20) + 15.0f;
 }
 
 void SparkleEmitter::initEmitter()
 {
 	// Create and compile our GLSL program from the shaders
-	//TODO create a proper rain texture
 	shaderProgram.loadFromFile("data/shaders/Particle.vs.glsl", "data/shaders/Particle.fs.glsl");
-	particleTexture.loadFromFile(objectsPath("confetti.png"));
+	particleTexture.loadFromFile(objectsPath("sparkle.png"));
 
 	//Generate the VAO for this particle system
 	glGenVertexArrays(1, &VertexArrayID);

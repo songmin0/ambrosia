@@ -95,13 +95,11 @@ void ConfettiEmitter::createParticle(int index)
 
 	//Generate a random size for each particle
 	ParticlesContainer[index].size = (rand() % 15) + 10.0f;
-
 }
 
 void ConfettiEmitter::initEmitter()
 {
 	// Create and compile our GLSL program from the shaders
-	//TODO create a proper rain texture
 	shaderProgram.loadFromFile("data/shaders/Particle.vs.glsl", "data/shaders/Particle.fs.glsl");
 	particleTexture.loadFromFile(objectsPath("confetti.png"));
 

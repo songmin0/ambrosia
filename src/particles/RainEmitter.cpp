@@ -53,7 +53,7 @@ void RainEmitter::createParticle(int index)
 
 	glm::vec3 mainVelocity = glm::vec3(0.0f, 150.0f, 0.0f);
 
-	//Genertate a random velocity so not all particles follow the same direction
+	//Generate a random velocity so not all particles follow the same direction
 	glm::vec3 randomVelocity = glm::vec3(
 		0.0f,
 		rand() % 250,
@@ -62,10 +62,10 @@ void RainEmitter::createParticle(int index)
 
 	ParticlesContainer[index].speed = mainVelocity + randomVelocity;
 
-	ParticlesContainer[index].r = 1.0;
-	ParticlesContainer[index].g = 1.0;
-	ParticlesContainer[index].b = 1.0;
-	ParticlesContainer[index].a = 1.0;
+	ParticlesContainer[index].r = (rand() % 5) / 10.f + 0.6f; // 0.6-1.0
+	ParticlesContainer[index].g = (rand() % 5) / 10.f + 0.6f; // 0.6-1.0
+	ParticlesContainer[index].b = 1.0f;
+	ParticlesContainer[index].a = (rand() % 7) / 10.f + 0.3f; // 0.3-0.9
 
 	//Generate a random size for each particle
 	ParticlesContainer[index].size = (rand() % 15) + 10.0f;
@@ -75,7 +75,6 @@ void RainEmitter::createParticle(int index)
 void RainEmitter::initEmitter()
 {
 	// Create and compile our GLSL program from the shaders
-	//TODO create a proper rain texture
 	shaderProgram.loadFromFile("data/shaders/Particle.vs.glsl", "data/shaders/Particle.fs.glsl");
 	particleTexture.loadFromFile(objectsPath("rain.png"));
 
