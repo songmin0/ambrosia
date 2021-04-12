@@ -185,6 +185,7 @@ void GameStateSystem::loadRecipe(const std::string& recipeName, int level,
 						<< ", level " << level << std::endl;
 
 	resetState();
+	this->ambrosia = ambrosia;
 	this->isInTutorial = isInTutorial;
 	currentLevelIndex = level;
 
