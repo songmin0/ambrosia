@@ -50,6 +50,7 @@ void GameStateSystem::resetState()
 {
 	isInMainScreen = false;
 	isInAchievementsScreen = false;
+	isInShopScreen = false;
 	isInCreditsScreen = false;
 	isInStory = false;
 	isInTutorial = false;
@@ -345,6 +346,7 @@ void GameStateSystem::launchShopScreen()
 	removeNonPlayerEntities();
 	hidePlayers();
 	vec2 screenBufferSize = getScreenBufferSize();
+
 	Screens::createShopScreen(screenBufferSize.x, screenBufferSize.y, playerRaoul, playerChia, playerEmber, playerTaji);
 }
 
