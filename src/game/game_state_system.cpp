@@ -381,11 +381,6 @@ void GameStateSystem::preloadResources()
 	std::cout << "Unload complete.\n";
 }
 
-//void GameStateSystem::setAmbrosiaAmount(int amt)
-//{
-//
-//}
-
 void GameStateSystem::setAmbrosia(int amt)
 {
 	ambrosia = std::max(0, amt);

@@ -9,8 +9,7 @@ enum class SkillType
 	SKILL3,
 	SKILL4,
 	MOVE,
-	NONE,
-	PLAYER
+	NONE
 };
 
 typedef std::vector<std::shared_ptr<Skill>> SkillLevels;
