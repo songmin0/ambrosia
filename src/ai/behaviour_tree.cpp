@@ -453,30 +453,6 @@ void MeleeSkillSelector::run()
 	assert(mob.has<AISystem::MobComponent>() && mob.has<Motion>());
 	auto& mobM = mob.get<Motion>();
 
-	auto& playerContainer = ECS::registry<PlayerComponent>;
-	assert(!playerContainer.entities.empty());
-
-	// Find the closest living player
-	float closestDistance = 10000.f;
-	vec2 closestPosition = vec2(closestDistance);
-	for (auto player : playerContainer.entities)
-	{
-		// Check that player is alive and has Motion component
-		if (!player.has<DeathTimer>() && player.has<Motion>())
-		{
-			// Calculate the distance to this player
-			auto& playerMotion = player.get<Motion>();
-			float playerDistance = distance(mobM.position, playerMotion.position);
-
-			// If this player is closer, update the closest player
-			if (playerDistance < closestDistance)
-			{
-				closestDistance = playerDistance;
-				closestPosition = playerMotion.position;
-			}
-		}
-	}
-
 	float skillRange = 0.f;
 	assert(mob.has<SkillComponent>());
 	auto& skillComponent = mob.get<SkillComponent>();
@@ -488,12 +464,14 @@ void MeleeSkillSelector::run()
 	}
 
 	auto circularProvider = std::make_shared<CircularProvider>(skillRange);
-	auto entitiesInRange = circularProvider->getEntities(mob, closestPosition);
+	auto entitiesInRange = circularProvider->getEntities(mob, vec2(0.f));
 
 	bool isPlayerInRange = false;
 	for (auto entity : entitiesInRange)
 	{
-		if (entity.has<PlayerComponent>())
+		// Check if there is an alive player in range
+		if (entity.has<PlayerComponent>() 
+			&& !entity.has<DeathTimer>() && entity.has<Motion>())
 		{
 			isPlayerInRange = true;
 			break;
