@@ -409,9 +409,16 @@ void GameStateSystem::createPlayerEntities(json player_levels)
 	if (player_levels != "") {
 		playerRaoul.get<SkillComponent>().setAllSkillLevels(player_levels["raoul"]["skills"]);
 		playerRaoul.get<StatsComponent>().setLevel(player_levels["raoul"]["level"]);
+
+		playerTaji.get<SkillComponent>().setAllSkillLevels(player_levels["taji"]["skills"]);
+		playerTaji.get<StatsComponent>().setLevel(player_levels["taji"]["level"]);
+
+		playerEmber.get<SkillComponent>().setAllSkillLevels(player_levels["ember"]["skills"]);
+		playerEmber.get<StatsComponent>().setLevel(player_levels["ember"]["level"]);
+
+		playerChia.get<SkillComponent>().setAllSkillLevels(player_levels["chia"]["skills"]);
+		playerChia.get<StatsComponent>().setLevel(player_levels["chia"]["level"]);
 	}
-
-
 }
 
 void GameStateSystem::removePlayerEntities()

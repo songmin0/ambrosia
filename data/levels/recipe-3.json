@@ -1,233 +1,233 @@
 {
   "name": "recipe-3",
-  "maps": [
-    {
-      "map": "bbq",
-      "camera": {
-        "position": [
-          0,
-          0
-        ]
-      },
-      "taji": {
-        "stats": {
-          "hp": 70,
-          "strength": 1,
-          "ambrosia": 0
-        },
-        "position": [
-          362,
-          617
-        ]
-      },
-      "chia": {
-        "stats": {
-          "hp": 80,
-          "strength": 1,
-          "ambrosia": 0
-        },
-        "position": [
-          213,
-          919
-        ]
-      },
-      "raoul": {
-        "stats": {
-          "hp": 100,
-          "strength": 1,
-          "ambrosia": 0
-        },
-        "position": [
-          635,
-          912
-        ]
-      },
-      "ember": {
-        "stats": {
-          "hp": 80,
-          "strength": 1,
-          "ambrosia": 0
-        },
-        "position": [
-          569,
-          612
-        ]
-      },
-      "mobs": [
+    "maps": [
         {
-          "type": "saltnpepper",
-          "stats": {
-            "hp": 80,
-            "strength": 1
-          },
-          "positions": [
-            [
-              1634,
-              474,
-              1
-            ],
-            [
-              1504,
-              916,
-              1
+            "map": "bbq",
+            "camera": {
+                "position": [
+                    0,
+                    0
+                ]
+            },
+            "taji": {
+                "stats": {
+                    "hp": 70,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    362,
+                    617
+                ]
+            },
+            "chia": {
+                "stats": {
+                    "hp": 80,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    213,
+                    919
+                ]
+            },
+            "raoul": {
+                "stats": {
+                    "hp": 100,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    635,
+                    912
+                ]
+            },
+            "ember": {
+                "stats": {
+                    "hp": 80,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    569,
+                    612
+                ]
+            },
+            "mobs": [
+                {
+                    "type": "saltnpepper",
+                    "stats": {
+                        "hp": 80,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            1634,
+                            474,
+                            1
+                        ],
+                        [
+                            1504,
+                            916,
+                            1
+                        ]
+                    ]
+                },
+                {
+                    "type": "pepper",
+                    "stats": {
+                        "hp": 50,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            1020,
+                            1250,
+                            1
+                        ],
+                        [
+                            1212,
+                            555,
+                            1
+                        ]
+                    ]
+                },
+                {
+                    "type": "tomato",
+                    "stats": {
+                        "hp": 70,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            1926,
+                            1232,
+                            1
+                        ],
+                        [
+                            1930,
+                            277,
+                            1
+                        ]
+                    ]
+                }
             ]
-          ]
         },
         {
-          "type": "pepper",
-          "stats": {
-            "hp": 50,
-            "strength": 1
-          },
-          "positions": [
-            [
-              1020,
-              1250,
-              1
-            ],
-            [
-              1212,
-              555,
-              1
+            "map": "bbq",
+            "camera": {
+                "position": [
+                    0,
+                    0
+                ]
+            },
+            "taji": {
+                "stats": {
+                    "hp": 70,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    362,
+                    617
+                ]
+            },
+            "chia": {
+                "stats": {
+                    "hp": 80,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    213,
+                    919
+                ]
+            },
+            "raoul": {
+                "stats": {
+                    "hp": 100,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    635,
+                    912
+                ]
+            },
+            "ember": {
+                "stats": {
+                    "hp": 80,
+                    "strength": 1,
+                    "ambrosia": 0
+                },
+                "position": [
+                    569,
+                    612
+                ]
+            },
+            "mobs": [
+                {
+                    "type": "chicken",
+                    "stats": {
+                        "hp": 400,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            1998,
+                            811,
+                            1
+                        ]
+                    ]
+                },
+                {
+                    "type": "saltnpepper",
+                    "stats": {
+                        "hp": 80,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            1504,
+                            916,
+                            1
+                        ],
+                        [
+                            1020,
+                            1250,
+                            1
+                        ]
+                    ]
+                },
+                {
+                    "type": "pepper",
+                    "stats": {
+                        "hp": 50,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            80,
+                            328,
+                            -1
+                        ]
+                    ]
+                },
+                {
+                    "type": "tomato",
+                    "stats": {
+                        "hp": 70,
+                        "strength": 1
+                    },
+                    "positions": [
+                        [
+                            1930,
+                            277,
+                            1
+                        ]
+                    ]
+                }
             ]
-          ]
-        },
-        {
-          "type": "tomato",
-          "stats": {
-            "hp": 70,
-            "strength": 1
-          },
-          "positions": [
-            [
-              1926,
-              1232,
-              1
-            ],
-            [
-              1930,
-              277,
-              1
-            ]
-          ]
         }
-      ]
-    },
-    {
-      "map": "bbq",
-      "camera": {
-        "position": [
-          0,
-          0
-        ]
-      },
-      "taji": {
-        "stats": {
-          "hp": 70,
-          "strength": 1,
-          "ambrosia": 0
-        },
-        "position": [
-          362,
-          617
-        ]
-      },
-      "chia": {
-        "stats": {
-          "hp": 80,
-          "strength": 1,
-          "ambrosia": 0
-        },
-        "position": [
-          213,
-          919
-        ]
-      },
-      "raoul": {
-        "stats": {
-          "hp": 100,
-          "strength": 1,
-          "ambrosia": 0
-        },
-        "position": [
-          635,
-          912
-        ]
-      },
-      "ember": {
-        "stats": {
-          "hp": 80,
-          "strength": 1,
-          "ambrosia": 0
-        },
-        "position": [
-          569,
-          612
-        ]
-      },
-      "mobs": [
-        {
-          "type": "chicken",
-          "stats": {
-            "hp": 400,
-            "strength": 1
-          },
-          "positions": [
-            [
-              1998,
-              811,
-              1
-            ]
-          ]
-        },
-        {
-          "type": "saltnpepper",
-          "stats": {
-            "hp": 80,
-            "strength": 1
-          },
-          "positions": [
-            [
-              1504,
-              916,
-              1
-            ],
-            [
-              1020,
-              1250,
-              1
-            ]
-          ]
-        },
-        {
-          "type": "pepper",
-          "stats": {
-            "hp": 50,
-            "strength": 1
-          },
-          "positions": [
-            [
-              80,
-              328,
-              -1
-            ]
-          ]
-        },
-        {
-          "type": "tomato",
-          "stats": {
-            "hp": 70,
-            "strength": 1
-          },
-          "positions": [
-            [
-              1930,
-              277,
-              1
-            ]
-          ]
-        }
-      ]
-    }
-  ]
+    ]
 }
