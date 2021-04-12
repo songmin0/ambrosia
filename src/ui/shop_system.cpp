@@ -50,12 +50,12 @@ ECS::Entity ShopSystem::getPlayerEntity(PlayerType player) {
 	return raoul;
 }
 
-void printWrappedText(std::string text) {
+void ShopSystem::printDescriptionText(std::string text) {
 	auto str_len = text.length();
 	int line_width = 20;
 	// hacky text wrapping
 	int firstUnprintedChar = 0;
-	int y_pos = 350;
+	int y_pos = 300;
 
 	for (int i = line_width; i < str_len; i += line_width) {
 		while (!isspace(text.at(i))) {
@@ -66,10 +66,12 @@ void printWrappedText(std::string text) {
 			createText(text.substr(firstUnprintedChar, i - firstUnprintedChar + 1), { 1000, y_pos+= 50 }, 0.5);
 			firstUnprintedChar = i + 1;
 		}
-
 	}
 
 	createText(text.substr(firstUnprintedChar, str_len - firstUnprintedChar + 1), { 1000, y_pos += 50 }, 0.5);
+
+	// cost
+	createText("Cost: " + std::to_string(ShopSystem::instance().getCost()), { 1000, y_pos += 50 }, 0.5);
 }
 
 void ShopSystem::executeShopEffect(SkillType skillType, PlayerType player, int index)
@@ -88,19 +90,27 @@ void ShopSystem::executeShopEffect(SkillType skillType, PlayerType player, int i
 
 	// render upgrade description
 	ECS::registry<Text>.clear();
-	printWrappedText(descriptions[index]);
-
+	printDescriptionText(descriptions[selected]);
 
 	// render labels
 	renderLabels();
 }
 
+int ShopSystem::getCost() {
+	if (selected_skill == SkillType::NONE) {
+		StatsComponent stats = ECS::registry<StatsComponent>.get(getPlayerEntity(selected_player));
+		return (int)stats.getStatValue(StatType::LEVEL) * cost_multiplier;
+	} else {
+		SkillComponent component = ECS::registry<SkillComponent>.get(getPlayerEntity(selected_player));
+		return (int)component.getSkillLevel(selected_skill) * cost_multiplier;
+	}
+}
+
 bool ShopSystem::checkIfAbleToBuy(int level) {
-	int cost_multiplier = 1;
 
 	auto ambrosia = GameStateSystem::instance().getAmbrosia();
-	if (ambrosia >= level * cost_multiplier) {
-		ambrosia -= level * cost_multiplier;
+	if (ambrosia >= ShopSystem::instance().getCost()) {
+		ambrosia -= ShopSystem::instance().getCost();
 		GameStateSystem::instance().setAmbrosia(ambrosia);
 		return true;
 	}
@@ -113,8 +123,6 @@ void ShopSystem::buySelectedSkill() {
 		std::cout << "Nothing to buy";
 		return;
 	}
-
-	int level;
 
 	std::cout << "Buying " << getPlayerName(selected_player) << "'s skill " << (int)selected_skill << std::endl;
 
@@ -143,6 +151,9 @@ void ShopSystem::buySelectedSkill() {
 	}
 
 	ECS::registry<Text>.clear();
+	printDescriptionText(descriptions[selected]);
+
+	// render labels
 	renderLabels();
 }
 
