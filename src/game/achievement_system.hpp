@@ -14,7 +14,7 @@ enum Achievement {
 	SIZE_OF_ENUM
 };
 static const char* AchievementText[] = { "Finished the tutorial!", "Beat a level without anyone dying!", "Beat a recipe!", 
-										 "Beat a recipe without anyone dying", "Defeated a boss with low HP" };
+										 "Beat a recipe without anyone dying!", "Defeated a boss with low HP" };
 
 struct AchievementPopup {};
 

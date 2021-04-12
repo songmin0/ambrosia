@@ -10,6 +10,7 @@ AchievementSystem::AchievementSystem()
 	addToTracking(Achievement::BEAT_LEVEL_ALL_ALIVE);
 	addToTracking(Achievement::BEAT_BOSS_LOW_HP);
 	addToTracking(Achievement::BEAT_RECIPE_ALL_ALIVE);
+	addToTracking(Achievement::BEAT_RECIPE);
 
 	finishedTutorialListener = EventSystem<FinishedTutorialEvent>::instance().registerListener(
 		std::bind(&AchievementSystem::onFinishedTutorialEvent, this));
@@ -44,7 +45,7 @@ AchievementSystem::~AchievementSystem()
 void AchievementSystem::onReachedBossEvent()
 {
 	// TODO: Achievements that happen multiple times for each recipe?
-	addToTracking(Achievement::BEAT_RECIPE);
+	// addToTracking(Achievement::BEAT_RECIPE);
 }
 
 void AchievementSystem::onBeatLevelEvent()
@@ -59,7 +60,10 @@ void AchievementSystem::onBeatLevelEvent()
 void AchievementSystem::onDefeatedBossEvent()
 {
 	// TODO: Should change achievement names with multiple playthroughs/recipes
-	addAchievement(Achievement::BEAT_RECIPE);
+	if (isTracking(Achievement::BEAT_RECIPE))
+	{
+		addAchievement(Achievement::BEAT_RECIPE);
+	}
 
 	bool isLowHP = true;
 	auto& players = ECS::registry<PlayerComponent>.entities;
