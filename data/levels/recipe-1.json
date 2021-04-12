@@ -53,15 +53,55 @@
                 {
                     "type": "egg",
                     "stats": {
-                        "hp": 10,
+                        "hp": 80,
                         "strength": 1,
-                        "ambrosia": 15
+                        "ambrosia": 13
                     },
                     "positions": [
                         [
                             2400,
                             1100,
                             1
+                        ],
+                        [
+                            2550,
+                            900,
+                            1
+                        ]
+                    ]
+                },
+                {
+                    "type": "pepper",
+                    "stats": {
+                        "hp": 50,
+                        "strength": 1,
+                        "ambrosia": 13
+                    },
+                    "positions": [
+                        [
+                            750,
+                            900,
+                            -1
+                        ],
+                        [
+                            850,
+                            1100,
+                            -1
+                        ]
+                    ]
+                },
+                {
+                    "type": "milk",
+                    "stats": {
+                        "hp": 80,
+                        "strength": 1,
+                        "ambrosia": 13
+                    },
+                    "positions": [
+                        [
+                            900,
+                            800,
+                            -1
                         ]
                     ]
                 }
