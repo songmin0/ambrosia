@@ -34,15 +34,15 @@ GameStateSystem::GameStateSystem()
 		}
 	}
 
-	ambrosiaListener = EventSystem<AmbrosiaEvent>::instance().registerListener(
-			std::bind(&GameStateSystem::onAmbrosiaEvent, this, std::placeholders::_1));
+	depositAmbrosiaListener = EventSystem<DepositAmbrosiaEvent>::instance().registerListener(
+			std::bind(&GameStateSystem::onDepositAmbrosiaEvent, this, std::placeholders::_1));
 }
 
 GameStateSystem::~GameStateSystem()
 {
-	if (ambrosiaListener.isValid())
+	if (depositAmbrosiaListener.isValid())
 	{
-		EventSystem<AmbrosiaEvent>::instance().unregisterListener(ambrosiaListener);
+		EventSystem<DepositAmbrosiaEvent>::instance().unregisterListener(depositAmbrosiaListener);
 	}
 }
 
@@ -145,6 +145,7 @@ void GameStateSystem::restartMap()
 	// Create all entities except for the players
 	removeNonPlayerEntities();
 	createNonPlayerEntities();
+	createMap();
 
 	// Get the players ready for the new map
 	preparePlayersForNextMap();
@@ -198,6 +199,7 @@ void GameStateSystem::loadRecipe(const std::string& recipeName, int level,
 	removePlayerEntities();
 	createPlayerEntities();
 	createNonPlayerEntities();
+	createMap();
 
 	save();
 }
@@ -345,7 +347,7 @@ void GameStateSystem::setAmbrosia(int amt)
 	std::string str = std::to_string(ambrosia);
 
 	entity.remove<Text>();
-	addText(entity, str, position, ambDisplay.textScale, ambDisplay.textColor);
+	addText(entity, str, position, ambDisplay.textScale, AMBROSIA_COLOUR);
 }
 
 void GameStateSystem::createPlayerEntities()
@@ -395,7 +397,6 @@ void GameStateSystem::createNonPlayerEntities()
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
 	Camera::createCamera(currentLevel.at("camera"));
-	createMap(frameBufferWidth, frameBufferHeight);
 	createMobs();
 	createButtons(frameBufferWidth, frameBufferHeight);
 	createEffects();
@@ -423,14 +424,14 @@ void GameStateSystem::removeNonPlayerEntities()
 	removeEntities(ECS::registry<Text>.entities);
 }
 
-void GameStateSystem::createMap(int frameBufferWidth, int frameBufferHeight)
+void GameStateSystem::createMap()
 {
 	std::string mapName = currentLevel.at("map");
 
 	std::cout << "GameStateSystem::createMap: creating the " << mapName << " map" << std::endl;
 
 	// Create the map
-	MapComponent::createMap(mapName, { frameBufferWidth, frameBufferHeight });
+	MapComponent::createMap(mapName, getScreenBufferSize());
 
 	// Create a deforming blob for pizza arena
 	// maybe add own section in level file we have more of these
@@ -630,7 +631,7 @@ void GameStateSystem::createAmbrosiaUI()
 	AmbrosiaDisplay::createAmbrosiaDisplay();
 }
 
-void GameStateSystem::onAmbrosiaEvent(const AmbrosiaEvent& event)
+void GameStateSystem::onDepositAmbrosiaEvent(const DepositAmbrosiaEvent& event)
 {
 	setAmbrosia(getAmbrosia() + event.amount);
 }

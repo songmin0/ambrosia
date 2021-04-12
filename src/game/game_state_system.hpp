@@ -66,13 +66,13 @@ private:
 	// These entities don't persist between levels, so the functions are straightforward
 	void createNonPlayerEntities();
 	void removeNonPlayerEntities();
-	void createMap(int frameBufferWidth, int frameBufferHeight);
+	void createMap();
 	void createMobs();
 	void createButtons(int frameBufferWidth, int frameBufferHeight);
 	void createEffects();
 	void createAmbrosiaUI();
 
-	void onAmbrosiaEvent(const AmbrosiaEvent& event);
+	void onDepositAmbrosiaEvent(const DepositAmbrosiaEvent& event);
 
 public:
 	bool isInMainScreen;
@@ -92,7 +92,7 @@ public:
 
 private:
 	int ambrosia;
-	EventListenerInfo ambrosiaListener;
+	EventListenerInfo depositAmbrosiaListener;
 
 	ECS::Entity playerRaoul;
 	ECS::Entity playerTaji;

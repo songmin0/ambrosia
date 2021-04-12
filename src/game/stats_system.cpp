@@ -169,7 +169,7 @@ void StatsSystem::handleDeathReaction(ECS::Entity entity, StatsComponent& statsC
 	int ambrosia = (int) statsComponent.getStatValue(StatType::AMBROSIA);
 	if (ambrosia > 0)
 	{
-		EventSystem<AmbrosiaEvent>::instance().sendEvent({entity, ambrosia});
+		EventSystem<AmbrosiaNumberEvent>::instance().sendEvent({entity, ambrosia});
 	}
 }
 
