@@ -32,6 +32,9 @@ UISystem::UISystem()
 
 	buffEventListener = EventSystem<BuffEvent>::instance().registerListener(
 		std::bind(&UISystem::onBuffEvent, this, std::placeholders::_1));
+
+	ambrosiaNumberListener = EventSystem<AmbrosiaNumberEvent>::instance().registerListener(
+			std::bind(&UISystem::onAmbrosiaNumberEvent, this, std::placeholders::_1));
 }
 
 UISystem::~UISystem()
@@ -71,15 +74,27 @@ UISystem::~UISystem()
 	if (buffEventListener.isValid()) {
 		EventSystem<BuffEvent>::instance().unregisterListener(buffEventListener);
 	}
+
+	if (ambrosiaNumberListener.isValid()) {
+		EventSystem<AmbrosiaNumberEvent>::instance().unregisterListener(ambrosiaNumberListener);
+	}
 }
 
 void UISystem::step(float elapsed_ms) {
 	// Remove damage number once timer expires
-	for (auto entity : ECS::registry<DamageNumberComponent>.entities) {
-		auto& damageNumberComponent = entity.get<DamageNumberComponent>();
-		damageNumberComponent.timerMs -= elapsed_ms;
+	for (auto entity : ECS::registry<TimedUIComponent>.entities) {
+		auto& timedUIComponent = entity.get<TimedUIComponent>();
+		timedUIComponent.timerMs -= elapsed_ms;
 
-		if (damageNumberComponent.timerMs < 0) {
+		if (timedUIComponent.timerMs < 0) {
+			if (entity.has<AmbrosiaNumberComponent>())
+			{
+				// Before removing the ambrosia icon, create an ambrosia projectile which
+				// travels to the top-left corner of the screen
+				int ambrosiaAmount = entity.get<AmbrosiaNumberComponent>().ambrosiaAmount;
+				launchAmbrosiaProjectile(entity, ambrosiaAmount);
+			}
+
 			ECS::ContainerInterface::removeAllComponentsOf(entity);
 		}
 	}
@@ -444,6 +459,10 @@ void UISystem::onDamageNumberEvent(const DamageNumberEvent& event) {
 	createDamageNumber(event.target, event.damage, vec3(0.9f, 0.f, 0.f));
 }
 
+void UISystem::onAmbrosiaNumberEvent(const AmbrosiaNumberEvent& event) {
+	createAmbrosiaNumber(event.entity, event.amount);
+}
+
 void UISystem::onHealEvent(const HealEvent& event) {
 	createDamageNumber(event.entity, event.amount, vec3(0.f, 0.9f, 0.f));
 }
@@ -463,7 +482,72 @@ void UISystem::createDamageNumber(ECS::Entity entity, float value, vec3 color) {
 	offset += vec2(-20, -20); // Hardcoded offset
 
 	auto text = createText(number, motion.position + offset, 1.f, color);
-	text.emplace<DamageNumberComponent>(offset, 2500.f);
+	text.emplace<DamageNumberComponent>(offset);
+	text.emplace<TimedUIComponent>(2500.f);
+}
+
+void UISystem::createAmbrosiaNumber(ECS::Entity entity, int value)
+{
+	auto& motion = entity.get<Motion>();
+	std::string number = std::to_string(value);
+
+	// Position the ambrosia number using the target's hp bar offset
+	auto hpBarOffset = entity.get<StatsComponent>().healthBar.get<HPBar>().offset;
+
+	// Create the text
+	static constexpr vec2 TEXT_OFFSET(-20.f, 65.f);
+	static constexpr float TEXT_SCALE(0.8f);
+
+	auto textPosition = motion.position + hpBarOffset + TEXT_OFFSET;
+	auto text = createText(number, textPosition, TEXT_SCALE, AMBROSIA_COLOUR);
+	text.emplace<DamageNumberComponent>(TEXT_OFFSET);
+	text.emplace<TimedUIComponent>(2500.f);
+
+	// Create the icon
+	static constexpr vec2 ICON_OFFSET(-50.f, 55.f);
+	static constexpr vec2 ICON_SCALE(0.7f);
+
+	auto iconPosition = motion.position + hpBarOffset + ICON_OFFSET;
+	auto iconEntity = AmbrosiaIcon::createAmbrosiaIcon(iconPosition, ICON_SCALE);
+	iconEntity.emplace<RenderableComponent>(RenderLayer::PROJECTILE);
+	iconEntity.emplace<AmbrosiaNumberComponent>(value);
+	iconEntity.emplace<TimedUIComponent>(1000.f);
+}
+
+void UISystem::launchAmbrosiaProjectile(ECS::Entity entity, int value)
+{
+	if (ECS::registry<AmbrosiaDisplay>.entities.empty())
+	{
+		return;
+	}
+
+	auto depositAmbrosia = [=]()
+	{
+		EventSystem<DepositAmbrosiaEvent>::instance().sendEvent({value});
+	};
+
+	auto getAmbrosiaDisplayPos = []() -> vec2
+	{
+		if (!ECS::registry<CameraComponent>.entities.empty())
+		{
+			auto camera = ECS::registry<CameraComponent>.entities.front();
+			auto cameraPos = camera.get<CameraComponent>().position;
+			return cameraPos + AMBROSIA_DISPLAY_OFFSET;
+		}
+		return vec2(0.f);
+	};
+
+	ProjectileSkillParams skillParams;
+	skillParams.projectileType = ProjectileType::AMBROSIA_ICON;
+	skillParams.instigator = entity;
+	skillParams.targetPosition = getAmbrosiaDisplayPos();
+
+	LaunchEvent launchEvent;
+	launchEvent.skillParams = skillParams;
+	launchEvent.callback = depositAmbrosia;
+	launchEvent.targetPositionProvider = getAmbrosiaDisplayPos;
+
+	EventSystem<LaunchEvent>::instance().sendEvent(launchEvent);
 }
 
 void UISystem::playMouseClickFX(vec2 position)

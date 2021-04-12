@@ -43,11 +43,22 @@ struct SkillInfoComponent
 	SkillType skillType;
 };
 
+struct TimedUIComponent
+{
+	TimedUIComponent(float timerMs) : timerMs{ timerMs } {}
+	float timerMs;
+};
+
 struct DamageNumberComponent
 {
-	DamageNumberComponent(vec2 offset, float timerMs) : offset{ offset }, timerMs{ timerMs } {}
+	DamageNumberComponent(vec2 offset) : offset{ offset } {}
 	vec2 offset;
-	float timerMs;
+};
+
+struct AmbrosiaNumberComponent
+{
+	AmbrosiaNumberComponent(int ambrosiaAmount) : ambrosiaAmount{ ambrosiaAmount } {}
+	int ambrosiaAmount;
 };
 
 // ECS-style Button Labels
