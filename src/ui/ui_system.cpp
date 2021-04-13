@@ -463,7 +463,7 @@ void UISystem::renderToolTipNumbers(const SkillType& skillType)
 			dmg *= strengthMultiplier;
 			float duration = skillLevelMultiplier == 2 ? 2.f : 1.f; // 2 turns at max level, else 1 turn
 			createText(floatToString(dmg), vec2(452.f, 654.f), NUMSCALE - 0.05f, RED).emplace<ToolTipText>();
-			createText(floatToString(duration), vec2(439.f, 741.f), NUMSCALE, CYAN).emplace<ToolTipText>();
+			createText(floatToString(duration), vec2(438.f, 741.f), NUMSCALE, CYAN).emplace<ToolTipText>();
 		}
 		else if (skillType == SkillType::SKILL3)
 		{
