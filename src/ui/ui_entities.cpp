@@ -141,7 +141,6 @@ ECS::Entity ClickFilter::createClickFilter(vec2 position, bool doAbsorbClick, bo
 		else if (index == 11)
 		{
 			EventSystem<EndTutorialEvent>::instance().sendEvent(EndTutorialEvent{});
-			EventSystem<ShowHelpEvent>::instance().sendEvent(ShowHelpEvent{});
 		}
 		else
 		{
