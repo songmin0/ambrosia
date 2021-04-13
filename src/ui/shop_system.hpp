@@ -29,20 +29,20 @@ class ShopSystem
 		std::vector<std::string> descriptions = {
 			"Increase Raoul's damage and health by 10%",
 			"Increase the damage of this skill by 5",
-			"Increase the area and strength of this buff by 10%",
+			"Increase the range and strength of this buff by 10%",
 			"Increase the damage of the projectile by 5",
 			"Increase Taji's damage and health by 10%",
-			"Increase the area by 10% and damage by 5",
-			"Increase the area by 25% and damage by 10",
+			"Increase the range by 10% and damage by 5",
+			"Increase the range by 25% and damage by 10",
 			"Increase both heal and damage of this skill by 4",
 			"Increase Chia's damage and health by 10%",
 			"Increase both heal and damage of this skill by 10",
 			"Increase the debuff strength by 10% and damage by 5",
-			"Increase the shield strength by 10 and duration by 1 turn(s)",
+			"Increase the shield strength by 10 and duration by 1 turn",
 			"Increase Ember's damage and health by 10%",
-			"Increase area by 10% and damage by 5",
-			"Increase area by 10% and damage by 8",
-			"Increase area, damage, and knockback by 10%",
+			"Increase range by 10% and damage by 5",
+			"Increase range by 10% and damage by 8",
+			"Increase range, damage, and knockback by 10%",
 		};
 
 		ECS::Entity raoul;

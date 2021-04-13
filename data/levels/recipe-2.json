@@ -55,7 +55,7 @@
                     "stats": {
                         "hp": 70,
                         "strength": 1,
-                        "ambrosia": 17
+                        "ambrosia": 10
                     },
                     "positions": [
                         [
@@ -131,7 +131,7 @@
                     "stats": {
                         "hp": 70,
                         "strength": 1,
-                        "ambrosia": 17
+                        "ambrosia": 10
                     },
                     "positions": [
                         [
@@ -161,7 +161,7 @@
                     "stats": {
                         "hp": 80,
                         "strength": 1,
-                        "ambrosia": 17
+                        "ambrosia": 5
                     },
                     "positions": [
                         [
@@ -176,7 +176,7 @@
                     "stats": {
                         "hp": 400,
                         "strength": 1,
-                        "ambrosia": 17
+                        "ambrosia": 30
                     },
                     "positions": [
                         [

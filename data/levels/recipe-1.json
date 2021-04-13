@@ -55,7 +55,7 @@
                     "stats": {
                         "hp": 80,
                         "strength": 1,
-                        "ambrosia": 13
+                        "ambrosia": 5
                     },
                     "positions": [
                         [
@@ -75,7 +75,7 @@
                     "stats": {
                         "hp": 50,
                         "strength": 1,
-                        "ambrosia": 13
+                        "ambrosia": 10
                     },
                     "positions": [
                         [
@@ -95,7 +95,7 @@
                     "stats": {
                         "hp": 80,
                         "strength": 1,
-                        "ambrosia": 13
+                        "ambrosia": 10
                     },
                     "positions": [
                         [
@@ -161,7 +161,7 @@
                     "stats": {
                         "hp": 400,
                         "strength": 1,
-                        "ambrosia": 13,
+                        "ambrosia": 30,
                         "maxNumUlt": 2
                     },
                     "positions": [
@@ -177,7 +177,7 @@
                     "stats": {
                         "hp": 80,
                         "strength": 1,
-                        "ambrosia": 13
+                        "ambrosia": 10
                     },
                     "positions": [
                         [

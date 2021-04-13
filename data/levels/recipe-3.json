@@ -55,7 +55,7 @@
                     "stats": {
                         "hp": 80,
                         "strength": 1,
-                        "ambrosia": 21
+                        "ambrosia": 15
                     },
                     "positions": [
                         [
@@ -75,7 +75,7 @@
                     "stats": {
                         "hp": 50,
                         "strength": 1,
-                        "ambrosia": 21
+                        "ambrosia": 10
                     },
                     "positions": [
                         [
@@ -95,7 +95,7 @@
                     "stats": {
                         "hp": 70,
                         "strength": 1,
-                        "ambrosia": 21
+                        "ambrosia": 10
                     },
                     "positions": [
                         [
@@ -166,7 +166,7 @@
                     "stats": {
                         "hp": 400,
                         "strength": 1,
-                        "ambrosia": 21
+                        "ambrosia": 30
                     },
                     "positions": [
                         [
@@ -181,7 +181,7 @@
                     "stats": {
                         "hp": 80,
                         "strength": 1,
-                        "ambrosia": 21
+                        "ambrosia": 15
                     },
                     "positions": [
                         [
@@ -201,7 +201,7 @@
                     "stats": {
                         "hp": 50,
                         "strength": 1,
-                        "ambrosia": 21
+                        "ambrosia": 10
                     },
                     "positions": [
                         [
@@ -216,7 +216,7 @@
                     "stats": {
                         "hp": 70,
                         "strength": 1,
-                        "ambrosia": 21
+                        "ambrosia": 10
                     },
                     "positions": [
                         [
