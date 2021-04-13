@@ -6,11 +6,124 @@
 - **change active player** - click player buttons (center top)
 - **move active player** - while the move button is active, click a destination on the map
 - **use player skill**  - click a skill button to select a skill, click a target on the map to use it
+- **toggle help screen** - Press H or click the "Help" button (does not activate during Tutorial)
 #### Playable Characters
 - Raoul = "gold" character
 - Taji = "blue" character
 - Ember = "red" character
 - Chia = "green" character
+
+---
+
+## Milestone 4
+### Summary - Milestone 4:
+
+Our work is consistent with our development plan, and we are using one grace day for this milestone.
+
+#### Parallax:
+- Accessible in the "Mashed Potatoes" dessert map and the "BBQ Chicken" maps
+- The dessert map has 3 parallax layers: foreground, base, and background. The BBQ map has a background (the coals) parallax layer
+- Added a parallax component that can be added to map entities to change their horizontal and vertical scroll rate with respect to the camera
+
+#### Advanced Shaders:
+-	In the “BBQ Chicken” recipe, there is a flickering fire effect using the shaders `fire.fs.glsl` and `fire.vs.glsl`
+-	Both shaders use classic Perlin 2D noise with a curl field 
+-	The curled noise is randomized over time and coordinate position
+-	The vertex shader uses the curled noise and a “y_factor” to add a rippling effect to the flame texture. The “y_factor” prevents the bottom of the flame from moving as much by scaling the noise depending on the y position of the vertex, hence letting the top of the flame look more lively
+-	The fragment shader uses the curled noise to calculate an adjusted hue and alpha value for the output texel. An original fire texture is used as both a reference texture and an alpha mask. The original texel is adjusted by increasing alpha for a flickering effect, as well as adjusting yellow/red hues for flame variation. 
+
+
+#### Light
+-	Visible in the “Salad” playthrough
+-	The shader used is the second-pass screen fragment shader `water.fs.glsl`
+-	Three “spotlight”-like lights as well as a dark colour tint “ambient shadow” has been added to the 2nd-pass shader for the Screen State. The lights are supposed to stimulate sun rays going through a forest canopy. 
+-	The lights have intensity and position pseudo-randomized by array index and time. The width of the light is multiplied again by a “y_factor” so that they are narrow at the top of the screen and broad at the bottom, like a vertical spotlight
+
+
+#### Save and Reload
+- Revamped save and reload system to account for new features: achievements, currency, player skill upgrades
+
+
+#### Game Balancing
+-	Please look at https://github.students.cs.ubc.ca/CPSC427-2020W-T2/Team06/blob/master/data/balancing/balancing.md or  `data/balancing/balancing.md` for the final report
+-	Wrote a python script stimulating player AI and boss AI
+-	Tested the theories we used to balance original HP and damage numbers against the Potato boss and proved that they translate well into actual gameplay
+
+
+#### Assets
+-	4 new enemies with 16+ new animations
+-	3 new maps (2 in “Salad” recipe and 1 in “BBQ Chicken” recipe)
+-	Parallax layers for the BBQ map and Dessert map
+-	New particle system textures
+-	Various new buttons and icons
+
+#### Achievements System
+- Keeps track of multiple states using events
+- Possible achievements: Finishing tutorial, beating a level with everyone alive, beating a recipe, beating a recipe with everyone alive, beating a boss with low HP
+- Shows a text message at the top left corner for a couple seconds when achievements are acquired
+- Saves Achievements
+- Loads Achievements upon opening the game and removes them from being tracked
+
+#### Shop System
+- Create player entities at the beginning of a recipe and refresh them at the beginning of each level. Part of this was a huge refactoring of the WorldSystem, GameStateSystem, EffectsSystem, and player creation functions.
+- Implemented upgradeable skills to be used in the shop
+- Implemented shop screen UI
+- Implemented player levels which increase base player stats
+- Added ability to upgrade player and skill levels through shop using currency
+- Added a description for each upgrade, which wraps dynamically according to specified line width
+- Added saving/loading for the upgrades
+
+#### Multiple Playthroughs
+-	2 new recipes (recipes = playthroughs) – “Salad” and “BBQ Chicken”
+-	3 new maps, 4 new enemies, 4 new AI trees
+    - New Mob and AI: Tomato, the kamikaze bomber
+    - New Boss and AI: Lettuce, a support boss with a massive heal
+    - New Mob and AI: Salt'n'Pepper, a strong rng-based mob with both utility and damage skills and random targetting
+    - New Boss and AI: Chicken, a support rng-based boss with random targetting and a strong ally attack buff
+-	New recipe select menu – previously, clicking “Start” from the main menu immediately started the one and only recipe we had. Now, clicking “Start” brings the player to the Recipe Select menu where they can choose a recipe to play.
+
+#### Screen Fade
+- Handles transitioning between major screens as well as aesthetic loading by fading out to black and fading back in 
+- Uses 2nd-pass screen fragment shader and the EventSystem
+- Adds a timer component with flexible properties such as counting up and counting down; the timer component attached to `ScreenState` is used to calculate screen fade, and is set using TransitionEvents in the EventSystem. This fades the screen out -> then tries to load the next menu, while the screen is black -> then fades the screen back in
+
+#### Multiple Particle Emitters
+- Three new particle emitters:
+  - Sparkles in the Start and Recipe Select Screen
+  - Confetti in the Victory Screen
+  - Raindrops in the Defeat Screen
+- Added the ability to delete/clear particle emitters
+
+#### UI
+- Damage numbers: all damage, shield, and heal values in game are displayed above the entity HP bar when applied
+- Currency ("Ambrosia") is displayed on the top left corner of the screen
+- Defeating mobs drop currency, which spawn by the defeated entity and fly up to the total currency indicator at the top-left where they are then deposited into the total. This effect is camera-aware.
+- Added custom mouse cursors for movement and skill phases
+- Added Credits screen, accessible from the Start Menu
+- Added text rendering
+
+#### Misc Improvements
+- Changed buffs/debuffs (e.g., strength, HP shield) to be turn-based instead of time-based
+- Fixed turn related issues (turn-change audio happening when it shouldn't and player turn order changing after a player dies)
+- Updated Help Overlay to include some new features
+
+
+---
+
+### Key Bindings for Debugging
+#### *Please note that most debug keys only work during combat, and are disabled in start menus/story scenes/etc
+- L = load last save file (can be used to restart current level)
+- N = advance to the next level (returns to start if already at last level)
+- D = debug mode
+- BACKSPACE = return to start menu
+- S = print stats for all entities
+- M = load dessert arena
+- N = load pizza arena
+- A = cycle available soundtracks
+- M = mute background music (does not effect sound effects)
+- P = print contents of all entity registries
+- U = print player upgrades
+
 
 ---
 ## Milestone 3
@@ -85,24 +198,6 @@ Our work is consistent with our development plan, and we are using one grace day
 - new animations, button textures, VFX
 - new splash art assets for all game menus
 - new tutorial and story assets
-
----
-
-### Key Bindings for Debugging
-#### *Please note that debug keys only work during combat, and are disabled in start menus/story scenes/etc
-- R = restart
-- D = debug mode
-- S = print stats for all entities
-- M = load dessert arena
-- N = load pizza arena
-- A = cycle available soundtracks
-- 3, 4 = animation tests
-- H = show help menu (this isn't really a debugging key but a real key binding)
-- L = load last save file
-
-
-### Additional Info
-All features should be accessible by playing through the entire game from the "Start" button. The "Load" button or the `L` key can be used to test save and reload. The expected behaviour is that a fresh version of the last map accessed should be loaded.
 
 ---
 
