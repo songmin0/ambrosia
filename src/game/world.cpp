@@ -419,8 +419,8 @@ void WorldSystem::onMouseClick(int button, int action, int mods) const
 
 		std::cout << "Mouse click (release): {" << mousePosX << ", " << mousePosY << "}" << std::endl;
 
-		auto camera = ECS::registry<CameraComponent>.entities[0];
-		auto& cameraPos = camera.get<CameraComponent>().position;
+		//auto camera = ECS::registry<CameraComponent>.entities[0];
+		//auto& cameraPos = camera.get<CameraComponent>().position;
 		// mouse click print without camera position
 		//std::cout << "Mouse click (release): {" << mousePosX + cameraPos.x << ", " << mousePosY + cameraPos.y << "}" << std::endl;
 

@@ -164,7 +164,7 @@ enum class FXType
 	STUNNED
 };
 
-// Lambda to convert floating point dmg number to a string up to 2 decimal places with no trailing zeros
+// Converts floating point dmg number to a string up to 2 decimal places with no trailing zeros
 std::string floatToString(float number);
 
 static const vec3 RED = vec3(1.0, 0.0, 0.0);
