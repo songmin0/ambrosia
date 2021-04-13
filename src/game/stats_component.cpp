@@ -52,8 +52,8 @@ bool StatsComponent::setLevel(int level)
 	auto hp = getStatValue(StatType::BASE_HP);
 	auto str = getStatValue(StatType::BASE_STR);
 
-	hp *= 1 + (0.1 * (level - 1));
-	str *= 1 + (0.1 * (level - 1));
+	hp *= 1 + (0.1 * ((int)level - 1));
+	str *= 1 + (0.1 * ((int)level - 1));
 
 	setBaseValue(StatType::MAX_HP, hp);
 	setBaseValue(StatType::HP, hp);
