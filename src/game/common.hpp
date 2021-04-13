@@ -163,3 +163,13 @@ enum class FXType
 	BLUEBERRIED,
 	STUNNED
 };
+
+// Lambda to convert floating point dmg number to a string up to 2 decimal places with no trailing zeros
+std::string floatToString(float number);
+
+static const vec3 RED = vec3(1.0, 0.0, 0.0);
+static const vec3 GREEN = vec3(0.0, 1.0, 0.0);
+static const vec3 BLUE = vec3(0.0, 0.2, 1.0);
+static const vec3 CYAN = vec3(0.0, 1.0, 1.0);
+static const vec3 ORANGE = vec3(0.8, 0.5, 0.0);
+static const vec3 PINK = vec3(1.0, 0.5, 0.7);

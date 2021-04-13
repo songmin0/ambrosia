@@ -374,6 +374,11 @@ void UISystem::clearToolTips()
 			entity.get<VisibilityComponent>().isVisible = false;
 		}
 	}
+
+	for (auto entity : ECS::registry<ToolTipText>.entities)
+	{
+		ECS::ContainerInterface::removeAllComponentsOf(entity);
+	}
 }
 
 void UISystem::onMouseHover(const RawMouseHoverEvent& event)
@@ -394,6 +399,8 @@ void UISystem::onMouseHover(const RawMouseHoverEvent& event)
 			ECS::Entity& toolTip = getToolTip(skillType);
 			auto& vis = toolTip.get<VisibilityComponent>();
 			vis.isVisible = true;
+
+			renderToolTipNumbers(skillType);
 		}
 	}
 
@@ -402,6 +409,119 @@ void UISystem::onMouseHover(const RawMouseHoverEvent& event)
 	auto camera = ECS::registry<CameraComponent>.entities[0];
 	auto& cameraPos = camera.get<CameraComponent>().position;
 	EventSystem<MouseHoverEvent>::instance().sendEvent(MouseHoverEvent{ event.mousePos + cameraPos });
+}
+
+void UISystem::renderToolTipNumbers(const SkillType& skillType)
+{
+	ECS::Entity activePlayer = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+
+	if (!activePlayer.has<PlayerComponent>() || activePlayer.has<DeathTimer>()
+		|| !activePlayer.has<SkillComponent>() || !activePlayer.has<StatsComponent>())
+	{
+		return;
+	}
+
+	if (skillType == SkillType::NONE || skillType == SkillType::MOVE)
+	{
+		return;
+	}
+
+	auto skillLevelMultiplier = activePlayer.get<SkillComponent>().getSkillLevel(skillType) - 1;
+	const PlayerType player = activePlayer.get<PlayerComponent>().player;
+	auto strengthMultiplier = activePlayer.get<StatsComponent>().getStatValue(StatType::STRENGTH);
+
+	switch (player) {
+	case PlayerType::RAOUL:
+		if (skillType == SkillType::SKILL1)
+		{
+			float dmg = playerBaseSkillValues[0][0] + skillLevelMultiplier * 5.f;
+			dmg *= strengthMultiplier;
+			createText(floatToString(dmg), vec2(297.f, 665.f), NUMSCALE - 0.03, RED).emplace<ToolTipText>();
+		}
+		else if (skillType == SkillType::SKILL2)
+		{
+			float buffAmount = playerBaseSkillValues[0][1] + skillLevelMultiplier * 10.f;
+			createText(floatToString(buffAmount) + "%", vec2(490.f, 665.f), NUMSCALE - 0.05f, PINK).emplace<ToolTipText>();
+		}
+		else if (skillType == SkillType::SKILL3)
+		{
+			float dmg = playerBaseSkillValues[0][2] + skillLevelMultiplier * 5.f;
+			dmg *= strengthMultiplier;
+			createText(floatToString(dmg), vec2(602.f, 705.f), NUMSCALE - 0.1f, RED).emplace<ToolTipText>();
+		}
+		break;
+	case PlayerType::TAJI:
+		if (skillType == SkillType::SKILL1)
+		{
+			float dmg = playerBaseSkillValues[1][0] + skillLevelMultiplier * 5.f;
+			dmg *= strengthMultiplier;
+			createText(floatToString(dmg), vec2(313.f, 665.f), NUMSCALE, RED).emplace<ToolTipText>();
+		}
+		else if (skillType == SkillType::SKILL2)
+		{
+			float dmg = playerBaseSkillValues[1][1] + skillLevelMultiplier * 5.f;
+			dmg *= strengthMultiplier;
+			float duration = skillLevelMultiplier == 2 ? 2.f : 1.f; // 2 turns at max level, else 1 turn
+			createText(floatToString(dmg), vec2(452.f, 654.f), NUMSCALE - 0.05f, RED).emplace<ToolTipText>();
+			createText(floatToString(duration), vec2(439.f, 741.f), NUMSCALE, CYAN).emplace<ToolTipText>();
+		}
+		else if (skillType == SkillType::SKILL3)
+		{
+			float dmg = playerBaseSkillValues[1][2] + skillLevelMultiplier * 4.f;
+			float heal = dmg; // heals do not scale off strength 
+			dmg *= strengthMultiplier;
+			createText(floatToString(dmg), vec2(586.f, 663.f), NUMSCALE - 0.1f, RED).emplace<ToolTipText>();
+			createText(floatToString(heal), vec2(634.f, 703.f), NUMSCALE - 0.1f, GREEN).emplace<ToolTipText>();
+		}
+		break;
+	case PlayerType::EMBER:
+		if (skillType == SkillType::SKILL1)
+		{
+			float dmg = playerBaseSkillValues[2][0] + skillLevelMultiplier * 5.f;
+			dmg *= strengthMultiplier;
+			createText(floatToString(dmg), vec2(313.f, 663.f), NUMSCALE, RED).emplace<ToolTipText>();
+		}
+		else if (skillType == SkillType::SKILL2)
+		{
+			float dmg = playerBaseSkillValues[2][1] + skillLevelMultiplier * 8.f;
+			dmg *= strengthMultiplier;
+			createText(floatToString(dmg), vec2(452.f, 663.f), NUMSCALE - 0.05f, RED).emplace<ToolTipText>();
+		}
+		else if (skillType == SkillType::SKILL3)
+		{
+			float dmg = playerBaseSkillValues[2][2] + skillLevelMultiplier * 5.f;
+			dmg *= strengthMultiplier;
+			createText(floatToString(dmg), vec2(600.f, 657.f), NUMSCALE - 0.07f, RED).emplace<ToolTipText>();
+		}
+		break;
+	case PlayerType::CHIA:
+		if (skillType == SkillType::SKILL1)
+		{
+			float dmg = playerBaseSkillValues[3][0] + skillLevelMultiplier * 10.f;
+			dmg *= strengthMultiplier;
+			float heal = playerBaseSkillValues[3][1] + skillLevelMultiplier * 10.f;
+			createText(floatToString(dmg), vec2(345.f, 712.f), NUMSCALE - 0.1f, RED).emplace<ToolTipText>();
+			createText(floatToString(heal), vec2(298.f, 675.f), NUMSCALE - 0.1f, GREEN).emplace<ToolTipText>();
+		}
+		else if (skillType == SkillType::SKILL2)
+		{
+			float debuffAmount = playerBaseSkillValues[3][2] + skillLevelMultiplier * 10.f;
+			float dmg = playerBaseSkillValues[3][3] + skillLevelMultiplier * 5.f;
+			dmg *= strengthMultiplier;
+			createText(floatToString(dmg), vec2(445.f, 662.f), NUMSCALE - 0.07f, RED).emplace<ToolTipText>();
+			createText(floatToString(debuffAmount) + "%", vec2(390.f, 704.f), NUMSCALE - 0.07f, PINK).emplace<ToolTipText>();
+		}
+		else if (skillType == SkillType::SKILL3)
+		{
+			float shieldAmount = playerBaseSkillValues[3][4] + skillLevelMultiplier * 10.f;
+			float duration = playerBaseSkillValues[3][5] + skillLevelMultiplier;
+			createText(floatToString(shieldAmount), vec2(655.f, 695.f), NUMSCALE - 0.06f, CYAN).emplace<ToolTipText>();
+			createText(floatToString(duration), vec2(598.f, 716.f), NUMSCALE, CYAN).emplace<ToolTipText>();
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 void UISystem::activateSkillButton(const SkillType& skillType)

@@ -417,12 +417,12 @@ void WorldSystem::onMouseClick(int button, int action, int mods) const
 		double mousePosX, mousePosY;
 		glfwGetCursorPos(window, &mousePosX, &mousePosY);
 
-		//std::cout << "Mouse click (release): {" << mousePosX << ", " << mousePosY << "}" << std::endl;
+		std::cout << "Mouse click (release): {" << mousePosX << ", " << mousePosY << "}" << std::endl;
 
 		auto camera = ECS::registry<CameraComponent>.entities[0];
 		auto& cameraPos = camera.get<CameraComponent>().position;
 		// mouse click print without camera position
-		std::cout << "Mouse click (release): {" << mousePosX + cameraPos.x << ", " << mousePosY + cameraPos.y << "}" << std::endl;
+		//std::cout << "Mouse click (release): {" << mousePosX + cameraPos.x << ", " << mousePosY + cameraPos.y << "}" << std::endl;
 
 		if (GameStateSystem::instance().isTransitioning)
 		{
