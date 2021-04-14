@@ -61,6 +61,8 @@ private:
 	void onFinishedMovementEvent(const FinishedMovementEvent& event);
 	void onFinishedSkillEvent(const FinishedSkillEvent& event);
 	void onResetMouseCursorEvent(const ResetMouseCursorEvent& event);
+	void onEnterInspectMode();
+	void onExitInspectMode();
 
 	// Music and sound effects
 	std::unordered_map<MusicType, Mix_Music*> music;
@@ -84,8 +86,12 @@ private:
 	// Mouse cursor
 	GLFWcursor* moveCursor = nullptr;
 	GLFWcursor* skillCursor = nullptr;
+	GLFWcursor* inspectCursor = nullptr;
+	int preInspectCursorType = 0; // 0 default, 1 move, 2 skill
 	EventListenerInfo setActiveSkillListener;
 	EventListenerInfo finishedMovementListener;
 	EventListenerInfo finishedSkillListener;
 	EventListenerInfo resetMouseCursorListener;
+	EventListenerInfo enterInspectModeListener;
+	EventListenerInfo exitInspectModeListener;
 };

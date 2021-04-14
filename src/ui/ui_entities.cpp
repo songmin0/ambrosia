@@ -3,6 +3,7 @@
 #include "rendering/text.hpp"
 #include "game/game_state_system.hpp"
 #include "ui/tutorials.hpp"
+#include "game/turn_system.hpp"
 #include <iostream>
 
 ECS::Entity HPBar::createHPBar(vec2 position, vec2 scale)
@@ -243,6 +244,37 @@ ECS::Entity HelpButton::createHelpButton(vec2 position)
 	motion.position = position;
 
 	entity.emplace<HelpButton>();
+	return entity;
+};
+
+ECS::Entity InspectButton::createInspectButton(vec2 position)
+{
+	// There should only ever be one of this type of entity
+	while (!ECS::ComponentContainer<InspectButton>().entities.empty())
+	{
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<InspectButton>.entities.back());
+	}
+
+	auto entity = ECS::Entity();
+
+	void(*callback)() = []() {
+		TutorialSystem::toggleInspectMode();
+	};
+
+	ShadedMesh& resource = cacheResource("inspect_button");
+	if (resource.effect.program.resource == 0)
+	{
+		RenderSystem::createSprite(resource, uiPath("tutorial/inspect-button.png"), "textured");
+	}
+	entity.emplace<ShadedMeshRef>(resource);
+	entity.emplace<ClickableRectangleComponent>(position, resource.texture.size.x, resource.texture.size.y, callback);
+	entity.emplace<Button>();
+	entity.emplace<UIComponent>();
+	entity.emplace<RenderableComponent>(RenderLayer::HELP_BUTTON);
+
+	ECS::registry<Motion>.emplace(entity).position = position;
+
+	entity.emplace<InspectButton>();
 	return entity;
 };
 

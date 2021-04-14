@@ -14,6 +14,7 @@ public:
 	~TutorialSystem();
 
 	static void cleanTutorial();
+	static void toggleInspectMode();
 
 private:
 	EventListenerInfo tutorialStartListener;

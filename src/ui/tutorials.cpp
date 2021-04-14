@@ -1,5 +1,6 @@
 #include "tutorials.hpp"
 #include "game/game_state_system.hpp"
+#include "game/turn_system.hpp"
 #include "maps/map.hpp"
 #include <iostream>
 
@@ -248,3 +249,41 @@ void TutorialSystem::onAdvanceStory(const AdvanceStoryEvent& event)
 
 	StoryScene::createStoryScene(GameStateSystem::instance().getScreenBufferSize(), storyStage);
 };
+
+
+void TutorialSystem::toggleInspectMode()
+{
+	std::cout << "Inspect button clicked." << std::endl;
+	if (GameStateSystem::instance().isInHelpScreen || GameStateSystem::instance().isInTutorial)
+	{
+		std::cout << "Cannot inspect when in help screen or during tutorial." << std::endl;
+		return;
+	}
+
+	ECS::Entity activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
+	if (!activeEntity.has<PlayerComponent>() || activeEntity.has<DeathTimer>())
+	{
+		std::cout << "Cannot inspect. The active entity is not a valid player." << std::endl;
+		return;
+	}
+
+	auto& turnComponent = activeEntity.get<TurnSystem::TurnComponent>();
+	if (turnComponent.isMoving || turnComponent.isUsingSkill)
+	{
+		std::cout << "Cannot inspect. The active player is busy moving or using a skill." << std::endl;
+		return;
+	}
+
+	if (GameStateSystem::instance().isInspecting)
+	{
+		std::cout << "Exiting inspect mode." << std::endl;
+		GameStateSystem::instance().isInspecting = false;
+		EventSystem<EndInspectEvent>::instance().sendEvent(EndInspectEvent{});
+	}
+	else
+	{
+		std::cout << "Entering inspect mode." << std::endl;
+		GameStateSystem::instance().isInspecting = true;
+		EventSystem<BeginInspectEvent>::instance().sendEvent(BeginInspectEvent{});
+	}
+}

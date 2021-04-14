@@ -169,6 +169,16 @@ void UISystem::onMouseClick(const RawMouseClickEvent& event)
 		return;
 	}
 
+	// When in inspect mode
+	if (GameStateSystem::instance().isInspecting)
+	{
+		for (auto entity : ECS::registry<InspectButton>.entities)
+		{
+			handleClick<ClickableRectangleComponent>(entity, event);
+		}
+		return;
+	}
+
 	// Handles if any button entities are clicked
 	for (auto entity : ECS::registry<Button>.entities) {
 		if (handleClick<ClickableCircleComponent>(entity, event)) {

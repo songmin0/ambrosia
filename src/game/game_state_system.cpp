@@ -57,6 +57,7 @@ void GameStateSystem::resetState()
 	isInHelpScreen = false;
 	isInVictoryScreen = false;
 	isInDefeatScreen = false;
+	isInspecting = false;
 
 	EventSystem<DeleteAllEmittersEvent>::instance().sendEvent(DeleteAllEmittersEvent{});
 	EventSystem<ResetMouseCursorEvent>::instance().sendEvent({});
@@ -683,7 +684,8 @@ void GameStateSystem::createButtons(int frameBufferWidth, int frameBufferHeight)
 	ToolTip::createToolTip(PlayerType::RAOUL, SkillType::SKILL2, { 400, frameBufferHeight - 120 });
 	ToolTip::createToolTip(PlayerType::RAOUL, SkillType::SKILL3, { 550, frameBufferHeight - 120 });
 
-	HelpButton::createHelpButton(vec2(frameBufferWidth - 60.f, 30.f));
+	HelpButton::createHelpButton(vec2(frameBufferWidth - 90.f, 30.f));
+	InspectButton::createInspectButton(vec2(frameBufferWidth - 80.f, 90.f));
 }
 
 void GameStateSystem::createEffects()
