@@ -20,6 +20,7 @@ public:
 	~UISystem();
 
 	void step(float elapsed_ms);
+	static void createCentralMessage(const std::string& message, float durationMS = 3000.f);
 
 private:
 	bool isClicked(ClickableCircleComponent clickable, vec2 position);

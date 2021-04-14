@@ -100,6 +100,40 @@ void UISystem::step(float elapsed_ms) {
 	}
 }
 
+void UISystem::createCentralMessage(const std::string& text, float durationMS)
+{
+	// Only show the most current message at any one time
+	for (auto& entity : ECS::registry<CentralMessageComponent>.entities)
+	{
+		ECS::ContainerInterface::removeAllComponentsOf(entity);
+	}
+
+	auto str_len = text.length();
+	int firstUnprintedChar = 0;
+	int yPos = 130;
+	int xPos = 320;
+	int lineWidth = 45;
+	int yPadding = 30;
+	float scale = 0.5;
+
+	for (int i = lineWidth; i < str_len; i += lineWidth) {
+		while (!isspace(text.at(i))) {
+			i--;
+		}
+
+		if (isspace(text.at(i))) {
+			auto message = createText(text.substr(firstUnprintedChar, i - firstUnprintedChar + 1), { xPos, yPos += yPadding }, scale);
+			message.emplace<TimedUIComponent>(durationMS);
+			message.emplace<CentralMessageComponent>();
+			firstUnprintedChar = i + 1;
+		}
+	}
+
+	auto message = createText(text.substr(firstUnprintedChar, str_len - firstUnprintedChar + 1), { xPos, yPos += yPadding }, scale);
+	message.emplace<TimedUIComponent>(durationMS);
+	message.emplace<CentralMessageComponent>();
+}
+
 bool UISystem::isClicked(ClickableCircleComponent clickable, vec2 position)
 {
 	// Checks if given position is within the circle radius

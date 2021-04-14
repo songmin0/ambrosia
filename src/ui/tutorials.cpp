@@ -1,7 +1,11 @@
 #include "tutorials.hpp"
 #include "game/game_state_system.hpp"
 #include "game/turn_system.hpp"
+#include "ui/ui_system.hpp"
 #include "maps/map.hpp"
+#include "ai/ai.hpp"
+#include "physics/physics.hpp"
+#include "entities/enemies.hpp"
 #include <iostream>
 
 TutorialSystem::TutorialSystem()
@@ -23,6 +27,9 @@ TutorialSystem::TutorialSystem()
 
 	advanceStoryListener = EventSystem<AdvanceStoryEvent>::instance().registerListener(
 		std::bind(&TutorialSystem::onAdvanceStory, this, std::placeholders::_1));
+
+	onMouseHoverListener = EventSystem<MouseHoverEvent>::instance().registerListener(
+		std::bind(&TutorialSystem::onMouseHover, this, std::placeholders::_1));
 };
 
 TutorialSystem::~TutorialSystem()
@@ -49,6 +56,10 @@ TutorialSystem::~TutorialSystem()
 
 	if (advanceStoryListener.isValid()) {
 		EventSystem<AdvanceStoryEvent>::instance().unregisterListener(advanceStoryListener);
+	}
+
+	if (onMouseHoverListener.isValid()) {
+		EventSystem<MouseHoverEvent>::instance().unregisterListener(onMouseHoverListener);
 	}
 };
 
@@ -264,6 +275,7 @@ void TutorialSystem::toggleInspectMode()
 	if (!activeEntity.has<PlayerComponent>() || activeEntity.has<DeathTimer>())
 	{
 		std::cout << "Cannot inspect. The active entity is not a valid player." << std::endl;
+		UISystem::createCentralMessage("Cannot inspect. Please wait until a player turn.");
 		return;
 	}
 
@@ -271,6 +283,7 @@ void TutorialSystem::toggleInspectMode()
 	if (turnComponent.isMoving || turnComponent.isUsingSkill)
 	{
 		std::cout << "Cannot inspect. The active player is busy moving or using a skill." << std::endl;
+		UISystem::createCentralMessage("Cannot inspect. The active player is busy.");
 		return;
 	}
 
@@ -279,11 +292,118 @@ void TutorialSystem::toggleInspectMode()
 		std::cout << "Exiting inspect mode." << std::endl;
 		GameStateSystem::instance().isInspecting = false;
 		EventSystem<EndInspectEvent>::instance().sendEvent(EndInspectEvent{});
+		UISystem::createCentralMessage("Left inspect mode.");
 	}
 	else
 	{
 		std::cout << "Entering inspect mode." << std::endl;
+		UISystem::createCentralMessage("Entering inspect mode. Hover over an enemy to see details and tips.");
 		GameStateSystem::instance().isInspecting = true;
 		EventSystem<BeginInspectEvent>::instance().sendEvent(BeginInspectEvent{});
+	}
+};
+
+void TutorialSystem::onMouseHover(const MouseHoverEvent& event)
+{
+	// Clear all mob cards regardless
+	while (!ECS::registry<MobCard>.entities.empty())
+	{
+		ECS::ContainerInterface::removeAllComponentsOf(ECS::registry<MobCard>.entities.back());
+	}
+
+	// Only handle Inspecting Mode
+	if (!GameStateSystem::instance().isInspecting)
+	{
+		return;
+	}
+
+	// Check if there is a mob beneath the mouse hover
+	// If there are multiple mobs, get the mob whose position is closest to the mouse
+	float closestDist = 10000.f;
+	bool didFindMob = false;
+	ECS::Entity closestMobEntity;
+
+	// Lambda to check if point position is within an entity's bounding box
+	auto isOverEntity = [=](const vec2& point, const BoundingBox& box)
+	{
+		return (box.left < point.x) && (box.right > point.x) &&
+			(box.top < point.y) && (box.bottom > point.y);
+	};
+
+	// Check if hovering over any alive mobs
+	for (auto& mob : ECS::registry<AISystem::MobComponent>.entities)
+	{
+		if (mob.has<DeathTimer>() || !mob.has<Motion>())
+		{
+			continue;
+		}
+
+		auto& motionC = mob.get<Motion>();
+		auto mobBB = PhysicsSystem::getBoundingBox(mob, motionC);
+
+		if (!isOverEntity(event.mousePos, mobBB))
+		{
+			// not hovering over this mob
+			continue;
+		}
+
+		// is hovering over mob, check if mob is closer to mouse
+		didFindMob = true;
+		float distToMouse = distance(motionC.position, event.mousePos);
+		if (distToMouse < closestDist)
+		{
+			closestDist = distToMouse;
+			closestMobEntity = mob;
+		}
+	}
+
+	if (didFindMob)
+	{
+		showInspectToolTip(closestMobEntity);
+	}
+};
+
+void TutorialSystem::showInspectToolTip(ECS::Entity& entity)
+{
+	vec2 position = vec2(683.f, 400.f); // center of screen
+	if (entity.has<Egg>())
+	{
+		MobCard::createMobCard(position, "egg");
+	}
+	else if (entity.has<Pepper>())
+	{
+		MobCard::createMobCard(position, "pepper");
+	}
+	else if (entity.has<Tomato>())
+	{
+		MobCard::createMobCard(position, "tomato");
+	}
+	else if (entity.has<Chicken>())
+	{
+		MobCard::createMobCard(position, "chicken");
+	}
+	else if (entity.has<Lettuce>())
+	{
+		MobCard::createMobCard(position, "lettuce");
+	}
+	else if (entity.has<MashedPotato>())
+	{
+		MobCard::createMobCard(position, "mashed-potato");
+	}
+	else if (entity.has<Potato>())
+	{
+		MobCard::createMobCard(position, "potato");
+	}
+	else if (entity.has<PotatoChunk>())
+	{
+		MobCard::createMobCard(position, "potato-chunk");
+	}
+	else if (entity.has<SaltnPepper>())
+	{
+		MobCard::createMobCard(position, "saltnpepper");
+	}
+	else if (entity.has<Milk>())
+	{
+		MobCard::createMobCard(position, "milk");
 	}
 }

@@ -14,7 +14,7 @@
 #include <iostream>
 
 // Returns a BoundingBox representing the entity's current bounds in world coords
-BoundingBox getBoundingBox(ECS::Entity entity, const Motion& motion)
+BoundingBox PhysicsSystem::getBoundingBox(ECS::Entity entity, const Motion& motion)
 {
 	vec2 boundingBoxDimensions = abs(motion.boundingBox);
 	float halfWidth = boundingBoxDimensions.x / 2.f;

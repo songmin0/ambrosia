@@ -48,3 +48,5 @@ struct AmbrosiaDisplay
 	float textScale = 0.75f;
 	vec2 textOffset = {40.f, 16.f};
 };
+
+struct MobCard { static ECS::Entity createMobCard(vec2 position, const std::string& mobType); };
