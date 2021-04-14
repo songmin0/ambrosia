@@ -497,9 +497,9 @@ void UISystem::renderToolTipNumbers(const SkillType& skillType)
 	case PlayerType::CHIA:
 		if (skillType == SkillType::SKILL1)
 		{
-			float dmg = playerBaseSkillValues[3][0] + skillLevelMultiplier * 10.f;
+			float dmg = playerBaseSkillValues[3][1] + skillLevelMultiplier * 10.f;
 			dmg *= strengthMultiplier;
-			float heal = playerBaseSkillValues[3][1] + skillLevelMultiplier * 10.f;
+			float heal = playerBaseSkillValues[3][0] + skillLevelMultiplier * 10.f;
 			createText(floatToString(dmg), vec2(345.f, 712.f), NUMSCALE - 0.1f, RED).emplace<ToolTipText>();
 			createText(floatToString(heal), vec2(298.f, 675.f), NUMSCALE - 0.1f, GREEN).emplace<ToolTipText>();
 		}
