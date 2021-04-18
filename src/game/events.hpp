@@ -94,6 +94,7 @@ struct HealEvent
 };
 
 struct StartMobTurnEvent {};
+struct EndMobTurnEvent {};
 
 struct StartMobMoveEvent
 {
