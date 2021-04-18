@@ -68,3 +68,4 @@ struct MoveButtonComponent {};
 struct TutorialComponent {};
 struct StoryComponent {};
 struct CentralMessageComponent {};
+struct ToolTipText {};

@@ -44,3 +44,13 @@ float playerToFloat(const PlayerType& player)
 
 	return output;
 }
+
+std::string floatToString (float number)
+{
+	int roundedNum = (int)(number * 100 + .5);
+	float fixedNum = (float)roundedNum / 100.f;
+	std::string numString = std::to_string(fixedNum);
+	numString.erase(numString.find_last_not_of('0') + 1, std::string::npos);
+	numString.erase(numString.find_last_not_of('.') + 1, std::string::npos);
+	return numString;
+};

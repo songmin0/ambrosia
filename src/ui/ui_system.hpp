@@ -67,8 +67,17 @@ private:
 	void activateSkillButton(const SkillType& skillType);
 	void enableMoveButton(bool doEnable = true);
 	void enableSkillButtons(bool doEnable = true);
-	void enableActiveSkillFX(bool doEnable = true);
 
 	void clearToolTips();
 	ECS::Entity& getToolTip(SkillType skill);
+	void renderToolTipNumbers(const SkillType& skillType);
+
+	const std::vector < std::vector<float> > playerBaseSkillValues{
+		{ 30.f, 40.f, 15.f }, // Raoul - S1 dmg, S2 buff%, S3 dmg
+		{ 20.f, 20.f, 8.f }, // Taji - S1 dmg, S2 dmg, S3 dmg + heal
+		{ 25.f, 50.f, 25.f }, // Ember - S1 dmg, S2 dmg, S3 dmg
+		{ 30.f, 20.f, 40.f,  15.f, 30.f, 1.f }, // Chia - S1 heal, S1 dmg, S2 debuff%, S2 dmg, S3 shield, S3 turn duration
+	};
+
+	const float NUMSCALE = 0.45f;
 };

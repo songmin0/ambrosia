@@ -150,17 +150,17 @@ void Ember::addSkill3(ECS::Entity entity, SkillComponent& skillComponent)
 	// Create as many levels of this skill as needed
 	auto level1Params = createParams();
 	level1Params->entityProvider = std::make_shared<CircularProvider>(350.f);
-	level1Params->entityHandler = std::make_shared<KnockbackHandler>(350.f, 300.f, 40.f);
+	level1Params->entityHandler = std::make_shared<KnockbackHandler>(350.f, 300.f, 25.f);
 	auto level1Skill = std::make_shared<AreaOfEffectSkill>(level1Params);
 
 	auto level2Params = createParams();
 	level2Params->entityProvider = std::make_shared<CircularProvider>(385.f);
-	level2Params->entityHandler = std::make_shared<KnockbackHandler>(385.f, 330.f, 49.f);
+	level2Params->entityHandler = std::make_shared<KnockbackHandler>(385.f, 330.f, 30.f);
 	auto level2Skill = std::make_shared<AreaOfEffectSkill>(level2Params);
 
 	auto level3Params = createParams();
 	level3Params->entityProvider = std::make_shared<CircularProvider>(420.f);
-	level3Params->entityHandler = std::make_shared<KnockbackHandler>(420.f, 360.f, 53.f);
+	level3Params->entityHandler = std::make_shared<KnockbackHandler>(420.f, 360.f, 35.f);
 	auto level3Skill = std::make_shared<AreaOfEffectSkill>(level3Params);
 
 	SkillLevels levels = {
