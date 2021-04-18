@@ -383,13 +383,13 @@ ECS::Entity MashedPotato::createMashedPotato(vec2 pos, float initHPPercent, floa
 	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, std::make_shared<AnimationData>(idle));
 	anims.addAnimation(AnimationType::MOVE, std::make_shared<AnimationData>(idle));
 
-	auto hit_anim = AnimationData("mashedpotato_hit", spritePath("enemies/mashedpotato/hit/hit"), 15, 1, true, false);
+	auto hit_anim = AnimationData("mashedpotato_hit", spritePath("enemies/mashedpotato/hit/hit"), 15, 2, true, false);
 	anims.addAnimation(AnimationType::HIT, std::make_shared<AnimationData>(hit_anim));
 
 	auto attack1_anim = AnimationData("mashedpotato_attack1", spritePath("enemies/mashedpotato/attack1/attack1"), 25, 1, true, false);
 	anims.addAnimation(AnimationType::ATTACK1, std::make_shared<AnimationData>(attack1_anim));
 
-	auto defeat_anim = AnimationData("mashedpotato_defeat", spritePath("enemies/mashedpotato/defeat/defeat"), 16, 1, true, false);
+	auto defeat_anim = AnimationData("mashedpotato_defeat", spritePath("enemies/mashedpotato/defeat/defeat"), 16, 2, true, false);
 	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
 
 	// Initialize stats
@@ -468,10 +468,10 @@ ECS::Entity PotatoChunk::createPotatoChunk(vec2 pos, vec2 potato_pos, float orie
 	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, std::make_shared<AnimationData>(idle));
 	anims.addAnimation(AnimationType::MOVE, std::make_shared<AnimationData>(idle));
 
-	auto hit_anim = AnimationData("potatochunk_hit", spritePath("enemies/potatochunk/hit/hit"), 15, 1, true, false);
+	auto hit_anim = AnimationData("potatochunk_hit", spritePath("enemies/potatochunk/hit/hit"), 15, 2, true, false);
 	anims.addAnimation(AnimationType::HIT, std::make_shared<AnimationData>(hit_anim));
 
-	auto defeat_anim = AnimationData("potatochunk_defeat", spritePath("enemies/potatochunk/defeat/defeat"), 16, 1, true, false);
+	auto defeat_anim = AnimationData("potatochunk_defeat", spritePath("enemies/potatochunk/defeat/defeat"), 16, 2, true, false);
 	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
 
 	// Initialize stats
@@ -539,11 +539,11 @@ ECS::Entity Tomato::createTomato(json stats, json position)
 	motion.boundingBox = motion.scale * hitboxScale * vec2({ resource.texture.size.x, resource.texture.size.y });
 
 	// Animations
-	auto idle_anim = AnimationData("tomato_idle", spritePath("enemies/tomato/idle/idle"), 24);
+	auto idle_anim = AnimationData("tomato_idle", spritePath("enemies/tomato/idle/idle"), 24, 2);
 	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, std::make_shared<AnimationData>(idle_anim));
 	anims.addAnimation(AnimationType::MOVE, std::make_shared<AnimationData>(idle_anim));
 
-	auto hit_anim = AnimationData("tomato_hit", spritePath("enemies/tomato/hit/hit"), 12, 1, true, false);
+	auto hit_anim = AnimationData("tomato_hit", spritePath("enemies/tomato/hit/hit"), 12, 2, true, false);
 	anims.addAnimation(AnimationType::HIT, std::make_shared<AnimationData>(hit_anim));
 
 	auto defeat_anim = AnimationData("tomato_defeat", spritePath("enemies/tomato/defeat/defeat"), 21, 1, true, false, vec2(-0.01f, 0.05f));
@@ -617,16 +617,16 @@ ECS::Entity Lettuce::createLettuce(json stats, json position)
 	auto idle_anim = AnimationData("lettuce_idle", spritePath("enemies/lettuce/idle/idle"), 25);
 	AnimationsComponent& anims = entity.emplace<AnimationsComponent>(AnimationType::IDLE, std::make_shared<AnimationData>(idle_anim));
 
-	auto hit_anim = AnimationData("lettuce_hit", spritePath("enemies/lettuce/hit/hit"), 12, 1, true, false);
+	auto hit_anim = AnimationData("lettuce_hit", spritePath("enemies/lettuce/hit/hit"), 12, 2, true, false);
 	anims.addAnimation(AnimationType::HIT, std::make_shared<AnimationData>(hit_anim));
 
-	auto defeat_anim = AnimationData("lettuce_defeat", spritePath("enemies/lettuce/defeat/defeat"), 13, 1, true, false);
+	auto defeat_anim = AnimationData("lettuce_defeat", spritePath("enemies/lettuce/defeat/defeat"), 13, 2, true, false);
 	anims.addAnimation(AnimationType::DEFEAT, std::make_shared<AnimationData>(defeat_anim));
 
-	auto attack1_anim = AnimationData("lettuce_attack1", spritePath("enemies/lettuce/attack1/attack1"), 22, 1, true, false, vec2(-0.03f, 0.15f));
+	auto attack1_anim = AnimationData("lettuce_attack1", spritePath("enemies/lettuce/attack1/attack1"), 22, 2, true, false, vec2(-0.03f, 0.15f));
 	anims.addAnimation(AnimationType::ATTACK1, std::make_shared<AnimationData>(attack1_anim));
 
-	auto attack2_anim = AnimationData("lettuce_attack2", spritePath("enemies/lettuce/attack2/attack2"), 24, 1, true, false, vec2(0.01f, 0.f));
+	auto attack2_anim = AnimationData("lettuce_attack2", spritePath("enemies/lettuce/attack2/attack2"), 24, 2, true, false, vec2(0.01f, 0.f));
 	anims.addAnimation(AnimationType::ATTACK2, std::make_shared<AnimationData>(attack2_anim));
 
 	// Initialize stats

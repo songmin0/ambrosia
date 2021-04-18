@@ -116,14 +116,14 @@ void Taji::addSkill2(ECS::Entity entity, SkillComponent& skillComponent)
 	auto level1Skill = std::make_shared<AreaOfEffectSkill>(level1Params);
 
 	auto level2Params = createParams();
-	level2Params->entityProvider = std::make_shared<MouseClickProvider>(125.f);
-	level2Params->entityHandler = std::make_shared<DebuffAndDamageHandler>(StatType::STUNNED, 1.f, 1, 30.f);
+	level2Params->entityProvider = std::make_shared<MouseClickProvider>(100.f);
+	level2Params->entityHandler = std::make_shared<DebuffAndDamageHandler>(StatType::STUNNED, 1.f, 1, 25.f);
 	level2Params->entityHandler->addFX(FXType::CANDY2);
 	auto level2Skill = std::make_shared<AreaOfEffectSkill>(level2Params);
 
 	auto level3Params = createParams();
-	level3Params->entityProvider = std::make_shared<MouseClickProvider>(150.f);
-	level3Params->entityHandler = std::make_shared<DebuffAndDamageHandler>(StatType::STUNNED, 1.f, 2, 40.f);
+	level3Params->entityProvider = std::make_shared<MouseClickProvider>(100.f);
+	level3Params->entityHandler = std::make_shared<DebuffAndDamageHandler>(StatType::STUNNED, 1.f, 2, 30.f);
 	level3Params->entityHandler->addFX(FXType::CANDY2);
 	auto level3Skill = std::make_shared<AreaOfEffectSkill>(level3Params);
 
