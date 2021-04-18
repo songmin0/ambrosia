@@ -65,16 +65,20 @@ class StateSystem
 {
 protected:
 	EventListenerInfo startMobTurnListener;
+	EventListenerInfo endMobTurnListener;
 	std::shared_ptr<BehaviourTree> activeTree;
 public:
 	StateSystem()
 	{
 		startMobTurnListener = EventSystem<StartMobTurnEvent>::instance().registerListener(
 			std::bind(&StateSystem::onStartMobTurnEvent, this));
+		startMobTurnListener = EventSystem<EndMobTurnEvent>::instance().registerListener(
+			std::bind(&StateSystem::onEndMobTurnEvent, this));
 		activeTree = nullptr;
 	};
 
 	void onStartMobTurnEvent();
+	void onEndMobTurnEvent();
 	void step(float elapsed_ms);
 };
 

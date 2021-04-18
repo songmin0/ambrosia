@@ -187,6 +187,11 @@ void TurnSystem::step(float elapsed_ms)
 			
 			if (hasCompletedTurn(turnComponent))
 			{
+				if (activeEntity.has<AISystem::MobComponent>())
+				{
+					std::cout << "Mob turn ended\n";
+					EventSystem<EndMobTurnEvent>::instance().sendEvent(EndMobTurnEvent{});
+				}
 				// Add a hardcoded delay before moving the camera so player can see animations
 				assert(!ECS::registry<CameraComponent>.entities.empty());
 				auto camera = ECS::registry<CameraComponent>.entities[0];
@@ -202,9 +207,8 @@ void TurnSystem::step(float elapsed_ms)
 						!activeEntity.get<StatsComponent>().isStunned())
 				{
 					std::cout << "Starting mob turn\n";
-					StartMobTurnEvent event;
 					// Event should be heard by StateSystem in behaviour_tree.hpp
-					EventSystem<StartMobTurnEvent>::instance().sendEvent(event);
+					EventSystem<StartMobTurnEvent>::instance().sendEvent(StartMobTurnEvent{});
 					turnComponent.isMoving = true;
 				}
 			}

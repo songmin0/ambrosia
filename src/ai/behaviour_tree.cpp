@@ -50,6 +50,11 @@ void StateSystem::onStartMobTurnEvent()
 	}
 }
 
+void StateSystem::onEndMobTurnEvent()
+{
+	activeTree = nullptr;
+}
+
 void StateSystem::step(float elapsed_ms)
 {
 	if (!GameStateSystem::instance().inGameState()) {
@@ -695,35 +700,34 @@ void BasicAttackTask::run()
 		Node::run();
 		taskCompletedListener = EventSystem<FinishedSkillEvent>::instance().registerListener(
 			std::bind(&BasicAttackTask::onFinishedTaskEvent, this));
+
 		ECS::Entity activeEntity = ECS::registry<TurnSystem::TurnComponentIsActive>.entities[0];
 		SetActiveSkillEvent activeEvent;
 		activeEvent.entity = activeEntity;
-		if (activeEntity.has<BehaviourTreeType>()) {
-			auto& mobType = activeEntity.get<BehaviourTreeType>().mobType;
-			// Choose correct skill based on active mob entity
-			switch (mobType)
-			{
-			case MobType::EGG:
-			case MobType::PEPPER:
-			case MobType::POTATO:
-			case MobType::POTATO_CHUNK:
-			case MobType::MASHED_POTATO:
-				activeEvent.type = SkillType::SKILL1;
-				break;
-			case MobType::MILK:
-				activeEvent.type = SkillType::SKILL2;
-				break;
-			default:
-				activeEvent.type = SkillType::SKILL1;
-				break;
-			}
-			EventSystem<SetActiveSkillEvent>::instance().sendEvent(activeEvent);
-
-			StartMobSkillEvent skillEvent;
-			skillEvent.entity = activeEntity;
-			skillEvent.targetIsPlayer = true;
-			EventSystem<StartMobSkillEvent>::instance().sendEvent(skillEvent);
+		auto& mobType = activeEntity.get<BehaviourTreeType>().mobType;
+		// Choose correct skill based on active mob entity
+		switch (mobType)
+		{
+		case MobType::EGG:
+		case MobType::PEPPER:
+		case MobType::POTATO:
+		case MobType::POTATO_CHUNK:
+		case MobType::MASHED_POTATO:
+			activeEvent.type = SkillType::SKILL1;
+			break;
+		case MobType::MILK:
+			activeEvent.type = SkillType::SKILL2;
+			break;
+		default:
+			activeEvent.type = SkillType::SKILL1;
+			break;
 		}
+		EventSystem<SetActiveSkillEvent>::instance().sendEvent(activeEvent);
+
+		StartMobSkillEvent skillEvent;
+		skillEvent.entity = activeEntity;
+		skillEvent.targetIsPlayer = true;
+		EventSystem<StartMobSkillEvent>::instance().sendEvent(skillEvent);
 	}
 }
 
