@@ -14,6 +14,7 @@ public:
 	~TutorialSystem();
 
 	static void cleanTutorial();
+	static void toggleInspectMode();
 
 private:
 	EventListenerInfo tutorialStartListener;
@@ -33,6 +34,11 @@ private:
 
 	EventListenerInfo advanceStoryListener;
 	void onAdvanceStory(const AdvanceStoryEvent& event);
+
+	EventListenerInfo onMouseHoverListener;
+	void onMouseHover(const MouseHoverEvent& event);
+
+	void showInspectToolTip(ECS::Entity & entity);
 };
 
 struct TutorialText

@@ -89,6 +89,7 @@ public:
 	bool isInDefeatScreen;
 	bool isInShopScreen;
 	bool isTransitioning;
+	bool isInspecting;
 	json currentLevel;
 	json recipe;
 	int currentLevelIndex;

@@ -19,6 +19,7 @@
 #include "ai/swarm_behaviour.hpp"
 #include "rendering/text.hpp"
 #include "entities/players.hpp"
+#include "ui/tutorials.hpp"
 
 
 // stlib
@@ -380,6 +381,11 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 		}
 	}
 
+	if (key == GLFW_KEY_I && action == GLFW_RELEASE)
+	{
+		TutorialSystem::toggleInspectMode();
+	}
+
 	// Debugging
 	if (key == GLFW_KEY_D)
 		DebugSystem::in_debug_mode = (action != GLFW_RELEASE);
@@ -627,7 +633,13 @@ void WorldSystem::onPlayerChangeEvent(const PlayerChangeEvent& event)
 	shouldPlayAudioAtStartOfTurn = true;
 
 	// When the active player changes, go back to the normal mouse cursor
-	glfwSetCursor(window, nullptr);
+	// Unless the game is in inspect mode 
+	// this can happen when pressing inspect right at the end of a skill
+	if (!GameStateSystem::instance().isInspecting)
+	{
+		glfwSetCursor(window, nullptr);
+		preInspectCursorType = 0;
+	}
 }
 
 void WorldSystem::onTransition(TransitionEvent event)
@@ -692,6 +704,7 @@ void WorldSystem::initCursors()
 	// Create two cursors
 	moveCursor = createCursor(uiPath("cursor-shoe.png"), {40.f, 40.f});
 	skillCursor = createCursor(uiPath("cursor-hand.png"), {21.f, 0.f});
+	inspectCursor = createCursor(uiPath("cursor-inspect.png"), {40.f, 40.f});
 
 	// Listen for a few events to change the mouse cursor
 	setActiveSkillListener = EventSystem<SetActiveSkillEvent>::instance().registerListener(
@@ -705,6 +718,12 @@ void WorldSystem::initCursors()
 
 	resetMouseCursorListener = EventSystem<ResetMouseCursorEvent>::instance().registerListener(
 			std::bind(&WorldSystem::onResetMouseCursorEvent, this, std::placeholders::_1));
+
+	enterInspectModeListener = EventSystem<BeginInspectEvent>::instance().registerListener(
+		std::bind(&WorldSystem::onEnterInspectMode, this));
+
+	exitInspectModeListener = EventSystem<EndInspectEvent>::instance().registerListener(
+		std::bind(&WorldSystem::onExitInspectMode, this));
 }
 
 void WorldSystem::releaseCursors()
@@ -722,6 +741,14 @@ void WorldSystem::releaseCursors()
 	{
 		EventSystem<FinishedSkillEvent>::instance().unregisterListener(finishedSkillListener);
 	}
+	if (enterInspectModeListener.isValid())
+	{
+		EventSystem<BeginInspectEvent>::instance().unregisterListener(enterInspectModeListener);
+	}
+	if (exitInspectModeListener.isValid())
+	{
+		EventSystem<EndInspectEvent>::instance().unregisterListener(exitInspectModeListener);
+	}
 
 	// Release the cursors
 	if (moveCursor)
@@ -732,12 +759,16 @@ void WorldSystem::releaseCursors()
 	{
 		glfwDestroyCursor(skillCursor);
 	}
+	if (inspectCursor)
+	{
+		glfwDestroyCursor(inspectCursor);
+	}
 }
 
 void WorldSystem::onSetActiveSkillEvent(const SetActiveSkillEvent& event)
 {
 	auto entity = event.entity;
-	if (!entity.has<PlayerComponent>())
+	if (!entity.has<PlayerComponent>()|| GameStateSystem::instance().isInspecting)
 	{
 		return;
 	}
@@ -746,16 +777,19 @@ void WorldSystem::onSetActiveSkillEvent(const SetActiveSkillEvent& event)
 	if (event.type == SkillType::NONE)
 	{
 		glfwSetCursor(window, nullptr);
+		preInspectCursorType = 0;
 	}
 	else if (event.type == SkillType::MOVE)
 	{
 		assert(moveCursor);
 		glfwSetCursor(window, moveCursor);
+		preInspectCursorType = 1;
 	}
 	else
 	{
 		assert(skillCursor);
 		glfwSetCursor(window, skillCursor);
+		preInspectCursorType = 2;
 	}
 }
 
@@ -769,6 +803,7 @@ void WorldSystem::onFinishedMovementEvent(const FinishedMovementEvent& event)
 
 	// When movement finishes, go back to the normal mouse cursor
 	glfwSetCursor(window, nullptr);
+	preInspectCursorType = 0;
 }
 
 void WorldSystem::onFinishedSkillEvent(const FinishedSkillEvent& event)
@@ -781,9 +816,34 @@ void WorldSystem::onFinishedSkillEvent(const FinishedSkillEvent& event)
 
 	// When a skill finishes, go back to the normal mouse cursor
 	glfwSetCursor(window, nullptr);
+	preInspectCursorType = 0;
 }
 
 void WorldSystem::onResetMouseCursorEvent(const ResetMouseCursorEvent& event)
 {
 	glfwSetCursor(window, nullptr);
+	preInspectCursorType = 0;
+}
+
+void WorldSystem::onEnterInspectMode()
+{
+	glfwSetCursor(window, inspectCursor);
+}
+
+void WorldSystem::onExitInspectMode()
+{
+	if (preInspectCursorType == 1)
+	{
+		assert(moveCursor);
+		glfwSetCursor(window, moveCursor);
+	}
+	else if (preInspectCursorType == 2)
+	{
+		assert(skillCursor);
+		glfwSetCursor(window, skillCursor);
+	}
+	else
+	{
+		glfwSetCursor(window, nullptr);
+	}
 }

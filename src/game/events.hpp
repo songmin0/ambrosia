@@ -157,6 +157,8 @@ struct EndTutorialEvent {};
 struct ShowHelpEvent {};
 struct HideHelpEvent {};
 struct AdvanceStoryEvent {};
+struct BeginInspectEvent {};
+struct EndInspectEvent {};
 
 // Events related to achievements
 struct FinishedTutorialEvent {};
