@@ -294,6 +294,10 @@ void UISystem::updatePlayerSkillButton(ECS::Entity& entity)
 		{
 			enableMoveButton(true);
 		}
+		else // disable move button
+		{
+			enableMoveButton(false);
+		}
 		if (turnComponent.canStartSkill())
 		{
 			enableSkillButtons(true);

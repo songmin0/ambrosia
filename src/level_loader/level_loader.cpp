@@ -1,6 +1,7 @@
 #include "level_loader.hpp"
 #include "game/common.hpp"
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sys/stat.h> 
 
@@ -37,7 +38,7 @@ void LevelLoader::save(const std::string& levelName, int currLevel,
 	saveFile["skill_levels"] = skillLevel;
 
 	std::ofstream file("data/save.json");
-	file << saveFile;
+	file << std::setw(4) << saveFile;
 }
 
 json LevelLoader::load() {
