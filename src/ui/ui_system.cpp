@@ -516,7 +516,7 @@ void UISystem::renderToolTipNumbers(const SkillType& skillType)
 			float shieldAmount = playerBaseSkillValues[3][4] + skillLevelMultiplier * 10.f;
 			float duration = playerBaseSkillValues[3][5] + skillLevelMultiplier;
 			createText(floatToString(shieldAmount), vec2(655.f, 695.f), NUMSCALE - 0.06f, CYAN).emplace<ToolTipText>();
-			createText(floatToString(duration), vec2(598.f, 716.f), NUMSCALE, CYAN).emplace<ToolTipText>();
+			createText(floatToString(duration), vec2(595.f, 716.f), NUMSCALE, CYAN).emplace<ToolTipText>();
 		}
 		break;
 	default:

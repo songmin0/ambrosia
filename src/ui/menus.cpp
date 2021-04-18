@@ -255,12 +255,12 @@ void Screens::createCreditsScreen(int frameBufferWidth, int frameBufferHeight, i
 	createText("Christine Song", { middleAlignX, firstSectionY + newlineSpaceY * 3 }, 0.5);
 
 	float secondSectionY = firstSectionY + newlineSpaceY * 3 + paragraphSpaceY;
-	createText("Music", { leftAlignX, secondSectionY }, 0.75);
+	createText("Background Music", { leftAlignX, secondSectionY }, 0.75);
 	createText("Ambrosia Theme - Emma Liu", { leftAlignX, secondSectionY + newlineSpaceY }, 0.5);
-	createText("Overworld Theme - David Vitas", { leftAlignX, secondSectionY + newlineSpaceY * 2 }, 0.5);
-	createText("Victory Fanfare Loop - David Vitas", { leftAlignX, secondSectionY + newlineSpaceY * 3 }, 0.5);
-	createText("Boss Battle Loop - David Vitas", { middleAlignX, secondSectionY + newlineSpaceY }, 0.5);
-	createText("Lullaby Loop - David Vitas", { middleAlignX, secondSectionY + newlineSpaceY * 2 }, 0.5);
+	createText("Others Themes - David Vitas", { leftAlignX, secondSectionY + newlineSpaceY * 2 }, 0.5);
+
+	createText("Art and Assets", { middleAlignX, secondSectionY }, 0.75);
+	createText("Emma Liu", { middleAlignX, secondSectionY + newlineSpaceY }, 0.5);
 
 	float thirdSectionY = secondSectionY + newlineSpaceY * 3 + paragraphSpaceY;
 	createText("Sound Effects", { leftAlignX, thirdSectionY }, 0.75);
