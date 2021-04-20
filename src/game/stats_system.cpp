@@ -195,6 +195,8 @@ void StatsSystem::onHitEvent(const HitEvent &event)
 		actualDamage *= instigatorStrength;
 	}
 
+	float damageApplied = 0.f;
+
 	// Apply damage to the target
 	if (target.has<StatsComponent>())
 	{
@@ -217,12 +219,16 @@ void StatsSystem::onHitEvent(const HitEvent &event)
 			}
 
 			// Update the amount of damage that still needs to be applied
-			actualDamage -= hpShieldBefore - hpShieldAfter;
+			damageApplied = hpShieldBefore - hpShieldAfter;
+			actualDamage -= damageApplied;
 		}
 
 		// Subtract remaining damage from HP
-		float currentHP = statsComponent.stats[StatType::HP];
-		statsComponent.stats[StatType::HP] = std::max(0.f, currentHP - actualDamage);
+		float hpBefore = statsComponent.stats[StatType::HP];
+		statsComponent.stats[StatType::HP] = std::max(0.f, hpBefore - actualDamage);
+		float hpAfter = statsComponent.stats[StatType::HP];
+
+		damageApplied += hpBefore - hpAfter;
 
 		// Check whether the target has died
 		if (statsComponent.getEffectiveHP() <= 0.f)
@@ -236,7 +242,7 @@ void StatsSystem::onHitEvent(const HitEvent &event)
 	}
 
 	// Send event for displaying damage number
-	EventSystem<DamageNumberEvent>::instance().sendEvent(DamageNumberEvent{ target, actualDamage });
+	EventSystem<DamageNumberEvent>::instance().sendEvent(DamageNumberEvent{ target, damageApplied });
 }
 
 void StatsSystem::onBuffEvent(const BuffEvent &event)
