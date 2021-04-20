@@ -66,7 +66,7 @@ void GameStateSystem::resetState()
 bool GameStateSystem::inGameState()
 {
 	return !isInMainScreen && !isInVictoryScreen && !isInDefeatScreen &&
-				 !isInStory && !isInAchievementsScreen && !isInCreditsScreen && !isInShopScreen;
+		  !isInStory && !isInAchievementsScreen && !isInCreditsScreen && !isInShopScreen;
 }
 
 bool GameStateSystem::hasLights()

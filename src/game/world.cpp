@@ -307,7 +307,7 @@ void WorldSystem::onKey(int key, int, int action, int mod)
 	//Don't let debug buttons work unless in game
 	if (!GameStateSystem::instance().inGameState()) {
 		// Skip story
-		if (GameStateSystem::instance().isInStory && action == GLFW_RELEASE && key == GLFW_KEY_SPACE)
+		if (GameStateSystem::instance().isInStory && !GameStateSystem::instance().isTransitioning && action == GLFW_RELEASE && key == GLFW_KEY_SPACE)
 		{
 			GameStateSystem::instance().beginTutorial();
 		}
